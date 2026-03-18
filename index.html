@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Logistical Points — Онлайн-школа математики</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b10;
+  --bg2:#0d1117;
+  --bg3:#111620;
+  --surface:#151c28;
+  --surface2:#1a2234;
+  --border:#1e2d45;
+  --accent:#2563ff;
+  --accent2:#38bdf8;
+  --gold:#f0b429;
+  --red:#ef4444;
+  --green:#22c55e;
+  --text:#e2e8f0;
+  --text2:#8899b4;
+  --text3:#4a6080;
+  --glow:rgba(37,99,255,0.18);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.6;overflow-x:hidden}
+
+/* ─── STARS BG ─── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%,#ffffff18 0%,transparent 100%),
+    radial-gradient(1px 1px at 42% 7%,#ffffff12 0%,transparent 100%),
+    radial-gradient(1px 1px at 73% 35%,#ffffff15 0%,transparent 100%),
+    radial-gradient(1px 1px at 88% 12%,#ffffff10 0%,transparent 100%),
+    radial-gradient(1px 1px at 5% 60%,#ffffff12 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 55%,#ffffff08 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 80%,#ffffff10 0%,transparent 100%),
+    radial-gradient(1px 1px at 92% 75%,#ffffff12 0%,transparent 100%),
+    radial-gradient(600px 600px at 20% 30%,rgba(37,99,255,0.04) 0%,transparent 70%),
+    radial-gradient(400px 400px at 80% 70%,rgba(56,189,248,0.03) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ─── MODAL OVERLAY ─── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  z-index:1000;align-items:center;justify-content:center;
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:2.5rem;width:90%;max-width:480px;
+  position:relative;
+  box-shadow:0 0 60px rgba(37,99,255,0.12);
+}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.5rem;margin-bottom:1.5rem;color:var(--text)}
+.modal-close{
+  position:absolute;top:1rem;right:1rem;
+  background:none;border:none;color:var(--text2);font-size:1.4rem;cursor:pointer;
+  transition:color .2s;
+}
+.modal-close:hover{color:var(--text)}
+.form-group{margin-bottom:1.2rem}
+.form-group label{display:block;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:.5rem}
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:.75rem 1rem;
+  color:var(--text);font-family:'Crimson Pro',serif;font-size:1rem;
+  outline:none;transition:border-color .25s,box-shadow .25s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(37,99,255,.15);
+}
+.form-group textarea{resize:vertical;min-height:100px}
+.btn{
+  display:inline-flex;align-items:center;gap:.6rem;
+  padding:.75rem 1.8rem;border-radius:8px;border:none;
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;letter-spacing:.08em;
+  cursor:pointer;transition:all .25s;text-decoration:none;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#1d4fd8;box-shadow:0 0 20px var(--glow)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-full{width:100%;justify-content:center}
+.modal-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.tab-btn{
+  flex:1;padding:.6rem;border-radius:7px;border:1px solid var(--border);
+  background:transparent;color:var(--text2);
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.05em;
+  cursor:pointer;transition:all .2s;
+}
+.tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 3rem;
+  background:rgba(8,11,16,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;
+  color:var(--text);text-decoration:none;
+  display:flex;align-items:center;gap:.7rem;
+}
+.nav-logo-icon{
+  width:34px;height:34px;background:var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;
+  color:#fff;
+}
+.nav-links{display:flex;align-items:center;gap:.3rem;list-style:none}
+.nav-links a{
+  padding:.5rem 1rem;border-radius:7px;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text2);text-decoration:none;
+  transition:color .2s,background .2s;
+}
+.nav-links a:hover{color:var(--text);background:var(--surface)}
+.nav-actions{display:flex;gap:.7rem;align-items:center}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:8rem 2rem 5rem;position:relative;z-index:1;
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(37,99,255,.12);border:1px solid rgba(37,99,255,.3);
+  border-radius:100px;padding:.4rem 1rem;
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--accent2);margin-bottom:2rem;
+  animation:fadeUp .7s .1s both;
+}
+.hero-tag::before{content:'◈';margin-right:.2rem}
+.hero-h1{
+  font-family:'Syne',sans-serif;font-size:clamp(3.2rem,8vw,7rem);
+  font-weight:800;line-height:1.0;letter-spacing:-.03em;
+  animation:fadeUp .8s .2s both;
+}
+.hero-h1 .blue{color:var(--accent)}
+.hero-h1 .cyan{color:var(--accent2)}
+.hero-desc{
+  font-size:1.2rem;font-weight:300;color:var(--text2);
+  max-width:580px;margin:1.5rem auto 0;
+  animation:fadeUp .8s .35s both;
+}
+.hero-actions{
+  display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;
+  margin-top:2.5rem;
+  animation:fadeUp .8s .5s both;
+}
+.hero-stats{
+  display:flex;gap:3rem;margin-top:4rem;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .8s .65s both;
+}
+.hero-stat{text-align:center}
+.hero-stat-num{
+  font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;
+  color:var(--text);
+}
+.hero-stat-num span{color:var(--accent)}
+.hero-stat-label{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--text3);
+  margin-top:.2rem;
+}
+.hero-scroll{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--text3);
+  animation:fadeUp .8s 1s both;
+}
+.scroll-line{
+  width:1px;height:40px;
+  background:linear-gradient(to bottom,var(--accent),transparent);
+  animation:scrollPulse 2s ease infinite;
+}
+
+/* ─── SECTION SHARED ─── */
+section{position:relative;z-index:1}
+.section-inner{max-width:1140px;margin:0 auto;padding:6rem 2rem}
+.section-label{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--accent);
+  margin-bottom:.8rem;
+}
+.section-title{
+  font-family:'Syne',sans-serif;font-size:clamp(2rem,4.5vw,3.2rem);
+  font-weight:800;line-height:1.1;letter-spacing:-.02em;
+  margin-bottom:1rem;
+}
+.section-title span{color:var(--accent2)}
+.section-sub{color:var(--text2);font-size:1.1rem;font-weight:300;max-width:560px}
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent);margin:0}
+
+/* ─── LEVELS ─── */
+.levels-section{background:var(--bg2)}
+.levels-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1.5rem;margin-top:3.5rem;
+}
+.level-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:2rem;
+  transition:transform .3s,border-color .3s,box-shadow .3s;
+  cursor:pointer;
+}
+.level-card:hover{
+  transform:translateY(-5px);
+  border-color:var(--accent);
+  box-shadow:0 10px 40px rgba(37,99,255,.12);
+}
+.level-icon{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;margin-bottom:1.2rem;
+}
+.level-card.primary .level-icon{background:rgba(37,99,255,.15)}
+.level-card.middle .level-icon{background:rgba(56,189,248,.12)}
+.level-card.high .level-icon{background:rgba(240,180,41,.1)}
+.level-card.olymp .level-icon{background:rgba(239,68,68,.1)}
+.level-name{
+  font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;
+  margin-bottom:.4rem;
+}
+.level-grades{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:.8rem;
+}
+.level-desc{color:var(--text2);font-size:.95rem;font-weight:300;margin-bottom:1.2rem}
+.level-topics{display:flex;flex-wrap:wrap;gap:.4rem}
+.topic-tag{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:5px;padding:.25rem .7rem;
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.05em;color:var(--text3);
+}
+
+/* ─── COURSES ─── */
+.courses-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:1.5rem;margin-top:3.5rem;
+}
+.course-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  transition:transform .3s,box-shadow .3s;
+}
+.course-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.course-cover{
+  height:140px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.course-cover-algebra{background:linear-gradient(135deg,#0f1e3d,#1a3a7c)}
+.course-cover-geometry{background:linear-gradient(135deg,#0d2518,#1a5c3a)}
+.course-cover-logic{background:linear-gradient(135deg,#2d1a0d,#7c4a1a)}
+.course-cover-olymp{background:linear-gradient(135deg,#2d0d1a,#7c1a4a)}
+.course-cover-exam{background:linear-gradient(135deg,#0d1a2d,#1a4a7c)}
+.course-cover-combo{background:linear-gradient(135deg,#1a1a0d,#5c5c1a)}
+.course-cover-symbol{
+  font-size:3.5rem;opacity:.25;
+  font-family:'Syne',sans-serif;font-weight:800;
+}
+.course-badge{
+  position:absolute;top:.8rem;right:.8rem;
+  background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:.2rem .6rem;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.badge-new{color:var(--green)}
+.badge-popular{color:var(--gold)}
+.course-body{padding:1.5rem}
+.course-level{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);
+  margin-bottom:.5rem;
+}
+.course-name{
+  font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;
+  margin-bottom:.5rem;line-height:1.25;
+}
+.course-desc{color:var(--text2);font-size:.9rem;font-weight:300;margin-bottom:1rem}
+.course-meta{
+  display:flex;gap:1rem;margin-bottom:1.2rem;
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  letter-spacing:.05em;color:var(--text3);
+}
+.course-meta span{display:flex;align-items:center;gap:.3rem}
+
+/* ─── HOW IT WORKS ─── */
+.how-section{background:var(--bg2)}
+.steps-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:2rem;margin-top:3.5rem;position:relative;
+}
+.step-card{text-align:center;padding:1.5rem}
+.step-num{
+  width:60px;height:60px;border-radius:50%;
+  border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 1.2rem;
+  font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;
+  color:var(--accent);
+  position:relative;
+}
+.step-num::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:1px solid rgba(37,99,255,.2);
+}
+.step-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.6rem}
+.step-desc{color:var(--text2);font-size:.9rem;font-weight:300}
+
+/* ─── ABOUT TEACHER ─── */
+.about-section{}
+.about-grid{
+  display:grid;grid-template-columns:1fr 2fr;
+  gap:4rem;align-items:center;margin-top:3rem;
+}
+.about-avatar{
+  aspect-ratio:1;border-radius:20px;
+  background:linear-gradient(135deg,var(--surface2),var(--bg3));
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;position:relative;overflow:hidden;
+}
+.about-avatar::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 40% 40%,rgba(37,99,255,.08),transparent 70%);
+}
+.avatar-icon{font-size:5rem;opacity:.6}
+.avatar-name{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  text-align:center;padding:0 1rem;
+}
+.avatar-title{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);
+  text-align:center;padding:0 1rem .5rem;
+}
+.about-content .section-title{margin-bottom:1rem}
+.about-content p{color:var(--text2);font-size:1rem;font-weight:300;margin-bottom:1rem}
+.about-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}
+.about-tag{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:7px;padding:.4rem 1rem;
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;
+  letter-spacing:.06em;color:var(--text2);
+}
+.about-tag.highlight{border-color:rgba(37,99,255,.4);color:var(--accent2);background:rgba(37,99,255,.08)}
+
+/* ─── STUDENT DASHBOARD (logged in state) ─── */
+.dashboard-section{background:var(--bg2);display:none}
+.dashboard-section.active{display:block}
+.dash-grid{
+  display:grid;grid-template-columns:260px 1fr;
+  gap:2rem;margin-top:2rem;min-height:500px;
+}
+.dash-sidebar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;
+}
+.dash-user{text-align:center;padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.dash-user-avatar{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;
+  margin:0 auto .8rem;color:#fff;
+}
+.dash-user-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.dash-user-grade{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--text3);
+  margin-top:.2rem;
+}
+.dash-nav{list-style:none}
+.dash-nav li+li{margin-top:.3rem}
+.dash-nav a{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.7rem .9rem;border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  letter-spacing:.06em;color:var(--text2);text-decoration:none;
+  transition:background .2s,color .2s;
+}
+.dash-nav a:hover,.dash-nav a.active{background:var(--surface2);color:var(--text)}
+.dash-nav a.active{border-left:3px solid var(--accent);padding-left:calc(.9rem - 3px)}
+.dash-main{display:flex;flex-direction:column;gap:1.5rem}
+.dash-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;
+}
+.dash-card-title{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;
+  margin-bottom:1.2rem;display:flex;align-items:center;
+  justify-content:space-between;
+}
+.homework-item{
+  display:flex;align-items:center;gap:1rem;
+  padding:.9rem 0;border-bottom:1px solid var(--border);
+}
+.homework-item:last-child{border-bottom:none;padding-bottom:0}
+.hw-status{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;
+}
+.hw-status.pending{background:var(--gold)}
+.hw-status.submitted{background:var(--green)}
+.hw-status.graded{background:var(--accent2)}
+.hw-status.overdue{background:var(--red)}
+.hw-info{flex:1}
+.hw-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600}
+.hw-meta{
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;
+  letter-spacing:.06em;color:var(--text3);margin-top:.2rem;
+}
+.hw-action .btn{padding:.4rem 1rem;font-size:.65rem}
+.progress-row{margin-bottom:1rem}
+.progress-label{
+  display:flex;justify-content:space-between;
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  letter-spacing:.06em;color:var(--text2);margin-bottom:.4rem;
+}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--accent),var(--accent2))}
+
+/* ─── HW SUBMIT FORM ─── */
+.hw-form{display:none}
+.hw-form.visible{display:block}
+.upload-area{
+  border:2px dashed var(--border);border-radius:10px;
+  padding:2rem;text-align:center;
+  transition:border-color .25s;cursor:pointer;
+}
+.upload-area:hover{border-color:var(--accent)}
+.upload-area p{color:var(--text3);font-size:.9rem;margin-top:.5rem}
+
+/* ─── FOOTER ─── */
+footer{
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:3rem;display:flex;flex-wrap:wrap;
+  align-items:center;justify-content:space-between;gap:1.5rem;
+  position:relative;z-index:1;
+}
+.footer-logo{
+  font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;
+  color:var(--text);display:flex;align-items:center;gap:.6rem;
+}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links a{
+  font-family:'JetBrains Mono',monospace;font-size:.65rem;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text3);text-decoration:none;transition:color .2s;
+}
+.footer-links a:hover{color:var(--accent2)}
+.footer-copy{
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;
+  letter-spacing:.08em;color:var(--text3);
+}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;z-index:2000;
+  background:var(--surface);border:1px solid var(--green);
+  border-radius:10px;padding:1rem 1.5rem;
+  font-family:'JetBrains Mono',monospace;font-size:.72rem;
+  letter-spacing:.06em;color:var(--green);
+  display:none;align-items:center;gap:.6rem;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);
+}
+.toast.active{display:flex}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scrollPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}.reveal-d4{transition-delay:.4s}
+
+@media(max-width:768px){
+  nav{padding:1rem 1.2rem}
+  .nav-links{display:none}
+  .about-grid{grid-template-columns:1fr}
+  .dash-grid{grid-template-columns:1fr}
+  .hero-stats{gap:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ <span id="toastMsg">Операция выполнена</span></div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+    <h2>Вход в аккаунт</h2>
+    <div class="modal-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Войти</button>
+      <button class="tab-btn" onclick="switchTab('register')">Регистрация</button>
+    </div>
+    <div id="tabLogin" class="tab-content active">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="student@example.com" id="loginEmail"/>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" placeholder="••••••••" id="loginPass"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Войти →</button>
+    </div>
+    <div id="tabRegister" class="tab-content">
+      <div class="form-group">
+        <label>Имя и фамилия</label>
+        <input type="text" placeholder="Александр Иванов" id="regName"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="student@example.com" id="regEmail"/>
+      </div>
+      <div class="form-group">
+        <label>Класс</label>
+        <select id="regGrade">
+          <option>1–4 класс (Начальная школа)</option>
+          <option>5–6 класс</option>
+          <option>7–8 класс</option>
+          <option>9 класс (ОГЭ)</option>
+          <option>10–11 класс (ЕГЭ)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" placeholder="Минимум 8 символов" id="regPass"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Создать аккаунт →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HW SUBMIT MODAL -->
+<div class="modal-overlay" id="hwModal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('hwModal')">✕</button>
+    <h2>Сдать домашнее задание</h2>
+    <div class="form-group">
+      <label>Задание</label>
+      <input type="text" id="hwTitle" placeholder="Название задания..." readonly/>
+    </div>
+    <div class="form-group">
+      <label>Ваше решение (текст)</label>
+      <textarea placeholder="Напишите ваше решение, ответы или ход рассуждений..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Прикрепить файл (фото/PDF)</label>
+      <div class="upload-area" onclick="showToast('Загрузка файлов будет доступна после подключения к серверу')">
+        <div style="font-size:2rem">📎</div>
+        <p>Нажмите для выбора файла или перетащите сюда</p>
+        <p style="font-size:.8rem;color:var(--text3)">PNG, JPG, PDF до 10 МБ</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:.5rem">
+      <button class="btn btn-primary" style="flex:1" onclick="submitHomework()">Отправить на проверку →</button>
+      <button class="btn btn-outline" onclick="closeModal('hwModal')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">LP</div>
+    Logistical Points
+  </a>
+  <ul class="nav-links">
+    <li><a href="#levels">Уровни</a></li>
+    <li><a href="#courses">Курсы</a></li>
+    <li><a href="#how">Как учиться</a></li>
+    <li><a href="#about">Преподаватель</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions">
+    <button class="btn btn-outline" onclick="openModal('authModal')">Войти</button>
+    <button class="btn btn-primary" onclick="openModal('authModal')">Начать учиться →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Онлайн-школа математики</div>
+  <h1 class="hero-h1">
+    <span class="blue">Logistical</span><br>
+    <span class="cyan">Points</span>
+  </h1>
+  <p class="hero-desc">Подготовка к олимпиадам и экзаменам по математике для школьников 1–11 классов. Индивидуальный подход и системная работа.</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary" onclick="openModal('authModal')">Начать бесплатно →</button>
+    <a href="#courses" class="btn btn-outline">Смотреть курсы</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">4<span>+</span></div>
+      <div class="hero-stat-label">Уровня обучения</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">120<span>+</span></div>
+      <div class="hero-stat-label">Заданий в базе</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">6</div>
+      <div class="hero-stat-label">Курсов</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">ЕГЭ<span>/</span>ОГЭ</div>
+      <div class="hero-stat-label">Подготовка</div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Листайте вниз
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LEVELS -->
+<section class="levels-section" id="levels">
+  <div class="section-inner">
+    <p class="section-label reveal">Уровни обучения</p>
+    <h2 class="section-title reveal reveal-d1">Для каждого <span>класса</span></h2>
+    <p class="section-sub reveal reveal-d2">Программа адаптирована под возраст, уровень знаний и цели — будь то олимпиада или экзамен.</p>
+    <div class="levels-grid">
+      <div class="level-card primary reveal">
+        <div class="level-icon">🔢</div>
+        <div class="level-name">Начальная школа</div>
+        <div class="level-grades">1–4 класс</div>
+        <div class="level-desc">Основы счёта, логические задачи, занимательная математика. Готовим к первым олимпиадам.</div>
+        <div class="level-topics">
+          <span class="topic-tag">Арифметика</span>
+          <span class="topic-tag">Логика</span>
+          <span class="topic-tag">Задачи на смекалку</span>
+        </div>
+      </div>
+      <div class="level-card middle reveal reveal-d1">
+        <div class="level-icon">📐</div>
+        <div class="level-name">Средняя школа</div>
+        <div class="level-grades">5–8 класс</div>
+        <div class="level-desc">Алгебра, геометрия, теория чисел. Олимпиадные задачи городского уровня.</div>
+        <div class="level-topics">
+          <span class="topic-tag">Алгебра</span>
+          <span class="topic-tag">Геометрия</span>
+          <span class="topic-tag">Теория чисел</span>
+          <span class="topic-tag">Комбинаторика</span>
+        </div>
+      </div>
+      <div class="level-card high reveal reveal-d2">
+        <div class="level-icon">📊</div>
+        <div class="level-name">ОГЭ / 9 класс</div>
+        <div class="level-grades">9 класс</div>
+        <div class="level-desc">Полная подготовка к ОГЭ по математике. Все темы, форматы задач, тренировочные варианты.</div>
+        <div class="level-topics">
+          <span class="topic-tag">Все темы ОГЭ</span>
+          <span class="topic-tag">Тренировочные варианты</span>
+          <span class="topic-tag">Разбор ошибок</span>
+        </div>
+      </div>
+      <div class="level-card olymp reveal reveal-d3">
+        <div class="level-icon">🏆</div>
+        <div class="level-name">ЕГЭ / Олимпиады</div>
+        <div class="level-grades">10–11 класс</div>
+        <div class="level-desc">Углублённая подготовка к ЕГЭ профильный уровень, Всероссийская олимпиада, олимпиады вузов.</div>
+        <div class="level-topics">
+          <span class="topic-tag">ЕГЭ профиль</span>
+          <span class="topic-tag">ВсОШ</span>
+          <span class="topic-tag">Олимпиады вузов</span>
+          <span class="topic-tag">Анализ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- COURSES -->
+<section id="courses">
+  <div class="section-inner">
+    <p class="section-label reveal">Курсы</p>
+    <h2 class="section-title reveal reveal-d1">Все <span>направления</span></h2>
+    <p class="section-sub reveal reveal-d2">Выберите курс под свои цели. Каждый включает теорию, задачи и домашние задания с проверкой.</p>
+    <div class="courses-grid">
+      <div class="course-card reveal">
+        <div class="course-cover course-cover-algebra">
+          <div class="course-cover-symbol">∑</div>
+          <div class="course-badge badge-popular">★ Топ</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">5–11 класс</div>
+          <div class="course-name">Алгебра с нуля до олимпиады</div>
+          <div class="course-desc">Уравнения, неравенства, прогрессии, многочлены. От базового до продвинутого уровня.</div>
+          <div class="course-meta">
+            <span>📚 48 уроков</span>
+            <span>📝 36 заданий</span>
+            <span>⏱ 4 месяца</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+      <div class="course-card reveal reveal-d1">
+        <div class="course-cover course-cover-geometry">
+          <div class="course-cover-symbol">△</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">7–11 класс</div>
+          <div class="course-name">Геометрия: планиметрия и стереометрия</div>
+          <div class="course-desc">Треугольники, окружности, многоугольники, тела вращения. Олимпиадные задачи на доказательство.</div>
+          <div class="course-meta">
+            <span>📚 40 уроков</span>
+            <span>📝 30 заданий</span>
+            <span>⏱ 3 месяца</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+      <div class="course-card reveal reveal-d2">
+        <div class="course-cover course-cover-logic">
+          <div class="course-cover-symbol">∀</div>
+          <div class="course-badge badge-new">Новое</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">1–6 класс</div>
+          <div class="course-name">Логика и задачи на смекалку</div>
+          <div class="course-desc">Логические головоломки, занимательные задачи, развитие математического мышления.</div>
+          <div class="course-meta">
+            <span>📚 24 урока</span>
+            <span>📝 48 задач</span>
+            <span>⏱ 2 месяца</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+      <div class="course-card reveal">
+        <div class="course-cover course-cover-olymp">
+          <div class="course-cover-symbol">🏆</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">8–11 класс</div>
+          <div class="course-name">Олимпиадная математика</div>
+          <div class="course-desc">Интенсивная подготовка к ВсОШ, Перельману, Эйлеру и другим олимпиадам.</div>
+          <div class="course-meta">
+            <span>📚 60 уроков</span>
+            <span>📝 80 задач</span>
+            <span>⏱ 5 месяцев</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+      <div class="course-card reveal reveal-d1">
+        <div class="course-cover course-cover-exam">
+          <div class="course-cover-symbol">✓</div>
+          <div class="course-badge badge-popular">★ Топ</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">9 и 11 класс</div>
+          <div class="course-name">Подготовка к ОГЭ и ЕГЭ</div>
+          <div class="course-desc">Полный курс по программе экзамена. Тренировочные варианты, разбор типичных ошибок.</div>
+          <div class="course-meta">
+            <span>📚 52 урока</span>
+            <span>📝 20 вариантов</span>
+            <span>⏱ 4 месяца</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+      <div class="course-card reveal reveal-d2">
+        <div class="course-cover course-cover-combo">
+          <div class="course-cover-symbol">C(n,k)</div>
+          <div class="course-badge badge-new">Новое</div>
+        </div>
+        <div class="course-body">
+          <div class="course-level">7–11 класс</div>
+          <div class="course-name">Комбинаторика и теория вероятностей</div>
+          <div class="course-desc">Перестановки, сочетания, вероятность, математическое ожидание. Задачи ЕГЭ и олимпиад.</div>
+          <div class="course-meta">
+            <span>📚 28 уроков</span>
+            <span>📝 40 задач</span>
+            <span>⏱ 2.5 месяца</span>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('authModal')">Записаться →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <p class="section-label reveal">Как это работает</p>
+    <h2 class="section-title reveal reveal-d1">Простой <span>процесс</span> обучения</h2>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">Регистрация</div>
+        <div class="step-desc">Создайте аккаунт, укажите класс и выберите интересующий курс</div>
+      </div>
+      <div class="step-card reveal reveal-d1">
+        <div class="step-num">2</div>
+        <div class="step-title">Изучение теории</div>
+        <div class="step-desc">Читайте материалы, решайте примеры, смотрите разборы задач</div>
+      </div>
+      <div class="step-card reveal reveal-d2">
+        <div class="step-num">3</div>
+        <div class="step-title">Домашнее задание</div>
+        <div class="step-desc">Выполните задание и отправьте на проверку через личный кабинет</div>
+      </div>
+      <div class="step-card reveal reveal-d3">
+        <div class="step-num">4</div>
+        <div class="step-title">Проверка и оценка</div>
+        <div class="step-desc">Преподаватель проверяет работу и даёт подробную обратную связь</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STUDENT DASHBOARD (shown after login) -->
+<section class="dashboard-section" id="dashboardSection">
+  <div class="section-inner">
+    <p class="section-label">Личный кабинет</p>
+    <h2 class="section-title">Мой <span>дашборд</span></h2>
+    <div class="dash-grid">
+      <div class="dash-sidebar">
+        <div class="dash-user">
+          <div class="dash-user-avatar" id="dashAvatar">А</div>
+          <div class="dash-user-name" id="dashName">Ученик</div>
+          <div class="dash-user-grade" id="dashGrade">9 класс</div>
+        </div>
+        <ul class="dash-nav">
+          <li><a href="#" class="active" onclick="return false">📊 Обзор</a></li>
+          <li><a href="#" onclick="return false">📚 Мои курсы</a></li>
+          <li><a href="#" onclick="showHWSection();return false">📝 Домашние задания</a></li>
+          <li><a href="#" onclick="return false">📈 Прогресс</a></li>
+          <li><a href="#" onclick="return false">🏆 Достижения</a></li>
+          <li><a href="#" onclick="return false">⚙️ Настройки</a></li>
+          <li><a href="#" onclick="doLogout();return false" style="color:var(--red)">🚪 Выйти</a></li>
+        </ul>
+      </div>
+      <div class="dash-main">
+        <!-- Overview cards -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+          <div class="dash-card" style="text-align:center">
+            <div style="font-size:2rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--accent)">3</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem">Активных курса</div>
+          </div>
+          <div class="dash-card" style="text-align:center">
+            <div style="font-size:2rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--gold)">2</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem">Задания на сдачу</div>
+          </div>
+          <div class="dash-card" style="text-align:center">
+            <div style="font-size:2rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--green)">87<span style="font-size:1rem">%</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem">Средний балл</div>
+          </div>
+        </div>
+
+        <!-- Homework list -->
+        <div class="dash-card" id="hwListCard">
+          <div class="dash-card-title">
+            📝 Домашние задания
+            <button class="btn btn-outline" style="font-size:.62rem;padding:.35rem .8rem" onclick="showHWSection()">Все задания</button>
+          </div>
+          <div class="homework-item">
+            <div class="hw-status pending"></div>
+            <div class="hw-info">
+              <div class="hw-title">Квадратные уравнения — §3</div>
+              <div class="hw-meta">Срок: 22 марта · Алгебра 9кл</div>
+            </div>
+            <div class="hw-action"><button class="btn btn-primary" onclick="openHWModal('Квадратные уравнения — §3')">Сдать</button></div>
+          </div>
+          <div class="homework-item">
+            <div class="hw-status submitted"></div>
+            <div class="hw-info">
+              <div class="hw-title">Теорема Пифагора — задачи 1–10</div>
+              <div class="hw-meta">Сдано · Ожидает проверки · Геометрия</div>
+            </div>
+            <div class="hw-action"><button class="btn btn-outline" style="cursor:default">Сдано ✓</button></div>
+          </div>
+          <div class="homework-item">
+            <div class="hw-status graded"></div>
+            <div class="hw-info">
+              <div class="hw-title">Комбинаторика — подсчёт</div>
+              <div class="hw-meta">Оценка: 9/10 · Хорошая работа!</div>
+            </div>
+            <div class="hw-action"><button class="btn btn-outline">Посмотреть</button></div>
+          </div>
+          <div class="homework-item">
+            <div class="hw-status overdue"></div>
+            <div class="hw-info">
+              <div class="hw-title">Тригонометрия — базовые формулы</div>
+              <div class="hw-meta">Просрочено · 15 марта</div>
+            </div>
+            <div class="hw-action"><button class="btn btn-primary" onclick="openHWModal('Тригонометрия — базовые формулы')">Сдать</button></div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="dash-card">
+          <div class="dash-card-title">📈 Прогресс по курсам</div>
+          <div class="progress-row">
+            <div class="progress-label"><span>Алгебра 9кл</span><span>67%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label"><span>Геометрия</span><span>42%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:42%"></div></div>
+          </div>
+          <div class="progress-row">
+            <div class="progress-label"><span>Подготовка к ОГЭ</span><span>88%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <p class="section-label reveal">Преподаватель</p>
+    <div class="about-grid">
+      <div class="about-avatar reveal">
+        <div class="avatar-icon">👨‍🎓</div>
+        <div class="avatar-name">Егоров Степан Евгеньевич</div>
+        <div class="avatar-title">Преподаватель математики</div>
+      </div>
+      <div class="about-content reveal reveal-d1">
+        <h2 class="section-title">Ваш <span>преподаватель</span></h2>
+        <p>Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Я обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong> — одном из ведущих технических вузов России.</p>
+        <p>Я создал Logistical Points, чтобы сделать качественную подготовку к олимпиадам и экзаменам доступной для всех школьников. Знаю на собственном опыте, как важна системная работа и хорошая обратная связь при изучении математики.</p>
+        <p>Мой подход — объяснять сложное просто, работать над пониманием, а не механическим запоминанием формул. Каждое домашнее задание проверяю лично с подробными комментариями.</p>
+        <div class="about-tags">
+          <span class="about-tag highlight">СПбГЭТУ «ЛЭТИ»</span>
+          <span class="about-tag">Олимпиадная математика</span>
+          <span class="about-tag">Подготовка к ЕГЭ/ОГЭ</span>
+          <span class="about-tag">1–11 класс</span>
+          <span class="about-tag">Индивидуальный подход</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="nav-logo-icon">LP</div>
+    Logistical Points
+  </div>
+  <div class="footer-links">
+    <a href="#levels">Уровни</a>
+    <a href="#courses">Курсы</a>
+    <a href="#about">Преподаватель</a>
+    <a href="admin.html">Админ-панель</a>
+  </div>
+  <div class="footer-copy">© 2025 Logistical Points · Егоров С.Е.</div>
+</footer>
+
+<script>
+// ─── UTILS ───
+function openModal(id){document.getElementById(id).classList.add('active')}
+function closeModal(id){document.getElementById(id).classList.remove('active')}
+function showToast(msg,duration=3000){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('active');
+  setTimeout(()=>t.classList.remove('active'),duration);
+}
+
+// ─── TABS ───
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===(tab==='login'?0:1)));
+  document.getElementById('tabLogin').classList.toggle('active',tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active',tab==='register');
+}
+
+// ─── AUTH ───
+let currentUser=null;
+function doLogin(){
+  const email=document.getElementById('loginEmail').value;
+  if(!email){showToast('Введите email');return}
+  currentUser={name:'Ученик',email,grade:'9 класс',initial:'У'};
+  if(email.includes('admin')){window.location.href='admin.html';return}
+  afterLogin();
+}
+function doRegister(){
+  const name=document.getElementById('regName').value;
+  const grade=document.getElementById('regGrade').value;
+  if(!name){showToast('Введите имя');return}
+  currentUser={name,grade,initial:name[0].toUpperCase()};
+  afterLogin();
+}
+function afterLogin(){
+  closeModal('authModal');
+  document.getElementById('dashAvatar').textContent=currentUser.initial;
+  document.getElementById('dashName').textContent=currentUser.name;
+  document.getElementById('dashGrade').textContent=currentUser.grade||'';
+  document.getElementById('dashboardSection').classList.add('active');
+  document.getElementById('dashboardSection').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('navActions').innerHTML=
+    `<span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2)">${currentUser.name}</span>
+     <button class="btn btn-outline" onclick="doLogout()">Выйти</button>`;
+  showToast('Добро пожаловать, '+currentUser.name+'!');
+}
+function doLogout(){
+  currentUser=null;
+  document.getElementById('dashboardSection').classList.remove('active');
+  document.getElementById('navActions').innerHTML=
+    `<button class="btn btn-outline" onclick="openModal('authModal')">Войти</button>
+     <button class="btn btn-primary" onclick="openModal('authModal')">Начать учиться →</button>`;
+  showToast('Вы вышли из аккаунта');
+}
+
+// ─── HW ───
+function openHWModal(title){
+  document.getElementById('hwTitle').value=title;
+  openModal('hwModal');
+}
+function submitHomework(){
+  closeModal('hwModal');
+  showToast('Домашнее задание отправлено на проверку!');
+}
+function showHWSection(){
+  document.getElementById('hwListCard').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── REVEAL ON SCROLL ───
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ─── CLOSE MODAL ON OVERLAY CLICK ───
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active')});
+});
+</script>
+</body>
+</html>
