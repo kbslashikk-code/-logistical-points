@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Админ-панель — Logistical Points</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080b10;--bg2:#0d1117;--surface:#151c28;--surface2:#1a2234;
+  --border:#1e2d45;--accent:#2563ff;--accent2:#38bdf8;
+  --gold:#f0b429;--red:#ef4444;--green:#22c55e;
+  --text:#e2e8f0;--text2:#8899b4;--text3:#4a6080;
+}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;font-size:16px;min-height:100vh}
+#loginView{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.5rem;width:100%;max-width:400px}
+.login-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:.3rem;display:flex;align-items:center;gap:.6rem}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:#fff}
+.login-sub{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:2rem}
+#adminView{display:none;min-height:100vh}
+.admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:1.2rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:.55rem;padding:.5rem .5rem 1.2rem;border-bottom:1px solid var(--border);margin-bottom:.5rem}
+.sn-item{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.05em;color:var(--text2);cursor:pointer;transition:all .18s;border-left:3px solid transparent;margin-bottom:.08rem}
+.sn-item:hover{background:var(--surface);color:var(--text)}
+.sn-item.active{background:var(--surface);color:var(--text);border-left-color:var(--accent)}
+.sn-item.danger{color:var(--red)}
+.sn-section{font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);padding:.7rem .75rem .3rem;margin-top:.3rem}
+.main-content{padding:2rem;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:1.8rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.page-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.4rem}
+.page-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1.1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem;margin-bottom:1.2rem}
+.card-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center}
+.stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(--border)}
+.tbl td{padding:.7rem .8rem;border-bottom:1px solid var(--border);font-size:.9rem;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface2)}
+.badge{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.07em;text-transform:uppercase}
+.badge-pending{background:rgba(240,180,41,.12);color:var(--gold);border:1px solid rgba(240,180,41,.25)}
+.badge-submitted{background:rgba(56,189,248,.1);color:var(--accent2);border:1px solid rgba(56,189,248,.2)}
+.badge-graded{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.badge-active{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:.4rem}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:.95rem;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group input::placeholder,.form-group textarea::placeholder{color:var(--text3)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-error{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--red);margin-top:.3rem;display:none}
+.form-error.show{display:block}
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.6rem 1.4rem;border-radius:8px;border:none;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover:not(:disabled){background:#1d4fd8}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--text2);border:none}.btn-ghost:hover{color:var(--text);background:var(--surface2)}
+.btn-success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:var(--green)}.btn-success:hover{background:rgba(34,197,94,.2)}
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red)}.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-sm{padding:.38rem .8rem;font-size:.58rem}.btn-full{width:100%}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:560px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--text2);cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:1.1rem}
+.modal-close:hover{background:var(--surface2);color:var(--text)}
+.modal h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:1.3rem}
+.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem}
+.toast{background:var(--surface);border-radius:10px;padding:.75rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;display:flex;align-items:center;gap:.55rem;box-shadow:0 8px 30px rgba(0,0,0,.5);transform:translateX(120%);transition:transform .3s;max-width:300px}
+.toast.show{transform:translateX(0)}
+.toast.success{border:1px solid rgba(34,197,94,.35);color:var(--green)}
+.toast.error{border:1px solid rgba(239,68,68,.35);color:var(--red)}
+.toast.info{border:1px solid rgba(37,99,255,.35);color:var(--accent2)}
+.hw-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem}
+.hw-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+.hw-card-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700}
+.hw-card-meta{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;color:var(--text3);margin-top:.2rem}
+.hw-solution{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.9rem;font-size:.88rem;color:var(--text2);white-space:pre-wrap}
+.q-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1.1rem;margin-bottom:.8rem;position:relative}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem}
+.q-remove{position:absolute;top:.7rem;right:.7rem;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem;padding:.2rem .4rem;border-radius:5px}
+.q-remove:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.opt-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}
+.opt-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:.38rem .7rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:.88rem;outline:none}
+.opt-input:focus{border-color:var(--accent)}
+.opt-radio{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer}
+.lesson-editor{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1rem;font-family:'Crimson Pro',serif;font-size:.95rem;color:var(--text);min-height:200px;outline:none;line-height:1.7;white-space:pre-wrap}
+.lesson-editor:focus{border-color:var(--accent)}
+.info-box{background:rgba(37,99,255,.06);border:1px solid rgba(37,99,255,.2);border-radius:9px;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--accent2);margin-bottom:1rem}
+.empty-state{text-align:center;padding:3rem;color:var(--text3)}
+.empty-icon{font-size:2.5rem;margin-bottom:.8rem}
+.empty-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--text2)}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+@media(max-width:768px){.admin-layout{grid-template-columns:1fr}.sidebar{display:none}}
+</style>
+</head>
+<body>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="login-box">
+    <div class="login-logo"><div class="logo-icon">LP</div>Logistical Points</div>
+    <div class="login-sub">Административная панель</div>
+    <div class="form-group"><label>Email</label><input type="email" id="aEmail" placeholder="your@email.com"/><div class="form-error" id="aErr"></div></div>
+    <div class="form-group"><label>Пароль</label><input type="password" id="aPass" placeholder="••••••••"/></div>
+    <button class="btn btn-primary btn-full" id="aBtn" onclick="adminLogin()">Войти →</button>
+  </div>
+</div>
+
+<!-- GRADE MODAL -->
+<div class="modal-overlay" id="gradeModal">
+  <div class="modal" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('gradeModal')">✕</button>
+    <h3>Проверить домашнее задание</h3>
+    <div class="form-group"><label>Оценка (1–10)</label><input type="number" id="gradeVal" min="1" max="10" placeholder="5"/></div>
+    <div class="form-group"><label>Комментарий для ученика</label><textarea id="gradeFeedback" placeholder="Молодец! Задание выполнено верно…"></textarea></div>
+    <div style="display:flex;gap:.7rem">
+      <button class="btn btn-success" style="flex:1" onclick="submitGrade('graded')">✓ Принять</button>
+      <button class="btn btn-danger" style="flex:1" onclick="submitGrade('returned')">↩ Вернуть</button>
+      <button class="btn btn-outline" onclick="closeModal('gradeModal')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD HW MODAL -->
+<div class="modal-overlay" id="addHWModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('addHWModal')">✕</button>
+    <h3>Добавить домашнее задание</h3>
+    <div class="form-group"><label>Заголовок</label><input type="text" id="hwTitle" placeholder="Задание 1: Квадратные уравнения"/></div>
+    <div class="form-group"><label>Описание / условие</label><textarea id="hwDesc" placeholder="Решить задачи 1–5…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Курс</label><select id="hwCourse"><option value="">Выбрать</option></select></div>
+      <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDue"/></div>
+    </div>
+    <div class="form-group"><label>Ученик (email или «all»)</label><input type="text" id="hwStudent" placeholder="all — всем ученикам"/></div>
+    <button class="btn btn-primary btn-full" onclick="addHW()">Добавить →</button>
+  </div>
+</div>
+
+<!-- TEST MODAL -->
+<div class="modal-overlay" id="testModal">
+  <div class="modal" style="max-width:700px">
+    <button class="modal-close" onclick="closeModal('testModal')">✕</button>
+    <h3 id="testModalTitle">Создать тест</h3>
+    <div class="form-group"><label>Название теста</label><input type="text" id="testName" placeholder="Тест: Квадратные уравнения"/></div>
+    <div class="form-group"><label>ID теста (латиница, без пробелов)</label><input type="text" id="testIdField" placeholder="t_algebra_c2"/></div>
+    <div class="divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)">Вопросы</div>
+      <button class="btn btn-outline btn-sm" onclick="addQuestion()">+ Вопрос</button>
+    </div>
+    <div id="questionsContainer"></div>
+    <div class="divider"></div>
+    <button class="btn btn-primary btn-full" onclick="saveTest()">Сохранить тест →</button>
+  </div>
+</div>
+
+<!-- LESSON MODAL -->
+<div class="modal-overlay" id="lessonModal">
+  <div class="modal" style="max-width:700px">
+    <button class="modal-close" onclick="closeModal('lessonModal')">✕</button>
+    <h3 id="lessonModalTitle">Редактировать урок</h3>
+    <div class="form-group"><label>Название урока</label><input type="text" id="lessonTitle"/></div>
+    <div class="form-group"><label>Содержание урока</label><div contenteditable="true" class="lesson-editor" id="lessonContent"></div></div>
+    <div class="info-box">💡 Содержание отображается ученику при открытии урока.</div>
+    <button class="btn btn-primary btn-full" onclick="saveLesson()">Сохранить →</button>
+  </div>
+</div>
+
+<!-- ANNOUNCE MODAL -->
+<div class="modal-overlay" id="announceModal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('announceModal')">✕</button>
+    <h3>Новое объявление</h3>
+    <div class="form-group"><label>Заголовок</label><input type="text" id="annTitle" placeholder="Изменение расписания…"/></div>
+    <div class="form-group"><label>Текст</label><textarea id="annBody" placeholder="Дорогие ученики…"></textarea></div>
+    <div class="form-group"><label>Тип</label><select id="annType"><option value="info">Информация</option><option value="warning">Внимание</option><option value="success">Поздравление</option></select></div>
+    <button class="btn btn-primary btn-full" onclick="addAnnouncement()">Опубликовать →</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminView">
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo"><div class="logo-icon">LP</div>Admin</div>
+      <div class="sn-section">Обзор</div>
+      <div class="sn-item active" onclick="showPage('dashboard',this)">📊 Дашборд</div>
+      <div class="sn-section">Учёба</div>
+      <div class="sn-item" onclick="showPage('homework',this)">📝 Домашние задания</div>
+      <div class="sn-item" onclick="showPage('tests',this)">📋 Тесты</div>
+      <div class="sn-item" onclick="showPage('lessons',this)">📄 Уроки</div>
+      <div class="sn-section">Пользователи</div>
+      <div class="sn-item" onclick="showPage('students',this)">👥 Ученики</div>
+      <div class="sn-section">Прочее</div>
+      <div class="sn-item" onclick="showPage('announcements',this)">📢 Объявления</div>
+      <div class="sn-item" onclick="showPage('analytics',this)">📈 Аналитика</div>
+      <div style="flex:1"></div>
+      <div class="divider"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);padding:.4rem .75rem" id="adminEmail"></div>
+      <div class="sn-item danger" onclick="adminLogout()">🚪 Выйти</div>
+    </aside>
+    <main class="main-content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header"><div><div class="page-label">Обзор</div><div class="page-title">Дашборд</div></div></div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-val" id="ds-students" style="color:var(--accent)">…</div><div class="stat-lbl">Учеников</div></div>
+          <div class="stat-card"><div class="stat-val" id="ds-hw" style="color:var(--gold)">…</div><div class="stat-lbl">ДЗ на проверке</div></div>
+          <div class="stat-card"><div class="stat-val" id="ds-tests" style="color:var(--green)">…</div><div class="stat-lbl">Тестов сдано</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--accent2)">6</div><div class="stat-lbl">Курсов</div></div>
+        </div>
+        <div class="card"><div class="card-title">📝 ДЗ на проверке</div><div id="dash-hw-preview"></div></div>
+        <div class="card"><div class="card-title">👥 Ученики</div><div id="dash-students-preview"></div></div>
+      </div>
+
+      <!-- HOMEWORK -->
+      <div class="page" id="page-homework">
+        <div class="page-header">
+          <div><div class="page-label">Управление</div><div class="page-title">Домашние задания</div></div>
+          <button class="btn btn-primary" onclick="openModal('addHWModal');fillHWSelect()">+ Добавить ДЗ</button>
+        </div>
+        <div class="card" style="padding:.5rem 1rem">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;padding:.5rem 0">
+            <button class="btn btn-primary btn-sm" id="hwf-all" onclick="filterHW('all',this)">Все</button>
+            <button class="btn btn-outline btn-sm" id="hwf-submitted" onclick="filterHW('submitted',this)">На проверке</button>
+            <button class="btn btn-outline btn-sm" id="hwf-pending" onclick="filterHW('pending',this)">Ожидают</button>
+            <button class="btn btn-outline btn-sm" id="hwf-graded" onclick="filterHW('graded',this)">Проверены</button>
+          </div>
+        </div>
+        <div id="hw-list"></div>
+      </div>
+
+      <!-- TESTS -->
+      <div class="page" id="page-tests">
+        <div class="page-header">
+          <div><div class="page-label">Управление</div><div class="page-title">Тесты</div></div>
+          <button class="btn btn-primary" onclick="openTestBuilder()">+ Создать тест</button>
+        </div>
+        <div class="info-box">💡 Тест привязывается к уроку по ID. Например урок с testId=<strong>t_algebra_c2</strong> — создайте тест с таким же ID.</div>
+        <div id="tests-list"></div>
+      </div>
+
+      <!-- LESSONS -->
+      <div class="page" id="page-lessons">
+        <div class="page-header"><div><div class="page-label">Управление</div><div class="page-title">Уроки</div></div></div>
+        <div class="info-box">💡 Нажмите «Редактировать» рядом с уроком чтобы добавить содержание.</div>
+        <div id="lessons-list"></div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="page" id="page-students">
+        <div class="page-header"><div><div class="page-label">Управление</div><div class="page-title">Ученики</div></div></div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>Имя</th><th>Email</th><th>Класс</th><th>Курсов</th><th>Уроков</th></tr></thead>
+            <tbody id="students-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ANNOUNCEMENTS -->
+      <div class="page" id="page-announcements">
+        <div class="page-header">
+          <div><div class="page-label">Управление</div><div class="page-title">Объявления</div></div>
+          <button class="btn btn-primary" onclick="openModal('announceModal')">+ Объявление</button>
+        </div>
+        <div id="ann-list"></div>
+      </div>
+
+      <!-- ANALYTICS -->
+      <div class="page" id="page-analytics">
+        <div class="page-header"><div><div class="page-label">Статистика</div><div class="page-title">Аналитика</div></div></div>
+        <div class="stat-grid" id="analytics-stats"></div>
+        <div class="card">
+          <div class="card-title">Результаты тестов</div>
+          <table class="tbl"><thead><tr><th>Ученик</th><th>Курс</th><th>Тест</th><th>Результат</th></tr></thead><tbody id="analytics-tbody"></tbody></table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,addDoc,getDocs,updateDoc,deleteDoc,collection,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app=initializeApp({apiKey:"AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
+const auth=getAuth(app),db=getFirestore(app);
+
+const COURSES=[
+  {id:'algebra',name:'Алгебра',chapters:[
+    {id:'c1',title:'Числа и выражения',lessons:[{id:'l1',title:'Натуральные числа'},{id:'l2',title:'Целые числа'},{id:'l3',title:'Степени и корни'},{id:'l4',title:'Тест',type:'test',testId:'t_algebra_c1'}]},
+    {id:'c2',title:'Уравнения',lessons:[{id:'l5',title:'Линейные уравнения'},{id:'l6',title:'Системы уравнений'},{id:'l7',title:'Квадратные уравнения'},{id:'l8',title:'Неравенства'},{id:'l9',title:'Тест',type:'test',testId:'t_algebra_c2'}]},
+    {id:'c3',title:'Функции',lessons:[{id:'l10',title:'Понятие функции'},{id:'l11',title:'Линейная функция'},{id:'l12',title:'Квадратичная функция'},{id:'l13',title:'Степенные функции'},{id:'l14',title:'Тест',type:'test',testId:'t_algebra_c3'}]},
+    {id:'c4',title:'Прогрессии',lessons:[{id:'l15',title:'Арифметическая прогрессия'},{id:'l16',title:'Геометрическая прогрессия'},{id:'l17',title:'Тест',type:'test',testId:'t_algebra_c4'}]},
+    {id:'c5',title:'Многочлены',lessons:[{id:'l18',title:'Одночлены'},{id:'l19',title:'Деление многочленов'},{id:'l20',title:'Разложение на множители'},{id:'l21',title:'Тест',type:'test',testId:'t_algebra_c5'}]},
+  ]},
+  {id:'geometry',name:'Геометрия',chapters:[
+    {id:'c1',title:'Основные понятия',lessons:[{id:'l1',title:'Точки, прямые, углы'},{id:'l2',title:'Смежные углы'},{id:'l3',title:'Тест',type:'test',testId:'t_geom_c1'}]},
+    {id:'c2',title:'Треугольники',lessons:[{id:'l4',title:'Признаки равенства'},{id:'l5',title:'Теорема Пифагора'},{id:'l6',title:'Подобие'},{id:'l7',title:'Площадь'},{id:'l8',title:'Тест',type:'test',testId:'t_geom_c2'}]},
+    {id:'c3',title:'Четырёхугольники',lessons:[{id:'l9',title:'Параллелограмм'},{id:'l10',title:'Трапеция'},{id:'l11',title:'Тест',type:'test',testId:'t_geom_c3'}]},
+    {id:'c4',title:'Окружность',lessons:[{id:'l12',title:'Хорды и дуги'},{id:'l13',title:'Вписанная окружность'},{id:'l14',title:'Тест',type:'test',testId:'t_geom_c4'}]},
+    {id:'c5',title:'Стереометрия',lessons:[{id:'l15',title:'Многогранники'},{id:'l16',title:'Тела вращения'},{id:'l17',title:'Шар'},{id:'l18',title:'Тест',type:'test',testId:'t_geom_c5'}]},
+  ]},
+  {id:'logic',name:'Логика',chapters:[
+    {id:'c1',title:'Основы логики',lessons:[{id:'l1',title:'Высказывания'},{id:'l2',title:'Логические связки'},{id:'l3',title:'Тест',type:'test',testId:'t_logic_c1'}]},
+    {id:'c2',title:'Задачи на смекалку',lessons:[{id:'l4',title:'Переливание'},{id:'l5',title:'Взвешивание'},{id:'l6',title:'Переправа'},{id:'l7',title:'Тест',type:'test',testId:'t_logic_c2'}]},
+    {id:'c3',title:'Числовые закономерности',lessons:[{id:'l8',title:'Последовательности'},{id:'l9',title:'Магические квадраты'},{id:'l10',title:'Тест',type:'test',testId:'t_logic_c3'}]},
+  ]},
+  {id:'olymp',name:'Олимпиадная математика',chapters:[
+    {id:'c1',title:'Теория чисел',lessons:[{id:'l1',title:'Делимость'},{id:'l2',title:'Простые числа'},{id:'l3',title:'Диофантовы уравнения'},{id:'l4',title:'Тест',type:'test',testId:'t_olymp_c1'}]},
+    {id:'c2',title:'Комбинаторика',lessons:[{id:'l5',title:'Правила суммы и произведения'},{id:'l6',title:'Перестановки и сочетания'},{id:'l7',title:'Принцип Дирихле'},{id:'l8',title:'Тест',type:'test',testId:'t_olymp_c2'}]},
+    {id:'c3',title:'Неравенства',lessons:[{id:'l9',title:'AM-GM'},{id:'l10',title:'Коши-Буняковский'},{id:'l11',title:'Тест',type:'test',testId:'t_olymp_c3'}]},
+    {id:'c4',title:'Олимпиадная геометрия',lessons:[{id:'l12',title:'Вписанные фигуры'},{id:'l13',title:'Проективные методы'},{id:'l14',title:'Тест',type:'test',testId:'t_olymp_c4'}]},
+  ]},
+  {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:[
+    {id:'c1',title:'ОГЭ часть 1',lessons:[{id:'l1',title:'Числа'},{id:'l2',title:'Алгебра'},{id:'l3',title:'Уравнения'},{id:'l4',title:'Тест ОГЭ',type:'test',testId:'t_oge_c1'}]},
+    {id:'c2',title:'ОГЭ геометрия',lessons:[{id:'l5',title:'Планиметрия'},{id:'l6',title:'Координаты'},{id:'l7',title:'Тест',type:'test',testId:'t_oge_c2'}]},
+    {id:'c3',title:'ЕГЭ профиль',lessons:[{id:'l8',title:'Задания 1-9'},{id:'l9',title:'Задания 10-12'},{id:'l10',title:'Задания 13-19'},{id:'l11',title:'Тест ЕГЭ',type:'test',testId:'t_ege_c3'}]},
+  ]},
+  {id:'combo',name:'Комбинаторика и вероятность',chapters:[
+    {id:'c1',title:'Комбинаторика',lessons:[{id:'l1',title:'Правило произведения'},{id:'l2',title:'Перестановки'},{id:'l3',title:'Размещения'},{id:'l4',title:'Сочетания'},{id:'l5',title:'Тест',type:'test',testId:'t_combo_c1'}]},
+    {id:'c2',title:'Теория вероятностей',lessons:[{id:'l6',title:'Классическая вероятность'},{id:'l7',title:'Сложение и умножение'},{id:'l8',title:'Полная вероятность'},{id:'l9',title:'Матожидание'},{id:'l10',title:'Тест',type:'test',testId:'t_combo_c2'}]},
+  ]},
+];
+
+let CU=null,hwFilter='all',gradeTarget=null,questions=[],lessonEditing=null;
+
+window.openModal=id=>document.getElementById(id).classList.add('active');
+window.closeModal=id=>document.getElementById(id).classList.remove('active');
+
+function toast(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML='<span>'+(type==='success'?'✓':type==='error'?'✕':'ℹ')+'</span><span>'+msg+'</span>';
+  c.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400)},3500);
+}
+
+// ── LOGIN ──
+window.adminLogin=async()=>{
+  const btn=document.getElementById('aBtn'),err=document.getElementById('aErr');
+  const email=document.getElementById('aEmail').value.trim();
+  const pass=document.getElementById('aPass').value;
+  err.classList.remove('show');
+  if(!email||!pass){err.textContent='Заполните все поля';err.classList.add('show');return;}
+  btn.disabled=true;btn.textContent='Входим…';
+  try{
+    const cr=await signInWithEmailAndPassword(auth,email,pass);
+    if(!cr.user.emailVerified){
+      err.textContent='Email не подтверждён — проверьте почту';
+      err.classList.add('show');
+      await signOut(auth);
+      btn.disabled=false;btn.textContent='Войти →';
+    }
+    // если всё ок — onAuthStateChanged откроет панель
+  }catch(e){
+    err.textContent=e.code==='auth/invalid-credential'?'Неверный email или пароль':'Ошибка: '+e.code;
+    err.classList.add('show');
+    btn.disabled=false;btn.textContent='Войти →';
+  }
+};
+
+window.adminLogout=()=>signOut(auth);
+
+onAuthStateChanged(auth,async user=>{
+  if(user&&user.emailVerified){
+    CU=user;
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('adminView').style.display='';
+    document.getElementById('adminEmail').textContent=user.email;
+    loadDashboard();
+  }else{
+    CU=null;
+    document.getElementById('loginView').style.display='';
+    document.getElementById('adminView').style.display='none';
+    const btn=document.getElementById('aBtn');
+    btn.disabled=false;btn.textContent='Войти →';
+  }
+});
+
+// ── NAV ──
+window.showPage=(id,el)=>{
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sn-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  const loaders={homework:loadHW,students:loadStudents,tests:loadTests,lessons:renderLessons,announcements:loadAnnouncements,analytics:loadAnalytics};
+  if(loaders[id])loaders[id]();
+};
+
+// ── DASHBOARD ──
+async function loadDashboard(){
+  try{
+    const[studSnap,hwSnap,testSnap]=await Promise.all([
+      getDocs(collection(db,'users')),
+      getDocs(collection(db,'homeworks')),
+      getDocs(collection(db,'testResults')),
+    ]);
+    const submitted=hwSnap.docs.filter(d=>d.data().status==='submitted');
+    document.getElementById('ds-students').textContent=studSnap.size;
+    document.getElementById('ds-hw').textContent=submitted.length;
+    document.getElementById('ds-tests').textContent=testSnap.size;
+
+    document.getElementById('dash-hw-preview').innerHTML=submitted.length
+      ?submitted.slice(0,5).map(d=>{const hw={id:d.id,...d.data()};return'<div style="display:flex;align-items:center;gap:.9rem;padding:.7rem 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-family:\'Syne\',sans-serif;font-size:.88rem;font-weight:600">'+hw.title+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.56rem;color:var(--text3)">'+(hw.userName||'Ученик')+'</div></div><button class="btn btn-success btn-sm" onclick="openGrade(\''+hw.id+'\',\''+hw.title+'\',\''+(hw.userName||'')+'\')">Проверить</button></div>';}).join('')
+      :'<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Нет ДЗ на проверке</div></div>';
+
+    document.getElementById('dash-students-preview').innerHTML=studSnap.size
+      ?'<table class="tbl"><tbody>'+studSnap.docs.slice(0,5).map(d=>{const s=d.data();return'<tr><td>'+(s.name||'—')+'</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;color:var(--text3)">'+(s.email||'—')+'</td><td><span class="badge badge-active">'+grLabel(s.grade)+'</span></td></tr>';}).join('')+'</tbody></table>'
+      :'<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">Учеников пока нет</div></div>';
+  }catch(e){console.error('Dashboard error:',e);}
+}
+
+function grLabel(g){const m={'1-4':'1-4 кл','5-6':'5-6 кл','7-8':'7-8 кл','9':'9 кл','10-11':'10-11 кл'};return m[g]||g||'—';}
+
+// ── HOMEWORK ──
+window.filterHW=(f,el)=>{
+  hwFilter=f;
+  document.querySelectorAll('[id^="hwf-"]').forEach(b=>{b.classList.remove('btn-primary');b.classList.add('btn-outline');});
+  el.classList.remove('btn-outline');el.classList.add('btn-primary');
+  loadHW();
+};
+
+async function loadHW(){
+  try{
+    const sn=await getDocs(collection(db,'homeworks'));
+    let hws=sn.docs.map(d=>({id:d.id,...d.data()}));
+    if(hwFilter!=='all')hws=hws.filter(h=>h.status===hwFilter);
+    const el=document.getElementById('hw-list');
+    if(!hws.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Заданий нет</div></div>';return;}
+    el.innerHTML=hws.map(hw=>'<div class="hw-card"><div class="hw-card-top"><div><div class="hw-card-title">'+hw.title+'</div><div class="hw-card-meta">'+(hw.userName||'Ученик')+' &middot; <span class="badge badge-'+(hw.status||'pending')+'">'+slabel(hw.status)+'</span></div></div><div style="display:flex;gap:.5rem;flex-shrink:0">'+(hw.status==='submitted'?'<button class="btn btn-success btn-sm" onclick="openGrade(\''+hw.id+'\',\''+hw.title+'\',\''+(hw.userName||'')+'\')">✓ Проверить</button>':'')+'<button class="btn btn-danger btn-sm" onclick="deleteHW(\''+hw.id+'\')">🗑</button></div></div>'+(hw.solution?'<div class="hw-solution">'+hw.solution+'</div>':'')+(hw.feedback?'<div style="background:rgba(37,99,255,.06);border:1px solid rgba(37,99,255,.2);border-radius:8px;padding:.7rem;font-family:\'JetBrains Mono\',monospace;font-size:.62rem;color:var(--accent2)">💬 '+hw.feedback+'</div>':'')+(hw.grade?'<div style="font-family:\'JetBrains Mono\',monospace;font-size:.62rem;color:var(--green);margin-top:.5rem">Оценка: '+hw.grade+'/10</div>':'')+'</div>').join('');
+  }catch(e){console.error(e);}
+}
+
+function slabel(s){return{pending:'Ожидает',submitted:'На проверке',graded:'Проверено',overdue:'Просрочено',returned:'Возвращено'}[s]||s||'';}
+
+window.openGrade=(id,title,name)=>{gradeTarget={id,title,name};document.getElementById('gradeVal').value='';document.getElementById('gradeFeedback').value='';openModal('gradeModal');};
+
+window.submitGrade=async(action)=>{
+  if(!gradeTarget)return;
+  const grade=document.getElementById('gradeVal').value;
+  const feedback=document.getElementById('gradeFeedback').value;
+  if(action==='graded'&&(!grade||grade<1||grade>10)){toast('Оценка от 1 до 10','error');return;}
+  try{
+    const upd={status:action==='graded'?'graded':'pending',feedback:feedback||'',updatedAt:serverTimestamp()};
+    if(action==='graded')upd.grade=parseInt(grade);
+    await updateDoc(doc(db,'homeworks',gradeTarget.id),upd);
+    closeModal('gradeModal');toast(action==='graded'?'Задание принято':'Задание возвращено','success');loadHW();loadDashboard();
+  }catch(e){toast('Ошибка: '+e.message,'error');}
+};
+
+window.deleteHW=async id=>{if(!confirm('Удалить?'))return;try{await deleteDoc(doc(db,'homeworks',id));toast('Удалено','success');loadHW();}catch(e){toast('Ошибка','error');}};
+
+window.fillHWSelect=()=>{
+  document.getElementById('hwCourse').innerHTML='<option value="">Выбрать</option>'+COURSES.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
+};
+
+window.addHW=async()=>{
+  const title=document.getElementById('hwTitle').value.trim();
+  if(!title){toast('Введите заголовок','error');return;}
+  try{
+    await addDoc(collection(db,'homeworks'),{
+      title,description:document.getElementById('hwDesc').value.trim(),
+      courseId:document.getElementById('hwCourse').value,
+      courseName:COURSES.find(c=>c.id===document.getElementById('hwCourse').value)?.name||'',
+      dueDate:document.getElementById('hwDue').value,
+      userId:document.getElementById('hwStudent').value.trim()||'all',
+      userName:document.getElementById('hwStudent').value.trim()||'Все ученики',
+      status:'pending',createdAt:serverTimestamp(),createdBy:CU.uid
+    });
+    closeModal('addHWModal');toast('Задание добавлено!','success');
+    ['hwTitle','hwDesc','hwDue','hwStudent'].forEach(id=>document.getElementById(id).value='');
+    loadHW();
+  }catch(e){toast('Ошибка: '+e.message,'error');}
+};
+
+// ── TESTS ──
+async function loadTests(){
+  try{
+    const sn=await getDocs(collection(db,'tests'));const tests=sn.docs.map(d=>({id:d.id,...d.data()}));
+    const el=document.getElementById('tests-list');
+    const allTestIds=COURSES.flatMap(c=>c.chapters.flatMap(ch=>ch.lessons.filter(l=>l.type==='test').map(l=>({testId:l.testId,name:l.title,course:c.name}))));
+    
+    if(!tests.length){
+      el.innerHTML='<div class="card"><div class="card-title">Все тесты курсов</div>'+allTestIds.map(t=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:.7rem 0;border-bottom:1px solid var(--border)"><div><div style="font-family:\'Syne\',sans-serif;font-size:.88rem;font-weight:600">'+t.name+'</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;color:var(--text3)">'+t.course+' &middot; ID: '+t.testId+'</div></div><button class="btn btn-primary btn-sm" onclick="openTestBuilder(\''+t.testId+'\',\''+t.name+'\')">Создать</button></div>').join('')+'</div>';
+      return;
+    }
+    el.innerHTML=tests.map(t=>'<div class="card"><div class="card-title">'+(t.title||t.id)+'<div style="display:flex;gap:.5rem"><button class="btn btn-outline btn-sm" onclick="editTest(\''+t.id+'\')">✏ Редактировать</button><button class="btn btn-danger btn-sm" onclick="deleteTest(\''+t.id+'\')">🗑</button></div></div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;color:var(--text3)">ID: '+t.id+' &middot; '+(t.questions?.length||0)+' вопросов</div></div>').join('');
+  }catch(e){console.error(e);}
+}
+
+window.openTestBuilder=(testId='',testName='')=>{
+  questions=[];
+  document.getElementById('testModalTitle').textContent=testId?'Редактировать тест: '+testId:'Создать тест';
+  document.getElementById('testName').value=testName||'';
+  document.getElementById('testIdField').value=testId||'';
+  document.getElementById('testIdField').readOnly=!!testId;
+  document.getElementById('questionsContainer').innerHTML='';
+  addQuestion();openModal('testModal');
+};
+
+window.editTest=async id=>{
+  try{
+    const sn=await getDoc(doc(db,'tests',id));
+    if(!sn.exists()){toast('Тест не найден','error');return;}
+    const td=sn.data();questions=td.questions||[];
+    document.getElementById('testModalTitle').textContent='Редактировать: '+td.title;
+    document.getElementById('testName').value=td.title||'';
+    document.getElementById('testIdField').value=id;
+    document.getElementById('testIdField').readOnly=true;
+    renderQuestions();openModal('testModal');
+  }catch(e){toast('Ошибка','error');}
+};
+
+window.deleteTest=async id=>{if(!confirm('Удалить тест?'))return;try{await deleteDoc(doc(db,'tests',id));toast('Тест удалён','success');loadTests();}catch(e){toast('Ошибка','error');}};
+
+window.addQuestion=()=>{questions.push({type:'choice',question:'',options:['','','',''],correct:0});renderQuestions();};
+
+function renderQuestions(){
+  document.getElementById('questionsContainer').innerHTML=questions.map((q,i)=>'<div class="q-card"><div class="q-num">Вопрос '+(i+1)+'</div><button class="q-remove" onclick="removeQ('+i+')">✕</button><div class="form-group"><label>Тип</label><select onchange="changeQType('+i+',this.value)"><option value="choice"'+(q.type==='choice'?' selected':'')+'>Выбор ответа</option><option value="text"'+(q.type==='text'?' selected':'')+'>Текстовый ответ</option></select></div><div class="form-group"><label>Вопрос</label><input type="text" value="'+(q.question||'')+'" onchange="questions['+i+'].question=this.value" placeholder="Сформулируйте вопрос…"/></div>'+(q.type==='choice'?'<div><label style="font-family:\'JetBrains Mono\',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2)">Варианты (🔘 = верный)</label>'+(q.options||['','','','']).map((o,oi)=>'<div class="opt-row"><input class="opt-radio" type="radio" name="cr'+i+'" '+(q.correct===oi?'checked':'')+' onchange="questions['+i+'].correct='+oi+'"/><input class="opt-input" type="text" value="'+o+'" onchange="questions['+i+'].options['+oi+']=this.value" placeholder="Вариант '+String.fromCharCode(65+oi)+'"/></div>').join('')+'</div>':'<div class="form-group"><label>Правильный ответ</label><input type="text" value="'+(q.correct||'')+'" onchange="questions['+i+'].correct=this.value" placeholder="Точный ответ…"/></div>')+'</div>').join('');
+}
+
+window.removeQ=i=>{questions.splice(i,1);renderQuestions();};
+window.changeQType=(i,type)=>{questions[i].type=type;questions[i].options=type==='choice'?['','','','']:undefined;questions[i].correct=type==='choice'?0:'';renderQuestions();};
+
+window.saveTest=async()=>{
+  const title=document.getElementById('testName').value.trim();
+  const id=document.getElementById('testIdField').value.trim();
+  if(!title||!id){toast('Заполните название и ID','error');return;}
+  if(!questions.length){toast('Добавьте хотя бы один вопрос','error');return;}
+  for(let i=0;i<questions.length;i++){
+    if(!questions[i].question){toast('Вопрос '+(i+1)+': введите текст','error');return;}
+    if(questions[i].type==='choice'&&(questions[i].options||[]).filter(o=>o.trim()).length<2){toast('Вопрос '+(i+1)+': минимум 2 варианта','error');return;}
+  }
+  try{
+    await setDoc(doc(db,'tests',id),{id,title,questions,updatedAt:serverTimestamp(),createdBy:CU.uid});
+    closeModal('testModal');toast('Тест сохранён!','success');loadTests();
+  }catch(e){toast('Ошибка: '+e.message,'error');}
+};
+
+// ── LESSONS ──
+function renderLessons(){
+  document.getElementById('lessons-list').innerHTML=COURSES.map(c=>'<div class="card"><div class="card-title">'+c.name+'</div>'+c.chapters.map(ch=>'<div style="margin-bottom:.8rem"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.4rem;padding:.3rem 0;border-bottom:1px solid var(--border)">'+ch.title+'</div>'+ch.lessons.filter(ls=>ls.type!=='test').map(ls=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--border)"><span>'+ls.title+'</span><button class="btn btn-outline btn-sm" onclick="openLessonEdit(\''+c.id+'\',\''+ch.id+'\',\''+ls.id+'\',\''+ls.title.replace(/'/g,'')+'\')"">✏ Редактировать</button></div>').join('')+'</div>').join('')+'</div>').join('');
+}
+
+window.openLessonEdit=async(cid,chid,lid,title)=>{
+  lessonEditing={cid,chid,lid};
+  document.getElementById('lessonModalTitle').textContent='Урок: '+title;
+  document.getElementById('lessonTitle').value=title;
+  try{const sn=await getDoc(doc(db,'lessonContent',cid+'_'+chid+'_'+lid));document.getElementById('lessonContent').textContent=sn.exists()?sn.data().content:'';}catch(e){document.getElementById('lessonContent').textContent='';}
+  openModal('lessonModal');
+};
+
+window.saveLesson=async()=>{
+  if(!lessonEditing)return;
+  const{cid,chid,lid}=lessonEditing;
+  try{
+    await setDoc(doc(db,'lessonContent',cid+'_'+chid+'_'+lid),{cid,chid,lid,content:document.getElementById('lessonContent').textContent,updatedAt:serverTimestamp()});
+    closeModal('lessonModal');toast('Урок сохранён!','success');
+  }catch(e){toast('Ошибка: '+e.message,'error');}
+};
+
+// ── STUDENTS ──
+async function loadStudents(){
+  try{
+    const sn=await getDocs(collection(db,'users'));
+    const tb=document.getElementById('students-tbody');
+    if(!sn.size){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem;padding:2rem">Учеников пока нет</td></tr>';return;}
+    tb.innerHTML=sn.docs.map(d=>{const s=d.data();const lc=Object.values(s.completedLessons||{}).reduce((a,c)=>a+Object.keys(c).length,0);return'<tr><td><strong>'+(s.name||'—')+'</strong></td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--text3)">'+(s.email||'—')+'</td><td><span class="badge badge-active">'+grLabel(s.grade)+'</span></td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem">'+(s.enrolledCourses?.length||0)+'</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem">'+lc+'</td></tr>';}).join('');
+  }catch(e){console.error(e);}
+}
+
+// ── ANNOUNCEMENTS ──
+async function loadAnnouncements(){
+  try{
+    const sn=await getDocs(collection(db,'announcements'));
+    const anns=sn.docs.map(d=>({id:d.id,...d.data()}));
+    const el=document.getElementById('ann-list');
+    if(!anns.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📢</div><div class="empty-title">Объявлений нет</div></div>';return;}
+    const colors={info:'var(--accent2)',warning:'var(--gold)',success:'var(--green)'};
+    el.innerHTML=anns.map(a=>'<div class="card" style="border-left:3px solid '+(colors[a.type]||'var(--accent)')+'"><div class="card-title">'+a.title+'<button class="btn btn-danger btn-sm" onclick="deleteAnn(\''+a.id+'\')">🗑</button></div><p style="color:var(--text2);font-weight:300">'+a.body+'</p></div>').join('');
+  }catch(e){console.error(e);}
+}
+
+window.addAnnouncement=async()=>{
+  const title=document.getElementById('annTitle').value.trim();
+  const body=document.getElementById('annBody').value.trim();
+  if(!title||!body){toast('Заполните поля','error');return;}
+  try{
+    await addDoc(collection(db,'announcements'),{title,body,type:document.getElementById('annType').value,createdAt:serverTimestamp(),createdBy:CU.uid});
+    closeModal('announceModal');toast('Объявление опубликовано!','success');
+    document.getElementById('annTitle').value='';document.getElementById('annBody').value='';
+    loadAnnouncements();
+  }catch(e){toast('Ошибка: '+e.message,'error');}
+};
+
+window.deleteAnn=async id=>{if(!confirm('Удалить?'))return;try{await deleteDoc(doc(db,'announcements',id));toast('Удалено','success');loadAnnouncements();}catch(e){}};
+
+// ── ANALYTICS ──
+async function loadAnalytics(){
+  try{
+    const[studSnap,hwSnap,testSnap]=await Promise.all([getDocs(collection(db,'users')),getDocs(collection(db,'homeworks')),getDocs(collection(db,'testResults'))]);
+    const tests=testSnap.docs.map(d=>d.data());
+    const passed=tests.filter(t=>t.passed).length;
+    const avg=tests.length?Math.round(tests.reduce((s,t)=>s+t.pct,0)/tests.length):0;
+    document.getElementById('analytics-stats').innerHTML='<div class="stat-card"><div class="stat-val" style="color:var(--accent)">'+studSnap.size+'</div><div class="stat-lbl">Учеников</div></div><div class="stat-card"><div class="stat-val" style="color:var(--gold)">'+hwSnap.size+'</div><div class="stat-lbl">Всего ДЗ</div></div><div class="stat-card"><div class="stat-val" style="color:var(--green)">'+tests.length+'</div><div class="stat-lbl">Тестов сдано</div></div><div class="stat-card"><div class="stat-val" style="color:var(--accent2)">'+avg+'%</div><div class="stat-lbl">Средний балл</div></div>';
+    document.getElementById('analytics-tbody').innerHTML=tests.length?tests.slice(0,50).map(t=>'<tr><td>'+(t.userName||'—')+'</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--text3)">'+(t.courseId||'—')+'</td><td style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--text3)">'+(t.testId||'—')+'</td><td><span style="font-family:\'JetBrains Mono\',monospace;font-size:.72rem;color:'+(t.passed?'var(--green)':'var(--red)')+'">'+t.pct+'% ('+t.score+'/'+t.tot+')</span></td></tr>').join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem;padding:2rem">Нет данных</td></tr>';
+  }catch(e){console.error(e);}
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
+</script>
+</body>
+</html>
