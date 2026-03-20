@@ -560,9 +560,19 @@ function updateNav(){
   else{r.innerHTML='<button class="btn bh bs" onclick="openM(\'authM\')">Войти</button><button class="btn bg bs" onclick="openM(\'authM\')">Начать →</button>';}
 }
 
-function showHome(){document.getElementById('homeV').style.display='';document.getElementById('dashV').style.display='none';document.getElementById('cvV').style.display='none';}
-function showDash(){if(!CU){openM('authM');return;}document.getElementById('homeV').style.display='none';document.getElementById('dashV').style.display='';document.getElementById('cvV').style.display='none';refreshDash();}
-function showCV(cid){AC=COURSES.find(function(c){return c.id===cid;});if(!AC)return;document.getElementById('homeV').style.display='none';document.getElementById('dashV').style.display='none';document.getElementById('cvV').style.display='';renderCV();}
+function showHome(){
+  document.getElementById('homeV').style.display='block';
+  document.getElementById('dashV').style.display='none';
+  document.getElementById('cvV').style.display='none';
+}
+function showDash(){
+  if(!CU){openM('authM');return;}
+  document.getElementById('homeV').style.display='none';
+  document.getElementById('dashV').style.display='block';
+  document.getElementById('cvV').style.display='none';
+  refreshDash();
+}
+function showCV(cid){AC=COURSES.find(function(c){return c.id===cid;});if(!AC)return;document.getElementById('homeV').style.display='none';document.getElementById('dashV').style.display='none';document.getElementById('cvV').style.display='block';renderCV();}
 
 function renderCourses(){
   document.getElementById('cGrid').innerHTML=COURSES.map(function(c){
@@ -763,7 +773,8 @@ function renderDashProgress(){
 
 function loadHW(){
   if(!CU)return;
-  db.collection('homeworks').where('userId','==',CU.uid).get().then(function(sn){
+  db.collection('homeworks').get().then(function(sn_all){
+    var sn={docs:sn_all.docs.filter(function(d){return d.data().userId===CU.uid;})};
     var hws=sn.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     function mkHW(hw){return'<div class="hwi"><div class="hwd '+(hw.status||'pending')+'"></div><div class="hwii"><div class="hwit">'+hw.title+'</div><div class="hwim">'+slabel(hw.status)+(hw.feedback?' · '+hw.feedback:'')+'</div></div>'+(hw.status==='graded'?'<span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--green)">'+hw.grade+'/10</span>':hw.status==='pending'?'<button class="btn bg bs" onclick="openHWM(\''+hw.title+'\',\''+hw.id+'\')">Сдать</button>':'')+'</div>';}
     var no='<p style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Заданий пока нет.</p>';
@@ -797,7 +808,7 @@ document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',
       if(sn.exists){
         CU={uid:uid,email:localStorage.getItem('lp_email')||''};
         UD=sn.data();
-        updateNav();refreshDash();showDash();hideLs();
+        updateNav();refreshDash();showDash();hideLs();renderCourses();
       } else { clearSess();hideLs();showHome(); }
     }).catch(function(){ clearSess();hideLs();showHome(); });
   } else { hideLs();showHome(); }
