@@ -394,21 +394,49 @@ footer{background:var(--ink);border-top:1px solid var(--line);padding:2.5rem;dis
   </div>
 </div>
 
-<!-- Firebase compat (works without module, no CORS issues) -->
+<!-- Firebase Firestore only (auth via REST API to avoid iframe issues) -->
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Hide loading after 5s max, no matter what
 setTimeout(function(){hideLs();},5000);
 function hideLs(){var l=document.getElementById('ls');if(l){l.style.opacity='0';setTimeout(function(){l.style.display='none';},400);}}
 
-firebase.initializeApp({apiKey:"AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
-var auth=firebase.auth(),db=firebase.firestore();
+var FB_KEY="AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI";
+firebase.initializeApp({apiKey:FB_KEY,authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
+var db=firebase.firestore();
+
+// AUTH через REST API (без iframe, работает на GitHub Pages)
+function fbRest(action,body){
+  return fetch('https://identitytoolkit.googleapis.com/v1/accounts:'+action+'?key='+FB_KEY,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error){var m=d.error.message||'UNKNOWN';throw {code:m,raw:d.error};}
+    return d;
+  });
+}
+
+var CU=null, UD=null;
+// Восстанавливаем сессию из localStorage
+(function(){
+  var uid=localStorage.getItem('lp_uid'),token=localStorage.getItem('lp_token');
+  if(uid&&token){
+    // Верифицируем токен через Firestore
+    db.collection('users').doc(uid).get().then(function(sn){
+      if(sn.exists){
+        CU={uid:uid,email:localStorage.getItem('lp_email')||''};
+        UD=sn.data();
+        updateNav();refreshDash();showDash();
+      } else { clearSess();hideLs(); }
+    }).catch(function(){clearSess();hideLs();});
+  } else { hideLs(); }
+})();
+
+function saveSess(d){localStorage.setItem('lp_uid',d.localId);localStorage.setItem('lp_token',d.idToken);localStorage.setItem('lp_email',d.email||d.localId);}
+function clearSess(){localStorage.removeItem('lp_uid');localStorage.removeItem('lp_token');localStorage.removeItem('lp_email');}
+var auth={signOut:function(){clearSess();CU=null;UD=null;updateNav();showHome();}};
 
 var COURSES=[
   {id:'algebra',name:'Алгебра с нуля до олимпиады',level:'5–11 класс',sym:'∑',cov:'c1',badge:'cg2',bt:'★ Топ',desc:'Уравнения, неравенства, прогрессии, многочлены.',meta:{l:48,m:4},
@@ -480,8 +508,9 @@ function fbErr(c){return({
   'auth/invalid-credential':'Неверный email или пароль'
 }[c])||'Ошибка: '+c;}
 
-function withTimeout(promise, ms){
-  return Promise.race([promise, new Promise(function(_,reject){setTimeout(function(){reject({code:'timeout'});},ms);})]);
+function fbErr(c){
+  var m={'EMAIL_EXISTS':'Email уже используется','INVALID_LOGIN_CREDENTIALS':'Неверный email или пароль','INVALID_PASSWORD':'Неверный пароль','EMAIL_NOT_FOUND':'Пользователь не найден','TOO_MANY_ATTEMPTS_TRY_LATER':'Слишком много попыток — подождите','WEAK_PASSWORD : Password should be at least 6 characters':'Слабый пароль (мин. 6 символов)','auth/email-already-in-use':'Email уже используется'};
+  return m[c]||'Ошибка: '+c;
 }
 
 function doLogin(){
@@ -491,21 +520,23 @@ function doLogin(){
   if(!email||!pass){err.textContent='Заполните все поля';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
   function unlock(){btn.disabled=false;btn.textContent='Войти →';}
-  withTimeout(auth.signInWithEmailAndPassword(email,pass), 10000).then(function(cr){
-    if(!cr.user.emailVerified){
-      err.textContent='Сначала подтвердите email — проверьте почту.';
-      err.classList.add('on');
-      auth.signOut();unlock();
-    } else {
-      closeM('authM');unlock();
-    }
+  fbRest('signInWithPassword',{email:email,password:pass,returnSecureToken:true}).then(function(d){
+    if(!d.registered){err.textContent='Пользователь не найден';err.classList.add('on');unlock();return;}
+    // Проверяем верификацию email
+    return fbRest('lookup',{idToken:d.idToken}).then(function(u){
+      var user=u.users&&u.users[0];
+      if(!user||!user.emailVerified){
+        err.textContent='Сначала подтвердите email — проверьте почту.';err.classList.add('on');unlock();return;
+      }
+      saveSess(d);
+      CU={uid:d.localId,email:d.email};
+      return db.collection('users').doc(d.localId).get().then(function(sn){
+        UD=sn.exists?sn.data():{name:d.email,grade:'',enrolledCourses:[],completedLessons:{},homeworkCount:0};
+        updateNav();refreshDash();showDash();closeM('authM');unlock();
+      });
+    });
   }).catch(function(e){
-    if(e.code==='timeout'){
-      err.textContent='Сервер не отвечает. Проверьте интернет и попробуйте снова.';
-    } else {
-      err.textContent=fbErr(e.code);
-    }
-    err.classList.add('on');unlock();
+    err.textContent=fbErr(e.code);err.classList.add('on');unlock();
   });
 }
 
@@ -519,17 +550,15 @@ function doReg(){
   if(!ok)return;
   function unlock(){btn.disabled=false;btn.textContent='Создать аккаунт →';}
   btn.disabled=true;btn.textContent='Регистрируем…';
-  withTimeout(auth.createUserWithEmailAndPassword(email,pass), 10000).then(function(cr){
-    cr.user.sendEmailVerification();
-    return db.collection('users').doc(cr.user.uid).set({name:name,email:email,grade:grade,enrolledCourses:[],completedLessons:{},homeworkCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  fbRest('signUp',{email:email,password:pass,returnSecureToken:true}).then(function(d){
+    // Отправляем письмо верификации
+    return fbRest('sendOobCode',{requestType:'VERIFY_EMAIL',idToken:d.idToken}).then(function(){
+      return db.collection('users').doc(d.localId).set({name:name,email:email,grade:grade,enrolledCourses:[],completedLessons:{},homeworkCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    });
   }).then(function(){
-    return auth.signOut();
-  }).then(function(){
-    closeM('authM');toast('Аккаунт создан! Проверьте почту.','ok');unlock();
+    closeM('authM');toast('Аккаунт создан! Проверьте почту для подтверждения.','ok');unlock();
   }).catch(function(e){
-    var errEl=document.getElementById('rEE');
-    errEl.textContent=e.code==='timeout'?'Сервер не отвечает. Попробуйте снова.':fbErr(e.code);
-    errEl.classList.add('on');unlock();
+    document.getElementById('rEE').textContent=fbErr(e.code);document.getElementById('rEE').classList.add('on');unlock();
   });
 }
 
@@ -537,19 +566,8 @@ function doLogout(){auth.signOut();}
 function doForgot(){
   var e=document.getElementById('lE').value.trim();
   if(!e){toast('Введите email выше','err');return;}
-  auth.sendPasswordResetEmail(e).then(function(){toast('Письмо для сброса отправлено','ok');}).catch(function(e2){toast(fbErr(e2.code),'err');});
+  fbRest('sendOobCode',{requestType:'PASSWORD_RESET',email:e}).then(function(){toast('Письмо для сброса отправлено','ok');}).catch(function(e2){toast(fbErr(e2.code),'err');});
 }
-
-auth.onAuthStateChanged(function(user){
-  hideLs();
-  if(user&&user.emailVerified){
-    CU=user;
-    db.collection('users').doc(user.uid).get().then(function(sn){
-      UD=sn.exists?sn.data():{name:user.email,grade:'',enrolledCourses:[],completedLessons:{},homeworkCount:0};
-      updateNav();refreshDash();showDash();
-    });
-  }else{CU=null;UD=null;updateNav();showHome();}
-});
 
 function updateNav(){
   var r=document.getElementById('navR');
