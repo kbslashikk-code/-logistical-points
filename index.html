@@ -486,15 +486,18 @@ function doLogin(){
   err.classList.remove('on');
   if(!email||!pass){err.textContent='Заполните все поля';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
+  function unlock(){btn.disabled=false;btn.textContent='Войти →';}
   auth.signInWithEmailAndPassword(email,pass).then(function(cr){
     if(!cr.user.emailVerified){
-      err.textContent='Сначала подтвердите email — проверьте почту.';err.classList.add('on');
-      return auth.signOut();
+      err.textContent='Сначала подтвердите email — проверьте почту.';
+      err.classList.add('on');
+      auth.signOut();unlock();
+    } else {
+      closeM('authM');unlock();
     }
-    closeM('authM');
-  }).catch(function(e){
-    err.textContent=fbErr(e.code);err.classList.add('on');
-  }).finally(function(){btn.disabled=false;btn.textContent='Войти →';});
+  },function(e){
+    err.textContent=fbErr(e.code);err.classList.add('on');unlock();
+  });
 }
 
 function doReg(){
@@ -505,6 +508,7 @@ function doReg(){
     var el=document.getElementById(x[0]);el.textContent=x[2];el.classList.toggle('on',x[1]);if(x[1])ok=false;
   });
   if(!ok)return;
+  function unlock(){btn.disabled=false;btn.textContent='Создать аккаунт →';}
   btn.disabled=true;btn.textContent='Регистрируем…';
   auth.createUserWithEmailAndPassword(email,pass).then(function(cr){
     cr.user.sendEmailVerification();
@@ -512,10 +516,10 @@ function doReg(){
   }).then(function(){
     return auth.signOut();
   }).then(function(){
-    closeM('authM');toast('Аккаунт создан! Проверьте почту.','ok');
-  }).catch(function(e){
-    document.getElementById('rEE').textContent=fbErr(e.code);document.getElementById('rEE').classList.add('on');
-  }).finally(function(){btn.disabled=false;btn.textContent='Создать аккаунт →';});
+    closeM('authM');toast('Аккаунт создан! Проверьте почту.','ok');unlock();
+  },function(e){
+    document.getElementById('rEE').textContent=fbErr(e.code);document.getElementById('rEE').classList.add('on');unlock();
+  });
 }
 
 function doLogout(){auth.signOut();}
