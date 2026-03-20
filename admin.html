@@ -327,13 +327,17 @@ function aLogin(){
   err.classList.remove('on');
   if(!email||!pass){err.textContent='Заполните email и пароль';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
+  function unlock(){btn.disabled=false;btn.textContent='Войти в панель →';}
   auth.signInWithEmailAndPassword(email,pass).then(function(cr){
     if(!cr.user.emailVerified){
-      err.textContent='Email не подтверждён — проверьте почту';err.classList.add('on');
-      auth.signOut();btn.disabled=false;btn.textContent='Войти в панель →';
+      err.textContent='Email не подтверждён — проверьте почту';
+      err.classList.add('on');
+      auth.signOut();unlock();
+    } else {
+      unlock();
     }
-  }).catch(function(e){
-    err.textContent=fbE(e.code);err.classList.add('on');btn.disabled=false;btn.textContent='Войти в панель →';
+  },function(e){
+    err.textContent=fbE(e.code);err.classList.add('on');unlock();
   });
 }
 function aLogout(){auth.signOut();}
