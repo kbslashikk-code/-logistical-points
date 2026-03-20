@@ -321,6 +321,8 @@ function toast(msg,type){
 }
 function fbE(c){return({'auth/invalid-credential':'Неверный email или пароль','auth/user-not-found':'Пользователь не найден','auth/wrong-password':'Неверный пароль','auth/too-many-requests':'Слишком много попыток'})[c]||'Ошибка: '+c;}
 
+function withTimeout(p,ms){return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej({code:'timeout'});},ms);})]);}
+
 function aLogin(){
   var btn=document.getElementById('aBtn'),err=document.getElementById('aErr');
   var email=document.getElementById('aE').value.trim(),pass=document.getElementById('aP').value;
@@ -328,7 +330,7 @@ function aLogin(){
   if(!email||!pass){err.textContent='Заполните email и пароль';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
   function unlock(){btn.disabled=false;btn.textContent='Войти в панель →';}
-  auth.signInWithEmailAndPassword(email,pass).then(function(cr){
+  withTimeout(auth.signInWithEmailAndPassword(email,pass),10000).then(function(cr){
     if(!cr.user.emailVerified){
       err.textContent='Email не подтверждён — проверьте почту';
       err.classList.add('on');
@@ -336,8 +338,9 @@ function aLogin(){
     } else {
       unlock();
     }
-  },function(e){
-    err.textContent=fbE(e.code);err.classList.add('on');unlock();
+  }).catch(function(e){
+    err.textContent=e.code==='timeout'?'Сервер не отвечает. Проверьте интернет и попробуйте снова.':fbE(e.code);
+    err.classList.add('on');unlock();
   });
 }
 function aLogout(){auth.signOut();}
