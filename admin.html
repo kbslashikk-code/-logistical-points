@@ -275,7 +275,7 @@ function fbRest(action,body){
     return d;
   });
 }
-var auth={signOut:function(){localStorage.removeItem('lp_admin');CU=null;document.getElementById('lv').style.display='';document.getElementById('av').style.display='none';var btn=document.getElementById('aBtn');if(btn){btn.disabled=false;btn.textContent='Войти в панель →';}}};
+var auth={signOut:function(){localStorage.removeItem('lp_admin');CU=null;document.getElementById('lv').style.display='block';document.getElementById('av').style.display='none';var btn=document.getElementById('aBtn');if(btn){btn.disabled=false;btn.textContent='Войти в панель →';}}};
 
 var COURSES=[
   {id:'algebra',name:'Алгебра',chapters:[
@@ -346,7 +346,7 @@ function aLogin(){
       CU={uid:d.localId,email:d.email};
       localStorage.setItem('lp_admin',d.localId);
       document.getElementById('lv').style.display='none';
-      document.getElementById('av').style.display='';
+      document.getElementById('av').style.display='block';
       document.getElementById('sbE').textContent=d.email;
       unlock();loadDash();
     });
@@ -545,7 +545,7 @@ document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',
       if(sn.exists){
         CU={uid:uid};
         document.getElementById('lv').style.display='none';
-        document.getElementById('av').style.display='';
+        document.getElementById('av').style.display='block';
         document.getElementById('sbE').textContent=sn.data().email||uid;
         loadDash();
       } else { localStorage.removeItem('lp_admin'); }
