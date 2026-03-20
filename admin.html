@@ -358,11 +358,7 @@ function aLogin(){
 }
 function aLogout(){auth.signOut();}
 
-// Восстанавливаем сессию
-(function(){
-  var uid=localStorage.getItem('lp_admin');
-  if(uid){CU={uid:uid};document.getElementById('lv').style.display='none';document.getElementById('av').style.display='';loadDash();}
-})();
+
 
 function showPg(id,el){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
@@ -540,6 +536,22 @@ function loadAn(){
 }
 
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
+
+// Восстанавливаем сессию админа
+(function(){
+  var uid=localStorage.getItem('lp_admin');
+  if(uid){
+    db.collection('users').doc(uid).get().then(function(sn){
+      if(sn.exists){
+        CU={uid:uid};
+        document.getElementById('lv').style.display='none';
+        document.getElementById('av').style.display='';
+        document.getElementById('sbE').textContent=sn.data().email||uid;
+        loadDash();
+      } else { localStorage.removeItem('lp_admin'); }
+    }).catch(function(){ localStorage.removeItem('lp_admin'); });
+  }
+})();
 </script>
 
 </body>
