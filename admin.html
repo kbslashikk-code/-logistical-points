@@ -260,13 +260,22 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-firebase.initializeApp({apiKey:"AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
-var auth=firebase.auth(),db=firebase.firestore();
+var FB_KEY="AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI";
+firebase.initializeApp({apiKey:FB_KEY,authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
+var db=firebase.firestore();
+
+function fbRest(action,body){
+  return fetch('https://identitytoolkit.googleapis.com/v1/accounts:'+action+'?key='+FB_KEY,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error){throw {code:d.error.message||'UNKNOWN'};}
+    return d;
+  });
+}
+var auth={signOut:function(){localStorage.removeItem('lp_admin');CU=null;document.getElementById('lv').style.display='';document.getElementById('av').style.display='none';var btn=document.getElementById('aBtn');if(btn){btn.disabled=false;btn.textContent='Войти в панель →';}}};
 
 var COURSES=[
   {id:'algebra',name:'Алгебра',chapters:[
@@ -321,8 +330,6 @@ function toast(msg,type){
 }
 function fbE(c){return({'auth/invalid-credential':'Неверный email или пароль','auth/user-not-found':'Пользователь не найден','auth/wrong-password':'Неверный пароль','auth/too-many-requests':'Слишком много попыток'})[c]||'Ошибка: '+c;}
 
-function withTimeout(p,ms){return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej({code:'timeout'});},ms);})]);}
-
 function aLogin(){
   var btn=document.getElementById('aBtn'),err=document.getElementById('aErr');
   var email=document.getElementById('aE').value.trim(),pass=document.getElementById('aP').value;
@@ -330,35 +337,32 @@ function aLogin(){
   if(!email||!pass){err.textContent='Заполните email и пароль';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
   function unlock(){btn.disabled=false;btn.textContent='Войти в панель →';}
-  withTimeout(auth.signInWithEmailAndPassword(email,pass),10000).then(function(cr){
-    if(!cr.user.emailVerified){
-      err.textContent='Email не подтверждён — проверьте почту';
-      err.classList.add('on');
-      auth.signOut();unlock();
-    } else {
-      unlock();
-    }
+  fbRest('signInWithPassword',{email:email,password:pass,returnSecureToken:true}).then(function(d){
+    return fbRest('lookup',{idToken:d.idToken}).then(function(u){
+      var user=u.users&&u.users[0];
+      if(!user||!user.emailVerified){
+        err.textContent='Email не подтверждён — проверьте почту';err.classList.add('on');unlock();return;
+      }
+      CU={uid:d.localId,email:d.email};
+      localStorage.setItem('lp_admin',d.localId);
+      document.getElementById('lv').style.display='none';
+      document.getElementById('av').style.display='';
+      document.getElementById('sbE').textContent=d.email;
+      unlock();loadDash();
+    });
   }).catch(function(e){
-    err.textContent=e.code==='timeout'?'Сервер не отвечает. Проверьте интернет и попробуйте снова.':fbE(e.code);
+    var msgs={'INVALID_LOGIN_CREDENTIALS':'Неверный email или пароль','INVALID_PASSWORD':'Неверный пароль','EMAIL_NOT_FOUND':'Пользователь не найден','TOO_MANY_ATTEMPTS_TRY_LATER':'Слишком много попыток'};
+    err.textContent=msgs[e.code]||'Ошибка: '+(e.code||'неизвестная');
     err.classList.add('on');unlock();
   });
 }
 function aLogout(){auth.signOut();}
 
-auth.onAuthStateChanged(function(user){
-  if(user&&user.emailVerified){
-    CU=user;
-    document.getElementById('lv').style.display='none';
-    document.getElementById('av').style.display='';
-    document.getElementById('sbE').textContent=user.email;
-    loadDash();
-  }else{
-    CU=null;
-    document.getElementById('lv').style.display='';
-    document.getElementById('av').style.display='none';
-    var btn=document.getElementById('aBtn');if(btn){btn.disabled=false;btn.textContent='Войти в панель →';}
-  }
-});
+// Восстанавливаем сессию
+(function(){
+  var uid=localStorage.getItem('lp_admin');
+  if(uid){CU={uid:uid};document.getElementById('lv').style.display='none';document.getElementById('av').style.display='';loadDash();}
+})();
 
 function showPg(id,el){
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
