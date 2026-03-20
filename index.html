@@ -2,483 +2,458 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Logistical Points — Онлайн-школа математики</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080b10;--bg2:#0d1117;--bg3:#111620;
-  --surface:#151c28;--surface2:#1a2234;--surface3:#1e2840;
-  --border:#1e2d45;--border2:#243452;
-  --accent:#2563ff;--accent2:#38bdf8;
-  --gold:#f0b429;--red:#ef4444;--green:#22c55e;
-  --text:#e2e8f0;--text2:#8899b4;--text3:#4a6080;
-  --glow:rgba(37,99,255,0.18);
+  --ink:#0a0d14;--ink2:#141820;--ink3:#1c2230;
+  --panel:#161d2a;--panel2:#1e2738;
+  --rim:#233047;--rim2:#2c3d5a;
+  --blue:#3b6bff;--sky:#60b8ff;--teal:#2dd4bf;
+  --gold:#e8b84b;--rose:#f06292;--green:#4ade80;--red:#f87171;
+  --ink-text:#dce6f5;--ink-text2:#7d95b8;--ink-text3:#3d526e;
+  --glow:rgba(59,107,255,0.2);
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;font-size:18px;line-height:1.6;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:
-  radial-gradient(1px 1px at 12% 18%,#ffffff14 0%,transparent 100%),
-  radial-gradient(1px 1px at 68% 30%,#ffffff12 0%,transparent 100%),
-  radial-gradient(1px 1px at 85% 15%,#ffffff0e 0%,transparent 100%),
-  radial-gradient(500px 500px at 15% 25%,rgba(37,99,255,0.05) 0%,transparent 70%),
-  radial-gradient(400px 400px at 82% 65%,rgba(56,189,248,0.03) 0%,transparent 70%);
-  pointer-events:none;z-index:0}
+body{background:var(--ink);color:var(--ink-text);font-family:'DM Sans',system-ui,sans-serif;font-size:17px;line-height:1.65;overflow-x:hidden}
+
+/* CANVAS BACKGROUND */
+#bgCanvas{position:fixed;inset:0;z-index:0;opacity:.35}
 
 /* LOADING */
-#loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;transition:opacity .4s}
-.loader-logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
-.loader-logo span{color:var(--accent)}
-.loader-bar{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden}
-.loader-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));animation:loaderAnim 1.5s ease infinite}
-@keyframes loaderAnim{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
+#loadingScreen{position:fixed;inset:0;background:var(--ink);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;transition:opacity .5s}
+.ld-logo{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--ink-text)}
+.ld-logo em{color:var(--blue);font-style:italic}
+.ld-bar{width:180px;height:1px;background:var(--rim);overflow:hidden}
+.ld-fill{height:100%;background:linear-gradient(to right,var(--blue),var(--sky));animation:ldAnim 1.6s ease infinite}
+@keyframes ldAnim{0%{width:0;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0;margin-left:100%}}
 
-/* TOAST */
-.toast-container{position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem}
-.toast{background:var(--surface);border-radius:10px;padding:.8rem 1.3rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.05em;display:flex;align-items:center;gap:.6rem;box-shadow:0 8px 30px rgba(0,0,0,.5);transform:translateX(120%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);max-width:320px}
+/* TOASTS */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem}
+.toast{background:var(--panel);border-radius:10px;padding:.8rem 1.2rem;font-family:'DM Mono',monospace;font-size:.68rem;display:flex;align-items:center;gap:.6rem;box-shadow:0 12px 40px rgba(0,0,0,.6);transform:translateX(110%);transition:transform .3s cubic-bezier(.25,.46,.45,.94);max-width:300px}
 .toast.show{transform:translateX(0)}
-.toast.success{border:1px solid rgba(34,197,94,.35);color:var(--green)}
-.toast.error{border:1px solid rgba(239,68,68,.35);color:var(--red)}
-.toast.info{border:1px solid rgba(37,99,255,.35);color:var(--accent2)}
+.toast.ok{border-left:2px solid var(--green);color:var(--green)}
+.toast.err{border-left:2px solid var(--red);color:var(--red)}
+.toast.info{border-left:2px solid var(--sky);color:var(--sky)}
 
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
-.modal-overlay.active{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2.2rem;width:100%;max-width:480px;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 0 80px rgba(37,99,255,.1)}
-.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text2);font-size:1.3rem;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .2s}
-.modal-close:hover{color:var(--text);background:var(--surface2)}
-.modal h2{font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:800;margin-bottom:1.5rem}
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.mo.on{display:flex}
+.mo-box{background:var(--panel);border:1px solid var(--rim);border-radius:20px;padding:2.4rem;width:100%;max-width:480px;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 0 80px rgba(59,107,255,.08)}
+.mo-x{position:absolute;top:1.1rem;right:1.1rem;background:none;border:none;color:var(--ink-text2);font-size:1.1rem;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .2s}
+.mo-x:hover{background:var(--panel2);color:var(--ink-text)}
+.mo-title{font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:1.5rem}
 
 /* FORMS */
-.form-group{margin-bottom:1.1rem}
-.form-group label{display:block;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:.45rem}
-.form-group input,.form-group select,.form-group textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:.75rem 1rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:1rem;outline:none;transition:border-color .25s,box-shadow .25s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,255,.12)}
-.form-group input::placeholder{color:var(--text3)}
-.form-group textarea{resize:vertical;min-height:80px}
-.form-error{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--red);margin-top:.35rem;display:none}
-.form-error.show{display:block}
+.fg{margin-bottom:1rem}
+.fg label{display:block;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-text2);margin-bottom:.42rem}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--ink2);border:1px solid var(--rim);border-radius:10px;padding:.72rem 1rem;color:var(--ink-text);font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,107,255,.12)}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--ink-text3)}
+.fg textarea{resize:vertical;min-height:80px}
+.ferr{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--red);margin-top:.3rem;display:none}
+.ferr.on{display:block}
+
+/* TAB PILLS */
+.tabs{display:flex;gap:.3rem;background:var(--ink2);border-radius:11px;padding:.3rem;margin-bottom:1.5rem}
+.tab{flex:1;padding:.52rem;border-radius:8px;border:none;background:transparent;color:var(--ink-text2);font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.05em;cursor:pointer;transition:all .2s}
+.tab.on{background:var(--blue);color:#fff}
+.tc{display:none}.tc.on{display:block}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;padding:.7rem 1.6rem;border-radius:9px;border:none;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.07em;cursor:pointer;transition:all .22s;text-decoration:none;white-space:nowrap;flex-shrink:0}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover:not(:disabled){background:#1d4fd8;box-shadow:0 0 20px var(--glow)}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}
-.btn-outline:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
-.btn-ghost{background:transparent;color:var(--text2);border:none}
-.btn-ghost:hover{color:var(--text);background:var(--surface2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.68rem 1.5rem;border-radius:10px;border:none;font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.06em;cursor:pointer;transition:all .22s;white-space:nowrap;flex-shrink:0;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-p{background:var(--blue);color:#fff}.btn-p:hover:not(:disabled){background:#2a57e8;box-shadow:0 0 24px var(--glow)}
+.btn-o{background:transparent;border:1px solid var(--rim);color:var(--ink-text2)}.btn-o:hover:not(:disabled){border-color:var(--blue);color:var(--sky)}
+.btn-g{background:transparent;color:var(--ink-text2);border:none}.btn-g:hover{color:var(--ink-text);background:var(--panel2)}
 .btn-full{width:100%}
-.btn-sm{padding:.45rem 1rem;font-size:.65rem}
-.btn-success{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:var(--green)}
-.btn-success:hover{background:rgba(34,197,94,.2)}
-
-/* TABS */
-.tab-pills{display:flex;gap:.4rem;background:var(--bg2);border-radius:10px;padding:.3rem;margin-bottom:1.5rem}
-.tab-pill{flex:1;padding:.55rem;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.06em;cursor:pointer;transition:all .2s}
-.tab-pill.active{background:var(--accent);color:#fff}
-.tab-content{display:none}
-.tab-content.active{display:block}
+.btn-sm{padding:.42rem .95rem;font-size:.62rem}
+.btn-ok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:var(--green)}.btn-ok:hover{background:rgba(74,222,128,.18)}
+.btn-bad{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:var(--red)}.btn-bad:hover{background:rgba(248,113,113,.15)}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(8,11,16,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:.65rem;cursor:pointer}
-.nav-logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;color:#fff;flex-shrink:0}
-.nav-links{display:flex;align-items:center;gap:.2rem;list-style:none}
-.nav-links a{padding:.5rem .9rem;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);text-decoration:none;transition:color .2s,background .2s;cursor:pointer}
-.nav-links a:hover{color:var(--text);background:var(--surface)}
-.nav-actions{display:flex;gap:.6rem;align-items:center}
-.nav-user-name{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text2)}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(10,13,20,.85);backdrop-filter:blur(24px);border-bottom:1px solid var(--rim)}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--ink-text);cursor:pointer;display:flex;align-items:center;gap:.6rem}
+.nav-brand-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);margin-top:2px}
+.nav-links{display:flex;gap:.1rem;list-style:none}
+.nav-links a{padding:.48rem .85rem;border-radius:7px;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.06em;color:var(--ink-text2);text-decoration:none;transition:all .2s;cursor:pointer}
+.nav-links a:hover{color:var(--ink-text);background:var(--panel)}
+.nav-acts{display:flex;gap:.5rem;align-items:center}
+.nav-uname{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink-text2)}
 
 /* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 5rem;position:relative;z-index:1}
-.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(37,99,255,.1);border:1px solid rgba(37,99,255,.25);border-radius:100px;padding:.4rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-bottom:2rem;animation:fadeUp .7s .1s both}
-.hero-h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,8vw,7rem);font-weight:800;line-height:1.0;letter-spacing:-.03em;animation:fadeUp .8s .2s both}
-.hero-h1 .blue{color:var(--accent)}.hero-h1 .cyan{color:var(--accent2)}
-.hero-desc{font-size:1.15rem;font-weight:300;color:var(--text2);max-width:560px;margin:1.5rem auto 0;animation:fadeUp .8s .35s both}
-.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-top:2.5rem;animation:fadeUp .8s .5s both}
-.hero-stats{display:flex;gap:3rem;margin-top:4rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .65s both}
-.hero-stat-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800}
-.hero-stat-num span{color:var(--accent)}
-.hero-stat-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-top:.2rem}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:9rem 2rem 5rem;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(59,107,255,.08);border:1px solid rgba(59,107,255,.2);border-radius:100px;padding:.38rem .95rem;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:2.2rem;animation:fadeUp .7s .1s both}
+.hero-h1{font-family:'DM Serif Display',serif;font-size:clamp(3.2rem,8vw,7.5rem);line-height:.95;letter-spacing:-.02em;animation:fadeUp .8s .2s both}
+.hero-h1 .accent{color:var(--blue)}
+.hero-h1 em{font-style:italic;color:var(--sky)}
+.hero-sub{font-size:1.1rem;font-weight:300;color:var(--ink-text2);max-width:520px;margin:1.6rem auto 0;line-height:1.7;animation:fadeUp .8s .35s both}
+.hero-acts{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;margin-top:2.8rem;animation:fadeUp .8s .5s both}
+.hero-stats{display:flex;gap:3.5rem;margin-top:5rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .8s .65s both}
+.hstat-n{font-family:'DM Serif Display',serif;font-size:2.5rem;color:var(--ink-text)}
+.hstat-n span{color:var(--blue)}
+.hstat-l{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-text3);margin-top:.2rem}
 
 /* SECTIONS */
 section{position:relative;z-index:1}
-.section-inner{max-width:1140px;margin:0 auto;padding:6rem 2rem}
-.section-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem}
-.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:1rem}
-.section-title span{color:var(--accent2)}
-.section-sub{color:var(--text2);font-size:1rem;font-weight:300;max-width:540px}
-.divider{height:1px;background:linear-gradient(to right,transparent,var(--border),transparent)}
+.s-inner{max-width:1140px;margin:0 auto;padding:6rem 2rem}
+.s-eyebrow{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:.8rem}
+.s-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,3.2rem);line-height:1.1;letter-spacing:-.01em;margin-bottom:1rem}
+.s-title em{font-style:italic;color:var(--sky)}
+.s-sub{color:var(--ink-text2);font-size:1rem;font-weight:300;max-width:520px;line-height:1.7}
+.sep{height:1px;background:linear-gradient(to right,transparent,var(--rim),transparent)}
 
 /* LEVELS */
-.levels-section{background:var(--bg2)}
-.levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-top:3rem}
-.level-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.8rem;transition:transform .3s,border-color .3s,box-shadow .3s;cursor:pointer}
-.level-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 10px 40px rgba(37,99,255,.1)}
-.level-icon{width:48px;height:48px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
-.l1 .level-icon{background:rgba(37,99,255,.15)}
-.l2 .level-icon{background:rgba(56,189,248,.1)}
-.l3 .level-icon{background:rgba(240,180,41,.1)}
-.l4 .level-icon{background:rgba(239,68,68,.1)}
-.level-name{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.25rem}
-.level-grades{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.65rem}
-.level-desc{color:var(--text2);font-size:.88rem;font-weight:300;margin-bottom:.9rem}
-.topic-tags{display:flex;flex-wrap:wrap;gap:.3rem}
-.topic-tag{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:.18rem .55rem;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.04em;color:var(--text3)}
+.lvl-bg{background:var(--ink2)}
+.lvl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem;margin-top:3rem}
+.lcard{background:var(--panel);border:1px solid var(--rim);border-radius:16px;padding:1.8rem;cursor:pointer;transition:all .28s}
+.lcard:hover{transform:translateY(-5px);border-color:var(--blue);box-shadow:0 16px 48px rgba(59,107,255,.1)}
+.lcard-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:1.1rem}
+.li1{background:rgba(59,107,255,.12)}.li2{background:rgba(96,184,255,.1)}.li3{background:rgba(232,184,75,.1)}.li4{background:rgba(248,113,113,.1)}
+.lcard-name{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:.2rem}
+.lcard-gr{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-text3);margin-bottom:.65rem}
+.lcard-desc{color:var(--ink-text2);font-size:.88rem;line-height:1.6;margin-bottom:.9rem}
+.tag-row{display:flex;flex-wrap:wrap;gap:.3rem}
+.tag{background:var(--ink2);border:1px solid var(--rim);border-radius:5px;padding:.16rem .52rem;font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-text3)}
 
 /* COURSES */
-.courses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:3rem}
-.course-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:pointer}
-.course-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
-.course-cover{height:120px;display:flex;align-items:center;justify-content:center;position:relative}
-.cc1{background:linear-gradient(135deg,#0f1e3d,#1a3a7c)}
-.cc2{background:linear-gradient(135deg,#0d2518,#1a5c3a)}
-.cc3{background:linear-gradient(135deg,#2d1a0d,#7c4a1a)}
-.cc4{background:linear-gradient(135deg,#2d0d1a,#7c1a4a)}
-.cc5{background:linear-gradient(135deg,#0d1a2d,#1a4a7c)}
-.cc6{background:linear-gradient(135deg,#1a1a0d,#5c5c1a)}
-.course-symbol{font-size:3rem;opacity:.2;font-family:'Syne',sans-serif;font-weight:800}
-.course-badge{position:absolute;top:.7rem;right:.7rem;padding:.18rem .55rem;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.07em;text-transform:uppercase;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)}
-.badge-new{color:var(--green)}.badge-hot{color:var(--gold)}
-.course-body{padding:1.2rem}
-.course-level{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.35rem}
-.course-name{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.35rem;line-height:1.25}
-.course-desc{color:var(--text2);font-size:.85rem;font-weight:300;margin-bottom:.8rem}
-.course-meta{display:flex;gap:.8rem;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3);margin-bottom:.9rem}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-top:3rem}
+.ccard{background:var(--panel);border:1px solid var(--rim);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .28s}
+.ccard:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.35)}
+.ccover{height:130px;display:flex;align-items:center;justify-content:center;position:relative}
+.cv1{background:linear-gradient(135deg,#0b1635,#15337a)}
+.cv2{background:linear-gradient(135deg,#0a1f14,#13522e)}
+.cv3{background:linear-gradient(135deg,#1f130a,#52331a)}
+.cv4{background:linear-gradient(135deg,#1f0a12,#52152a)}
+.cv5{background:linear-gradient(135deg,#0a1325,#133064)}
+.cv6{background:linear-gradient(135deg,#141410,#3a3a14)}
+.csym{font-family:'DM Serif Display',serif;font-size:3.5rem;opacity:.15;font-style:italic}
+.cbadge{position:absolute;top:.7rem;right:.7rem;padding:.18rem .55rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.07em;text-transform:uppercase;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)}
+.cb-hot{color:var(--gold)}.cb-new{color:var(--green)}
+.cbody{padding:1.3rem}
+.clvl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:.35rem}
+.cname{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:.35rem;line-height:1.25}
+.cdesc{color:var(--ink-text2);font-size:.86rem;line-height:1.6;margin-bottom:.8rem}
+.cmeta{display:flex;gap:.8rem;font-family:'DM Mono',monospace;font-size:.56rem;color:var(--ink-text3);margin-bottom:.9rem}
 
 /* HOW */
-.how-section{background:var(--bg2)}
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:3rem}
-.step-card{text-align:center;padding:1.5rem}
-.step-num{width:52px;height:52px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--accent)}
-.step-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.5rem}
-.step-desc{color:var(--text2);font-size:.88rem;font-weight:300}
+.how-bg{background:var(--ink2)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:3rem}
+.step{text-align:center;padding:1.5rem}
+.step-n{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--blue);display:flex;align-items:center;justify-content:center;margin:0 auto 1.1rem;font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--blue)}
+.step-t{font-family:'DM Serif Display',serif;font-size:1.05rem;margin-bottom:.45rem}
+.step-d{color:var(--ink-text2);font-size:.88rem;line-height:1.6}
 
 /* ABOUT */
-.about-grid{display:grid;grid-template-columns:240px 1fr;gap:4rem;align-items:center;margin-top:3rem}
-.about-avatar{border-radius:16px;background:linear-gradient(135deg,var(--surface2),var(--bg3));border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;padding:2.5rem;position:relative;overflow:hidden}
-.about-avatar::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 40% 40%,rgba(37,99,255,.07),transparent 70%)}
-.avatar-icon{font-size:4rem;opacity:.6}
-.avatar-name{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;text-align:center}
-.avatar-uni{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);text-align:center}
+.about-grid{display:grid;grid-template-columns:260px 1fr;gap:5rem;align-items:center;margin-top:3.5rem}
+.about-av{border-radius:20px;background:linear-gradient(135deg,var(--panel2),var(--ink2));border:1px solid var(--rim);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;padding:3rem 2rem;position:relative;overflow:hidden}
+.about-av::before{content:'';position:absolute;top:-30px;left:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(59,107,255,.1),transparent)}
+.av-em{font-size:4rem;opacity:.5}
+.av-name{font-family:'DM Serif Display',serif;font-size:1rem;text-align:center;line-height:1.3}
+.av-uni{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--sky);text-align:center}
 .about-tags{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.5rem}
-.about-tag{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.32rem .85rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.05em;color:var(--text2)}
-.about-tag.hi{border-color:rgba(37,99,255,.4);color:var(--accent2);background:rgba(37,99,255,.07)}
+.atag{background:var(--panel);border:1px solid var(--rim);border-radius:7px;padding:.3rem .82rem;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-text2)}
+.atag.hi{border-color:rgba(59,107,255,.35);color:var(--sky);background:rgba(59,107,255,.06)}
 
-/* DASHBOARD */
-.dash-layout{display:grid;grid-template-columns:230px 1fr;gap:1.5rem;min-height:600px}
-.dash-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem;align-self:start;position:sticky;top:90px}
-.dash-user-block{text-align:center;padding-bottom:1.1rem;border-bottom:1px solid var(--border);margin-bottom:1.1rem}
-.dash-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff;margin:0 auto .65rem}
-.dash-uname{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700}
-.dash-ugrade{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.15rem}
-.verify-ok{display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);border-radius:5px;padding:.18rem .55rem;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em}
-.dnav-item{display:flex;align-items:center;gap:.6rem;padding:.58rem .75rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.05em;color:var(--text2);cursor:pointer;transition:all .18s;border-left:3px solid transparent;margin-bottom:.15rem}
-.dnav-item:hover{background:var(--surface2);color:var(--text)}
-.dnav-item.active{background:var(--surface2);color:var(--text);border-left-color:var(--accent)}
-.dash-main{display:flex;flex-direction:column;gap:1.2rem}
-.dash-panel{display:none}
-.dash-panel.active{display:flex;flex-direction:column;gap:1.2rem}
-.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.3rem}
-.dash-card-title{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
-.stat-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
-.stat-mini{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center}
-.stat-mini-val{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;line-height:1}
-.stat-mini-lbl{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:.3rem}
-.cli-item{display:flex;align-items:center;gap:.9rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
-.cli-item:last-child{border-bottom:none;padding-bottom:0}
-.cli-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;color:rgba(255,255,255,.35)}
+/* DASH */
+.dlayout{display:grid;grid-template-columns:240px 1fr;gap:1.5rem;min-height:600px}
+.dside{background:var(--panel);border:1px solid var(--rim);border-radius:16px;padding:1.2rem;align-self:start;position:sticky;top:88px}
+.dublock{text-align:center;padding-bottom:1.1rem;border-bottom:1px solid var(--rim);margin-bottom:1rem}
+.dav{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--sky));display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1.5rem;color:#fff;margin:0 auto .6rem}
+.duname{font-family:'DM Serif Display',serif;font-size:.95rem}
+.dugrade{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-text3);margin-top:.15rem}
+.vok{display:inline-flex;align-items:center;gap:.3rem;margin-top:.4rem;background:rgba(74,222,128,.08);color:var(--green);border:1px solid rgba(74,222,128,.18);border-radius:5px;padding:.18rem .52rem;font-family:'DM Mono',monospace;font-size:.55rem}
+.dnav{display:flex;align-items:center;gap:.55rem;padding:.55rem .72rem;border-radius:9px;font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink-text2);cursor:pointer;transition:all .18s;border-left:2px solid transparent;margin-bottom:.12rem}
+.dnav:hover{background:var(--panel2);color:var(--ink-text)}
+.dnav.on{background:var(--panel2);color:var(--ink-text);border-left-color:var(--blue)}
+.dpanel{display:none}.dpanel.on{display:flex;flex-direction:column;gap:1.2rem}
+.dcard{background:var(--panel);border:1px solid var(--rim);border-radius:14px;padding:1.3rem}
+.dcard-t{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.smini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+.smini{background:var(--panel2);border:1px solid var(--rim);border-radius:11px;padding:1rem;text-align:center}
+.smini-v{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1}
+.smini-l{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-text3);margin-top:.3rem}
+.cli{display:flex;align-items:center;gap:.9rem;padding:.82rem 0;border-bottom:1px solid var(--rim)}
+.cli:last-child{border-bottom:none;padding-bottom:0}
+.cli-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1rem;color:rgba(255,255,255,.3);flex-shrink:0}
 .cli-info{flex:1}
-.cli-name{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:600}
-.cli-sub{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;color:var(--text3);margin-top:.12rem}
-.pbar-wrap{width:80px;text-align:right;flex-shrink:0}
-.pbar-pct{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--accent2);margin-bottom:.3rem}
-.pbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
-.pbar-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width .5s}
-.hw-item{display:flex;align-items:center;gap:.9rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
-.hw-item:last-child{border-bottom:none;padding-bottom:0}
-.hw-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.hw-dot.pending{background:var(--gold)}.hw-dot.submitted{background:var(--accent2)}.hw-dot.graded{background:var(--green)}.hw-dot.overdue{background:var(--red)}
+.cli-name{font-family:'DM Serif Display',serif;font-size:.9rem}
+.cli-sub{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-text3);margin-top:.1rem}
+.pb-wrap{text-align:right;flex-shrink:0}
+.pb-pct{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--sky);margin-bottom:.3rem}
+.pb{height:4px;width:80px;background:var(--rim);border-radius:2px;overflow:hidden}
+.pb-fill{height:100%;background:linear-gradient(to right,var(--blue),var(--sky));border-radius:2px;transition:width .5s}
+.hw-row{display:flex;align-items:center;gap:.9rem;padding:.78rem 0;border-bottom:1px solid var(--rim)}
+.hw-row:last-child{border-bottom:none;padding-bottom:0}
+.hw-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.hd-p{background:var(--gold)}.hd-s{background:var(--sky)}.hd-g{background:var(--green)}.hd-o{background:var(--red)}
 .hw-info{flex:1}
-.hw-title{font-family:'Syne',sans-serif;font-size:.86rem;font-weight:600}
-.hw-meta{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.06em;color:var(--text3);margin-top:.15rem}
+.hw-t{font-family:'DM Serif Display',serif;font-size:.88rem}
+.hw-m{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-text3);margin-top:.12rem}
 
 /* COURSE VIEW */
-.cv-header{padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
-.cv-breadcrumb{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--text3);margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
-.cv-breadcrumb span.link{color:var(--accent2);cursor:pointer}
-.cv-breadcrumb span.link:hover{text-decoration:underline}
-.cv-title{font-family:'Syne',sans-serif;font-size:clamp(1.4rem,3vw,2.3rem);font-weight:800;line-height:1.1}
-.cv-meta{display:flex;gap:1.5rem;margin-top:.7rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.07em;color:var(--text3)}
+.cv-hdr{padding:2rem 0 1.5rem;border-bottom:1px solid var(--rim);margin-bottom:1.5rem}
+.cv-bc{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.07em;color:var(--ink-text3);margin-bottom:.65rem;display:flex;align-items:center;gap:.4rem}
+.cv-bc .lk{color:var(--sky);cursor:pointer}.cv-bc .lk:hover{text-decoration:underline}
+.cv-title{font-family:'DM Serif Display',serif;font-size:clamp(1.5rem,3vw,2.4rem);line-height:1.1}
+.cv-meta{display:flex;gap:1.5rem;margin-top:.7rem;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--ink-text3)}
 .cv-layout{display:grid;grid-template-columns:270px 1fr;gap:1.5rem}
-.cv-sidebar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.1rem;align-self:start;position:sticky;top:90px;max-height:calc(100vh - 110px);overflow-y:auto}
-.cv-sidebar-title{font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:.7rem}
-.ch-item{margin-bottom:.15rem}
-.ch-header{display:flex;align-items:center;gap:.55rem;padding:.55rem .65rem;border-radius:8px;cursor:pointer;transition:background .18s;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:600}
-.ch-header:hover{background:var(--surface2)}
-.ch-header.active-ch{background:var(--surface2);color:var(--accent)}
-.ch-arrow{font-size:.65rem;margin-left:auto;transition:transform .2s;color:var(--text3)}
-.ch-item.open .ch-arrow{transform:rotate(90deg)}
-.ls-list{padding-left:1.1rem;margin-top:.15rem;display:none}
-.ch-item.open .ls-list{display:block}
-.ls-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .55rem;border-radius:7px;cursor:pointer;transition:background .18s;font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.04em;color:var(--text2);margin-bottom:.08rem}
-.ls-item:hover{background:var(--surface2);color:var(--text)}
-.ls-item.ls-active{background:rgba(37,99,255,.12);color:var(--accent)}
-.ls-item.ls-done{color:var(--green)}
-.ls-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.45rem}
+.cv-sb{background:var(--panel);border:1px solid var(--rim);border-radius:14px;padding:1.1rem;align-self:start;position:sticky;top:88px;max-height:calc(100vh - 110px);overflow-y:auto}
+.cv-sb-t{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-text3);margin-bottom:.7rem}
+.ch-item{margin-bottom:.12rem}
+.ch-hdr{display:flex;align-items:center;gap:.5rem;padding:.52rem .6rem;border-radius:8px;cursor:pointer;font-family:'DM Serif Display',serif;font-size:.85rem;transition:background .18s}
+.ch-hdr:hover,.ch-hdr.on{background:var(--panel2)}
+.ch-arr{font-size:.6rem;margin-left:auto;transition:transform .2s;color:var(--ink-text3)}
+.ch-item.op .ch-arr{transform:rotate(90deg)}
+.ls-wrap{padding-left:1rem;display:none;margin-top:.1rem}
+.ch-item.op .ls-wrap{display:block}
+.ls-row{display:flex;align-items:center;gap:.5rem;padding:.38rem .55rem;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-text2);transition:all .18s;margin-bottom:.06rem}
+.ls-row:hover{background:var(--panel2);color:var(--ink-text)}
+.ls-row.on{background:rgba(59,107,255,.1);color:var(--sky)}
+.ls-row.done{color:var(--green)}
+.ls-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--rim);display:flex;align-items:center;justify-content:center;font-size:.4rem}
 .ls-dot.done{background:var(--green);border-color:var(--green);color:#fff}
-.cv-content{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.8rem;min-height:400px}
+.cv-content{background:var(--panel);border:1px solid var(--rim);border-radius:14px;padding:1.8rem;min-height:400px}
 
-/* TEST ENGINE */
-.test-pbar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1.5rem}
-.test-pbar-fill{height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));transition:width .4s ease}
-.test-qnum{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem}
-.test-qtext{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;line-height:1.4;margin-bottom:1.3rem}
-.test-options{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.3rem}
-.test-opt{display:flex;align-items:center;gap:.85rem;padding:.9rem 1rem;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;font-size:.92rem}
-.test-opt:hover{border-color:var(--accent);background:rgba(37,99,255,.06)}
-.test-opt.sel{border-color:var(--accent);background:rgba(37,99,255,.1)}
-.test-opt.correct{border-color:var(--green);background:rgba(34,197,94,.08)}
-.test-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.08)}
-.test-opt-mk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.64rem;font-weight:500;flex-shrink:0;transition:all .2s}
-.test-opt.sel .test-opt-mk{background:var(--accent);border-color:var(--accent);color:#fff}
-.test-opt.correct .test-opt-mk{background:var(--green);border-color:var(--green);color:#fff}
-.test-opt.wrong .test-opt-mk{background:var(--red);border-color:var(--red);color:#fff}
-.test-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:.75rem 1rem;color:var(--text);font-family:'Crimson Pro',serif;font-size:1.1rem;outline:none;transition:border-color .25s;margin-bottom:1.3rem}
-.test-input:focus{border-color:var(--accent)}
-.test-result{text-align:center;padding:2rem}
-.test-result-score{font-family:'Syne',sans-serif;font-size:3.5rem;font-weight:800;line-height:1}
-.empty-state{text-align:center;padding:3rem;color:var(--text3)}
-.empty-icon{font-size:2.5rem;margin-bottom:.8rem}
-.empty-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--text2)}
-.empty-sub{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;margin-top:.4rem}
+/* TEST */
+.t-pbar{height:3px;background:var(--rim);border-radius:2px;overflow:hidden;margin-bottom:1.5rem}
+.t-pbar-f{height:100%;background:linear-gradient(to right,var(--blue),var(--sky));transition:width .4s}
+.t-qn{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-text3);margin-bottom:.5rem}
+.t-qt{font-family:'DM Serif Display',serif;font-size:1.15rem;line-height:1.4;margin-bottom:1.3rem}
+.t-opts{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.3rem}
+.t-opt{display:flex;align-items:center;gap:.85rem;padding:.88rem 1rem;background:var(--panel2);border:1.5px solid var(--rim);border-radius:11px;cursor:pointer;transition:all .2s;font-size:.92rem}
+.t-opt:hover{border-color:var(--blue)}
+.t-opt.sel{border-color:var(--blue);background:rgba(59,107,255,.08)}
+.t-opt.corr{border-color:var(--green);background:rgba(74,222,128,.07)}
+.t-opt.wrong{border-color:var(--red);background:rgba(248,113,113,.07)}
+.t-mk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--rim);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.62rem;flex-shrink:0;transition:all .2s}
+.t-opt.sel .t-mk{background:var(--blue);border-color:var(--blue);color:#fff}
+.t-opt.corr .t-mk{background:var(--green);border-color:var(--green);color:#fff}
+.t-opt.wrong .t-mk{background:var(--red);border-color:var(--red);color:#fff}
+.t-inp{width:100%;background:var(--ink2);border:1.5px solid var(--rim);border-radius:10px;padding:.72rem 1rem;color:var(--ink-text);font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;margin-bottom:1.3rem}
+.t-inp:focus{border-color:var(--blue)}
+.t-result{text-align:center;padding:2rem}
+.t-score{font-family:'DM Serif Display',serif;font-size:4rem;line-height:1}
+.empty{text-align:center;padding:3rem;color:var(--ink-text3)}
+.empty-i{font-size:2.5rem;margin-bottom:.8rem}
+.empty-t{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--ink-text2)}
+.empty-s{font-family:'DM Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;margin-top:.4rem}
+.lesson-placeholder{background:var(--panel2);border:1px dashed var(--rim2);border-radius:12px;padding:3rem;text-align:center;margin-bottom:1.5rem}
 
 /* FOOTER */
-footer{background:var(--bg);border-top:1px solid var(--border);padding:2.5rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;position:relative;z-index:1}
-.footer-logo{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:.6rem}
-.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
-.footer-links a{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);text-decoration:none;transition:color .2s}
-.footer-links a:hover{color:var(--accent2)}
-.footer-copy{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.07em;color:var(--text3)}
+footer{background:var(--ink);border-top:1px solid var(--rim);padding:2.5rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;position:relative;z-index:1}
+.f-brand{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--ink-text);display:flex;align-items:center;gap:.6rem}
+.f-links{display:flex;gap:1.5rem}
+.f-links a{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-text3);text-decoration:none;transition:color .2s;cursor:pointer}
+.f-links a:hover{color:var(--sky)}
+.f-copy{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--ink-text3)}
 
-/* ANIM */
-@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-.reveal{opacity:0;transform:translateY(25px);transition:opacity .7s,transform .7s}
-.reveal.visible{opacity:1;transform:translateY(0)}
-.reveal-d1{transition-delay:.1s}.reveal-d2{transition-delay:.2s}.reveal-d3{transition-delay:.3s}
+/* ANIMS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rd1{transition-delay:.1s}.rd2{transition-delay:.2s}.rd3{transition-delay:.3s}
 
 @media(max-width:900px){
   nav{padding:.9rem 1.2rem}.nav-links{display:none}
-  .about-grid,.dash-layout,.cv-layout{grid-template-columns:1fr}
-  .dash-sidebar,.cv-sidebar{position:static}
-  .stat-mini-grid{grid-template-columns:1fr 1fr}
+  .about-grid,.dlayout,.cv-layout{grid-template-columns:1fr}
+  .dside,.cv-sb{position:static}
+  .smini-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 
+<canvas id="bgCanvas"></canvas>
+
 <div id="loadingScreen">
-  <div class="loader-logo"><span>Logistical</span> Points</div>
-  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="ld-logo"><em>Logistical</em> Points</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-wrap" id="toastWrap"></div>
 
 <!-- AUTH MODAL -->
-<div class="modal-overlay" id="authModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('authModal')">✕</button>
-    <div class="tab-pills">
-      <button class="tab-pill active" id="pill-login" onclick="switchAuthTab('login')">Войти</button>
-      <button class="tab-pill" id="pill-register" onclick="switchAuthTab('register')">Регистрация</button>
+<div class="mo" id="moAuth">
+  <div class="mo-box">
+    <button class="mo-x" onclick="closeMo('moAuth')">✕</button>
+    <div class="tabs">
+      <button class="tab on" id="tl" onclick="authTab('login')">Войти</button>
+      <button class="tab" id="tr" onclick="authTab('register')">Регистрация</button>
     </div>
-    <div class="tab-content active" id="tabLogin">
-      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"/><div class="form-error" id="loginErr"></div></div>
-      <div class="form-group"><label>Пароль</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
-      <button class="btn btn-primary btn-full" id="loginBtn" onclick="doLogin()">Войти →</button>
-      <p style="text-align:center;margin-top:.9rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text3)">
-        <span style="cursor:pointer;color:var(--accent2)" onclick="doForgot()">Забыли пароль?</span>
-      </p>
+    <div class="tc on" id="tcLogin">
+      <div class="fg"><label>Email</label><input type="email" id="liEmail" placeholder="your@email.com"/><div class="ferr" id="liErr"></div></div>
+      <div class="fg"><label>Пароль</label><input type="password" id="liPass" placeholder="••••••••"/></div>
+      <button class="btn btn-p btn-full" id="liBtn" onclick="doLogin()">Войти →</button>
+      <p style="text-align:center;margin-top:.9rem;font-family:'DM Mono',monospace;font-size:.6rem;color:var(--ink-text3)"><span style="cursor:pointer;color:var(--sky)" onclick="doForgot()">Забыли пароль?</span></p>
     </div>
-    <div class="tab-content" id="tabRegister">
-      <div class="form-group"><label>Имя и фамилия</label><input type="text" id="regName" placeholder="Иван Иванов"/><div class="form-error" id="errName"></div></div>
-      <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"/><div class="form-error" id="errEmail"></div></div>
-      <div class="form-group"><label>Класс</label>
-        <select id="regGrade"><option value="">Выберите класс</option><option value="1-4">1–4 класс</option><option value="5-6">5–6 класс</option><option value="7-8">7–8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10–11 класс (ЕГЭ)</option></select>
-        <div class="form-error" id="errGrade"></div></div>
-      <div class="form-group"><label>Пароль (мин. 6 символов)</label><input type="password" id="regPass" placeholder="••••••••"/><div class="form-error" id="errPass"></div></div>
-      <button class="btn btn-primary btn-full" id="registerBtn" onclick="doRegister()">Создать аккаунт →</button>
-      <div style="margin-top:1rem;background:rgba(37,99,255,.06);border:1px solid rgba(37,99,255,.2);border-radius:9px;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--accent2)">
-        📧 После регистрации придёт письмо с подтверждением. Войти можно после подтверждения email.
-      </div>
+    <div class="tc" id="tcReg">
+      <div class="fg"><label>Имя и фамилия</label><input type="text" id="rName" placeholder="Иван Иванов"/><div class="ferr" id="rErrName"></div></div>
+      <div class="fg"><label>Email</label><input type="email" id="rEmail" placeholder="your@email.com"/><div class="ferr" id="rErrEmail"></div></div>
+      <div class="fg"><label>Класс</label>
+        <select id="rGrade"><option value="">Выберите класс</option><option value="1-4">1–4 класс</option><option value="5-6">5–6 класс</option><option value="7-8">7–8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10–11 класс (ЕГЭ)</option></select>
+        <div class="ferr" id="rErrGrade"></div></div>
+      <div class="fg"><label>Пароль (мин. 6 символов)</label><input type="password" id="rPass" placeholder="••••••••"/><div class="ferr" id="rErrPass"></div></div>
+      <button class="btn btn-p btn-full" id="rBtn" onclick="doRegister()">Создать аккаунт →</button>
+      <div style="margin-top:1rem;background:rgba(59,107,255,.06);border:1px solid rgba(59,107,255,.18);border-radius:10px;padding:.85rem;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--sky)">📧 После регистрации придёт письмо с подтверждением. Войти можно после подтверждения email.</div>
     </div>
   </div>
 </div>
 
 <!-- HW MODAL -->
-<div class="modal-overlay" id="hwModal">
-  <div class="modal" style="max-width:520px">
-    <button class="modal-close" onclick="closeModal('hwModal')">✕</button>
-    <h2>Сдать домашнее задание</h2>
-    <div class="form-group"><label>Задание</label><input type="text" id="hwModalTitle" readonly/></div>
-    <div class="form-group"><label>Ваше решение</label><textarea id="hwModalText" placeholder="Напишите ход решения, ответы, рассуждения…"></textarea></div>
-    <div style="display:flex;gap:.8rem">
-      <button class="btn btn-primary" style="flex:1" onclick="submitHW()">Отправить →</button>
-      <button class="btn btn-outline" onclick="closeModal('hwModal')">Отмена</button>
+<div class="mo" id="moHW">
+  <div class="mo-box" style="max-width:520px">
+    <button class="mo-x" onclick="closeMo('moHW')">✕</button>
+    <div class="mo-title">Сдать домашнее задание</div>
+    <div class="fg"><label>Задание</label><input type="text" id="hwMoTitle" readonly/></div>
+    <div class="fg"><label>Ваше решение</label><textarea id="hwMoText" placeholder="Напишите ход решения, ответы, рассуждения…"></textarea></div>
+    <div style="display:flex;gap:.7rem">
+      <button class="btn btn-p" style="flex:1" onclick="submitHW()">Отправить →</button>
+      <button class="btn btn-o" onclick="closeMo('moHW')">Отмена</button>
     </div>
   </div>
 </div>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo" onclick="showHomepage()">
-    <div class="nav-logo-icon">LP</div>Logistical Points
-  </div>
+  <div class="nav-brand" onclick="showHome()"><div class="nav-brand-dot"></div>Logistical Points</div>
   <ul class="nav-links">
-    <li><a onclick="showHomepage()">Уровни</a></li>
-    <li><a onclick="showHomepage()">Курсы</a></li>
-    <li><a onclick="showHomepage()">Преподаватель</a></li>
+    <li><a onclick="showHome()">Уровни</a></li>
+    <li><a onclick="showHome()">Курсы</a></li>
+    <li><a onclick="showHome()">Преподаватель</a></li>
   </ul>
-  <div class="nav-actions" id="navActions">
-    <button class="btn btn-outline btn-sm" onclick="openModal('authModal')">Войти</button>
-    <button class="btn btn-primary btn-sm" onclick="openModal('authModal')">Начать →</button>
+  <div class="nav-acts" id="navActs">
+    <button class="btn btn-o btn-sm" onclick="openMo('moAuth')">Войти</button>
+    <button class="btn btn-p btn-sm" onclick="openMo('moAuth')">Начать →</button>
   </div>
 </nav>
 
 <!-- HOMEPAGE -->
-<div id="homepageView">
+<div id="vHome">
+
 <section class="hero">
-  <div class="hero-tag">◈ Онлайн-школа математики</div>
-  <h1 class="hero-h1"><span class="blue">Logistical</span><br><span class="cyan">Points</span></h1>
-  <p class="hero-desc">Подготовка к олимпиадам и экзаменам для школьников 1–11 классов. Индивидуальный подход, реальные задачи, живая проверка.</p>
-  <div class="hero-actions">
-    <button class="btn btn-primary" onclick="openModal('authModal')">Начать бесплатно →</button>
-    <a href="#courses" class="btn btn-outline">Смотреть курсы</a>
+  <div class="hero-eyebrow">◈ Онлайн-школа математики</div>
+  <h1 class="hero-h1"><span class="accent">Logistical</span><br><em>Points</em></h1>
+  <p class="hero-sub">Подготовка к олимпиадам и экзаменам для школьников 1–11 классов. Индивидуальный подход, реальные задачи, живая проверка.</p>
+  <div class="hero-acts">
+    <button class="btn btn-p" onclick="openMo('moAuth')">Начать бесплатно →</button>
+    <a href="#courses" class="btn btn-o">Смотреть курсы</a>
   </div>
   <div class="hero-stats">
-    <div><div class="hero-stat-num">6<span>+</span></div><div class="hero-stat-label">Курсов</div></div>
-    <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Уровня</div></div>
-    <div><div class="hero-stat-num">ЕГЭ<span>/</span>ОГЭ</div><div class="hero-stat-label">Подготовка</div></div>
+    <div><div class="hstat-n">6<span>+</span></div><div class="hstat-l">Курсов</div></div>
+    <div><div class="hstat-n">4</div><div class="hstat-l">Уровня</div></div>
+    <div><div class="hstat-n">ЕГЭ<span>/</span>ОГЭ</div><div class="hstat-l">Подготовка</div></div>
+    <div><div class="hstat-n">∞</div><div class="hstat-l">Задач</div></div>
   </div>
 </section>
-<div class="divider"></div>
+<div class="sep"></div>
 
-<section class="levels-section" id="levels">
-  <div class="section-inner">
-    <p class="section-label reveal">Уровни</p>
-    <h2 class="section-title reveal reveal-d1">Для каждого <span>класса</span></h2>
-    <p class="section-sub reveal reveal-d2">Программа адаптирована под возраст и цели.</p>
-    <div class="levels-grid">
-      <div class="level-card l1 reveal"><div class="level-icon">🔢</div><div class="level-name">Начальная школа</div><div class="level-grades">1–4 класс</div><div class="level-desc">Основы счёта, логика, первые олимпиады.</div><div class="topic-tags"><span class="topic-tag">Арифметика</span><span class="topic-tag">Логика</span><span class="topic-tag">Смекалка</span></div></div>
-      <div class="level-card l2 reveal reveal-d1"><div class="level-icon">📐</div><div class="level-name">5–6 класс</div><div class="level-grades">5–6 класс</div><div class="level-desc">Дроби, проценты, начала алгебры.</div><div class="topic-tags"><span class="topic-tag">Дроби</span><span class="topic-tag">Пропорции</span><span class="topic-tag">Геометрия</span></div></div>
-      <div class="level-card l2 reveal reveal-d2"><div class="level-icon">📏</div><div class="level-name">7–8 класс</div><div class="level-grades">7–8 класс</div><div class="level-desc">Алгебра, геометрия, олимпиады.</div><div class="topic-tags"><span class="topic-tag">Алгебра</span><span class="topic-tag">Геометрия</span><span class="topic-tag">Комбинаторика</span></div></div>
-      <div class="level-card l3 reveal"><div class="level-icon">📊</div><div class="level-name">9 класс — ОГЭ</div><div class="level-grades">9 класс</div><div class="level-desc">Все темы ОГЭ, тренировочные варианты.</div><div class="topic-tags"><span class="topic-tag">Все темы ОГЭ</span><span class="topic-tag">Варианты</span></div></div>
-      <div class="level-card l4 reveal reveal-d1"><div class="level-icon">🏆</div><div class="level-name">10–11 — ЕГЭ / Олимпиады</div><div class="level-grades">10–11 класс</div><div class="level-desc">ЕГЭ профиль, ВсОШ, олимпиады вузов.</div><div class="topic-tags"><span class="topic-tag">ЕГЭ профиль</span><span class="topic-tag">ВсОШ</span><span class="topic-tag">Анализ</span></div></div>
+<section class="lvl-bg" id="levels">
+  <div class="s-inner">
+    <p class="s-eyebrow rv">Уровни обучения</p>
+    <h2 class="s-title rv rd1">Для каждого <em>класса</em></h2>
+    <p class="s-sub rv rd2">Программа адаптирована под возраст, уровень и цели.</p>
+    <div class="lvl-grid">
+      <div class="lcard rv"><div class="lcard-icon li1">🔢</div><div class="lcard-name">Начальная школа</div><div class="lcard-gr">1–4 класс</div><div class="lcard-desc">Основы счёта, логика, первые олимпиады.</div><div class="tag-row"><span class="tag">Арифметика</span><span class="tag">Логика</span><span class="tag">Смекалка</span></div></div>
+      <div class="lcard rv rd1"><div class="lcard-icon li2">📐</div><div class="lcard-name">5–6 класс</div><div class="lcard-gr">5–6 класс</div><div class="lcard-desc">Дроби, проценты, начала алгебры и геометрии.</div><div class="tag-row"><span class="tag">Дроби</span><span class="tag">Пропорции</span><span class="tag">Геометрия</span></div></div>
+      <div class="lcard rv rd2"><div class="lcard-icon li2">📏</div><div class="lcard-name">7–8 класс</div><div class="lcard-gr">7–8 класс</div><div class="lcard-desc">Алгебра, геометрия, олимпиады городского уровня.</div><div class="tag-row"><span class="tag">Алгебра</span><span class="tag">Геометрия</span><span class="tag">Комбинаторика</span></div></div>
+      <div class="lcard rv"><div class="lcard-icon li3">📊</div><div class="lcard-name">9 класс — ОГЭ</div><div class="lcard-gr">9 класс</div><div class="lcard-desc">Все темы ОГЭ, тренировочные варианты.</div><div class="tag-row"><span class="tag">ОГЭ</span><span class="tag">Все темы</span></div></div>
+      <div class="lcard rv rd1"><div class="lcard-icon li4">🏆</div><div class="lcard-name">10–11 — ЕГЭ / Олимпиады</div><div class="lcard-gr">10–11 класс</div><div class="lcard-desc">ЕГЭ профиль, ВсОШ, олимпиады вузов.</div><div class="tag-row"><span class="tag">ЕГЭ</span><span class="tag">ВсОШ</span><span class="tag">Анализ</span></div></div>
     </div>
   </div>
 </section>
-<div class="divider"></div>
+<div class="sep"></div>
 
 <section id="courses">
-  <div class="section-inner">
-    <p class="section-label reveal">Курсы</p>
-    <h2 class="section-title reveal reveal-d1">Все <span>направления</span></h2>
-    <p class="section-sub reveal reveal-d2">Теория, тесты и домашние задания с личной проверкой.</p>
-    <div class="courses-grid" id="coursesGrid"></div>
+  <div class="s-inner">
+    <p class="s-eyebrow rv">Курсы</p>
+    <h2 class="s-title rv rd1">Все <em>направления</em></h2>
+    <p class="s-sub rv rd2">Теория, тесты и домашние задания с личной проверкой.</p>
+    <div class="cgrid" id="cgrid"></div>
   </div>
 </section>
-<div class="divider"></div>
+<div class="sep"></div>
 
-<section class="how-section">
-  <div class="section-inner">
-    <p class="section-label reveal">Как это работает</p>
-    <h2 class="section-title reveal reveal-d1">Простой <span>процесс</span></h2>
-    <div class="steps-grid">
-      <div class="step-card reveal"><div class="step-num">1</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт и подтвердите email</div></div>
-      <div class="step-card reveal reveal-d1"><div class="step-num">2</div><div class="step-title">Выберите курс</div><div class="step-desc">Найдите подходящий уровень и тему</div></div>
-      <div class="step-card reveal reveal-d2"><div class="step-num">3</div><div class="step-title">Учитесь и тестируйтесь</div><div class="step-desc">Проходите уроки и проверочные тесты</div></div>
-      <div class="step-card reveal reveal-d3"><div class="step-num">4</div><div class="step-title">Сдайте задание</div><div class="step-desc">Отправьте ДЗ — преподаватель проверит лично</div></div>
+<section class="how-bg">
+  <div class="s-inner">
+    <p class="s-eyebrow rv">Как это работает</p>
+    <h2 class="s-title rv rd1">Простой <em>процесс</em></h2>
+    <div class="steps">
+      <div class="step rv"><div class="step-n">1</div><div class="step-t">Регистрация</div><div class="step-d">Создайте аккаунт и подтвердите email</div></div>
+      <div class="step rv rd1"><div class="step-n">2</div><div class="step-t">Выберите курс</div><div class="step-d">Найдите подходящий уровень и тему</div></div>
+      <div class="step rv rd2"><div class="step-n">3</div><div class="step-t">Учитесь и тестируйтесь</div><div class="step-d">Проходите уроки и проверочные тесты</div></div>
+      <div class="step rv rd3"><div class="step-n">4</div><div class="step-t">Сдайте задание</div><div class="step-d">Отправьте ДЗ — преподаватель проверит лично</div></div>
     </div>
   </div>
 </section>
-<div class="divider"></div>
+<div class="sep"></div>
 
 <section id="about">
-  <div class="section-inner">
-    <p class="section-label reveal">Преподаватель</p>
+  <div class="s-inner">
+    <p class="s-eyebrow rv">Преподаватель</p>
     <div class="about-grid">
-      <div class="about-avatar reveal"><div class="avatar-icon">👨‍🎓</div><div class="avatar-name">Егоров Степан Евгеньевич</div><div class="avatar-uni">СПбГЭТУ «ЛЭТИ»</div></div>
-      <div class="reveal reveal-d1">
-        <h2 class="section-title">Ваш <span>преподаватель</span></h2>
-        <p style="color:var(--text2);font-weight:300;margin-bottom:.9rem">Меня зовут <strong style="color:var(--text)">Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong style="color:var(--accent2)">Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
-        <p style="color:var(--text2);font-weight:300;margin-bottom:.9rem">Создал Logistical Points, чтобы сделать качественную подготовку к олимпиадам и экзаменам доступной для всех. Каждую работу проверяю лично с подробными комментариями.</p>
+      <div class="about-av rv"><div class="av-em">👨‍🎓</div><div class="av-name">Егоров Степан Евгеньевич</div><div class="av-uni">СПбГЭТУ «ЛЭТИ»</div></div>
+      <div class="rv rd1">
+        <h2 class="s-title">Ваш <em>преподаватель</em></h2>
+        <p style="color:var(--ink-text2);line-height:1.75;margin-bottom:.9rem">Меня зовут <strong style="color:var(--ink-text)">Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong style="color:var(--sky)">Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
+        <p style="color:var(--ink-text2);line-height:1.75;margin-bottom:1.2rem">Создал Logistical Points, чтобы сделать качественную подготовку к олимпиадам и экзаменам доступной. Каждую работу проверяю лично с подробными комментариями.</p>
         <div class="about-tags">
-          <span class="about-tag hi">СПбГЭТУ «ЛЭТИ»</span>
-          <span class="about-tag">Олимпиадная математика</span>
-          <span class="about-tag">ЕГЭ / ОГЭ</span>
-          <span class="about-tag">1–11 класс</span>
-          <span class="about-tag">Индивидуальный подход</span>
+          <span class="atag hi">СПбГЭТУ «ЛЭТИ»</span><span class="atag">Олимпиадная математика</span><span class="atag">ЕГЭ / ОГЭ</span><span class="atag">1–11 класс</span><span class="atag">Индивидуальный подход</span>
         </div>
       </div>
     </div>
   </div>
 </section>
-<div class="divider"></div>
+<div class="sep"></div>
 <footer>
-  <div class="footer-logo"><div class="nav-logo-icon">LP</div> Logistical Points</div>
-  <div class="footer-links"><a href="#levels">Уровни</a><a href="#courses">Курсы</a><a href="#about">Преподаватель</a><a href="admin.html">Админ</a></div>
-  <div class="footer-copy">© 2025 Logistical Points · Егоров С.Е.</div>
+  <div class="f-brand"><div class="nav-brand-dot"></div>Logistical Points</div>
+  <div class="f-links"><a onclick="showHome()">Уровни</a><a onclick="showHome()">Курсы</a><a onclick="showHome()">Преподаватель</a><a href="admin.html">Админ</a></div>
+  <div class="f-copy">© 2025 Logistical Points · Егоров С.Е.</div>
 </footer>
-</div><!-- /homepageView -->
+</div>
 
-<!-- DASHBOARD VIEW -->
-<div id="dashboardView" style="display:none;min-height:100vh;padding-top:80px;position:relative;z-index:1">
+<!-- DASHBOARD -->
+<div id="vDash" style="display:none;min-height:100vh;padding-top:78px;position:relative;z-index:1">
   <div style="max-width:1140px;margin:0 auto;padding:2rem">
-    <p class="section-label">Личный кабинет</p>
-    <h2 style="font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;margin-bottom:1.5rem">Добро пожаловать, <span id="dashWName" style="color:var(--accent2)"></span></h2>
-    <div class="dash-layout">
-      <div class="dash-sidebar">
-        <div class="dash-user-block">
-          <div class="dash-avatar" id="dashAvLetter">У</div>
-          <div class="dash-uname" id="dashSName"></div>
-          <div class="dash-ugrade" id="dashSGrade"></div>
-          <div class="verify-ok">✓ Email подтверждён</div>
+    <p class="s-eyebrow">Личный кабинет</p>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:1.5rem">Добро пожаловать, <em id="dWName" style="color:var(--sky)"></em></h2>
+    <div class="dlayout">
+      <div class="dside">
+        <div class="dublock">
+          <div class="dav" id="dAvL">У</div>
+          <div class="duname" id="dSName"></div>
+          <div class="dugrade" id="dSGrade"></div>
+          <div class="vok">✓ Email подтверждён</div>
         </div>
-        <div class="dnav-item active" id="dnav-overview" onclick="switchPanel('overview',this)">📊 Обзор</div>
-        <div class="dnav-item" id="dnav-courses" onclick="switchPanel('courses',this)">📚 Мои курсы</div>
-        <div class="dnav-item" id="dnav-homework" onclick="switchPanel('homework',this)">📝 Домашние задания</div>
-        <div class="dnav-item" id="dnav-progress" onclick="switchPanel('progress',this)">📈 Прогресс</div>
-        <div style="height:1px;background:var(--border);margin:.7rem 0"></div>
-        <div class="dnav-item" onclick="doLogout()" style="color:var(--red)">🚪 Выйти</div>
+        <div class="dnav on" id="dn-ov" onclick="dTab('ov',this)">📊 Обзор</div>
+        <div class="dnav" id="dn-cr" onclick="dTab('cr',this)">📚 Мои курсы</div>
+        <div class="dnav" id="dn-hw" onclick="dTab('hw',this)">📝 Домашние задания</div>
+        <div class="dnav" id="dn-pr" onclick="dTab('pr',this)">📈 Прогресс</div>
+        <div style="height:1px;background:var(--rim);margin:.7rem 0"></div>
+        <div class="dnav" onclick="doLogout()" style="color:var(--red)">🚪 Выйти</div>
       </div>
-      <div class="dash-main">
-        <div class="dash-panel active" id="panel-overview">
-          <div class="stat-mini-grid">
-            <div class="stat-mini"><div class="stat-mini-val" id="st-courses" style="color:var(--accent)">0</div><div class="stat-mini-lbl">Курсов</div></div>
-            <div class="stat-mini"><div class="stat-mini-val" id="st-lessons" style="color:var(--gold)">0</div><div class="stat-mini-lbl">Уроков</div></div>
-            <div class="stat-mini"><div class="stat-mini-val" id="st-hw" style="color:var(--green)">0</div><div class="stat-mini-lbl">ДЗ сдано</div></div>
+      <div>
+        <div class="dpanel on" id="dp-ov">
+          <div class="smini-grid">
+            <div class="smini"><div class="smini-v" id="st-c" style="color:var(--blue)">0</div><div class="smini-l">Курсов</div></div>
+            <div class="smini"><div class="smini-v" id="st-l" style="color:var(--gold)">0</div><div class="smini-l">Уроков</div></div>
+            <div class="smini"><div class="smini-v" id="st-h" style="color:var(--green)">0</div><div class="smini-l">ДЗ сдано</div></div>
           </div>
-          <div class="dash-card">
-            <div class="dash-card-title">📚 Продолжить обучение <button class="btn btn-outline btn-sm" onclick="switchPanel('courses',document.getElementById('dnav-courses'))">Все курсы →</button></div>
-            <div id="dashContinue"></div>
-          </div>
-          <div class="dash-card">
-            <div class="dash-card-title">📝 Домашние задания <button class="btn btn-outline btn-sm" onclick="switchPanel('homework',document.getElementById('dnav-homework'))">Все →</button></div>
-            <div id="dashHWPreview"></div>
-          </div>
+          <div class="dcard"><div class="dcard-t">📚 Продолжить обучение <button class="btn btn-o btn-sm" onclick="dTab('cr',document.getElementById('dn-cr'))">Все →</button></div><div id="dCont"></div></div>
+          <div class="dcard"><div class="dcard-t">📝 Домашние задания <button class="btn btn-o btn-sm" onclick="dTab('hw',document.getElementById('dn-hw'))">Все →</button></div><div id="dHWP"></div></div>
         </div>
-        <div class="dash-panel" id="panel-courses">
-          <div class="dash-card"><div class="dash-card-title">📚 Мои курсы</div><div id="dashMyCourses"></div></div>
-          <div class="dash-card"><div class="dash-card-title">Доступные курсы</div><div id="dashCatalog"></div></div>
+        <div class="dpanel" id="dp-cr">
+          <div class="dcard"><div class="dcard-t">📚 Мои курсы</div><div id="dMyCr"></div></div>
+          <div class="dcard"><div class="dcard-t">Доступные курсы</div><div id="dCat"></div></div>
         </div>
-        <div class="dash-panel" id="panel-homework">
-          <div class="dash-card"><div class="dash-card-title">📝 Домашние задания</div><div id="dashHWFull"></div></div>
+        <div class="dpanel" id="dp-hw">
+          <div class="dcard"><div class="dcard-t">📝 Домашние задания</div><div id="dHWF"></div></div>
         </div>
-        <div class="dash-panel" id="panel-progress">
-          <div class="dash-card"><div class="dash-card-title">📈 Прогресс</div><div id="dashProgress"></div></div>
+        <div class="dpanel" id="dp-pr">
+          <div class="dcard"><div class="dcard-t">📈 Прогресс</div><div id="dProg"></div></div>
         </div>
       </div>
     </div>
@@ -486,22 +461,16 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2.5rem;di
 </div>
 
 <!-- COURSE VIEW -->
-<div id="courseView" style="display:none;min-height:100vh;padding-top:80px;position:relative;z-index:1">
+<div id="vCourse" style="display:none;min-height:100vh;padding-top:78px;position:relative;z-index:1">
   <div style="max-width:1140px;margin:0 auto;padding:2rem">
-    <div class="cv-header">
-      <div class="cv-breadcrumb">
-        <span class="link" onclick="showDashboard()">Кабинет</span><span>›</span>
-        <span class="link" onclick="showDashboard()">Курсы</span><span>›</span>
-        <span id="cvName">Курс</span>
-      </div>
+    <div class="cv-hdr">
+      <div class="cv-bc"><span class="lk" onclick="showDash()">Кабинет</span><span>›</span><span class="lk" onclick="showDash()">Курсы</span><span>›</span><span id="cvCName"></span></div>
       <div class="cv-title" id="cvTitle"></div>
       <div class="cv-meta" id="cvMeta"></div>
     </div>
     <div class="cv-layout">
-      <div class="cv-sidebar"><div class="cv-sidebar-title">Содержание</div><div id="cvChapters"></div></div>
-      <div class="cv-content" id="cvContent">
-        <div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Выберите урок</div><p class="empty-sub">Нажмите на урок слева</p></div>
-      </div>
+      <div class="cv-sb"><div class="cv-sb-t">Содержание</div><div id="cvCh"></div></div>
+      <div class="cv-content" id="cvCont"><div class="empty"><div class="empty-i">📖</div><div class="empty-t">Выберите урок</div><p class="empty-s">Нажмите на урок слева</p></div></div>
     </div>
   </div>
 </div>
@@ -509,240 +478,174 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:2.5rem;di
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,sendEmailVerification,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getFirestore,doc,setDoc,getDoc,updateDoc,collection,addDoc,getDocs,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,getDocs,collection,query,where,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const app=initializeApp({apiKey:"AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
-const auth=getAuth(app),db=getFirestore(app);
+const FB={apiKey:"AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"};
+const app=initializeApp(FB),auth=getAuth(app),db=getFirestore(app);
 
-// ── COURSE STRUCTURE ──
 const COURSES=[
-  {id:'algebra',name:'Алгебра с нуля до олимпиады',level:'5–11 класс',symbol:'∑',cover:'cc1',badge:'badge-hot',badgeText:'★ Топ',desc:'Уравнения, неравенства, прогрессии, многочлены.',meta:{lessons:48,tasks:36,months:4},
-   chapters:[
-    {id:'c1',title:'Числа и выражения',lessons:[{id:'l1',title:'Натуральные числа. Действия'},{id:'l2',title:'Целые и рациональные числа'},{id:'l3',title:'Степени и корни'},{id:'l4',title:'Тест: Числа и выражения',type:'test',testId:'t_algebra_c1'}]},
-    {id:'c2',title:'Уравнения и неравенства',lessons:[{id:'l5',title:'Линейные уравнения'},{id:'l6',title:'Системы линейных уравнений'},{id:'l7',title:'Квадратные уравнения'},{id:'l8',title:'Неравенства и системы'},{id:'l9',title:'Тест: Уравнения',type:'test',testId:'t_algebra_c2'}]},
-    {id:'c3',title:'Функции и графики',lessons:[{id:'l10',title:'Понятие функции'},{id:'l11',title:'Линейная функция'},{id:'l12',title:'Квадратичная функция. Парабола'},{id:'l13',title:'Степенные функции'},{id:'l14',title:'Тест: Функции',type:'test',testId:'t_algebra_c3'}]},
-    {id:'c4',title:'Прогрессии',lessons:[{id:'l15',title:'Арифметическая прогрессия'},{id:'l16',title:'Геометрическая прогрессия'},{id:'l17',title:'Тест: Прогрессии',type:'test',testId:'t_algebra_c4'}]},
-    {id:'c5',title:'Многочлены',lessons:[{id:'l18',title:'Одночлены и многочлены'},{id:'l19',title:'Деление многочленов'},{id:'l20',title:'Разложение на множители'},{id:'l21',title:'Тест: Многочлены',type:'test',testId:'t_algebra_c5'}]},
+  {id:'algebra',name:'Алгебра с нуля до олимпиады',lvl:'5–11 класс',sym:'∑',cv:'cv1',badge:'cb-hot',bt:'★ Топ',desc:'Уравнения, неравенства, прогрессии, многочлены.',meta:{l:48,t:36,m:4},ch:[
+    {id:'c1',t:'Числа и выражения',ls:[{id:'l1',t:'Натуральные числа'},{id:'l2',t:'Целые числа'},{id:'l3',t:'Степени и корни'},{id:'l4',t:'Тест',tp:'test',tid:'t_alg_c1'}]},
+    {id:'c2',t:'Уравнения и неравенства',ls:[{id:'l5',t:'Линейные уравнения'},{id:'l6',t:'Системы уравнений'},{id:'l7',t:'Квадратные уравнения'},{id:'l8',t:'Неравенства'},{id:'l9',t:'Тест',tp:'test',tid:'t_alg_c2'}]},
+    {id:'c3',t:'Функции и графики',ls:[{id:'l10',t:'Понятие функции'},{id:'l11',t:'Линейная функция'},{id:'l12',t:'Квадратичная функция'},{id:'l13',t:'Степенные функции'},{id:'l14',t:'Тест',tp:'test',tid:'t_alg_c3'}]},
+    {id:'c4',t:'Прогрессии',ls:[{id:'l15',t:'Арифметическая прогрессия'},{id:'l16',t:'Геометрическая прогрессия'},{id:'l17',t:'Тест',tp:'test',tid:'t_alg_c4'}]},
+    {id:'c5',t:'Многочлены',ls:[{id:'l18',t:'Одночлены и многочлены'},{id:'l19',t:'Деление многочленов'},{id:'l20',t:'Разложение на множители'},{id:'l21',t:'Тест',tp:'test',tid:'t_alg_c5'}]},
   ]},
-  {id:'geometry',name:'Геометрия: планиметрия и стереометрия',level:'7–11 класс',symbol:'△',cover:'cc2',badge:null,desc:'Треугольники, окружности, тела вращения.',meta:{lessons:40,tasks:30,months:3},
-   chapters:[
-    {id:'c1',title:'Основные понятия',lessons:[{id:'l1',title:'Точки, прямые, углы'},{id:'l2',title:'Смежные и вертикальные углы'},{id:'l3',title:'Тест: Основные понятия',type:'test',testId:'t_geom_c1'}]},
-    {id:'c2',title:'Треугольники',lessons:[{id:'l4',title:'Признаки равенства'},{id:'l5',title:'Теорема Пифагора'},{id:'l6',title:'Подобие треугольников'},{id:'l7',title:'Площадь треугольника'},{id:'l8',title:'Тест: Треугольники',type:'test',testId:'t_geom_c2'}]},
-    {id:'c3',title:'Четырёхугольники',lessons:[{id:'l9',title:'Параллелограмм, ромб, прямоугольник'},{id:'l10',title:'Трапеция'},{id:'l11',title:'Тест: Четырёхугольники',type:'test',testId:'t_geom_c3'}]},
-    {id:'c4',title:'Окружность',lessons:[{id:'l12',title:'Хорды, дуги, углы'},{id:'l13',title:'Вписанная и описанная окружности'},{id:'l14',title:'Тест: Окружность',type:'test',testId:'t_geom_c4'}]},
-    {id:'c5',title:'Стереометрия',lessons:[{id:'l15',title:'Многогранники'},{id:'l16',title:'Призма, пирамида, цилиндр, конус'},{id:'l17',title:'Шар и сфера'},{id:'l18',title:'Тест: Стереометрия',type:'test',testId:'t_geom_c5'}]},
+  {id:'geometry',name:'Геометрия: планиметрия и стереометрия',lvl:'7–11 класс',sym:'△',cv:'cv2',badge:null,desc:'Треугольники, окружности, тела вращения.',meta:{l:40,t:30,m:3},ch:[
+    {id:'c1',t:'Основные понятия',ls:[{id:'l1',t:'Точки, прямые, углы'},{id:'l2',t:'Смежные углы'},{id:'l3',t:'Тест',tp:'test',tid:'t_geo_c1'}]},
+    {id:'c2',t:'Треугольники',ls:[{id:'l4',t:'Признаки равенства'},{id:'l5',t:'Теорема Пифагора'},{id:'l6',t:'Подобие'},{id:'l7',t:'Площадь'},{id:'l8',t:'Тест',tp:'test',tid:'t_geo_c2'}]},
+    {id:'c3',t:'Четырёхугольники',ls:[{id:'l9',t:'Параллелограмм'},{id:'l10',t:'Трапеция'},{id:'l11',t:'Тест',tp:'test',tid:'t_geo_c3'}]},
+    {id:'c4',t:'Окружность',ls:[{id:'l12',t:'Хорды и дуги'},{id:'l13',t:'Вписанная окружность'},{id:'l14',t:'Тест',tp:'test',tid:'t_geo_c4'}]},
+    {id:'c5',t:'Стереометрия',ls:[{id:'l15',t:'Многогранники'},{id:'l16',t:'Тела вращения'},{id:'l17',t:'Шар'},{id:'l18',t:'Тест',tp:'test',tid:'t_geo_c5'}]},
   ]},
-  {id:'logic',name:'Логика и задачи на смекалку',level:'1–6 класс',symbol:'∀',cover:'cc3',badge:'badge-new',badgeText:'Новое',desc:'Логика, головоломки, математическое мышление.',meta:{lessons:24,tasks:48,months:2},
-   chapters:[
-    {id:'c1',title:'Основы логики',lessons:[{id:'l1',title:'Высказывания. Истина и ложь'},{id:'l2',title:'Логические связки: И, ИЛИ, НЕ'},{id:'l3',title:'Тест: Основы логики',type:'test',testId:'t_logic_c1'}]},
-    {id:'c2',title:'Задачи на смекалку',lessons:[{id:'l4',title:'Задачи на переливание'},{id:'l5',title:'Задачи на взвешивание'},{id:'l6',title:'Задачи на переправу'},{id:'l7',title:'Тест: Задачи на смекалку',type:'test',testId:'t_logic_c2'}]},
-    {id:'c3',title:'Числовые закономерности',lessons:[{id:'l8',title:'Числовые последовательности'},{id:'l9',title:'Магические квадраты'},{id:'l10',title:'Тест: Закономерности',type:'test',testId:'t_logic_c3'}]},
+  {id:'logic',name:'Логика и задачи на смекалку',lvl:'1–6 класс',sym:'∀',cv:'cv3',badge:'cb-new',bt:'Новое',desc:'Логика, головоломки, математическое мышление.',meta:{l:24,t:48,m:2},ch:[
+    {id:'c1',t:'Основы логики',ls:[{id:'l1',t:'Высказывания'},{id:'l2',t:'Логические связки'},{id:'l3',t:'Тест',tp:'test',tid:'t_log_c1'}]},
+    {id:'c2',t:'Задачи на смекалку',ls:[{id:'l4',t:'Переливание'},{id:'l5',t:'Взвешивание'},{id:'l6',t:'Переправа'},{id:'l7',t:'Тест',tp:'test',tid:'t_log_c2'}]},
+    {id:'c3',t:'Числовые закономерности',ls:[{id:'l8',t:'Последовательности'},{id:'l9',t:'Магические квадраты'},{id:'l10',t:'Тест',tp:'test',tid:'t_log_c3'}]},
   ]},
-  {id:'olymp',name:'Олимпиадная математика',level:'8–11 класс',symbol:'🏆',cover:'cc4',badge:null,desc:'Подготовка к ВсОШ, Перельману, Эйлеру.',meta:{lessons:60,tasks:80,months:5},
-   chapters:[
-    {id:'c1',title:'Теория чисел',lessons:[{id:'l1',title:'Делимость. НОД и НОК'},{id:'l2',title:'Простые числа'},{id:'l3',title:'Диофантовы уравнения'},{id:'l4',title:'Тест: Теория чисел',type:'test',testId:'t_olymp_c1'}]},
-    {id:'c2',title:'Комбинаторика',lessons:[{id:'l5',title:'Правила суммы и произведения'},{id:'l6',title:'Перестановки, размещения, сочетания'},{id:'l7',title:'Принцип Дирихле'},{id:'l8',title:'Тест: Комбинаторика',type:'test',testId:'t_olymp_c2'}]},
-    {id:'c3',title:'Неравенства',lessons:[{id:'l9',title:'Неравенство AM–GM'},{id:'l10',title:'Неравенство Коши–Буняковского'},{id:'l11',title:'Тест: Неравенства',type:'test',testId:'t_olymp_c3'}]},
-    {id:'c4',title:'Олимпиадная геометрия',lessons:[{id:'l12',title:'Вписанные и описанные фигуры'},{id:'l13',title:'Проективные методы'},{id:'l14',title:'Тест: Олимпиадная геометрия',type:'test',testId:'t_olymp_c4'}]},
+  {id:'olymp',name:'Олимпиадная математика',lvl:'8–11 класс',sym:'🏆',cv:'cv4',badge:null,desc:'Подготовка к ВсОШ, Перельману, Эйлеру.',meta:{l:60,t:80,m:5},ch:[
+    {id:'c1',t:'Теория чисел',ls:[{id:'l1',t:'Делимость'},{id:'l2',t:'Простые числа'},{id:'l3',t:'Диофантовы уравнения'},{id:'l4',t:'Тест',tp:'test',tid:'t_olp_c1'}]},
+    {id:'c2',t:'Комбинаторика',ls:[{id:'l5',t:'Правила суммы и произведения'},{id:'l6',t:'Перестановки и сочетания'},{id:'l7',t:'Принцип Дирихле'},{id:'l8',t:'Тест',tp:'test',tid:'t_olp_c2'}]},
+    {id:'c3',t:'Неравенства',ls:[{id:'l9',t:'AM–GM'},{id:'l10',t:'Коши–Буняковский'},{id:'l11',t:'Тест',tp:'test',tid:'t_olp_c3'}]},
+    {id:'c4',t:'Олимпиадная геометрия',ls:[{id:'l12',t:'Вписанные фигуры'},{id:'l13',t:'Проективные методы'},{id:'l14',t:'Тест',tp:'test',tid:'t_olp_c4'}]},
   ]},
-  {id:'ege_oge',name:'Подготовка к ОГЭ и ЕГЭ',level:'9 и 11 класс',symbol:'✓',cover:'cc5',badge:'badge-hot',badgeText:'★ Топ',desc:'Полный курс по программе экзамена.',meta:{lessons:52,tasks:20,months:4},
-   chapters:[
-    {id:'c1',title:'ОГЭ: часть 1',lessons:[{id:'l1',title:'Числа и вычисления'},{id:'l2',title:'Алгебраические выражения'},{id:'l3',title:'Уравнения и неравенства'},{id:'l4',title:'Тренировочный тест ОГЭ-1',type:'test',testId:'t_oge_c1'}]},
-    {id:'c2',title:'ОГЭ: Геометрия',lessons:[{id:'l5',title:'Планиметрия'},{id:'l6',title:'Координаты и векторы'},{id:'l7',title:'Тест: Геометрия ОГЭ',type:'test',testId:'t_oge_c2'}]},
-    {id:'c3',title:'ЕГЭ: профильный уровень',lessons:[{id:'l8',title:'Задания 1–9'},{id:'l9',title:'Задания 10–12'},{id:'l10',title:'Задания 13–19 (профиль)'},{id:'l11',title:'Тренировочный тест ЕГЭ',type:'test',testId:'t_ege_c3'}]},
+  {id:'ege_oge',name:'Подготовка к ОГЭ и ЕГЭ',lvl:'9 и 11 класс',sym:'✓',cv:'cv5',badge:'cb-hot',bt:'★ Топ',desc:'Полный курс по программе экзамена.',meta:{l:52,t:20,m:4},ch:[
+    {id:'c1',t:'ОГЭ: часть 1',ls:[{id:'l1',t:'Числа и вычисления'},{id:'l2',t:'Алгебра'},{id:'l3',t:'Уравнения'},{id:'l4',t:'Тест ОГЭ',tp:'test',tid:'t_oge_c1'}]},
+    {id:'c2',t:'ОГЭ: Геометрия',ls:[{id:'l5',t:'Планиметрия'},{id:'l6',t:'Координаты'},{id:'l7',t:'Тест',tp:'test',tid:'t_oge_c2'}]},
+    {id:'c3',t:'ЕГЭ: профильный',ls:[{id:'l8',t:'Задания 1–9'},{id:'l9',t:'Задания 10–12'},{id:'l10',t:'Задания 13–19'},{id:'l11',t:'Тест ЕГЭ',tp:'test',tid:'t_ege_c3'}]},
   ]},
-  {id:'combo',name:'Комбинаторика и теория вероятностей',level:'7–11 класс',symbol:'C(n,k)',cover:'cc6',badge:'badge-new',badgeText:'Новое',desc:'Перестановки, сочетания, вероятность.',meta:{lessons:28,tasks:40,months:2.5},
-   chapters:[
-    {id:'c1',title:'Комбинаторика',lessons:[{id:'l1',title:'Правило произведения'},{id:'l2',title:'Перестановки'},{id:'l3',title:'Размещения'},{id:'l4',title:'Сочетания. Формула Ньютона'},{id:'l5',title:'Тест: Комбинаторика',type:'test',testId:'t_combo_c1'}]},
-    {id:'c2',title:'Теория вероятностей',lessons:[{id:'l6',title:'Классическая вероятность'},{id:'l7',title:'Сложение и умножение'},{id:'l8',title:'Формула полной вероятности'},{id:'l9',title:'Математическое ожидание'},{id:'l10',title:'Тест: Теория вероятностей',type:'test',testId:'t_combo_c2'}]},
+  {id:'combo',name:'Комбинаторика и теория вероятностей',lvl:'7–11 класс',sym:'C(n,k)',cv:'cv6',badge:'cb-new',bt:'Новое',desc:'Перестановки, сочетания, вероятность.',meta:{l:28,t:40,m:2.5},ch:[
+    {id:'c1',t:'Комбинаторика',ls:[{id:'l1',t:'Правило произведения'},{id:'l2',t:'Перестановки'},{id:'l3',t:'Размещения'},{id:'l4',t:'Сочетания'},{id:'l5',t:'Тест',tp:'test',tid:'t_cmb_c1'}]},
+    {id:'c2',t:'Теория вероятностей',ls:[{id:'l6',t:'Классическая вероятность'},{id:'l7',t:'Сложение и умножение'},{id:'l8',t:'Полная вероятность'},{id:'l9',t:'Матожидание'},{id:'l10',t:'Тест',tp:'test',tid:'t_cmb_c2'}]},
   ]},
 ];
 
-// ── STATE ──
-let CU=null,UD=null,activeCourse=null,activeLesson=null,CT=null;
+// STATE
+let CU=null,UD=null,aC=null,aL=null,CT=null;
 
-// ── GLOBALS ──
-window.openModal=id=>document.getElementById(id).classList.add('active');
-window.closeModal=id=>document.getElementById(id).classList.remove('active');
-window.switchAuthTab=tab=>{
-  ['login','register'].forEach(t=>{
-    document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
-    document.getElementById('pill-'+t).classList.toggle('active',t===tab);
-  });
-};
+// UTILS
+window.openMo=id=>document.getElementById(id).classList.add('on');
+window.closeMo=id=>document.getElementById(id).classList.remove('on');
 
 function toast(msg,type='info'){
-  const c=document.getElementById('toastContainer');
-  const t=document.createElement('div');
-  t.className=`toast ${type}`;
-  t.innerHTML=`<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span><span>${msg}</span>`;
-  c.appendChild(t);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+  const w=document.getElementById('toastWrap'),t=document.createElement('div');
+  t.className='toast '+(type==='success'?'ok':type==='error'?'err':'info');
+  t.innerHTML='<span>'+(type==='success'?'✓':type==='error'?'✕':'i')+'</span><span>'+msg+'</span>';
+  w.appendChild(t);requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400)},3500);
 }
 
-function fbErr(code){
-  return({'auth/user-not-found':'Пользователь не найден','auth/wrong-password':'Неверный пароль','auth/email-already-in-use':'Email уже используется','auth/invalid-email':'Некорректный email','auth/weak-password':'Слабый пароль (мин. 6 символов)','auth/too-many-requests':'Слишком много попыток. Подождите','auth/invalid-credential':'Неверный email или пароль'}[code]||'Ошибка: '+code);
-}
+function fbE(c){return({'auth/user-not-found':'Пользователь не найден','auth/wrong-password':'Неверный пароль','auth/email-already-in-use':'Email уже используется','auth/invalid-email':'Некорректный email','auth/weak-password':'Слабый пароль','auth/too-many-requests':'Слишком много попыток','auth/invalid-credential':'Неверный email или пароль'}[c]||'Ошибка: '+c);}
 
-// ── AUTH ──
-window.doLogin=async()=>{
-  const btn=document.getElementById('loginBtn'),err=document.getElementById('loginErr');
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPass').value;
-  err.classList.remove('show');
-  if(!email||!pass){err.textContent='Заполните все поля';err.classList.add('show');return}
-  btn.disabled=true;btn.textContent='Входим…';
-  try{
-    const cr=await signInWithEmailAndPassword(auth,email,pass);
-    if(!cr.user.emailVerified){
-      err.textContent='Сначала подтвердите email — проверьте почту и папку «Спам».';
-      err.classList.add('show');
-      await signOut(auth);btn.disabled=false;btn.textContent='Войти →';return;
-    }
-    closeModal('authModal');toast('Добро пожаловать!','success');
-  }catch(e){err.textContent=fbErr(e.code);err.classList.add('show');btn.disabled=false;btn.textContent='Войти →';}
+// AUTH TAB
+window.authTab=t=>{
+  ['login','register'].forEach(x=>{
+    document.getElementById('tc'+(x==='login'?'Login':'Reg')).classList.toggle('on',x===t);
+    document.getElementById(x==='login'?'tl':'tr').classList.toggle('on',x===t);
+  });
 };
 
-window.doRegister=async()=>{
-  const btn=document.getElementById('registerBtn');
-  const name=document.getElementById('regName').value.trim();
-  const email=document.getElementById('regEmail').value.trim();
-  const grade=document.getElementById('regGrade').value;
-  const pass=document.getElementById('regPass').value;
-  let ok=true;
-  [['errName',!name,'Введите имя'],['errEmail',!email,'Введите email'],['errGrade',!grade,'Выберите класс'],['errPass',pass.length<6,'Минимум 6 символов']].forEach(([id,c,m])=>{
-    const el=document.getElementById(id);el.textContent=m;el.classList.toggle('show',c);if(c)ok=false;
-  });
-  if(!ok)return;
-  btn.disabled=true;btn.textContent='Регистрируем…';
+// LOGIN
+window.doLogin=async()=>{
+  const btn=document.getElementById('liBtn'),err=document.getElementById('liErr');
+  const em=document.getElementById('liEmail').value.trim(),pw=document.getElementById('liPass').value;
+  err.classList.remove('on');
+  if(!em||!pw){err.textContent='Заполните все поля';err.classList.add('on');return;}
+  btn.disabled=true;btn.textContent='Входим…';
   try{
-    const cr=await createUserWithEmailAndPassword(auth,email,pass);
+    const cr=await signInWithEmailAndPassword(auth,em,pw);
+    if(!cr.user.emailVerified){
+      err.textContent='Сначала подтвердите email — проверьте почту и папку «Спам»';
+      err.classList.add('on');await signOut(auth);
+    } else { closeMo('moAuth');toast('Добро пожаловать!','success'); }
+  }catch(e){err.textContent=fbE(e.code);err.classList.add('on');}
+  btn.disabled=false;btn.textContent='Войти →';
+};
+
+// REGISTER
+window.doRegister=async()=>{
+  const btn=document.getElementById('rBtn');
+  const nm=document.getElementById('rName').value.trim(),em=document.getElementById('rEmail').value.trim();
+  const gr=document.getElementById('rGrade').value,pw=document.getElementById('rPass').value;
+  let ok=true;
+  [['rErrName',!nm,'Введите имя'],['rErrEmail',!em,'Введите email'],['rErrGrade',!gr,'Выберите класс'],['rErrPass',pw.length<6,'Минимум 6 символов']].forEach(([id,c,m])=>{const e=document.getElementById(id);e.textContent=m;e.classList.toggle('on',c);if(c)ok=false;});
+  if(!ok)return;
+  btn.disabled=true;btn.textContent='Создаём…';
+  try{
+    const cr=await createUserWithEmailAndPassword(auth,em,pw);
     await sendEmailVerification(cr.user);
-    await setDoc(doc(db,'users',cr.user.uid),{name,email,grade,enrolledCourses:[],completedLessons:{},homeworkCount:0,createdAt:serverTimestamp()});
+    await setDoc(doc(db,'users',cr.user.uid),{name:nm,email:em,grade:gr,enrolledCourses:[],completedLessons:{},homeworkCount:0,createdAt:serverTimestamp()});
     await signOut(auth);
-    closeModal('authModal');
-    toast('Аккаунт создан! Проверьте почту для подтверждения.','success');
-  }catch(e){document.getElementById('errEmail').textContent=fbErr(e.code);document.getElementById('errEmail').classList.add('show');}
+    closeMo('moAuth');toast('Аккаунт создан! Проверьте почту.','success');
+  }catch(e){document.getElementById('rErrEmail').textContent=fbE(e.code);document.getElementById('rErrEmail').classList.add('on');}
   btn.disabled=false;btn.textContent='Создать аккаунт →';
 };
 
-window.doLogout=async()=>await signOut(auth);
-window.doForgot=async()=>{
-  const e=document.getElementById('loginEmail').value.trim();
-  if(!e){toast('Введите email выше','error');return}
-  try{await sendPasswordResetEmail(auth,e);toast('Письмо для сброса отправлено','success');}catch(e2){toast(fbErr(e2.code),'error');}
-};
+window.doLogout=()=>signOut(auth);
+window.doForgot=async()=>{const em=document.getElementById('liEmail').value.trim();if(!em){toast('Введите email выше','error');return;}try{await sendPasswordResetEmail(auth,em);toast('Письмо отправлено','success');}catch(e){toast(fbE(e.code),'error');}};
 
-// ── AUTH STATE ──
-onAuthStateChanged(auth,async user=>{
-  const ls=document.getElementById('loadingScreen');
-  ls.style.opacity='0';setTimeout(()=>ls.style.display='none',400);
-  if(user&&user.emailVerified){
-    CU=user;
-    const sn=await getDoc(doc(db,'users',user.uid));
-    UD=sn.exists()?sn.data():{name:user.email,grade:'',enrolledCourses:[],completedLessons:{},homeworkCount:0};
-    updateNav();refreshDash();showDashboard();
-  }else{CU=null;UD=null;updateNav();showHomepage();}
+// AUTH STATE
+onAuthStateChanged(auth,async u=>{
+  document.getElementById('loadingScreen').style.opacity='0';
+  setTimeout(()=>document.getElementById('loadingScreen').style.display='none',500);
+  if(u&&u.emailVerified){
+    CU=u;const sn=await getDoc(doc(db,'users',u.uid));
+    UD=sn.exists()?sn.data():{name:u.email,grade:'',enrolledCourses:[],completedLessons:{},homeworkCount:0};
+    updNav();refreshDash();showDash();
+  }else{CU=null;UD=null;updNav();showHome();}
 });
 
-function updateNav(){
-  const a=document.getElementById('navActions');
-  if(CU&&UD){a.innerHTML=`<span class="nav-user-name">${UD.name}</span><button class="btn btn-outline btn-sm" onclick="showDashboard()">Кабинет</button><button class="btn btn-ghost btn-sm" onclick="doLogout()">Выйти</button>`;}
-  else{a.innerHTML=`<button class="btn btn-outline btn-sm" onclick="openModal('authModal')">Войти</button><button class="btn btn-primary btn-sm" onclick="openModal('authModal')">Начать →</button>`;}
+function updNav(){
+  const a=document.getElementById('navActs');
+  if(CU&&UD){a.innerHTML='<span class="nav-uname">'+UD.name+'</span><button class="btn btn-o btn-sm" onclick="showDash()">Кабинет</button><button class="btn btn-g btn-sm" onclick="doLogout()">Выйти</button>';}
+  else{a.innerHTML='<button class="btn btn-o btn-sm" onclick="openMo(\'moAuth\')">Войти</button><button class="btn btn-p btn-sm" onclick="openMo(\'moAuth\')">Начать →</button>';}
 }
 
-// ── VIEWS ──
-window.showHomepage=()=>{document.getElementById('homepageView').style.display='';document.getElementById('dashboardView').style.display='none';document.getElementById('courseView').style.display='none';};
-window.showDashboard=()=>{if(!CU){openModal('authModal');return;}document.getElementById('homepageView').style.display='none';document.getElementById('dashboardView').style.display='';document.getElementById('courseView').style.display='none';refreshDash();};
-function showCourseView(cid){
-  activeCourse=COURSES.find(c=>c.id===cid);if(!activeCourse)return;
-  document.getElementById('homepageView').style.display='none';
-  document.getElementById('dashboardView').style.display='none';
-  document.getElementById('courseView').style.display='';
-  renderCourseView();
-}
+// VIEWS
+window.showHome=()=>{document.getElementById('vHome').style.display='';document.getElementById('vDash').style.display='none';document.getElementById('vCourse').style.display='none';};
+window.showDash=()=>{if(!CU){openMo('moAuth');return;}document.getElementById('vHome').style.display='none';document.getElementById('vDash').style.display='';document.getElementById('vCourse').style.display='none';refreshDash();};
+function showCourse(cid){aC=COURSES.find(c=>c.id===cid);if(!aC)return;document.getElementById('vHome').style.display='none';document.getElementById('vDash').style.display='none';document.getElementById('vCourse').style.display='';renderCourse();}
 
-// ── RENDER HOMEPAGE COURSES ──
+// RENDER COURSES ON HOMEPAGE
 function renderCourses(){
-  document.getElementById('coursesGrid').innerHTML=COURSES.map(c=>`
-    <div class="course-card reveal">
-      <div class="course-cover ${c.cover}"><div class="course-symbol">${c.symbol}</div>${c.badge?`<div class="course-badge ${c.badge}">${c.badgeText}</div>`:''}</div>
-      <div class="course-body">
-        <div class="course-level">${c.level}</div>
-        <div class="course-name">${c.name}</div>
-        <div class="course-desc">${c.desc}</div>
-        <div class="course-meta"><span>📚 ${c.meta.lessons} уроков</span><span>⏱ ${c.meta.months} мес.</span></div>
-        <button class="btn btn-primary btn-sm" onclick="openCourse('${c.id}')">${CU?'Открыть':'Записаться'} →</button>
-      </div>
-    </div>`).join('');
-  document.querySelectorAll('#coursesGrid .reveal').forEach(el=>ro.observe(el));
+  document.getElementById('cgrid').innerHTML=COURSES.map(c=>'<div class="ccard rv"><div class="ccover '+c.cv+'"><div class="csym">'+c.sym+'</div>'+(c.badge?'<div class="cbadge '+c.badge+'">'+c.bt+'</div>':'')+'</div><div class="cbody"><div class="clvl">'+c.lvl+'</div><div class="cname">'+c.name+'</div><div class="cdesc">'+c.desc+'</div><div class="cmeta"><span>📚 '+c.meta.l+' уроков</span><span>⏱ '+c.meta.m+' мес.</span></div><button class="btn btn-p btn-sm" onclick="openCourse(\''+c.id+'\')">'+(CU?'Открыть':'Записаться')+' →</button></div></div>').join('');
+  document.querySelectorAll('#cgrid .rv').forEach(el=>ro.observe(el));
 }
 
 window.openCourse=async cid=>{
-  if(!CU){openModal('authModal');return;}
-  if(!UD.enrolledCourses.includes(cid)){
-    UD.enrolledCourses.push(cid);
-    await updateDoc(doc(db,'users',CU.uid),{enrolledCourses:UD.enrolledCourses});
-    toast('Вы записаны на курс!','success');
-  }
-  showCourseView(cid);
+  if(!CU){openMo('moAuth');return;}
+  if(!UD.enrolledCourses.includes(cid)){UD.enrolledCourses.push(cid);await updateDoc(doc(db,'users',CU.uid),{enrolledCourses:UD.enrolledCourses});toast('Вы записаны на курс!','success');}
+  showCourse(cid);
 };
 
-// ── COURSE VIEW ──
-function renderCourseView(){
-  const c=activeCourse;
-  document.getElementById('cvName').textContent=c.name;
+// COURSE VIEW
+function renderCourse(){
+  const c=aC;
+  document.getElementById('cvCName').textContent=c.name;
   document.getElementById('cvTitle').textContent=c.name;
-  document.getElementById('cvMeta').innerHTML=`<span>📚 ${c.meta.lessons} уроков</span><span>⏱ ${c.meta.months} мес.</span><span>${c.level}</span>`;
+  document.getElementById('cvMeta').innerHTML='<span>📚 '+c.meta.l+' уроков</span><span>⏱ '+c.meta.m+' мес.</span><span>'+c.lvl+'</span>';
   const done=UD?.completedLessons?.[c.id]||{};
-  document.getElementById('cvChapters').innerHTML=c.chapters.map((ch,ci)=>`
-    <div class="ch-item ${ci===0?'open':''}" id="ch_${c.id}_${ch.id}">
-      <div class="ch-header ${ci===0?'active-ch':''}" onclick="toggleCh('ch_${c.id}_${ch.id}')">
-        <span style="font-size:.75rem;color:var(--text3)">${ci+1}.</span>${ch.title}
-        <span class="ch-arrow">›</span>
-      </div>
-      <div class="ls-list">${ch.lessons.map(ls=>{
-        const isDone=!!done[ls.id];const isTest=ls.type==='test';
-        return`<div class="ls-item ${isDone?'ls-done':''}" onclick="openLesson('${c.id}','${ch.id}','${ls.id}')">
-          <div class="ls-dot ${isDone?'done':''}">${isDone?'✓':''}</div>
-          ${isTest?'<span style="color:var(--gold);font-size:.8rem">📋</span>':''}
-          ${ls.title}
-        </div>`;
-      }).join('')}</div>
-    </div>`).join('');
-  document.getElementById('cvContent').innerHTML='<div class="empty-state"><div class="empty-icon">📖</div><div class="empty-title">Выберите урок</div><p class="empty-sub">Нажмите на урок слева</p></div>';
+  document.getElementById('cvCh').innerHTML=c.ch.map((ch,ci)=>'<div class="ch-item '+(ci===0?'op':'')+'" id="chi_'+c.id+'_'+ch.id+'"><div class="ch-hdr '+(ci===0?'on':'')+'" onclick="togCh(\'chi_'+c.id+'_'+ch.id+'\')">'+(ci+1)+'. '+ch.t+'<span class="ch-arr">›</span></div><div class="ls-wrap">'+ch.ls.map(ls=>{const d=!!done[ls.id];return'<div class="ls-row '+(d?'done':'')+'" onclick="openLesson(\''+c.id+'\',\''+ch.id+'\',\''+ls.id+'\')"><div class="ls-dot '+(d?'done':'')+'">'+( d?'✓':'')+'</div>'+(ls.tp==='test'?'<span style="color:var(--gold);font-size:.8rem">📋</span>':'')+ls.t+'</div>';}).join('')+'</div></div>').join('');
+  document.getElementById('cvCont').innerHTML='<div class="empty"><div class="empty-i">📖</div><div class="empty-t">Выберите урок</div><p class="empty-s">Нажмите на урок слева</p></div>';
 }
 
-window.toggleCh=id=>{const el=document.getElementById(id);el.classList.toggle('open');el.querySelector('.ch-header').classList.toggle('active-ch');};
+window.togCh=id=>{const el=document.getElementById(id);el.classList.toggle('op');el.querySelector('.ch-hdr').classList.toggle('on');};
 
 window.openLesson=async(cid,chid,lid)=>{
-  const c=COURSES.find(x=>x.id===cid);
-  const ch=c.chapters.find(x=>x.id===chid);
-  const ls=ch.lessons.find(x=>x.id===lid);
-  activeLesson=ls;
-  document.querySelectorAll('.ls-item').forEach(e=>e.classList.remove('ls-active'));
-  event?.currentTarget?.classList?.add('ls-active');
-  if(ls.type==='test')await renderTest(cid,chid,ls);
-  else renderLessonContent(ls,cid,lid);
+  const c=COURSES.find(x=>x.id===cid),ch=c.ch.find(x=>x.id===chid),ls=ch.ls.find(x=>x.id===lid);
+  aL=ls;
+  document.querySelectorAll('.ls-row').forEach(e=>e.classList.remove('on'));
+  event?.currentTarget?.classList?.add('on');
+  if(ls.tp==='test')await renderTest(cid,chid,ls);
+  else renderLessonPage(ls,cid,lid);
 };
 
-function renderLessonContent(ls,cid,lid){
+async function renderLessonPage(ls,cid,lid){
+  // Load content from Firestore
+  let content='';
+  try{const sn=await getDoc(doc(db,'lessonContent',cid+'_'+ls.id));if(sn.exists())content=sn.data().content;}catch(e){}
   const done=!!(UD?.completedLessons?.[cid]?.[lid]);
-  document.getElementById('cvContent').innerHTML=`
-    <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.6rem">Урок</div>
-      <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:1.5rem">${ls.title}</div>
-      <div style="background:var(--surface2);border:1px dashed var(--border2);border-radius:12px;padding:3rem;text-align:center;margin-bottom:1.5rem">
-        <div style="font-size:2.5rem;margin-bottom:.8rem">📄</div>
-        <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--text2)">Материал урока</div>
-        <p style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.07em;color:var(--text3);margin-top:.5rem;text-transform:uppercase">Добавьте содержание через админ-панель</p>
-      </div>
-      ${done
-        ?`<div style="display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--green)">✓ Урок пройден</div>`
-        :`<button class="btn btn-primary" onclick="markDone('${cid}','${lid}')">✓ Отметить как пройденный</button>`
-      }
-    </div>`;
+  document.getElementById('cvCont').innerHTML='<div><div style="font-family:\'DM Mono\',monospace;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);margin-bottom:.6rem">Урок</div><div style="font-family:\'DM Serif Display\',serif;font-size:1.5rem;margin-bottom:1.5rem">'+ls.t+'</div>'+(content?'<div style="line-height:1.8;color:var(--ink-text2);margin-bottom:1.5rem">'+content+'</div>':'<div class="lesson-placeholder"><div style="font-size:2rem;margin-bottom:.6rem">📄</div><div style="font-family:\'DM Serif Display\',serif;font-size:.95rem;color:var(--ink-text2)">Материал урока</div><p style="font-family:\'DM Mono\',monospace;font-size:.58rem;letter-spacing:.07em;color:var(--ink-text3);margin-top:.4rem;text-transform:uppercase">Преподаватель добавит содержание через админ-панель</p></div>')+(done?'<div style="display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.18);border-radius:10px;font-family:\'DM Mono\',monospace;font-size:.62rem;color:var(--green)">✓ Урок пройден</div>':'<button class="btn btn-p" onclick="markDone(\''+cid+'\',\''+lid+'\')">✓ Отметить как пройденный</button>')+'</div>';
 }
 
 window.markDone=async(cid,lid)=>{
@@ -751,72 +654,38 @@ window.markDone=async(cid,lid)=>{
   if(!UD.completedLessons[cid])UD.completedLessons[cid]={};
   UD.completedLessons[cid][lid]=true;
   await updateDoc(doc(db,'users',CU.uid),{completedLessons:UD.completedLessons});
-  toast('Урок отмечен пройденным!','success');
-  renderCourseView();renderLessonContent(activeLesson,cid,lid);refreshDash();
+  toast('Урок пройден!','success');renderCourse();renderLessonPage(aL,cid,lid);refreshDash();
 };
 
-// ── TEST ENGINE ──
+// TEST ENGINE
 async function renderTest(cid,chid,ls){
   let td=null;
-  try{const sn=await getDoc(doc(db,'tests',ls.testId));if(sn.exists())td=sn.data();}catch(e){}
+  try{const sn=await getDoc(doc(db,'tests',ls.tid));if(sn.exists())td=sn.data();}catch(e){}
   if(!td||!td.questions?.length){
-    document.getElementById('cvContent').innerHTML=`
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:1.2rem">📋 ${ls.title}</div>
-        <div style="background:var(--surface2);border:1px dashed var(--border2);border-radius:12px;padding:3rem;text-align:center">
-          <div style="font-size:2.5rem;margin-bottom:.8rem">🔧</div>
-          <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--text2)">Тест ещё не создан</div>
-          <p style="font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.07em;color:var(--text3);margin-top:.5rem;text-transform:uppercase">Добавьте вопросы через админ-панель</p>
-        </div>
-      </div>`;
+    document.getElementById('cvCont').innerHTML='<div><div style="font-family:\'DM Serif Display\',serif;font-size:1.4rem;margin-bottom:1.2rem">📋 '+ls.t+'</div><div class="lesson-placeholder"><div style="font-size:2rem;margin-bottom:.6rem">🔧</div><div style="font-family:\'DM Serif Display\',serif;font-size:.95rem;color:var(--ink-text2)">Тест ещё не создан</div><p style="font-family:\'DM Mono\',monospace;font-size:.58rem;color:var(--ink-text3);text-transform:uppercase;margin-top:.4rem">Добавьте вопросы через админ-панель</p></div></div>';
     return;
   }
-  CT={data:td,cid,chid,lid:ls.id,cur:0,score:0,sel:undefined};
-  renderTQ();
+  CT={data:td,cid,chid,lid:ls.id,cur:0,score:0,sel:undefined};renderTQ();
 }
 
 function renderTQ(){
-  const{data,cur}=CT;const q=data.questions[cur];const tot=data.questions.length;const pct=Math.round(cur/tot*100);
-  let body='';
-  if(q.type==='choice'){
-    body=`<div class="test-options">${q.options.map((o,i)=>`<div class="test-opt" id="to_${i}" onclick="selOpt(${i})"><div class="test-opt-mk">${String.fromCharCode(65+i)}</div><span>${o}</span></div>`).join('')}</div>`;
-  }else{
-    body=`<input class="test-input" id="tiAns" type="text" placeholder="Введите ответ…"/>`;
-  }
-  document.getElementById('cvContent').innerHTML=`
-    <div>
-      <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;margin-bottom:1rem">📋 ${data.title}</div>
-      <div class="test-pbar"><div class="test-pbar-fill" style="width:${pct}%"></div></div>
-      <div class="test-qnum">Вопрос ${cur+1} из ${tot}</div>
-      <div class="test-qtext">${q.question}</div>
-      ${body}
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text3)">${pct}% пройдено</span>
-        <button class="btn btn-primary" onclick="nextTQ()">${cur<tot-1?'Далее →':'Завершить →'}</button>
-      </div>
-    </div>`;
+  const{data,cur}=CT,q=data.questions[cur],tot=data.questions.length,pct=Math.round(cur/tot*100);
+  const body=q.type==='choice'?'<div class="t-opts">'+(q.options||[]).map((o,i)=>'<div class="t-opt" id="to'+i+'" onclick="selOpt('+i+')"><div class="t-mk">'+String.fromCharCode(65+i)+'</div><span>'+o+'</span></div>').join('')+'</div>':'<input class="t-inp" id="tAns" type="text" placeholder="Введите ответ…"/>';
+  document.getElementById('cvCont').innerHTML='<div><div style="font-family:\'DM Serif Display\',serif;font-size:1.1rem;margin-bottom:1rem">📋 '+data.title+'</div><div class="t-pbar"><div class="t-pbar-f" style="width:'+pct+'%"></div></div><div class="t-qn">Вопрос '+(cur+1)+' из '+tot+'</div><div class="t-qt">'+q.question+'</div>'+body+'<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:\'DM Mono\',monospace;font-size:.58rem;color:var(--ink-text3)">'+pct+'% пройдено</span><button class="btn btn-p" onclick="nxtQ()">'+(cur<tot-1?'Далее →':'Завершить →')+'</button></div></div>';
 }
 
-window.selOpt=i=>{document.querySelectorAll('.test-opt').forEach(e=>e.classList.remove('sel'));document.getElementById(`to_${i}`)?.classList.add('sel');CT.sel=i;};
-
-window.nextTQ=async()=>{
-  const{data,cur}=CT;const q=data.questions[cur];let correct=false;
-  if(q.type==='choice'){
-    if(CT.sel===undefined){toast('Выберите ответ','error');return}
-    correct=CT.sel===q.correct;
-    document.querySelectorAll('.test-opt').forEach((e,i)=>{if(i===q.correct)e.classList.add('correct');else if(i===CT.sel&&!correct)e.classList.add('wrong');});
-  }else{
-    const a=document.getElementById('tiAns')?.value?.trim();
-    if(!a){toast('Введите ответ','error');return}
-    correct=a.toLowerCase()===String(q.correct).toLowerCase();
-  }
-  if(correct)CT.score++;CT.sel=undefined;
-  if(cur<data.questions.length-1){setTimeout(()=>{CT.cur++;renderTQ();},800);}
+window.selOpt=i=>{document.querySelectorAll('.t-opt').forEach(e=>e.classList.remove('sel'));document.getElementById('to'+i)?.classList.add('sel');CT.sel=i;};
+window.nxtQ=async()=>{
+  const{data,cur}=CT,q=data.questions[cur];let ok=false;
+  if(q.type==='choice'){if(CT.sel===undefined){toast('Выберите ответ','error');return;}ok=CT.sel===q.correct;document.querySelectorAll('.t-opt').forEach((e,i)=>{if(i===q.correct)e.classList.add('corr');else if(i===CT.sel&&!ok)e.classList.add('wrong');});}
+  else{const a=document.getElementById('tAns')?.value?.trim();if(!a){toast('Введите ответ','error');return;}ok=a.toLowerCase()===String(q.correct).toLowerCase();}
+  if(ok)CT.score++;CT.sel=undefined;
+  if(cur<data.questions.length-1)setTimeout(()=>{CT.cur++;renderTQ();},800);
   else setTimeout(()=>finishTest(),800);
 };
 
 async function finishTest(){
-  const{data,score,cid,lid}=CT;const tot=data.questions.length;const pct=Math.round(score/tot*100);const passed=pct>=60;
+  const{data,score,cid,lid}=CT,tot=data.questions.length,pct=Math.round(score/tot*100),passed=pct>=60;
   if(CU){
     if(!UD.completedLessons)UD.completedLessons={};
     if(!UD.completedLessons[cid])UD.completedLessons[cid]={};
@@ -826,74 +695,59 @@ async function finishTest(){
   }
   const col=pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
   const msg=pct>=80?'Отличная работа! 🎉':pct>=60?'Хороший результат 👍':'Нужно повторить материал 📚';
-  document.getElementById('cvContent').innerHTML=`
-    <div class="test-result">
-      <div style="font-size:3rem;margin-bottom:1rem">${passed?'🎉':'📚'}</div>
-      <div class="test-result-score" style="color:${col}">${pct}%</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.4rem">${score} из ${tot} верных</div>
-      <div style="font-size:1rem;color:var(--text2);margin-top:1rem;font-weight:300">${msg}</div>
-      <div style="display:flex;gap:.8rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="openLesson('${cid}','${CT.chid}','${lid}')">Пройти ещё раз</button>
-        <button class="btn btn-outline" onclick="showDashboard()">В кабинет</button>
-      </div>
-    </div>`;
-  renderCourseView();refreshDash();toast(passed?`Тест пройден: ${pct}%`:`Результат: ${pct}%`,passed?'success':'info');
+  document.getElementById('cvCont').innerHTML='<div class="t-result"><div style="font-size:3rem;margin-bottom:1rem">'+(passed?'🎉':'📚')+'</div><div class="t-score" style="color:'+col+'">'+pct+'%</div><div style="font-family:\'DM Mono\',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-text3);margin-top:.4rem">'+score+' из '+tot+' верных</div><div style="color:var(--ink-text2);margin-top:1rem">'+msg+'</div><div style="display:flex;gap:.8rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap"><button class="btn btn-p" onclick="openLesson(\''+cid+'\',\''+CT.chid+'\',\''+lid+'\')">Пройти ещё раз</button><button class="btn btn-o" onclick="showDash()">В кабинет</button></div></div>';
+  renderCourse();refreshDash();toast(passed?'Тест пройден: '+pct+'%':'Результат: '+pct+'%',passed?'success':'info');
 }
 
-// ── DASHBOARD ──
-window.switchPanel=(id,el)=>{
-  document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  document.querySelectorAll('.dnav-item').forEach(n=>n.classList.remove('active'));
-  if(el)el.classList.add('active');
-  if(id==='courses')renderDashCourses();
+// DASHBOARD
+window.dTab=(id,el)=>{
+  document.querySelectorAll('.dpanel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.dnav').forEach(n=>n.classList.remove('on'));
+  document.getElementById('dp-'+id).classList.add('on');
+  if(el)el.classList.add('on');
+  if(id==='cr')renderDCourses();
 };
 
 function refreshDash(){
   if(!UD)return;
   const n=UD.name||'';
-  document.getElementById('dashWName').textContent=n;
-  document.getElementById('dashAvLetter').textContent=n[0]?.toUpperCase()||'У';
-  document.getElementById('dashSName').textContent=n;
-  document.getElementById('dashSGrade').textContent=grLabel(UD.grade);
-  const enrolled=UD.enrolledCourses?.length||0;
+  document.getElementById('dWName').textContent=n;
+  document.getElementById('dAvL').textContent=n[0]?.toUpperCase()||'У';
+  document.getElementById('dSName').textContent=n;
+  document.getElementById('dSGrade').textContent=grLbl(UD.grade);
+  const ec=UD.enrolledCourses?.length||0;
   let lc=0;Object.values(UD.completedLessons||{}).forEach(c=>lc+=Object.keys(c).length);
-  document.getElementById('st-courses').textContent=enrolled;
-  document.getElementById('st-lessons').textContent=lc;
-  document.getElementById('st-hw').textContent=UD.homeworkCount||0;
-  renderDashContinue();loadHW();renderDashProgress();
+  document.getElementById('st-c').textContent=ec;
+  document.getElementById('st-l').textContent=lc;
+  document.getElementById('st-h').textContent=UD.homeworkCount||0;
+  renderDCont();loadHW();renderDProg();
 }
 
-function grLabel(g){return{'1-4':'1–4 класс','5-6':'5–6 класс','7-8':'7–8 класс','9':'9 класс','10-11':'10–11 класс'}[g]||g||'';}
-function getProgress(cid){const c=COURSES.find(x=>x.id===cid);if(!c)return 0;const tot=c.chapters.reduce((s,ch)=>s+ch.lessons.length,0);const done=Object.keys(UD?.completedLessons?.[cid]||{}).length;return tot>0?Math.round(done/tot*100):0;}
+function grLbl(g){return{'1-4':'1–4 класс','5-6':'5–6 класс','7-8':'7–8 класс','9':'9 класс','10-11':'10–11 класс'}[g]||g||'';}
+function getP(cid){const c=COURSES.find(x=>x.id===cid);if(!c)return 0;const tot=c.ch.reduce((s,ch)=>s+ch.ls.length,0);const dn=Object.keys(UD?.completedLessons?.[cid]||{}).length;return tot>0?Math.round(dn/tot*100):0;}
 
-function cliHTML(cid,showBtn=true){
-  const c=COURSES.find(x=>x.id===cid);if(!c)return'';const p=getProgress(cid);
-  return`<div class="cli-item">
-    <div class="cli-icon ${c.cover}">${c.symbol.slice(0,1)}</div>
-    <div class="cli-info"><div class="cli-name">${c.name}</div><div class="cli-sub">${c.level}</div></div>
-    <div class="pbar-wrap"><div class="pbar-pct">${p}%</div><div class="pbar"><div class="pbar-fill" style="width:${p}%"></div></div>${showBtn?`<button class="btn btn-primary btn-sm" style="margin-top:.4rem" onclick="openCourse('${cid}')">Продолжить</button>`:''}</div>
-  </div>`;
+function cliHtml(cid,btn=true){
+  const c=COURSES.find(x=>x.id===cid);if(!c)return'';const p=getP(cid);
+  return'<div class="cli"><div class="cli-ic '+c.cv+'">'+c.sym.slice(0,1)+'</div><div class="cli-info"><div class="cli-name">'+c.name+'</div><div class="cli-sub">'+c.lvl+'</div></div><div class="pb-wrap"><div class="pb-pct">'+p+'%</div><div class="pb"><div class="pb-fill" style="width:'+p+'%"></div></div>'+(btn?'<button class="btn btn-p btn-sm" style="margin-top:.4rem" onclick="openCourse(\''+cid+'\')">Продолжить</button>':'')+'</div></div>';
 }
 
-function renderDashContinue(){
-  const el=document.getElementById('dashContinue');
-  if(!UD?.enrolledCourses?.length){el.innerHTML='<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Запишитесь на курс чтобы начать.</p>';return;}
-  el.innerHTML=UD.enrolledCourses.slice(0,3).map(c=>cliHTML(c)).join('');
+function renderDCont(){
+  const el=document.getElementById('dCont');
+  if(!UD?.enrolledCourses?.length){el.innerHTML='<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Запишитесь на курс чтобы начать.</p>';return;}
+  el.innerHTML=UD.enrolledCourses.slice(0,3).map(c=>cliHtml(c)).join('');
 }
 
-function renderDashCourses(){
-  const mc=document.getElementById('dashMyCourses'),cat=document.getElementById('dashCatalog');
-  if(!UD?.enrolledCourses?.length){mc.innerHTML='<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Нет активных курсов.</p>';}
-  else mc.innerHTML=UD.enrolledCourses.map(c=>`<div class="cli-item"><div class="cli-icon ${COURSES.find(x=>x.id===c)?.cover||''}">${COURSES.find(x=>x.id===c)?.symbol?.slice(0,1)||'?'}</div><div class="cli-info"><div class="cli-name">${COURSES.find(x=>x.id===c)?.name||c}</div><div class="cli-sub">${getProgress(c)}% пройдено</div></div><button class="btn btn-primary btn-sm" onclick="openCourse('${c}')">Открыть</button></div>`).join('');
-  const avail=COURSES.filter(c=>!UD?.enrolledCourses?.includes(c.id));
-  cat.innerHTML=avail.length?avail.map(c=>`<div class="cli-item"><div class="cli-icon ${c.cover}">${c.symbol.slice(0,1)}</div><div class="cli-info"><div class="cli-name">${c.name}</div><div class="cli-sub">${c.level}</div></div><button class="btn btn-outline btn-sm" onclick="openCourse('${c.id}')">Записаться</button></div>`).join(''):'<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Вы записаны на все курсы.</p>';
+function renderDCourses(){
+  const mc=document.getElementById('dMyCr'),cat=document.getElementById('dCat');
+  mc.innerHTML=UD?.enrolledCourses?.length?UD.enrolledCourses.map(c=>'<div class="cli"><div class="cli-ic '+(COURSES.find(x=>x.id===c)?.cv||'')+'">'+( COURSES.find(x=>x.id===c)?.sym?.slice(0,1)||'?')+'</div><div class="cli-info"><div class="cli-name">'+(COURSES.find(x=>x.id===c)?.name||c)+'</div><div class="cli-sub">'+getP(c)+'% пройдено</div></div><button class="btn btn-p btn-sm" onclick="openCourse(\''+c+'\')">Открыть</button></div>').join(''):'<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Нет активных курсов.</p>';
+  const av=COURSES.filter(c=>!UD?.enrolledCourses?.includes(c.id));
+  cat.innerHTML=av.length?av.map(c=>'<div class="cli"><div class="cli-ic '+c.cv+'">'+c.sym.slice(0,1)+'</div><div class="cli-info"><div class="cli-name">'+c.name+'</div><div class="cli-sub">'+c.lvl+'</div></div><button class="btn btn-o btn-sm" onclick="openCourse(\''+c.id+'\')">Записаться</button></div>').join(''):'<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Вы записаны на все курсы.</p>';
 }
 
-function renderDashProgress(){
-  const el=document.getElementById('dashProgress');
-  if(!UD?.enrolledCourses?.length){el.innerHTML='<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Нет данных.</p>';return;}
-  el.innerHTML=UD.enrolledCourses.map(cid=>{const c=COURSES.find(x=>x.id===cid);if(!c)return'';const p=getProgress(cid);return`<div style="margin-bottom:1rem"><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text2);margin-bottom:.4rem"><span>${c.name}</span><span>${p}%</span></div><div style="height:7px;background:var(--border);border-radius:4px;overflow:hidden"><div style="width:${p}%;height:100%;background:linear-gradient(to right,var(--accent),var(--accent2));border-radius:4px"></div></div></div>`;}).join('');
+function renderDProg(){
+  const el=document.getElementById('dProg');
+  if(!UD?.enrolledCourses?.length){el.innerHTML='<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Нет данных.</p>';return;}
+  el.innerHTML=UD.enrolledCourses.map(cid=>{const c=COURSES.find(x=>x.id===cid);if(!c)return'';const p=getP(cid);return'<div style="margin-bottom:1rem"><div style="display:flex;justify-content:space-between;font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--ink-text2);margin-bottom:.4rem"><span>'+c.name+'</span><span>'+p+'%</span></div><div style="height:6px;background:var(--rim);border-radius:3px;overflow:hidden"><div style="width:'+p+'%;height:100%;background:linear-gradient(to right,var(--blue),var(--sky));border-radius:3px"></div></div></div>';}).join('');
 }
 
 async function loadHW(){
@@ -901,31 +755,44 @@ async function loadHW(){
   try{
     const q2=query(collection(db,'homeworks'),where('userId','==',CU.uid));
     const sn=await getDocs(q2);const hws=sn.docs.map(d=>({id:d.id,...d.data()}));
-    const hwHTML=hws.slice(0,5).map(hw=>`<div class="hw-item"><div class="hw-dot ${hw.status||'pending'}"></div><div class="hw-info"><div class="hw-title">${hw.title}</div><div class="hw-meta">${slabel(hw.status)} · ${hw.courseName||''}</div></div>${hw.status==='graded'?`<span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green)">${hw.grade}/10</span>`:''}</div>`).join('')||'<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Заданий пока нет.</p>';
-    document.getElementById('dashHWPreview').innerHTML=hwHTML;
-    document.getElementById('dashHWFull').innerHTML=hws.length?hws.map(hw=>`<div class="hw-item"><div class="hw-dot ${hw.status||'pending'}"></div><div class="hw-info"><div class="hw-title">${hw.title}</div><div class="hw-meta">${slabel(hw.status)}${hw.feedback?` · ${hw.feedback}`:''}</div></div>${hw.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="openHWModal('${hw.title}','${hw.id}')">Сдать</button>`:''}${hw.status==='graded'?`<span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green)">${hw.grade}/10</span>`:''}</div>`).join(''):'<p style="color:var(--text3);font-family:\'JetBrains Mono\',monospace;font-size:.65rem">Заданий нет.</p>';
+    const sl={pending:'hd-p',submitted:'hd-s',graded:'hd-g',overdue:'hd-o'};
+    const slbl={pending:'Ожидает',submitted:'На проверке',graded:'Проверено',overdue:'Просрочено'};
+    const hwH=hws.slice(0,5).map(hw=>'<div class="hw-row"><div class="hw-dot '+(sl[hw.status]||'hd-p')+'"></div><div class="hw-info"><div class="hw-t">'+hw.title+'</div><div class="hw-m">'+(slbl[hw.status]||hw.status||'')+(hw.courseName?' · '+hw.courseName:'')+'</div></div>'+(hw.grade?'<span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--green)">'+hw.grade+'/10</span>':'')+'</div>').join('')||'<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Заданий пока нет.</p>';
+    document.getElementById('dHWP').innerHTML=hwH;
+    document.getElementById('dHWF').innerHTML=hws.length?hws.map(hw=>'<div class="hw-row"><div class="hw-dot '+(sl[hw.status]||'hd-p')+'"></div><div class="hw-info"><div class="hw-t">'+hw.title+'</div><div class="hw-m">'+(slbl[hw.status]||'')+(hw.feedback?' · '+hw.feedback:'')+'</div></div>'+(hw.status==='pending'?'<button class="btn btn-p btn-sm" onclick="openHWMo(\''+hw.title+'\',\''+hw.id+'\')">Сдать</button>':'')+(hw.grade?'<span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--green)">'+hw.grade+'/10</span>':'')+'</div>').join(''):'<p style="color:var(--ink-text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Заданий нет.</p>';
   }catch(e){console.error(e);}
 }
-function slabel(s){return{pending:'Ожидает сдачи',submitted:'На проверке',graded:'Проверено',overdue:'Просрочено'}[s]||s||'';}
 
-window.openHWModal=(title,hwId='')=>{document.getElementById('hwModalTitle').value=title;document.getElementById('hwModalTitle').dataset.id=hwId;openModal('hwModal');};
+window.openHWMo=(title,id='')=>{document.getElementById('hwMoTitle').value=title;document.getElementById('hwMoTitle').dataset.id=id;openMo('moHW');};
 window.submitHW=async()=>{
-  const title=document.getElementById('hwModalTitle').value;
-  const text=document.getElementById('hwModalText').value.trim();
-  const hwId=document.getElementById('hwModalTitle').dataset.id;
+  const title=document.getElementById('hwMoTitle').value,text=document.getElementById('hwMoText').value.trim(),hwId=document.getElementById('hwMoTitle').dataset.id;
   if(!text){toast('Напишите решение','error');return;}
   try{
-    if(hwId){await updateDoc(doc(db,'homeworks',hwId),{solution:text,status:'submitted',submittedAt:serverTimestamp()});}
+    if(hwId)await updateDoc(doc(db,'homeworks',hwId),{solution:text,status:'submitted',submittedAt:serverTimestamp()});
     else{await addDoc(collection(db,'homeworks'),{userId:CU.uid,userName:UD.name,title,solution:text,status:'submitted',submittedAt:serverTimestamp()});UD.homeworkCount=(UD.homeworkCount||0)+1;await updateDoc(doc(db,'users',CU.uid),{homeworkCount:UD.homeworkCount});}
-    toast('Задание отправлено!','success');closeModal('hwModal');document.getElementById('hwModalText').value='';loadHW();
+    toast('Задание отправлено!','success');closeMo('moHW');document.getElementById('hwMoText').value='';loadHW();
   }catch(e){toast('Ошибка: '+e.message,'error');}
 };
 
-// ── REVEAL ──
-const ro=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');ro.unobserve(e.target);}});},{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+// CANVAS BACKGROUND
+const cnv=document.getElementById('bgCanvas');
+const ctx=cnv.getContext('2d');
+let W,H,pts=[];
+function initCanvas(){W=cnv.width=window.innerWidth;H=cnv.height=window.innerHeight;pts=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3}));}
+function drawCanvas(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(59,107,255,'+(1-d/120)*.15+')';ctx.lineWidth=1;ctx.stroke();}}
+  pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,Math.PI*2);ctx.fillStyle='rgba(96,184,255,.4)';ctx.fill();});
+  requestAnimationFrame(drawCanvas);
+}
+window.addEventListener('resize',initCanvas);initCanvas();drawCanvas();
+
+// REVEAL
+const ro=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target);}});},{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
 renderCourses();
-document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
 </script>
 </body>
 </html>
