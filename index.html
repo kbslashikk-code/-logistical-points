@@ -419,21 +419,6 @@ function fbRest(action,body){
 }
 
 var CU=null, UD=null;
-// Восстанавливаем сессию из localStorage
-(function(){
-  var uid=localStorage.getItem('lp_uid'),token=localStorage.getItem('lp_token');
-  if(uid&&token){
-    // Верифицируем токен через Firestore
-    db.collection('users').doc(uid).get().then(function(sn){
-      if(sn.exists){
-        CU={uid:uid,email:localStorage.getItem('lp_email')||''};
-        UD=sn.data();
-        updateNav();refreshDash();showDash();
-      } else { clearSess();hideLs(); }
-    }).catch(function(){clearSess();hideLs();});
-  } else { hideLs(); }
-})();
-
 function saveSess(d){localStorage.setItem('lp_uid',d.localId);localStorage.setItem('lp_token',d.idToken);localStorage.setItem('lp_email',d.email||d.localId);}
 function clearSess(){localStorage.removeItem('lp_uid');localStorage.removeItem('lp_token');localStorage.removeItem('lp_email');}
 var auth={signOut:function(){clearSess();CU=null;UD=null;updateNav();showHome();}};
@@ -803,6 +788,20 @@ var ro=new IntersectionObserver(function(entries){entries.forEach(function(e){if
 document.querySelectorAll('.rv').forEach(function(el){ro.observe(el);});
 renderCourses();
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
+
+// Восстанавливаем сессию — после объявления всех функций
+(function(){
+  var uid=localStorage.getItem('lp_uid'),token=localStorage.getItem('lp_token');
+  if(uid&&token){
+    db.collection('users').doc(uid).get().then(function(sn){
+      if(sn.exists){
+        CU={uid:uid,email:localStorage.getItem('lp_email')||''};
+        UD=sn.data();
+        updateNav();refreshDash();showDash();hideLs();
+      } else { clearSess();hideLs();showHome(); }
+    }).catch(function(){ clearSess();hideLs();showHome(); });
+  } else { hideLs();showHome(); }
+})();
 </script>
 
 </body>
