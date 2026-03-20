@@ -803,15 +803,32 @@ document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',
 // Восстанавливаем сессию — после объявления всех функций
 (function(){
   var uid=localStorage.getItem('lp_uid'),token=localStorage.getItem('lp_token');
+  console.log('SESSION: uid='+uid+' token='+(token?'yes':'no'));
   if(uid&&token){
+    console.log('SESSION: loading user from Firestore...');
     db.collection('users').doc(uid).get().then(function(sn){
+      console.log('SESSION: firestore response, exists='+sn.exists);
       if(sn.exists){
         CU={uid:uid,email:localStorage.getItem('lp_email')||''};
         UD=sn.data();
-        updateNav();refreshDash();showDash();hideLs();renderCourses();
-      } else { clearSess();hideLs();showHome(); }
-    }).catch(function(){ clearSess();hideLs();showHome(); });
-  } else { hideLs();showHome(); }
+        console.log('SESSION: UD loaded, name='+UD.name);
+        hideLs();
+        updateNav();
+        showDash();
+        refreshDash();
+        renderCourses();
+      } else {
+        console.log('SESSION: user doc not found, clearing');
+        clearSess();hideLs();showHome();
+      }
+    }).catch(function(e){
+      console.log('SESSION ERROR: '+e);
+      clearSess();hideLs();showHome();
+    });
+  } else {
+    console.log('SESSION: no saved session');
+    hideLs();showHome();
+  }
 })();
 </script>
 
