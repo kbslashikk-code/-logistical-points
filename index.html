@@ -480,6 +480,10 @@ function fbErr(c){return({
   'auth/invalid-credential':'Неверный email или пароль'
 }[c])||'Ошибка: '+c;}
 
+function withTimeout(promise, ms){
+  return Promise.race([promise, new Promise(function(_,reject){setTimeout(function(){reject({code:'timeout'});},ms);})]);
+}
+
 function doLogin(){
   var btn=document.getElementById('lBtn'),err=document.getElementById('lErr');
   var email=document.getElementById('lE').value.trim(),pass=document.getElementById('lP').value;
@@ -487,7 +491,7 @@ function doLogin(){
   if(!email||!pass){err.textContent='Заполните все поля';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
   function unlock(){btn.disabled=false;btn.textContent='Войти →';}
-  auth.signInWithEmailAndPassword(email,pass).then(function(cr){
+  withTimeout(auth.signInWithEmailAndPassword(email,pass), 10000).then(function(cr){
     if(!cr.user.emailVerified){
       err.textContent='Сначала подтвердите email — проверьте почту.';
       err.classList.add('on');
@@ -495,8 +499,13 @@ function doLogin(){
     } else {
       closeM('authM');unlock();
     }
-  },function(e){
-    err.textContent=fbErr(e.code);err.classList.add('on');unlock();
+  }).catch(function(e){
+    if(e.code==='timeout'){
+      err.textContent='Сервер не отвечает. Проверьте интернет и попробуйте снова.';
+    } else {
+      err.textContent=fbErr(e.code);
+    }
+    err.classList.add('on');unlock();
   });
 }
 
@@ -510,15 +519,17 @@ function doReg(){
   if(!ok)return;
   function unlock(){btn.disabled=false;btn.textContent='Создать аккаунт →';}
   btn.disabled=true;btn.textContent='Регистрируем…';
-  auth.createUserWithEmailAndPassword(email,pass).then(function(cr){
+  withTimeout(auth.createUserWithEmailAndPassword(email,pass), 10000).then(function(cr){
     cr.user.sendEmailVerification();
     return db.collection('users').doc(cr.user.uid).set({name:name,email:email,grade:grade,enrolledCourses:[],completedLessons:{},homeworkCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   }).then(function(){
     return auth.signOut();
   }).then(function(){
     closeM('authM');toast('Аккаунт создан! Проверьте почту.','ok');unlock();
-  },function(e){
-    document.getElementById('rEE').textContent=fbErr(e.code);document.getElementById('rEE').classList.add('on');unlock();
+  }).catch(function(e){
+    var errEl=document.getElementById('rEE');
+    errEl.textContent=e.code==='timeout'?'Сервер не отвечает. Попробуйте снова.':fbErr(e.code);
+    errEl.classList.add('on');unlock();
   });
 }
 
