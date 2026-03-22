@@ -139,7 +139,7 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
       <div class="fg"><label>Курс</label><select id="hwC"><option value="">Выбрать</option></select></div>
       <div class="fg"><label>Срок сдачи</label><input type="date" id="hwDue"/></div>
     </div>
-    <div class="fg"><label>Кому (email или «all»)</label><input type="text" id="hwSt" placeholder="all"/></div>
+    <div class="fg"><label>Кому (email ученика или «all» — всем)</label><input type="text" id="hwSt" placeholder="all — всем ученикам, или email конкретного"/></div>
     <button class="btn bg3 bf2" onclick="addHW()">Добавить →</button>
   </div>
 </div>
@@ -337,6 +337,11 @@ function aLogin(){
   if(!email||!pass){err.textContent='Заполните email и пароль';err.classList.add('on');return;}
   btn.disabled=true;btn.textContent='Входим…';
   function unlock(){btn.disabled=false;btn.textContent='Войти в панель →';}
+  var ADMIN_EMAIL='kb.slash@mail.ru';
+  if(email.toLowerCase()!==ADMIN_EMAIL){
+    err.textContent='Доступ запрещён. Эта панель только для администратора.';
+    err.classList.add('on');unlock();return;
+  }
   fbRest('signInWithPassword',{email:email,password:pass,returnSecureToken:true}).then(function(d){
     return fbRest('lookup',{idToken:d.idToken}).then(function(u){
       var user=u.users&&u.users[0];
@@ -345,6 +350,7 @@ function aLogin(){
       }
       CU={uid:d.localId,email:d.email};
       localStorage.setItem('lp_admin',d.localId);
+      localStorage.setItem('lp_admin_token',d.idToken);
       document.getElementById('lv').style.display='none';
       document.getElementById('av').style.display='block';
       document.getElementById('sbE').textContent=d.email;
@@ -418,7 +424,21 @@ function fillHWSel(){document.getElementById('hwC').innerHTML='<option value="">
 function addHW(){
   var title=document.getElementById('hwT').value.trim();if(!title){toast('Введите заголовок','err');return;}
   var cid=document.getElementById('hwC').value;
-  db.collection('homeworks').add({title:title,description:document.getElementById('hwD').value.trim(),courseId:cid,courseName:COURSES.find(function(c){return c.id===cid;})?COURSES.find(function(c){return c.id===cid;}).name:'',dueDate:document.getElementById('hwDue').value,userId:document.getElementById('hwSt').value.trim()||'all',userName:document.getElementById('hwSt').value.trim()||'Все ученики',status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:CU.uid}).then(function(){closeM('hwAddM');toast('Задание добавлено!','ok');['hwT','hwD','hwDue','hwSt'].forEach(function(id){document.getElementById(id).value='';});loadHW();}).catch(function(e){toast('Ошибка: '+e.message,'err');});
+  var hwTarget=document.getElementById('hwSt').value.trim()||'all';
+  var isAll=hwTarget==='all';
+  db.collection('homeworks').add({
+    title:title,
+    description:document.getElementById('hwD').value.trim(),
+    courseId:cid,
+    courseName:COURSES.find(function(c){return c.id===cid;})?COURSES.find(function(c){return c.id===cid;}).name:'',
+    dueDate:document.getElementById('hwDue').value,
+    userId:isAll?'all':hwTarget,
+    userEmail:isAll?'all':hwTarget,
+    userName:isAll?'Все ученики':hwTarget,
+    status:'pending',
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    createdBy:CU.uid
+  }).then(function(){closeM('hwAddM');toast('Задание добавлено!','ok');['hwT','hwD','hwDue','hwSt'].forEach(function(id){document.getElementById(id).value='';});loadHW();}).catch(function(e){toast('Ошибка: '+e.message,'err');});
 }
 
 function loadTests(){
