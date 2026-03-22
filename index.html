@@ -275,12 +275,35 @@ footer{background:var(--ink);border-top:1px solid var(--line);padding:2.5rem;dis
 <!-- HW MODAL -->
 
 <div class="ov" id="hwM">
-  <div class="modal" style="max-width:500px">
+  <div class="modal" style="max-width:560px">
     <button class="mx" onclick="closeM('hwM')">✕</button>
     <div class="mt">Сдать домашнее задание</div>
     <div class="fg"><label>Задание</label><input type="text" id="hwMT" readonly/></div>
-    <div class="fg"><label>Ваше решение</label><textarea id="hwMB" placeholder="Напишите ход решения, ответы, рассуждения…"></textarea></div>
-    <div style="display:flex;gap:.8rem"><button class="btn bg" style="flex:1" onclick="submitHW()">Отправить →</button><button class="btn bh" onclick="closeM('hwM')">Отмена</button></div>
+    <div id="hwMDesc" style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:1rem;margin-bottom:1rem;font-size:.9rem;color:var(--text2);line-height:1.65;display:none"></div>
+    <div class="fg"><label>Ваше решение (текст)</label><textarea id="hwMB" placeholder="Напишите ход решения, ответы, рассуждения…"></textarea></div>
+    <div class="fg">
+      <label>Прикрепить файл (фото, PDF, документ)</label>
+      <div id="hwFileZone" style="border:1.5px dashed var(--line2);border-radius:10px;padding:1.2rem;text-align:center;cursor:pointer;transition:border-color .2s" onclick="document.getElementById('hwFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='var(--line2)'" ondrop="handleFileDrop(event)">
+        <div style="font-size:1.5rem;margin-bottom:.4rem">📎</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.07em;color:var(--text3)">Нажмите или перетащите файл</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.56rem;color:var(--text3);margin-top:.3rem">JPG, PNG, PDF, DOCX — до 10 МБ</div>
+      </div>
+      <input type="file" id="hwFileInput" style="display:none" accept="image/*,.pdf,.doc,.docx" onchange="handleFileSelect(this)"/>
+      <div id="hwFilePreview" style="margin-top:.6rem;display:none">
+        <div style="display:flex;align-items:center;gap:.6rem;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:.65rem .9rem">
+          <span id="hwFileIcon" style="font-size:1.2rem">📄</span>
+          <div style="flex:1">
+            <div id="hwFileName" style="font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500"></div>
+            <div id="hwFileSize" style="font-family:'DM Mono',monospace;font-size:.56rem;color:var(--text3);margin-top:.1rem"></div>
+          </div>
+          <button onclick="clearFile()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:.2rem .4rem;border-radius:5px" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">✕</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.8rem">
+      <button class="btn bg" style="flex:1" id="hwSubmitBtn" onclick="submitHW()">Отправить →</button>
+      <button class="btn bh" onclick="closeM('hwM')">Отмена</button>
+    </div>
   </div>
 </div>
 
@@ -781,7 +804,19 @@ function loadHW(){
       return hw.userId==='all'||hw.userId===CU.uid||hw.userId===myEmail||hw.userEmail===myEmail;
     })};
     var hws=sn.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-    function mkHW(hw){return'<div class="hwi"><div class="hwd '+(hw.status||'pending')+'"></div><div class="hwii"><div class="hwit">'+hw.title+'</div><div class="hwim">'+slabel(hw.status)+(hw.feedback?' · '+hw.feedback:'')+'</div></div>'+(hw.status==='graded'?'<span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--green)">'+hw.grade+'/10</span>':hw.status==='pending'?'<button class="btn bg bs" onclick="openHWM(\''+hw.title+'\',\''+hw.id+'\')">Сдать</button>':'')+'</div>';}
+    function mkHW(hw){
+      var canSubmit=hw.status==='pending'||hw.status==='returned';
+      var descPart=hw.description?'<div style="font-size:.82rem;color:var(--text2);margin-top:.3rem;line-height:1.6">'+hw.description+'</div>':'';
+      var filePart=hw.fileName?'<div style="display:flex;align-items:center;gap:.4rem;margin-top:.3rem;font-family:\'DM Mono\',monospace;font-size:.56rem;color:var(--text3)">📎 '+hw.fileName+'</div>':'';
+      var gradePart=hw.status==='graded'?'<div style="text-align:right;flex-shrink:0"><div style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:var(--green);font-weight:500">'+hw.grade+'/10</div>'+(hw.feedback?'<div style="font-family:\'DM Mono\',monospace;font-size:.55rem;color:var(--text3);margin-top:.2rem;max-width:140px;text-align:right">'+hw.feedback+'</div>':'')+'</div>':'';
+      return'<div class="hwi"><div class="hwd '+(hw.status||'pending')+'"></div>'
+        +'<div class="hwii"><div class="hwit">'+hw.title+'</div>'
+        +descPart
+        +'<div class="hwim" style="margin-top:.25rem">'+slabel(hw.status)+filePart+'</div></div>'
+        +(canSubmit?'<button class="btn bg bs" style="flex-shrink:0" onclick="openHWM(\''+hw.title+'\',\''+hw.id+'\',\''+((hw.description||'').replace(/'/g,''))+'\')" >Сдать</button>':'')
+        +gradePart
+        +'</div>';
+    }
     var no='<p style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Заданий пока нет.</p>';
     document.getElementById('dHWP').innerHTML=hws.length?hws.slice(0,4).map(mkHW).join(''):no;
     document.getElementById('dHWF').innerHTML=hws.length?hws.map(mkHW).join(''):no;
@@ -789,14 +824,92 @@ function loadHW(){
 }
 function slabel(s){return({pending:'Ожидает сдачи',submitted:'На проверке',graded:'Проверено',overdue:'Просрочено'})[s]||s||'';}
 
-function openHWM(title,id){document.getElementById('hwMT').value=title;document.getElementById('hwMT').dataset.id=id||'';openM('hwM');}
+function openHWM(title,id,description){
+  document.getElementById('hwMT').value=title;
+  document.getElementById('hwMT').dataset.id=id||'';
+  var descEl=document.getElementById('hwMDesc');
+  if(description&&description.trim()){
+    descEl.textContent=description;
+    descEl.style.display='block';
+  } else {
+    descEl.style.display='none';
+  }
+  clearFile();
+  document.getElementById('hwMB').value='';
+  openM('hwM');
+}
+
+var hwFile=null;
+function handleFileSelect(input){
+  if(input.files&&input.files[0]) setFile(input.files[0]);
+}
+function handleFileDrop(e){
+  e.preventDefault();
+  document.getElementById('hwFileZone').style.borderColor='var(--line2)';
+  if(e.dataTransfer.files&&e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+}
+function setFile(file){
+  if(file.size>10*1024*1024){toast('Файл слишком большой (макс. 10 МБ)','err');return;}
+  hwFile=file;
+  var icons={'image':'🖼️','pdf':'📕','doc':'📝','docx':'📝'};
+  var ext=file.name.split('.').pop().toLowerCase();
+  var icon=file.type.startsWith('image')?'🖼️':(icons[ext]||'📎');
+  document.getElementById('hwFileIcon').textContent=icon;
+  document.getElementById('hwFileName').textContent=file.name;
+  document.getElementById('hwFileSize').textContent=(file.size/1024<1024?(file.size/1024).toFixed(1)+' КБ':((file.size/1024/1024).toFixed(1))+' МБ');
+  document.getElementById('hwFilePreview').style.display='block';
+  document.getElementById('hwFileZone').style.borderColor='var(--gold)';
+}
+function clearFile(){
+  hwFile=null;
+  document.getElementById('hwFilePreview').style.display='none';
+  document.getElementById('hwFileZone').style.borderColor='var(--line2)';
+  document.getElementById('hwFileInput').value='';
+}
 function submitHW(){
-  var title=document.getElementById('hwMT').value,text=document.getElementById('hwMB').value.trim(),id=document.getElementById('hwMT').dataset.id;
-  if(!text){toast('Напишите решение','err');return;}
-  var p=id
-    ?db.collection('homeworks').doc(id).update({solution:text,status:'submitted',submittedAt:firebase.firestore.FieldValue.serverTimestamp()})
-    :db.collection('homeworks').add({userId:CU.uid,userName:UD.name,title:title,solution:text,status:'submitted',submittedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  p.then(function(){toast('Задание отправлено!','ok');closeM('hwM');document.getElementById('hwMB').value='';loadHW();}).catch(function(e){toast('Ошибка: '+e.message,'err');});
+  var title=document.getElementById('hwMT').value;
+  var text=document.getElementById('hwMB').value.trim();
+  var id=document.getElementById('hwMT').dataset.id;
+  if(!text&&!hwFile){toast('Напишите решение или прикрепите файл','err');return;}
+  var btn=document.getElementById('hwSubmitBtn');
+  btn.disabled=true;btn.textContent='Отправляем…';
+
+  function doSave(fileData){
+    var data={solution:text,status:'submitted',submittedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    if(fileData){data.fileName=fileData.name;data.fileType=fileData.type;data.fileData=fileData.data;}
+    var p=id
+      ?db.collection('homeworks').doc(id).update(data)
+      :db.collection('homeworks').add(Object.assign({userId:CU.uid,userEmail:(UD&&UD.email)||'',userName:(UD&&UD.name)||'',title:title},data));
+    p.then(function(){
+      toast('Задание отправлено!','ok');
+      closeM('hwM');
+      document.getElementById('hwMB').value='';
+      clearFile();
+      btn.disabled=false;btn.textContent='Отправить →';
+      loadHW();
+    }).catch(function(e){
+      toast('Ошибка: '+e.message,'err');
+      btn.disabled=false;btn.textContent='Отправить →';
+    });
+  }
+
+  if(hwFile){
+    // Читаем файл как base64
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var base64=e.target.result;
+      // Ограничение Firestore — 1МБ на документ, для больших файлов сохраняем ссылку
+      if(base64.length>800000){
+        toast('Файл слишком большой для сохранения (макс ~600 КБ). Опишите решение текстом.','err');
+        btn.disabled=false;btn.textContent='Отправить →';
+        return;
+      }
+      doSave({name:hwFile.name,type:hwFile.type,data:base64});
+    };
+    reader.readAsDataURL(hwFile);
+  } else {
+    doSave(null);
+  }
 }
 
 // REVEAL
