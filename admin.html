@@ -402,7 +402,7 @@ function loadHW(){
     el.innerHTML=hws.map(function(hw){
       return'<div class="hwc"><div class="hwct"><div><div class="hwcn">'+hw.title+'</div><div class="hwcm">'+(hw.userName||'Ученик')+' &nbsp;·&nbsp; <span class="badge '+(hw.status==='submitted'?'bs2':hw.status==='graded'?'bg2':hw.status==='returned'?'bo':'bp')+'">'+sl(hw.status)+'</span></div></div>'
       +'<div style="display:flex;gap:.45rem;flex-shrink:0">'+(hw.status==='submitted'?'<button class="btn bok bsm" onclick="openGrade(\''+hw.id+'\',\''+hw.title+'\',\''+(hw.userName||'')+'\')">✓ Проверить</button>':'')+'<button class="btn berr bsm" onclick="delHW(\''+hw.id+'\')">🗑</button></div></div>'
-      +(hw.solution?'<div class="hwcb">'+hw.solution+'</div>':'')
+      +(hw.solution?'<div class="hwcb">'+hw.solution+'</div>':'')+(hw.fileName?'<div style="display:flex;align-items:center;gap:.6rem;background:var(--ink2);border:1px solid var(--line);border-radius:8px;padding:.6rem .9rem;margin-bottom:.7rem"><span style="font-size:1.1rem">'+(hw.fileType&&hw.fileType.startsWith('image')?'🖼️':'📎')+'</span><span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--text2);flex:1">'+hw.fileName+'</span><button class="btn bh2 bsm" onclick="viewFile(\''+hw.id+'\')">Открыть</button></div>':'')
       +(hw.feedback?'<div style="background:rgba(107,150,255,.06);border:1px solid rgba(107,150,255,.2);border-radius:8px;padding:.65rem;font-family:\'DM Mono\',monospace;font-size:.56rem;color:var(--blue2)">💬 '+hw.feedback+'</div>':'')
       +(hw.grade?'<div style="font-family:\'DM Mono\',monospace;font-size:.58rem;color:var(--green);margin-top:.45rem">Оценка: '+hw.grade+'/10</div>':'')+'</div>';
     }).join('');
@@ -553,6 +553,34 @@ function loadAn(){
     document.getElementById('an-sg').innerHTML='<div class="sc"><div class="sv" style="color:var(--gold)">'+ss.size+'</div><div class="sl">Учеников</div></div><div class="sc"><div class="sv" style="color:var(--orange)">'+hs.size+'</div><div class="sl">Всего ДЗ</div></div><div class="sc"><div class="sv" style="color:var(--green)">'+tests.length+'</div><div class="sl">Тестов</div></div><div class="sc"><div class="sv" style="color:var(--blue2)">'+avg+'%</div><div class="sl">Средний балл</div></div>';
     document.getElementById('an-tb').innerHTML=tests.length?tests.slice(0,50).map(function(t){return'<tr><td>'+(t.userName||'—')+'</td><td style="font-family:\'DM Mono\',monospace;font-size:.62rem;color:var(--text3)">'+(t.courseId||'—')+'</td><td style="font-family:\'DM Mono\',monospace;font-size:.62rem;color:var(--text3)">'+(t.testId||'—')+'</td><td><span style="font-family:\'DM Mono\',monospace;font-size:.65rem;color:'+(t.passed?'var(--green)':'var(--red)')+'">'+t.pct+'% ('+t.score+'/'+t.tot+')</span></td></tr>';}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--text3);font-family:\'DM Mono\',monospace;font-size:.6rem;padding:2rem">Нет данных</td></tr>';
   }).catch(function(e){console.error(e);});
+}
+
+function viewFile(hwId){
+  db.collection('homeworks').doc(hwId).get().then(function(sn){
+    if(!sn.exists){toast('Задание не найдено','err');return;}
+    var d=sn.data();
+    if(!d.fileData){toast('Файл не прикреплён','err');return;}
+    if(d.fileType&&d.fileType.startsWith('image')){
+      // Показываем картинку прямо на странице в модальном окне
+      var overlay=document.createElement('div');
+      overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;cursor:pointer';
+      overlay.onclick=function(){document.body.removeChild(overlay);};
+      var img=document.createElement('img');
+      img.src=d.fileData;
+      img.style.cssText='max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain';
+      var close=document.createElement('button');
+      close.textContent='✕';
+      close.style.cssText='position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1rem;cursor:pointer;';
+      close.onclick=function(e){e.stopPropagation();document.body.removeChild(overlay);};
+      overlay.appendChild(img);overlay.appendChild(close);
+      document.body.appendChild(overlay);
+    } else {
+      // Скачиваем файл
+      var a=document.createElement('a');
+      a.href=d.fileData;a.download=d.fileName||'file';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+    }
+  }).catch(function(e){toast('Ошибка загрузки: '+e.message,'err');});
 }
 
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
