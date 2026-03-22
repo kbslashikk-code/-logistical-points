@@ -294,7 +294,7 @@ footer{background:var(--ink);border-top:1px solid var(--line);padding:2.5rem;dis
 
 <div id="homeV">
 <section class="hero">
-  <div class="hey">◈ Онлайн-школа математики</div>
+  <div class="hey" style="font-family:'Playfair Display',serif;font-style:italic;font-size:.85rem;letter-spacing:.08em;text-transform:none">✦ Будущее начинается с нами</div>
   <h1 class="hh1">Logistical<br><em>Points</em></h1>
   <p class="hsub">Подготовка к олимпиадам и экзаменам для школьников 1–11 классов. Индивидуальный подход, реальные задачи, живая проверка.</p>
   <div class="hcta"><button class="btn bg" onclick="openM('authM')">Начать учиться →</button><a href="#courses" class="btn bh">Смотреть курсы</a></div>
@@ -340,7 +340,7 @@ footer{background:var(--ink);border-top:1px solid var(--line);padding:2.5rem;dis
   </div>
 </div></section>
 <div class="rule"></div>
-<footer><div class="fl">Logistical <em>Points</em></div><div class="flinks"><a onclick="showHome()">Уровни</a><a onclick="showHome()">Курсы</a><a onclick="showHome()">Преподаватель</a><a href="admin.html">Админ</a></div><div class="fc">© 2025 Logistical Points · Егоров С.Е.</div></footer>
+<footer><div class="fl">Logistical <em>Points</em></div><div class="flinks"><a onclick="showHome()">Уровни</a><a onclick="showHome()">Курсы</a><a onclick="showHome()">Преподаватель</a></div><div class="fc">© 2025 Logistical Points · Егоров С.Е.</div></footer>
 </div>
 
 <!-- DASHBOARD -->
@@ -774,7 +774,12 @@ function renderDashProgress(){
 function loadHW(){
   if(!CU)return;
   db.collection('homeworks').get().then(function(sn_all){
-    var sn={docs:sn_all.docs.filter(function(d){return d.data().userId===CU.uid;})};
+    var myEmail=(UD&&UD.email)||'';
+    var sn={docs:sn_all.docs.filter(function(d){
+      var hw=d.data();
+      // Показываем ДЗ если: назначено всем, назначено по uid, или назначено по email
+      return hw.userId==='all'||hw.userId===CU.uid||hw.userId===myEmail||hw.userEmail===myEmail;
+    })};
     var hws=sn.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     function mkHW(hw){return'<div class="hwi"><div class="hwd '+(hw.status||'pending')+'"></div><div class="hwii"><div class="hwit">'+hw.title+'</div><div class="hwim">'+slabel(hw.status)+(hw.feedback?' · '+hw.feedback:'')+'</div></div>'+(hw.status==='graded'?'<span style="font-family:\'DM Mono\',monospace;font-size:.6rem;color:var(--green)">'+hw.grade+'/10</span>':hw.status==='pending'?'<button class="btn bg bs" onclick="openHWM(\''+hw.title+'\',\''+hw.id+'\')">Сдать</button>':'')+'</div>';}
     var no='<p style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:.62rem">Заданий пока нет.</p>';
