@@ -5,109 +5,142 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Админ — Logistical Points</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;700;800&family=Onest:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--ink:#0a0c12;--ink2:#12151f;--card:#161b28;--card2:#1c2235;--line:#232a3e;--line2:#2a3350;--gold:#c9a84c;--gold2:#e8c97a;--gold3:rgba(201,168,76,0.1);--blue2:#6b96ff;--text:#e8eaf2;--text2:#8b93b0;--text3:#4a5270;--green:#4ade80;--red:#f87171;--orange:#fb923c;}
-body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh}
-#lv{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;overflow:hidden}
-#lv::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.05),transparent 70%);top:-100px;right:-100px}
-.lbox{background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:2.8rem;width:100%;max-width:400px;position:relative;z-index:1}
-.llogo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;letter-spacing:-.02em;margin-bottom:.25rem}
-.llogo em{font-style:italic;color:var(--gold)}
-.lsub{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:2rem}
+:root{
+  --bg:#08090e;--bg2:#0e1018;--bg3:#13151e;
+  --b:#ffffff0f;--b2:#ffffff18;
+  --acc:#7c6dfa;--acc2:#a695ff;--acc3:rgba(124,109,250,0.12);
+  --gr:#4dd98a;--gr2:rgba(77,217,138,0.1);
+  --rd:#ff6b6b;--rd2:rgba(255,107,107,0.1);
+  --or:#ffaa4d;--or2:rgba(255,170,77,0.1);
+  --tx:#f0f2ff;--tx2:#8b91b8;--tx3:#4a5080;
+}
+body{background:var(--bg);color:var(--tx);font-family:'Onest',sans-serif;font-size:15px;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(124,109,250,0.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* LOGIN */
+#lv{display:flex;align-items:center;justify-content:center;min-height:100vh;position:relative;z-index:1}
+.lbox{background:var(–bg3);border:1px solid var(–b2);border-radius:24px;padding:3rem;width:100%;max-width:420px;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.llogo{display:flex;align-items:center;gap:.6rem;margin-bottom:.3rem}
+.llogo-dot{width:10px;height:10px;border-radius:50%;background:var(–acc);box-shadow:0 0 16px var(–acc)}
+.llogo-t{font-family:‘Unbounded’,sans-serif;font-size:1.1rem;font-weight:800}
+.lsub{font-family:‘JetBrains Mono’,monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(–tx3);margin-bottom:2.2rem;padding-left:1.6rem}
+
+/* LAYOUT */
 #av{display:none;min-height:100vh}
-.lay{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-.sb{background:var(--ink2);border-right:1px solid var(--line);padding:1.2rem;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
-.sbl{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:900;letter-spacing:-.02em;padding-bottom:1.1rem;border-bottom:1px solid var(--line);margin-bottom:.6rem}
-.sbl em{font-style:italic;color:var(--gold)}
-.sbs{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text3);padding:.6rem .65rem .25rem;margin-top:.25rem}
-.sbi{display:flex;align-items:center;gap:.55rem;padding:.5rem .65rem;border-radius:8px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--text2);cursor:pointer;transition:all .18s;border-left:2px solid transparent;margin-bottom:.06rem}
-.sbi:hover{background:var(--card);color:var(--text)}
-.sbi.on{background:var(--gold3);color:var(--gold);border-left-color:var(--gold)}
-.sbi.r{color:var(--red)}.sbi.r:hover{background:rgba(248,113,113,.06)}
-.sbemail{font-family:'DM Mono',monospace;font-size:.54rem;color:var(--text3);padding:.38rem .65rem;word-break:break-all}
-.main{padding:2rem;overflow-y:auto}
+.lay{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:240px;background:var(–bg2);border-right:1px solid var(–b);padding:1.4rem 1rem;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;transition:width .3s,padding .3s;z-index:100}
+.sb.collapsed{width:60px;padding:1.4rem .6rem}
+.sb-toggle{position:absolute;top:1.3rem;right:-12px;width:24px;height:24px;background:var(–bg3);border:1px solid var(–b2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.7rem;color:var(–tx2);transition:all .2s;z-index:10}
+.sb-toggle:hover{color:var(–acc);border-color:var(–acc)}
+.sb-logo{display:flex;align-items:center;gap:.55rem;padding-bottom:1.2rem;border-bottom:1px solid var(–b);margin-bottom:.8rem;overflow:hidden;white-space:nowrap}
+.sb-logo-dot{width:8px;height:8px;border-radius:50%;background:var(–acc);flex-shrink:0;box-shadow:0 0 10px var(–acc)}
+.sb-logo-t{font-family:‘Unbounded’,sans-serif;font-size:.85rem;font-weight:800;transition:opacity .2s}
+.sb.collapsed .sb-logo-t{opacity:0;width:0}
+.sbs{font-family:‘JetBrains Mono’,monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(–tx3);padding:.6rem .65rem .2rem;white-space:nowrap;overflow:hidden;transition:opacity .2s}
+.sb.collapsed .sbs{opacity:0;height:0;padding:0}
+.sbi{display:flex;align-items:center;gap:.6rem;padding:.52rem .65rem;border-radius:10px;font-family:‘Onest’,sans-serif;font-size:.86rem;font-weight:500;color:var(–tx2);cursor:pointer;transition:all .18s;margin-bottom:.15rem;white-space:nowrap;overflow:hidden}
+.sbi:hover{background:var(–b);color:var(–tx)}
+.sbi.on{background:var(–acc3);color:var(–acc);border-left:2px solid var(–acc);padding-left:calc(.65rem - 2px)}
+.sbi .si{font-size:.95rem;flex-shrink:0}
+.sbi .st{transition:opacity .2s}
+.sb.collapsed .sbi .st{opacity:0;width:0}
+.sb.collapsed .sbi{justify-content:center;padding:.52rem}
+.sbi.r{color:var(–rd)}.sbi.r:hover{background:var(–rd2)}
+.sbemail{font-family:‘JetBrains Mono’,monospace;font-size:.54rem;color:var(–tx3);padding:.38rem .65rem;word-break:break-all;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .2s}
+.sb.collapsed .sbemail{opacity:0;height:0;padding:0}
+
+/* MAIN */
+.main{flex:1;margin-left:240px;padding:2rem 2.5rem;transition:margin-left .3s;position:relative;z-index:1}
+.main.expanded{margin-left:60px}
 .pg{display:none}.pg.on{display:block}
-.ph{margin-bottom:1.8rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-.phl{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.35rem}
-.pht{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;letter-spacing:-.03em}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.3rem;margin-bottom:1.1rem}
-.ct{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem}
+.ph{margin-bottom:2rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.phl{font-family:‘JetBrains Mono’,monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(–acc);margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem}
+.phl::before{content:’’;width:12px;height:1px;background:var(–acc)}
+.pht{font-family:‘Unbounded’,sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.card{background:var(–bg3);border:1px solid var(–b);border-radius:16px;padding:1.4rem;margin-bottom:1.1rem}
+.ct{font-family:‘Unbounded’,sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem}
 .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:1.4rem}
-.sc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1rem;text-align:center}
-.sv{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;line-height:1}
-.sl{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem}
+.sc{background:var(–bg2);border:1px solid var(–b);border-radius:14px;padding:1.1rem;text-align:center;transition:all .3s}
+.sc:hover{border-color:var(–b2);transform:translateY(-2px)}
+.sv{font-family:‘Unbounded’,sans-serif;font-size:1.9rem;font-weight:900;line-height:1}
+.sl{font-family:‘JetBrains Mono’,monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(–tx3);margin-top:.3rem}
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
-.tbl td{padding:.65rem .75rem;border-bottom:1px solid var(--line);font-size:.86rem;vertical-align:middle}
+.tbl th{font-family:‘JetBrains Mono’,monospace;font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(–tx3);padding:.6rem .8rem;text-align:left;border-bottom:1px solid var(–b)}
+.tbl td{padding:.7rem .8rem;border-bottom:1px solid var(–b);font-size:.86rem;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
-.tbl tr:hover td{background:var(--card2)}
-.badge{display:inline-flex;align-items:center;padding:.15rem .52rem;border-radius:5px;font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.07em;text-transform:uppercase}
-.bp{background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.25)}
-.bs2{background:rgba(107,150,255,.1);color:var(--blue2);border:1px solid rgba(107,150,255,.2)}
-.bg2{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)}
-.br{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
-.bo{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.2)}
+.tbl tr:hover td{background:var(–bg2)}
+.badge{display:inline-flex;align-items:center;padding:.18rem .6rem;border-radius:6px;font-family:‘JetBrains Mono’,monospace;font-size:.52rem;letter-spacing:.07em;text-transform:uppercase}
+.bp{background:rgba(245,200,66,.1);color:#f5c842;border:1px solid rgba(245,200,66,.25)}
+.bs2{background:var(–acc3);color:var(–acc2);border:1px solid rgba(124,109,250,.2)}
+.bg2{background:var(–gr2);color:var(–gr);border:1px solid rgba(77,217,138,.2)}
+.br{background:var(–rd2);color:var(–rd);border:1px solid rgba(255,107,107,.2)}
+.bo2{background:var(–or2);color:var(–or);border:1px solid rgba(255,170,77,.2)}
 .fg{margin-bottom:.9rem}
-.fg label{display:block;font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text3);margin-bottom:.38rem}
-.fg input,.fg select,.fg textarea{width:100%;background:var(--ink2);border:1px solid var(--line);border-radius:8px;padding:.62rem .88rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
-.fg input::placeholder,.fg textarea::placeholder{color:var(--text3)}
+.fg label{display:block;font-family:‘JetBrains Mono’,monospace;font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(–tx3);margin-bottom:.38rem}
+.fg input,.fg select,.fg textarea{width:100%;background:var(–bg2);border:1px solid var(–b2);border-radius:10px;padding:.65rem .9rem;color:var(–tx);font-family:‘Onest’,sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(–acc);box-shadow:0 0 0 3px rgba(124,109,250,.12)}
+.fg input::placeholder,.fg textarea::placeholder{color:var(–tx3)}
 .fg textarea{resize:vertical;min-height:80px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-.fe{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--red);margin-top:.28rem;display:none}.fe.on{display:block}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.58rem 1.3rem;border-radius:8px;border:none;font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.07em;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.fe{font-family:‘JetBrains Mono’,monospace;font-size:.56rem;color:var(–rd);margin-top:.28rem;display:none}.fe.on{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.6rem 1.4rem;border-radius:10px;border:none;font-family:‘Onest’,sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.bg3{background:var(--gold);color:var(--ink);font-weight:500}.bg3:hover:not(:disabled){background:var(--gold2)}
-.bh2{background:transparent;border:1px solid var(--line2);color:var(--text2)}.bh2:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
-.bok{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:var(--green)}.bok:hover{background:rgba(74,222,128,.18)}
-.berr{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:var(--red)}.berr:hover{background:rgba(248,113,113,.18)}
-.bf2{width:100%}.bsm{padding:.36rem .78rem;font-size:.56rem}
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.ba{background:var(–acc);color:#fff}.ba:hover:not(:disabled){background:var(–acc2);transform:translateY(-1px)}
+.bo{background:var(–b);border:1px solid var(–b2);color:var(–tx2)}.bo:hover:not(:disabled){border-color:var(–acc);color:var(–acc)}
+.bg3{background:var(–gr2);border:1px solid rgba(77,217,138,.25);color:var(–gr)}.bg3:hover{background:rgba(77,217,138,.18)}
+.berr{background:var(–rd2);border:1px solid rgba(255,107,107,.2);color:var(–rd)}.berr:hover{background:rgba(255,107,107,.18)}
+.bf{width:100%}.bsm{padding:.38rem .8rem;font-size:.78rem}
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(16px);z-index:1000;align-items:center;justify-content:center;padding:1rem}
 .ov.on{display:flex}
-.modal{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:2.2rem;width:100%;max-width:540px;position:relative;max-height:90vh;overflow-y:auto}
-.mx{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--text2);cursor:pointer;width:28px;height:28px;border-radius:6px;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.mx:hover{background:var(--card2);color:var(--text)}
-.mh{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;margin-bottom:1.2rem}
+.modal{background:var(–bg3);border:1px solid var(–b2);border-radius:20px;padding:2.2rem;width:100%;max-width:560px;position:relative;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.mx{position:absolute;top:1rem;right:1rem;background:var(–b);border:none;color:var(–tx2);cursor:pointer;width:30px;height:30px;border-radius:50%;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mx:hover{background:var(–b2);color:var(–tx)}
+.mh{font-family:‘Unbounded’,sans-serif;font-size:1.05rem;font-weight:800;margin-bottom:1.2rem}
 #tb{position:fixed;bottom:1.5rem;right:1.5rem;z-index:8000;display:flex;flex-direction:column;gap:.5rem}
-.toast{padding:.7rem 1.1rem;border-radius:9px;font-family:'DM Mono',monospace;font-size:.62rem;display:flex;align-items:center;gap:.5rem;transform:translateX(110%);transition:transform .3s cubic-bezier(.22,1,.36,1);max-width:280px}
+.toast{padding:.7rem 1.1rem;border-radius:12px;font-family:‘JetBrains Mono’,monospace;font-size:.62rem;display:flex;align-items:center;gap:.5rem;transform:translateX(110%);transition:transform .3s cubic-bezier(.22,1,.36,1);max-width:290px;backdrop-filter:blur(20px)}
 .toast.show{transform:none}
-.tok{background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);color:var(--green)}
-.terr{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);color:var(--red)}
-.tinf{background:rgba(107,150,255,.08);border:1px solid rgba(107,150,255,.25);color:var(--blue2)}
-.hwc{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:1.1rem;margin-bottom:.9rem}
+.tok{background:var(–gr2);border:1px solid rgba(77,217,138,.3);color:var(–gr)}
+.terr{background:var(–rd2);border:1px solid rgba(255,107,107,.3);color:var(–rd)}
+.tinf{background:var(–acc3);border:1px solid rgba(124,109,250,.3);color:var(–acc2)}
+.hwc{background:var(–bg2);border:1px solid var(–b);border-radius:14px;padding:1.2rem;margin-bottom:.9rem;transition:border-color .2s}
+.hwc:hover{border-color:var(–b2)}
 .hwct{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.75rem}
-.hwcn{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700}
-.hwcm{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.06em;color:var(--text3);margin-top:.18rem}
-.hwcb{background:var(--ink2);border:1px solid var(--line);border-radius:8px;padding:.75rem;margin-bottom:.8rem;font-size:.84rem;color:var(--text2);white-space:pre-wrap;line-height:1.65}
-.qc{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:1rem;margin-bottom:.75rem;position:relative}
-.qn{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:.45rem}
-.qrm{position:absolute;top:.65rem;right:.65rem;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.78rem;padding:.18rem .38rem;border-radius:5px;transition:all .2s}
-.qrm:hover{color:var(--red);background:rgba(248,113,113,.1)}
+.hwcn{font-family:‘Unbounded’,sans-serif;font-size:.85rem;font-weight:700}
+.hwcm{font-family:‘JetBrains Mono’,monospace;font-size:.52rem;letter-spacing:.06em;color:var(–tx3);margin-top:.2rem}
+.hwcb{background:var(–bg);border:1px solid var(–b2);border-radius:9px;padding:.8rem;margin-bottom:.8rem;font-size:.84rem;color:var(–tx2);white-space:pre-wrap;line-height:1.65}
+.qc{background:var(–bg2);border:1px solid var(–b);border-radius:12px;padding:1rem;margin-bottom:.75rem;position:relative}
+.qn{font-family:‘JetBrains Mono’,monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(–tx3);margin-bottom:.45rem}
+.qrm{position:absolute;top:.7rem;right:.7rem;background:none;border:none;color:var(–tx3);cursor:pointer;font-size:.78rem;padding:.2rem .4rem;border-radius:5px;transition:all .2s}
+.qrm:hover{color:var(–rd);background:var(–rd2)}
 .or{display:flex;align-items:center;gap:.48rem;margin-bottom:.38rem}
-.oi{flex:1;background:var(--ink2);border:1px solid var(--line);border-radius:7px;padding:.35rem .65rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s}
-.oi:focus{border-color:var(--gold)}
-.ora{accent-color:var(--gold);width:14px;height:14px;flex-shrink:0;cursor:pointer}
-.led{background:var(--ink2);border:1px solid var(--line);border-radius:9px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--text);min-height:180px;outline:none;line-height:1.75;white-space:pre-wrap}
-.led:focus{border-color:var(--gold)}
-.info{background:rgba(107,150,255,.06);border:1px solid rgba(107,150,255,.2);border-radius:9px;padding:.8rem;font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.05em;color:var(--blue2);margin-bottom:.9rem}
-.estt{text-align:center;padding:2.5rem;color:var(--text3)}
+.oi{flex:1;background:var(–bg);border:1px solid var(–b2);border-radius:8px;padding:.38rem .7rem;color:var(–tx);font-family:‘Onest’,sans-serif;font-size:.84rem;outline:none;transition:border-color .2s}
+.oi:focus{border-color:var(–acc)}
+.ora{accent-color:var(–acc);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.led{background:var(–bg2);border:1px solid var(–b2);border-radius:10px;padding:.9rem;font-family:‘Onest’,sans-serif;font-size:.88rem;color:var(–tx);min-height:180px;outline:none;line-height:1.75;white-space:pre-wrap}
+.led:focus{border-color:var(–acc)}
+.info{background:var(–acc3);border:1px solid rgba(124,109,250,.2);border-radius:10px;padding:.85rem;font-family:‘JetBrains Mono’,monospace;font-size:.58rem;letter-spacing:.05em;color:var(–acc2);margin-bottom:.9rem}
+.estt{text-align:center;padding:2.5rem;color:var(–tx3)}
 .estt .ei{font-size:2rem;margin-bottom:.7rem}
-.estt .et{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;color:var(--text2)}
-.rule{height:1px;background:var(--line);margin:.9rem 0}
+.estt .et{font-family:‘Unbounded’,sans-serif;font-size:.88rem;font-weight:700;color:var(–tx2)}
+.rule{height:1px;background:var(–b);margin:.9rem 0}
 </style>
+
 </head>
 <body>
 <div id="tb"></div>
 
 <div id="lv">
   <div class="lbox">
-    <div class="llogo">Logistical <em>Points</em></div>
+    <div class="llogo"><div class="llogo-dot"></div><div class="llogo-t">Logistical Points</div></div>
     <div class="lsub">Административная панель</div>
     <div class="fg"><label>Email</label><input type="email" id="aE" placeholder="your@email.com" onkeydown="if(event.key==='Enter')aLogin()"/><div class="fe" id="aErr"></div></div>
     <div class="fg"><label>Пароль</label><input type="password" id="aP" placeholder="••••••••" onkeydown="if(event.key==='Enter')aLogin()"/></div>
-    <button class="btn bg3 bf2" id="aBtn" onclick="aLogin()">Войти в панель →</button>
+    <button class="btn ba bf" id="aBtn" onclick="aLogin()">Войти в панель →</button>
   </div>
 </div>
 
@@ -120,9 +153,9 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
     <div class="fg"><label>Оценка (1–10)</label><input type="number" id="gV" min="1" max="10" placeholder="8"/></div>
     <div class="fg"><label>Комментарий ученику</label><textarea id="gFb" placeholder="Молодец! Задание выполнено верно…"></textarea></div>
     <div style="display:flex;gap:.65rem">
-      <button class="btn bok" style="flex:1" onclick="submitGrade('graded')">✓ Принять</button>
+      <button class="btn bg3" style="flex:1" onclick="submitGrade('graded')">✓ Принять</button>
       <button class="btn berr" style="flex:1" onclick="submitGrade('returned')">↩ Вернуть</button>
-      <button class="btn bh2" onclick="closeM('gM')">Отмена</button>
+      <button class="btn bo" onclick="closeM('gM')">Отмена</button>
     </div>
   </div>
 </div>
@@ -134,45 +167,45 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
     <button class="mx" onclick="closeM('hwAddM')">✕</button>
     <div class="mh">Добавить домашнее задание</div>
     <div class="fg"><label>Заголовок</label><input type="text" id="hwT" placeholder="Задание 1: Квадратные уравнения"/></div>
-    <div class="fg"><label>Описание / условие</label><textarea id="hwD" placeholder="Решить задачи 1–5…"></textarea></div>
+    <div class="fg"><label>Описание / условие задачи</label><textarea id="hwD" placeholder="Условие задачи которое увидит ученик…"></textarea></div>
     <div class="fr">
       <div class="fg"><label>Курс</label><select id="hwC"><option value="">Выбрать</option></select></div>
       <div class="fg"><label>Срок сдачи</label><input type="date" id="hwDue"/></div>
     </div>
-    <div class="fg"><label>Кому (email ученика или «all» — всем)</label><input type="text" id="hwSt" placeholder="all — всем ученикам, или email конкретного"/></div>
-    <button class="btn bg3 bf2" onclick="addHW()">Добавить →</button>
+    <div class="fg"><label>Кому (email ученика или «all» — всем)</label><input type="text" id="hwSt" placeholder="all — всем ученикам"/></div>
+    <button class="btn ba bf" onclick="addHW()">Добавить →</button>
   </div>
 </div>
 
 <!-- TEST -->
 
 <div class="ov" id="testM">
-  <div class="modal" style="max-width:660px">
+  <div class="modal" style="max-width:680px">
     <button class="mx" onclick="closeM('testM')">✕</button>
     <div class="mh" id="testMH">Создать тест</div>
     <div class="fg"><label>Название теста</label><input type="text" id="tName" placeholder="Тест: Квадратные уравнения"/></div>
     <div class="fg"><label>ID теста (латиница, без пробелов)</label><input type="text" id="tId" placeholder="t_algebra_c2"/></div>
     <div class="rule"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-      <span style="font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)">Вопросы</span>
-      <button class="btn bh2 bsm" onclick="addQ()">+ Вопрос</button>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3)">Вопросы</span>
+      <button class="btn bo bsm" onclick="addQ()">+ Вопрос</button>
     </div>
     <div id="qCont"></div>
     <div class="rule"></div>
-    <button class="btn bg3 bf2" onclick="saveTest()">Сохранить тест →</button>
+    <button class="btn ba bf" onclick="saveTest()">Сохранить тест →</button>
   </div>
 </div>
 
 <!-- LESSON -->
 
 <div class="ov" id="lesM">
-  <div class="modal" style="max-width:660px">
+  <div class="modal" style="max-width:680px">
     <button class="mx" onclick="closeM('lesM')">✕</button>
     <div class="mh" id="lesMH">Редактировать урок</div>
     <div class="fg"><label>Название урока</label><input type="text" id="lesT"/></div>
     <div class="fg"><label>Содержание урока</label><div contenteditable="true" class="led" id="lesC" spellcheck="false"></div></div>
-    <div class="info">💡 Текст будет виден ученику при открытии урока.</div>
-    <button class="btn bg3 bf2" onclick="saveLesson()">Сохранить →</button>
+    <div class="info">💡 Текст отобразится ученику при открытии урока.</div>
+    <button class="btn ba bf" onclick="saveLesson()">Сохранить →</button>
   </div>
 </div>
 
@@ -185,60 +218,61 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
     <div class="fg"><label>Заголовок</label><input type="text" id="anT" placeholder="Изменение расписания"/></div>
     <div class="fg"><label>Текст</label><textarea id="anB" placeholder="Дорогие ученики…"></textarea></div>
     <div class="fg"><label>Тип</label><select id="anTy"><option value="info">Информация</option><option value="warning">Внимание</option><option value="success">Поздравление</option></select></div>
-    <button class="btn bg3 bf2" onclick="addAnn()">Опубликовать →</button>
+    <button class="btn ba bf" onclick="addAnn()">Опубликовать →</button>
   </div>
 </div>
 
 <div id="av">
   <div class="lay">
-    <aside class="sb">
-      <div class="sbl">Logistical <em>Points</em></div>
+    <aside class="sb" id="asb">
+      <div class="sb-toggle" id="asbToggle" onclick="toggleAdminSb()" title="Свернуть меню">‹</div>
+      <div class="sb-logo"><div class="sb-logo-dot"></div><div class="sb-logo-t">Admin Panel</div></div>
       <div class="sbs">Обзор</div>
-      <div class="sbi on" onclick="showPg('dashboard',this)">📊 Дашборд</div>
+      <div class="sbi on" onclick="showPg('dashboard',this)"><span class="si">📊</span><span class="st">Дашборд</span></div>
       <div class="sbs">Учёба</div>
-      <div class="sbi" onclick="showPg('homework',this)">📝 Домашние задания</div>
-      <div class="sbi" onclick="showPg('tests',this)">📋 Тесты</div>
-      <div class="sbi" onclick="showPg('lessons',this)">📄 Уроки</div>
+      <div class="sbi" onclick="showPg('homework',this)"><span class="si">📝</span><span class="st">Домашние задания</span></div>
+      <div class="sbi" onclick="showPg('tests',this)"><span class="si">📋</span><span class="st">Тесты</span></div>
+      <div class="sbi" onclick="showPg('lessons',this)"><span class="si">📄</span><span class="st">Уроки</span></div>
       <div class="sbs">Пользователи</div>
-      <div class="sbi" onclick="showPg('students',this)">👥 Ученики</div>
+      <div class="sbi" onclick="showPg('students',this)"><span class="si">👥</span><span class="st">Ученики</span></div>
       <div class="sbs">Прочее</div>
-      <div class="sbi" onclick="showPg('announcements',this)">📢 Объявления</div>
-      <div class="sbi" onclick="showPg('analytics',this)">📈 Аналитика</div>
+      <div class="sbi" onclick="showPg('announcements',this)"><span class="si">📢</span><span class="st">Объявления</span></div>
+      <div class="sbi" onclick="showPg('analytics',this)"><span class="si">📈</span><span class="st">Аналитика</span></div>
       <div style="flex:1"></div>
       <div class="rule"></div>
       <div class="sbemail" id="sbE"></div>
-      <div class="sbi r" onclick="aLogout()">🚪 Выйти</div>
+      <div class="sbi r" onclick="aLogout()"><span class="si">🚪</span><span class="st">Выйти</span></div>
     </aside>
-    <main class="main">
+    <main class="main" id="amain">
       <div class="pg on" id="pg-dashboard">
         <div class="ph"><div><div class="phl">Обзор</div><div class="pht">Дашборд</div></div></div>
         <div class="sg">
-          <div class="sc"><div class="sv" id="ds-s" style="color:var(--gold)">…</div><div class="sl">Учеников</div></div>
-          <div class="sc"><div class="sv" id="ds-h" style="color:var(--orange)">…</div><div class="sl">ДЗ на проверке</div></div>
-          <div class="sc"><div class="sv" id="ds-t" style="color:var(--green)">…</div><div class="sl">Тестов сдано</div></div>
-          <div class="sc"><div class="sv" style="color:var(--blue2)">6</div><div class="sl">Курсов</div></div>
+          <div class="sc"><div class="sv" id="ds-s" style="color:var(--acc)">…</div><div class="sl">Учеников</div></div>
+          <div class="sc"><div class="sv" id="ds-h" style="color:var(--or)">…</div><div class="sl">ДЗ на проверке</div></div>
+          <div class="sc"><div class="sv" id="ds-t" style="color:var(--gr)">…</div><div class="sl">Тестов сдано</div></div>
+          <div class="sc"><div class="sv" style="color:var(--acc2)">6</div><div class="sl">Курсов</div></div>
         </div>
         <div class="card"><div class="ct">📝 ДЗ на проверке</div><div id="ds-hwp"></div></div>
         <div class="card"><div class="ct">👥 Ученики</div><div id="ds-stp"></div></div>
       </div>
       <div class="pg" id="pg-homework">
-        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Домашние задания</div></div><button class="btn bg3" onclick="openM('hwAddM');fillHWSel()">+ Добавить ДЗ</button></div>
-        <div class="card" style="padding:.65rem 1.1rem"><div style="display:flex;gap:.45rem;flex-wrap:wrap">
-          <button class="btn bg3 bsm" id="hf-all" onclick="filterHW('all',this)">Все</button>
-          <button class="btn bh2 bsm" id="hf-sub" onclick="filterHW('submitted',this)">На проверке</button>
-          <button class="btn bh2 bsm" id="hf-pen" onclick="filterHW('pending',this)">Ожидают</button>
-          <button class="btn bh2 bsm" id="hf-gr" onclick="filterHW('graded',this)">Проверены</button>
+        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Домашние задания</div></div><button class="btn ba" onclick="openM('hwAddM');fillHWSel()">+ Добавить ДЗ</button></div>
+        <div class="card" style="padding:.65rem 1.1rem;margin-bottom:1rem"><div style="display:flex;gap:.45rem;flex-wrap:wrap">
+          <button class="btn ba bsm" id="hf-all" onclick="filterHW('all',this)">Все</button>
+          <button class="btn bo bsm" id="hf-sub" onclick="filterHW('submitted',this)">На проверке</button>
+          <button class="btn bo bsm" id="hf-pen" onclick="filterHW('pending',this)">Ожидают</button>
+          <button class="btn bo bsm" id="hf-gr" onclick="filterHW('graded',this)">Проверены</button>
         </div></div>
         <div id="hw-list"></div>
       </div>
       <div class="pg" id="pg-tests">
-        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Тесты</div></div><button class="btn bg3" onclick="openTestB()">+ Создать тест</button></div>
-        <div class="info">💡 Тест привязывается к уроку по ID. Пример: урок с testId=<strong>t_algebra_c2</strong> — создайте тест с таким же ID.</div>
+        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Тесты</div></div><button class="btn ba" onclick="openTestB()">+ Создать тест</button></div>
+        <div class="info">💡 ID теста должен совпадать с testId урока. Пример: <strong>t_algebra_c2</strong></div>
         <div id="tests-list"></div>
       </div>
       <div class="pg" id="pg-lessons">
         <div class="ph"><div><div class="phl">Управление</div><div class="pht">Уроки</div></div></div>
-        <div class="info">💡 Нажмите «Редактировать» рядом с уроком чтобы добавить содержание для учеников.</div>
+        <div class="info">💡 Нажмите «Редактировать» рядом с уроком чтобы добавить содержание.</div>
         <div id="les-list"></div>
       </div>
       <div class="pg" id="pg-students">
@@ -246,7 +280,7 @@ body{background:var(--ink);color:var(--text);font-family:'DM Sans',sans-serif;fo
         <div class="card"><table class="tbl"><thead><tr><th>Имя</th><th>Email</th><th>Класс</th><th>Курсов</th><th>Уроков</th></tr></thead><tbody id="stu-tb"></tbody></table></div>
       </div>
       <div class="pg" id="pg-announcements">
-        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Объявления</div></div><button class="btn bg3" onclick="openM('annM')">+ Объявление</button></div>
+        <div class="ph"><div><div class="phl">Управление</div><div class="pht">Объявления</div></div><button class="btn ba" onclick="openM('annM')">+ Объявление</button></div>
         <div id="ann-list"></div>
       </div>
       <div class="pg" id="pg-analytics">
@@ -598,6 +632,21 @@ document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',
         loadDash();
       } else { localStorage.removeItem('lp_admin'); }
     }).catch(function(){ localStorage.removeItem('lp_admin'); });
+  }
+})();
+</script>
+
+<script>
+function toggleAdminSb(){
+  var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbToggle');
+  sb.classList.toggle('collapsed');m.classList.toggle('expanded');
+  tg.textContent=sb.classList.contains('collapsed')?'›':'‹';
+  localStorage.setItem('asb_collapsed',sb.classList.contains('collapsed')?'1':'0');
+}
+(function(){
+  if(localStorage.getItem('asb_collapsed')==='1'){
+    var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbToggle');
+    if(sb){sb.classList.add('collapsed');m.classList.add('expanded');tg.textContent='›';}
   }
 })();
 </script>
