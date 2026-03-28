@@ -162,16 +162,37 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <!-- ADD HW -->
 
 <div class="ov" id="hwAddM">
-  <div class="modal">
+  <div class="modal" style="max-width:580px">
     <button class="mx" onclick="closeM('hwAddM')">✕</button>
     <div class="mh">Добавить домашнее задание</div>
-    <div class="fg"><label>Заголовок</label><input type="text" id="hwT" placeholder="Задание 1: Квадратные уравнения"/></div>
+    <div class="fg"><label>Заголовок задания</label><input type="text" id="hwT" placeholder="Задание 1: Квадратные уравнения"/></div>
     <div class="fg"><label>Условие задачи</label><textarea id="hwD" placeholder="Условие задачи которое увидит ученик в своём кабинете…"></textarea></div>
     <div class="fr">
-      <div class="fg"><label>Курс</label><select id="hwC"><option value="">Выбрать</option></select></div>
+      <div class="fg">
+        <label>Предмет</label>
+        <select id="hwSubj" onchange="onSubjChange()">
+          <option value="">Выбрать предмет</option>
+          <option value="math">Математика</option>
+          <option value="physics">Физика</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Курс</label>
+        <select id="hwC" onchange="onCourseChange()">
+          <option value="">Сначала выберите предмет</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label>Тема / раздел курса</label>
+      <select id="hwChapter">
+        <option value="">Весь курс (без привязки к теме)</option>
+      </select>
+    </div>
+    <div class="fr">
+      <div class="fg"><label>Кому (email или «all» — всем)</label><input type="text" id="hwSt" placeholder="all"/></div>
       <div class="fg"><label>Срок сдачи</label><input type="date" id="hwDue"/></div>
     </div>
-    <div class="fg"><label>Кому (email ученика или «all» — всем)</label><input type="text" id="hwSt" placeholder="all"/></div>
     <button class="btn bg bf" onclick="addHW()">Добавить задание →</button>
   </div>
 </div>
@@ -495,23 +516,38 @@ function submitGrade(action){
 function delHW(id){if(!confirm('Удалить задание?'))return;db.collection('homeworks').doc(id).delete().then(function(){toast('Удалено','ok');loadHW();}).catch(function(){toast('Ошибка','err');});}
 function fillHWSel(){document.getElementById('hwC').innerHTML='<option value="">Выбрать</option>'+COURSES.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');}
 function addHW(){
-  var title=document.getElementById('hwT').value.trim();if(!title){toast('Введите заголовок','err');return;}
+  var title=document.getElementById('hwT').value.trim();
+  if(!title){toast('Введите заголовок','err');return;}
   var cid=document.getElementById('hwC').value;
+  var subjEl=document.getElementById('hwSubj');
+  var subj=subjEl?subjEl.value:'';
+  var chapterEl=document.getElementById('hwChapter');
+  var chapter=chapterEl?chapterEl.value:'';
   var hwTarget=document.getElementById('hwSt').value.trim()||'all';
-  var isAll=hwTarget==='all';
+  var subjName=subj==='math'?'Математика':subj==='physics'?'Физика':'';
+  var allCourses=(typeof ADMIN_COURSES_DATA!=='undefined'&&subj)?ADMIN_COURSES_DATA[subj]||[]:[];
+  var course=allCourses.find(function(x){return x.id===cid;})||COURSES.find(function(x){return x.id===cid;});
   db.collection('homeworks').add({
     title:title,
     description:document.getElementById('hwD').value.trim(),
     courseId:cid,
-    courseName:COURSES.find(function(c){return c.id===cid;})?COURSES.find(function(c){return c.id===cid;}).name:'',
+    courseName:course?course.name:'',
+    subject:subj||'',
+    subjectName:subjName,
+    chapter:chapter||'',
     dueDate:document.getElementById('hwDue').value,
-    userId:isAll?'all':hwTarget,
-    userEmail:isAll?'all':hwTarget,
-    userName:isAll?'Все ученики':hwTarget,
+    userId:hwTarget,
+    userEmail:hwTarget,
+    userName:hwTarget==='all'?'Все ученики':hwTarget,
     status:'pending',
     createdAt:firebase.firestore.FieldValue.serverTimestamp(),
     createdBy:CU.uid
-  }).then(function(){closeM('hwAddM');toast('Задание добавлено!','ok');['hwT','hwD','hwDue','hwSt'].forEach(function(id){document.getElementById(id).value='';});loadHW();}).catch(function(e){toast('Ошибка: '+e.message,'err');});
+  }).then(function(){
+    closeM('hwAddM');
+    toast('Задание добавлено!','ok');
+    ['hwT','hwD','hwDue','hwSt'].forEach(function(id){document.getElementById(id).value='';});
+    loadHW();
+  }).catch(function(e){toast('Ошибка: '+e.message,'err');});
 }
 
 function loadTests(){
@@ -656,6 +692,43 @@ function viewFile(hwId){
   }).catch(function(e){toast('Ошибка загрузки: '+e.message,'err');});
 }
 
+// Course data for admin HW assignment
+var ADMIN_COURSES_DATA={
+  math:[
+    {id:'algebra',name:'Алгебра',chapters:['Числа и выражения','Уравнения и неравенства','Функции и графики','Прогрессии','Многочлены']},
+    {id:'geometry',name:'Геометрия',chapters:['Основные понятия','Треугольники','Четырёхугольники','Окружность','Стереометрия']},
+    {id:'logic',name:'Логика',chapters:['Основы логики','Задачи на смекалку','Числовые закономерности']},
+    {id:'olymp',name:'Олимпиадная математика',chapters:['Теория чисел','Комбинаторика','Неравенства','Олимпиадная геометрия']},
+    {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:['ОГЭ часть 1','ОГЭ геометрия','ЕГЭ профиль']},
+    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']},
+  ],
+  physics:[
+    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество','Оптика и волны','Квантовая физика']},
+  ]
+};
+
+function onSubjChange(){
+  var subj=document.getElementById('hwSubj').value;
+  var sel=document.getElementById('hwC');
+  sel.innerHTML='<option value="">Выбрать курс</option>';
+  document.getElementById('hwChapter').innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
+  if(!subj)return;
+  var courses=ADMIN_COURSES_DATA[subj]||[];
+  courses.forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>';});
+}
+
+function onCourseChange(){
+  var subj=document.getElementById('hwSubj').value;
+  var cid=document.getElementById('hwC').value;
+  var sel=document.getElementById('hwChapter');
+  sel.innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
+  if(!subj||!cid)return;
+  var courses=ADMIN_COURSES_DATA[subj]||[];
+  var course=courses.find(function(c){return c.id===cid;});
+  if(!course)return;
+  course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
+}
+
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
 
 // Восстанавливаем сессию админа
@@ -703,6 +776,43 @@ function toggleAsb(){
     if(sb){sb.classList.add('col');if(m)m.classList.add('exp');if(tg)tg.textContent='›';}
   }
 })();
+// Course data for admin HW assignment
+var ADMIN_COURSES_DATA={
+  math:[
+    {id:'algebra',name:'Алгебра',chapters:['Числа и выражения','Уравнения и неравенства','Функции и графики','Прогрессии','Многочлены']},
+    {id:'geometry',name:'Геометрия',chapters:['Основные понятия','Треугольники','Четырёхугольники','Окружность','Стереометрия']},
+    {id:'logic',name:'Логика',chapters:['Основы логики','Задачи на смекалку','Числовые закономерности']},
+    {id:'olymp',name:'Олимпиадная математика',chapters:['Теория чисел','Комбинаторика','Неравенства','Олимпиадная геометрия']},
+    {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:['ОГЭ часть 1','ОГЭ геометрия','ЕГЭ профиль']},
+    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']},
+  ],
+  physics:[
+    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество','Оптика и волны','Квантовая физика']},
+  ]
+};
+
+function onSubjChange(){
+  var subj=document.getElementById('hwSubj').value;
+  var sel=document.getElementById('hwC');
+  sel.innerHTML='<option value="">Выбрать курс</option>';
+  document.getElementById('hwChapter').innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
+  if(!subj)return;
+  var courses=ADMIN_COURSES_DATA[subj]||[];
+  courses.forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>';});
+}
+
+function onCourseChange(){
+  var subj=document.getElementById('hwSubj').value;
+  var cid=document.getElementById('hwC').value;
+  var sel=document.getElementById('hwChapter');
+  sel.innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
+  if(!subj||!cid)return;
+  var courses=ADMIN_COURSES_DATA[subj]||[];
+  var course=courses.find(function(c){return c.id===cid;});
+  if(!course)return;
+  course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
+}
+
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
 </script>
 
