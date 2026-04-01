@@ -502,15 +502,136 @@ footer{background:var(--bg);border-top:1px solid var(--line);padding:2rem 2.5rem
     </div>
   </div>
 </div>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 setTimeout(function(){hideLs();},5000);
 function hideLs(){var l=document.getElementById('ls');if(l){l.style.opacity='0';setTimeout(function(){l.style.display='none';},400);}}
 
 var FB_KEY=“AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI”;
-firebase.initializeApp({apiKey:FB_KEY,authDomain:“logistical-points.firebaseapp.com”,projectId:“logistical-points”,storageBucket:“logistical-points.firebasestorage.app”,messagingSenderId:“531140970459”,appId:“1:531140970459:web:7884e746262355a62009fe”});
-var db=firebase.firestore();
+var FB_PROJECT=“logistical-points”;
+var FB_BASE=“https://firestore.googleapis.com/v1/projects/”+FB_PROJECT+”/databases/(default)/documents”;
+
+// REST API для Firestore — никаких SDK, никаких зависаний
+var db={
+_url:function(col,docId){
+return FB_BASE+”/”+col+(docId?”/”+docId:””);
+},
+*parse:function(fields){
+if(!fields)return{};
+var obj={};
+Object.keys(fields).forEach(function(k){
+var v=fields[k];
+if(v.stringValue!==undefined)obj[k]=v.stringValue;
+else if(v.integerValue!==undefined)obj[k]=parseInt(v.integerValue);
+else if(v.doubleValue!==undefined)obj[k]=parseFloat(v.doubleValue);
+else if(v.booleanValue!==undefined)obj[k]=v.booleanValue;
+else if(v.nullValue!==undefined)obj[k]=null;
+else if(v.arrayValue)obj[k]=(v.arrayValue.values||[]).map(function(x){return db.*parse({*:x}).*;});
+else if(v.mapValue)obj[k]=db._parse(v.mapValue.fields||{});
+else obj[k]=null;
+});
+return obj;
+},
+_encode:function(val){
+if(val===null||val===undefined)return{nullValue:null};
+if(typeof val===‘boolean’)return{booleanValue:val};
+if(typeof val===‘number’)return Number.isInteger(val)?{integerValue:String(val)}:{doubleValue:val};
+if(typeof val===‘string’)return{stringValue:val};
+if(Array.isArray(val))return{arrayValue:{values:val.map(function(x){return db._encode(x);})}} ;
+if(val&&typeof val===‘object’&&val._serverTimestamp)return{timestampValue:new Date().toISOString()};
+if(val&&typeof val===‘object’){
+var fields={};
+Object.keys(val).forEach(function(k){fields[k]=db._encode(val[k]);});
+return{mapValue:{fields:fields}};
+}
+return{stringValue:String(val)};
+},
+collection:function(col){
+return{
+doc:function(id){
+return{
+get:function(){
+return fetch(db._url(col,id)+”?key=”+FB_KEY).then(function(r){
+if(r.status===404)return{exists:false,data:function(){return null;},id:id};
+return r.json().then(function(d){
+if(d.error)return{exists:false,data:function(){return null;},id:id};
+var data=db._parse(d.fields||{});
+return{exists:true,data:function(){return data;},id:id};
+});
+});
+},
+set:function(obj){
+var fields={};
+Object.keys(obj).forEach(function(k){
+if(obj[k]&&obj[k]._serverTimestamp)fields[k]={timestampValue:new Date().toISOString()};
+else fields[k]=db._encode(obj[k]);
+});
+return fetch(db._url(col,id)+”?key=”+FB_KEY,{
+method:‘PATCH’,headers:{‘Content-Type’:‘application/json’},
+body:JSON.stringify({fields:fields})
+}).then(function(r){return r.json();});
+},
+update:function(obj){
+return db.collection(col).doc(id).get().then(function(sn){
+var existing=sn.exists?sn.data():{};
+Object.assign(existing,obj);
+delete existing._serverTimestamp;
+Object.keys(existing).forEach(function(k){
+if(existing[k]&&existing[k]._serverTimestamp)existing[k]=new Date().toISOString();
+});
+return db.collection(col).doc(id).set(existing);
+});
+},
+delete:function(){
+return fetch(db._url(col,id)+”?key=”+FB_KEY,{method:‘DELETE’}).then(function(r){return r.ok?{}:r.json();});
+}
+};
+},
+add:function(obj){
+var fields={};
+Object.keys(obj).forEach(function(k){
+if(obj[k]&&obj[k]._serverTimestamp)fields[k]={timestampValue:new Date().toISOString()};
+else fields[k]=db._encode(obj[k]);
+});
+return fetch(db._url(col)+”?key=”+FB_KEY,{
+method:‘POST’,headers:{‘Content-Type’:‘application/json’},
+body:JSON.stringify({fields:fields})
+}).then(function(r){return r.json();});
+},
+get:function(){
+return fetch(db._url(col)+”?key=”+FB_KEY+”&pageSize=200”).then(function(r){
+return r.json().then(function(d){
+var docs=(d.documents||[]).map(function(doc){
+var id=doc.name.split(’/’).pop();
+var data=db._parse(doc.fields||{});
+return{id:id,data:function(){return data;},exists:true};
+});
+return{docs:docs,size:docs.length};
+});
+});
+},
+where:function(field,op,val){
+// Simple client-side filter after get
+return{
+get:function(){
+return db.collection(col).get().then(function(sn){
+var filtered=sn.docs.filter(function(d){
+var v=d.data()[field];
+if(op===’==’)return v===val;
+if(op===’!=’)return v!==val;
+return true;
+});
+return{docs:filtered,size:filtered.length};
+});
+}
+};
+}
+};
+}
+};
+
+// FieldValue shim
+if(typeof firebase===‘undefined’){var firebase={};}
+firebase.firestore={FieldValue:{serverTimestamp:function(){return{_serverTimestamp:true};}}} ;
 
 // AUTH через REST API (без iframe, работает на GitHub Pages)
 function fbRest(action,body){
@@ -1032,23 +1153,5 @@ hideLs();showHome();renderCourses();
 })();
 </script>
 
-<script>
-function toggleSb(){
-  var sb=document.getElementById('sidebar'),dm=document.getElementById('dmain'),tg=document.getElementById('sbTog');
-  sb.classList.toggle('col');dm.classList.toggle('exp');
-  tg.textContent=sb.classList.contains('col')?'›':'‹';
-  localStorage.setItem('sb_col',sb.classList.contains('col')?'1':'0');
-}
-(function(){
-  if(localStorage.getItem('sb_col')==='1'){
-    var sb=document.getElementById('sidebar'),dm=document.getElementById('dmain'),tg=document.getElementById('sbTog');
-    if(sb){sb.classList.add('col');if(dm)dm.classList.add('exp');if(tg)tg.textContent='›';}
-  }
-})();
-document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
-var ro=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('vis');ro.unobserve(x.target);}});},{threshold:.1});
-document.querySelectorAll('.rv').forEach(function(el){ro.observe(el);});
-</script>
-
 </body>
-</html> 
+</html>
