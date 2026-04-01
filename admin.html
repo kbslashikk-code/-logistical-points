@@ -308,22 +308,180 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
 </div>
 </main></div></div>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 var FB_KEY="AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI";
-firebase.initializeApp({apiKey:FB_KEY,authDomain:"logistical-points.firebaseapp.com",projectId:"logistical-points",storageBucket:"logistical-points.firebasestorage.app",messagingSenderId:"531140970459",appId:"1:531140970459:web:7884e746262355a62009fe"});
-var db=firebase.firestore();
+var FB_PROJECT="logistical-points";
 
+// Pure REST Firestore - no SDK, no hanging
+var db={
+_url:function(col,docId){
+return”https://firestore.googleapis.com/v1/projects/”+FB_PROJECT+”/databases/(default)/documents/”+col+(docId?”/”+docId:””);
+},
+*parse:function(fields){
+if(!fields)return{};
+var obj={};
+Object.keys(fields).forEach(function(k){
+var v=fields[k];
+if(v.stringValue!==undefined)obj[k]=v.stringValue;
+else if(v.integerValue!==undefined)obj[k]=parseInt(v.integerValue);
+else if(v.doubleValue!==undefined)obj[k]=parseFloat(v.doubleValue);
+else if(v.booleanValue!==undefined)obj[k]=v.booleanValue;
+else if(v.nullValue!==undefined)obj[k]=null;
+else if(v.arrayValue)obj[k]=(v.arrayValue.values||[]).map(function(x){
+var tmp={};tmp.*=x;return db.*parse(tmp).*;
+});
+else if(v.mapValue)obj[k]=db._parse(v.mapValue.fields||{});
+else obj[k]=null;
+});
+return obj;
+},
+_encode:function(val){
+if(val===null||val===undefined)return{nullValue:null};
+if(val&&val._serverTimestamp)return{timestampValue:new Date().toISOString()};
+if(typeof val===‘boolean’)return{booleanValue:val};
+if(typeof val===‘number’)return Number.isInteger(val)?{integerValue:String(val)}:{doubleValue:val};
+if(typeof val===‘string’)return{stringValue:val};
+if(Array.isArray(val))return{arrayValue:{values:val.map(function(x){return db._encode(x);})}} ;
+if(typeof val===‘object’){
+var fields={};
+Object.keys(val).forEach(function(k){fields[k]=db._encode(val[k]);});
+return{mapValue:{fields:fields}};
+}
+return{stringValue:String(val)};
+},
+collection:function(col){
+var self=this;
+return{
+doc:function(id){
+return{
+get:function(){
+return fetch(db._url(col,id)+”?key=”+FB_KEY).then(function(r){
+if(r.status===404)return{exists:false,data:function(){return null;},id:id};
+return r.json().then(function(d){
+if(d.error)return{exists:false,data:function(){return null;},id:id};
+var data=db._parse(d.fields||{});
+return{exists:true,data:function(){return data;},id:id};
+});
+});
+},
+set:function(obj){
+var fields={};
+Object.keys(obj).forEach(function(k){fields[k]=db._encode(obj[k]);});
+return fetch(db._url(col,id)+”?key=”+FB_KEY,{
+method:‘PATCH’,headers:{‘Content-Type’:‘application/json’},
+body:JSON.stringify({fields:fields})
+}).then(function(r){return r.json();});
+},
+update:function(obj){
+return db.collection(col).doc(id).get().then(function(sn){
+var ex=sn.exists?sn.data():{};
+Object.assign(ex,obj);
+return db.collection(col).doc(id).set(ex);
+});
+},
+delete:function(){
+return fetch(db._url(col,id)+”?key=”+FB_KEY,{method:‘DELETE’}).then(function(r){return r.ok?{}:r.json();});
+}
+};
+},
+add:function(obj){
+var fields={};
+Object.keys(obj).forEach(function(k){fields[k]=db._encode(obj[k]);});
+return fetch(db._url(col)+”?key=”+FB_KEY,{
+method:‘POST’,headers:{‘Content-Type’:‘application/json’},
+body:JSON.stringify({fields:fields})
+}).then(function(r){return r.json().then(function(d){
+var id=d.name?d.name.split(’/’).pop():’’;
+return{id:id};
+});});
+},
+get:function(){
+return fetch(db._url(col)+”?key=”+FB_KEY+”&pageSize=200”).then(function(r){
+return r.json().then(function(d){
+var docs=(d.documents||[]).map(function(doc){
+var id=doc.name.split(’/’).pop();
+var data=db._parse(doc.fields||{});
+return{id:id,data:function(){return data;},exists:true};
+});
+return{docs:docs,size:docs.length};
+});
+});
+},
+where:function(field,op,val){
+return{get:function(){
+return db.collection(col).get().then(function(sn){
+var filtered=sn.docs.filter(function(d){
+var v=d.data()[field];
+if(op===’==’)return v===val;
+if(op===’!=’)return v!==val;
+return true;
+});
+return{docs:filtered,size:filtered.length};
+});
+}};
+}
+};
+}
+};
+firebase={firestore:{FieldValue:{serverTimestamp:function(){return{_serverTimestamp:true};}}}};
+
+// Auth via REST
 function fbRest(action,body){
 return fetch(‘https://identitytoolkit.googleapis.com/v1/accounts:’+action+’?key=’+FB_KEY,{
 method:‘POST’,headers:{‘Content-Type’:‘application/json’},body:JSON.stringify(body)
 }).then(function(r){return r.json();}).then(function(d){
-if(d.error){throw {code:d.error.message||‘UNKNOWN’};}
+if(d.error)throw{code:d.error.message||‘UNKNOWN’};
 return d;
 });
 }
-var auth={signOut:function(){localStorage.removeItem(‘lp_admin’);CU=null;document.getElementById(‘lv’).style.display=‘block’;document.getElementById(‘av’).style.display=‘none’;var btn=document.getElementById(‘aBtn’);if(btn){btn.disabled=false;btn.textContent=‘Войти в панель →’;}}};
+
+var CU=null;
+
+function aLogin(){
+var btn=document.getElementById(‘aBtn’),err=document.getElementById(‘aErr’);
+var email=document.getElementById(‘aE’).value.trim(),pass=document.getElementById(‘aP’).value;
+err.classList.remove(‘on’);
+if(!email||!pass){err.textContent=‘Заполните email и пароль’;err.classList.add(‘on’);return;}
+if(email.toLowerCase()!==‘kb.slash@mail.ru’){err.textContent=‘Доступ запрещён. Только для администратора.’;err.classList.add(‘on’);return;}
+btn.disabled=true;btn.textContent=‘Входим…’;
+var t=setTimeout(function(){btn.disabled=false;btn.textContent=‘Войти →’;err.textContent=‘Сервер не отвечает. Проверьте интернет.’;err.classList.add(‘on’);},8000);
+fbRest(‘signInWithPassword’,{email:email,password:pass,returnSecureToken:true}).then(function(d){
+clearTimeout(t);
+return fbRest(‘lookup’,{idToken:d.idToken}).then(function(u){
+var user=u.users&&u.users[0];
+if(!user||!user.emailVerified){err.textContent=‘Email не подтверждён’;err.classList.add(‘on’);btn.disabled=false;btn.textContent=‘Войти →’;return;}
+CU={uid:d.localId,email:d.email};
+localStorage.setItem(‘lp_admin’,d.localId);
+document.getElementById(‘lv’).style.display=‘none’;
+document.getElementById(‘av’).style.display=‘block’;
+document.getElementById(‘sbE’).textContent=d.email;
+btn.disabled=false;btn.textContent=‘Войти →’;
+loadDash();
+});
+}).catch(function(e){
+clearTimeout(t);
+var msgs={‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,‘INVALID_PASSWORD’:‘Неверный пароль’,‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток’};
+err.textContent=msgs[e.code]||’Ошибка: ’+(e.code||‘неизвестная’);
+err.classList.add(‘on’);btn.disabled=false;btn.textContent=‘Войти →’;
+});
+}
+
+function aLogout(){
+localStorage.removeItem(‘lp_admin’);CU=null;
+document.getElementById(‘lv’).style.display=‘block’;
+document.getElementById(‘av’).style.display=‘none’;
+}
+
+// Restore session
+(function(){
+var uid=localStorage.getItem(‘lp_admin’);
+if(uid){
+CU={uid:uid};
+document.getElementById(‘lv’).style.display=‘none’;
+document.getElementById(‘av’).style.display=‘block’;
+loadDash();
+}
+})();
 
 var COURSES=[
 {id:‘algebra’,name:‘Алгебра’,chapters:[
@@ -365,8 +523,6 @@ var COURSES=[
 var ALL_TIDS=[];
 COURSES.forEach(function(c){c.chapters.forEach(function(ch){ch.lessons.forEach(function(l){if(l.tp===‘test’)ALL_TIDS.push({tid:l.tid,name:l.t,course:c.name});});});});
 
-var CU=null,hwF=‘all’,gTarget=null,questions=[],lesEdit=null;
-
 function openM(id){document.getElementById(id).classList.add(‘on’);}
 function closeM(id){document.getElementById(id).classList.remove(‘on’);}
 function toast(msg,type){
@@ -376,41 +532,6 @@ t.innerHTML=’<span>’+(type===‘ok’?‘✓’:type===‘err’?‘✕’:�
 b.appendChild(t);setTimeout(function(){t.classList.add(‘show’);},10);
 setTimeout(function(){t.classList.remove(‘show’);setTimeout(function(){t.remove();},400);},3500);
 }
-function fbE(c){return({‘auth/invalid-credential’:‘Неверный email или пароль’,‘auth/user-not-found’:‘Пользователь не найден’,‘auth/wrong-password’:‘Неверный пароль’,‘auth/too-many-requests’:‘Слишком много попыток’})[c]||’Ошибка: ’+c;}
-
-function aLogin(){
-var btn=document.getElementById(‘aBtn’),err=document.getElementById(‘aErr’);
-var email=document.getElementById(‘aE’).value.trim(),pass=document.getElementById(‘aP’).value;
-err.classList.remove(‘on’);
-if(!email||!pass){err.textContent=‘Заполните email и пароль’;err.classList.add(‘on’);return;}
-btn.disabled=true;btn.textContent=‘Входим…’;
-function unlock(){btn.disabled=false;btn.textContent=‘Войти в панель →’;}
-var ADMIN_EMAIL=‘kb.slash@mail.ru’;
-if(email.toLowerCase()!==ADMIN_EMAIL){
-err.textContent=‘Доступ запрещён. Эта панель только для администратора.’;
-err.classList.add(‘on’);unlock();return;
-}
-fbRest(‘signInWithPassword’,{email:email,password:pass,returnSecureToken:true}).then(function(d){
-return fbRest(‘lookup’,{idToken:d.idToken}).then(function(u){
-var user=u.users&&u.users[0];
-if(!user||!user.emailVerified){
-err.textContent=‘Email не подтверждён — проверьте почту’;err.classList.add(‘on’);unlock();return;
-}
-CU={uid:d.localId,email:d.email};
-localStorage.setItem(‘lp_admin’,d.localId);
-localStorage.setItem(‘lp_admin_token’,d.idToken);
-document.getElementById(‘lv’).style.display=‘none’;
-document.getElementById(‘av’).style.display=‘block’;
-document.getElementById(‘sbE’).textContent=d.email;
-unlock();loadDash();
-});
-}).catch(function(e){
-var msgs={‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,‘INVALID_PASSWORD’:‘Неверный пароль’,‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток’};
-err.textContent=msgs[e.code]||’Ошибка: ’+(e.code||‘неизвестная’);
-err.classList.add(‘on’);unlock();
-});
-}
-function aLogout(){auth.signOut();}
 
 function showPg(id,el){
 document.querySelectorAll(’.pg’).forEach(function(p){p.classList.remove(‘on’);});
@@ -822,7 +943,6 @@ function toggleAsb(){
   }
 })();
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
-</script>
 
 </body>
 </html>
