@@ -10,8 +10,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#07090e;--bg2:#0c0f19;--bg3:#101421;
-  --card:#131824;--card2:#171d2c;--card3:#1b2234;
+  --bg:#07090e;--bg2:#0c0f19;--bg3:#101421;--card:#131824;--card2:#171d2c;--card3:#1b2234;
   --line:#1c2a40;--line2:#213048;
   --gold:#c9a84c;--gold2:#e8c97a;--gold4:rgba(201,168,76,.06);
   --blue:#3b6ef5;--blue2:#7ba3ff;--blue3:rgba(59,110,245,.1);
@@ -19,7 +18,7 @@
   --red:#ef4444;--red2:rgba(239,68,68,.1);
   --orange:#f97316;--orange2:rgba(249,115,22,.1);
   --text:#eceef8;--text2:#8892af;--text3:#47547a;
-  --f:'Calibri','Carlito','Segoe UI',Arial,sans-serif;
+  --f:'Calibri','Carlito','Trebuchet MS',Arial,sans-serif;
   --fs:'Playfair Display','Georgia',serif;
   --fm:'Consolas','Courier New',monospace;
 }
@@ -29,22 +28,22 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .lbox{background:var(--card);border:1px solid var(--line2);border-radius:20px;padding:2.8rem;width:100%;max-width:400px;box-shadow:0 40px 80px rgba(0,0,0,.6)}
 .llogo{font-family:var(--fs);font-size:1.2rem;font-weight:900;margin-bottom:.2rem}
 .llogo em{font-style:italic;color:var(--gold)}
-.lsub{font-family:var(--fm);font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:2.2rem}
+.lsub{font-family:var(--fm);font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);margin-bottom:2rem}
 #av{display:none;min-height:100vh}
 .lay{display:flex;min-height:100vh}
 .sb{width:230px;background:var(--bg2);border-right:1px solid var(--line);padding:1.3rem .9rem;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;transition:width .3s,padding .3s;z-index:100}
 .sb.col{width:58px;padding:1.3rem .55rem}
-.sb-tog{position:absolute;top:1.1rem;right:-12px;width:24px;height:24px;background:var(--bg3);border:1px solid var(--line2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--text2);transition:all .2s;z-index:10;font-family:var(--f)}
+.sb-tog{position:absolute;top:1.1rem;right:-12px;width:24px;height:24px;background:var(--bg3);border:1px solid var(--line2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--text2);transition:all .2s;z-index:10}
 .sb-tog:hover{color:var(--gold);border-color:var(--gold)}
 .sb-logo{font-family:var(--fs);font-size:.95rem;font-weight:900;padding-bottom:1.1rem;border-bottom:1px solid var(--line);margin-bottom:.8rem;white-space:nowrap;overflow:hidden;transition:opacity .2s}
 .sb-logo em{font-style:italic;color:var(--gold)}
 .sb.col .sb-logo{opacity:0;height:0;padding:0;margin:0}
 .sbs{font-family:var(--fm);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);padding:.5rem .65rem .2rem;white-space:nowrap;overflow:hidden;transition:opacity .2s}
 .sb.col .sbs{opacity:0;height:0;padding:0}
-.sbi{display:flex;align-items:center;gap:.6rem;padding:.52rem .65rem;border-radius:9px;font-family:var(--f);font-size:.88rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .18s;margin-bottom:.1rem;white-space:nowrap;overflow:hidden}
+.sbi{display:flex;align-items:center;gap:.6rem;padding:.52rem .65rem;border-radius:9px;font-family:var(--f);font-size:.9rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .18s;margin-bottom:.1rem;white-space:nowrap;overflow:hidden}
 .sbi:hover{background:var(--card);color:var(--text)}
 .sbi.on{background:var(--gold4);color:var(--gold);border-left:2px solid var(--gold);padding-left:calc(.65rem - 2px)}
-.si{width:16px;text-align:center;flex-shrink:0;font-size:.78rem}
+.si{width:16px;text-align:center;flex-shrink:0;font-size:.8rem}
 .st{transition:opacity .2s;overflow:hidden}
 .sb.col .st{opacity:0;width:0}
 .sb.col .sbi{justify-content:center;padding:.52rem}
@@ -66,7 +65,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .sl{font-family:var(--fm);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-top:.3rem}
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{font-family:var(--fm);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:.58rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
-.tbl td{padding:.65rem .75rem;border-bottom:1px solid var(--line);font-size:.9rem;vertical-align:middle;font-family:var(--f)}
+.tbl td{padding:.65rem .75rem;border-bottom:1px solid var(--line);font-size:.9rem;vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:var(--card2)}
 .badge{display:inline-flex;align-items:center;padding:.18rem .6rem;border-radius:5px;font-family:var(--fm);font-size:.65rem;letter-spacing:.05em;text-transform:uppercase}
@@ -107,7 +106,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .hwct{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.7rem}
 .hwcn{font-family:var(--fs);font-size:.92rem;font-weight:700}
 .hwcm{font-family:var(--fm);font-size:.65rem;color:var(--text3);margin-top:.18rem}
-.hwcb{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;padding:.75rem;margin-bottom:.8rem;font-size:.88rem;color:var(--text2);white-space:pre-wrap;line-height:1.65;font-family:var(--f)}
+.hwcb{background:var(--bg2);border:1px solid var(--line2);border-radius:8px;padding:.75rem;margin-bottom:.8rem;font-size:.88rem;color:var(--text2);white-space:pre-wrap;line-height:1.65}
 .qc{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:.95rem;margin-bottom:.7rem;position:relative}
 .qn{font-family:var(--fm);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.42rem}
 .qrm{position:absolute;top:.65rem;right:.65rem;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.78rem;padding:.18rem .38rem;border-radius:5px;transition:all .2s}
@@ -132,16 +131,16 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="llogo">Logistical <em>Points</em></div>
     <div class="lsub">Административная панель</div>
     <div class="fg"><label>Email</label><input type="email" id="aE" placeholder="your@email.com" onkeydown="if(event.key==='Enter')aLogin()"/><div class="fe" id="aErr"></div></div>
-    <div class="fg"><label>Пароль</label><input type="password" id="aP" placeholder="••••••••" onkeydown="if(event.key==='Enter')aLogin()"/></div>
-    <button class="btn bg bf" id="aBtn" onclick="aLogin()">Войти →</button>
+    <div class="fg"><label>Пароль</label><input type="password" id="aP" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" onkeydown="if(event.key==='Enter')aLogin()"/></div>
+    <button class="btn bg bf" id="aBtn" onclick="aLogin()">Войти &#x2192;</button>
   </div>
 </div>
 <div class="ov" id="gM">
   <div class="modal" style="max-width:440px">
     <button class="mx" onclick="closeM('gM')">&#x2715;</button>
     <div class="mh">Проверить задание</div>
-    <div class="fg"><label>Оценка (1–10)</label><input type="number" id="gV" min="1" max="10" placeholder="8"/></div>
-    <div class="fg"><label>Комментарий ученику</label><textarea id="gFb" placeholder="Хорошая работа! Обратите внимание на…"></textarea></div>
+    <div class="fg"><label>Оценка (1&#x2013;10)</label><input type="number" id="gV" min="1" max="10" placeholder="8"/></div>
+    <div class="fg"><label>Комментарий ученику</label><textarea id="gFb" placeholder="Хорошая работа!&#x2026;"></textarea></div>
     <div style="display:flex;gap:.6rem">
       <button class="btn bgs" style="flex:1" onclick="submitGrade('graded')">Принять</button>
       <button class="btn brs" style="flex:1" onclick="submitGrade('returned')">Вернуть</button>
@@ -154,34 +153,29 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="mx" onclick="closeM('hwAddM')">&#x2715;</button>
     <div class="mh">Добавить домашнее задание</div>
     <div class="fg"><label>Заголовок задания</label><input type="text" id="hwT" placeholder="Задание 1: Квадратные уравнения"/></div>
-    <div class="fg"><label>Условие задачи</label><textarea id="hwD" placeholder="Условие задачи которое увидит ученик в своём кабинете…"></textarea></div>
+    <div class="fg"><label>Условие задачи</label><textarea id="hwD" placeholder="Условие которое увидит ученик&#x2026;"></textarea></div>
     <div class="fr">
-      <div class="fg">
-        <label>Предмет</label>
+      <div class="fg"><label>Предмет</label>
         <select id="hwSubj" onchange="onSubjChange()">
           <option value="">Выбрать предмет</option>
           <option value="math">Математика</option>
           <option value="physics">Физика</option>
         </select>
       </div>
-      <div class="fg">
-        <label>Курс</label>
+      <div class="fg"><label>Курс</label>
         <select id="hwC" onchange="onCourseChange()">
           <option value="">Сначала выберите предмет</option>
         </select>
       </div>
     </div>
-    <div class="fg">
-      <label>Тема / раздел курса</label>
-      <select id="hwChapter">
-        <option value="">Весь курс (без привязки к теме)</option>
-      </select>
+    <div class="fg"><label>Тема / раздел</label>
+      <select id="hwChapter"><option value="">Весь курс</option></select>
     </div>
     <div class="fr">
-      <div class="fg"><label>Кому (email или «all» — всем)</label><input type="text" id="hwSt" placeholder="all"/></div>
+      <div class="fg"><label>Кому (email или all)</label><input type="text" id="hwSt" placeholder="all"/></div>
       <div class="fg"><label>Срок сдачи</label><input type="date" id="hwDue"/></div>
     </div>
-    <button class="btn bg bf" onclick="addHW()">Добавить задание →</button>
+    <button class="btn bg bf" onclick="addHW()">Добавить &#x2192;</button>
   </div>
 </div>
 <div class="ov" id="testM">
@@ -189,15 +183,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="mx" onclick="closeM('testM')">&#x2715;</button>
     <div class="mh" id="testMH">Создать тест</div>
     <div class="fg"><label>Название теста</label><input type="text" id="tName" placeholder="Тест: Квадратные уравнения"/></div>
-    <div class="fg"><label>ID теста (латиница, без пробелов)</label><input type="text" id="tId" placeholder="t_algebra_c2"/></div>
+    <div class="fg"><label>ID теста</label><input type="text" id="tId" placeholder="t_algebra_c2"/></div>
     <div class="rule"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.72rem">
-      <span style="font-family:var(--fm);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)">Вопросы</span>
+      <span style="font-family:var(--fm);font-size:.72rem;text-transform:uppercase;color:var(--text3)">Вопросы</span>
       <button class="btn bo bsm" onclick="addQ()">+ Добавить вопрос</button>
     </div>
     <div id="qCont"></div>
     <div class="rule"></div>
-    <button class="btn bg bf" onclick="saveTest()">Сохранить тест →</button>
+    <button class="btn bg bf" onclick="saveTest()">Сохранить &#x2192;</button>
   </div>
 </div>
 <div class="ov" id="lesM">
@@ -205,9 +199,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="mx" onclick="closeM('lesM')">&#x2715;</button>
     <div class="mh" id="lesMH">Редактировать урок</div>
     <div class="fg"><label>Название урока</label><input type="text" id="lesT"/></div>
-    <div class="fg"><label>Содержание урока</label><div contenteditable="true" class="led" id="lesC" spellcheck="false"></div></div>
+    <div class="fg"><label>Содержание</label><div contenteditable="true" class="led" id="lesC" spellcheck="false"></div></div>
     <div class="info">Текст будет виден ученику при открытии урока.</div>
-    <button class="btn bg bf" onclick="saveLesson()">Сохранить →</button>
+    <button class="btn bg bf" onclick="saveLesson()">Сохранить &#x2192;</button>
   </div>
 </div>
 <div class="ov" id="annM">
@@ -215,9 +209,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="mx" onclick="closeM('annM')">&#x2715;</button>
     <div class="mh">Новое объявление</div>
     <div class="fg"><label>Заголовок</label><input type="text" id="anT" placeholder="Изменение расписания"/></div>
-    <div class="fg"><label>Текст</label><textarea id="anB" placeholder="Дорогие ученики…"></textarea></div>
+    <div class="fg"><label>Текст</label><textarea id="anB" placeholder="Дорогие ученики&#x2026;"></textarea></div>
     <div class="fg"><label>Тип</label><select id="anTy"><option value="info">Информация</option><option value="warning">Внимание</option><option value="success">Поздравление</option></select></div>
-    <button class="btn bg bf" onclick="addAnn()">Опубликовать →</button>
+    <button class="btn bg bf" onclick="addAnn()">Опубликовать &#x2192;</button>
   </div>
 </div>
 <div id="av"><div class="lay">
@@ -244,9 +238,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="pg on" id="pg-dashboard">
   <div class="ph"><div><div class="phl">Обзор</div><div class="pht">Дашборд</div></div></div>
   <div class="sg">
-    <div class="sc"><div class="sv" id="ds-s" style="color:var(--gold)">…</div><div class="sl">Учеников</div></div>
-    <div class="sc"><div class="sv" id="ds-h" style="color:var(--orange)">…</div><div class="sl">ДЗ на проверке</div></div>
-    <div class="sc"><div class="sv" id="ds-t" style="color:var(--green)">…</div><div class="sl">Тестов сдано</div></div>
+    <div class="sc"><div class="sv" id="ds-s" style="color:var(--gold)">&#x2026;</div><div class="sl">Учеников</div></div>
+    <div class="sc"><div class="sv" id="ds-h" style="color:var(--orange)">&#x2026;</div><div class="sl">ДЗ на проверке</div></div>
+    <div class="sc"><div class="sv" id="ds-t" style="color:var(--green)">&#x2026;</div><div class="sl">Тестов сдано</div></div>
     <div class="sc"><div class="sv" style="color:var(--blue2)">7</div><div class="sl">Курсов</div></div>
   </div>
   <div class="card"><div class="ct">ДЗ на проверке</div><div id="ds-hwp"></div></div>
@@ -268,10 +262,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div id="hw-list"></div>
 </div>
 <div class="pg" id="pg-tests">
-  <div class="ph">
-    <div><div class="phl">Управление</div><div class="pht">Тесты</div></div>
-    <button class="btn bg" onclick="openTestB()">Создать тест</button>
-  </div>
+  <div class="ph"><div><div class="phl">Управление</div><div class="pht">Тесты</div></div><button class="btn bg" onclick="openTestB()">Создать тест</button></div>
   <div class="info">ID теста должен совпадать с testId урока. Пример: <strong>t_algebra_c2</strong></div>
   <div id="tests-list"></div>
 </div>
@@ -282,29 +273,17 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </div>
 <div class="pg" id="pg-students">
   <div class="ph"><div><div class="phl">Управление</div><div class="pht">Ученики</div></div></div>
-  <div class="card">
-    <table class="tbl">
-      <thead><tr><th>Имя</th><th>Email</th><th>Класс</th><th>Курсов</th><th>Уроков</th></tr></thead>
-      <tbody id="stu-tb"></tbody>
-    </table>
-  </div>
+  <div class="card"><table class="tbl"><thead><tr><th>Имя</th><th>Email</th><th>Класс</th><th>Курсов</th><th>Уроков</th></tr></thead><tbody id="stu-tb"></tbody></table></div>
 </div>
 <div class="pg" id="pg-announcements">
-  <div class="ph">
-    <div><div class="phl">Управление</div><div class="pht">Объявления</div></div>
-    <button class="btn bg" onclick="openM('annM')">Добавить объявление</button>
-  </div>
+  <div class="ph"><div><div class="phl">Управление</div><div class="pht">Объявления</div></div><button class="btn bg" onclick="openM('annM')">Добавить</button></div>
   <div id="ann-list"></div>
 </div>
 <div class="pg" id="pg-analytics">
   <div class="ph"><div><div class="phl">Статистика</div><div class="pht">Аналитика</div></div></div>
   <div class="sg" id="an-sg"></div>
-  <div class="card">
-    <div class="ct">Результаты тестов</div>
-    <table class="tbl">
-      <thead><tr><th>Ученик</th><th>Курс</th><th>Тест</th><th>Результат</th></tr></thead>
-      <tbody id="an-tb"></tbody>
-    </table>
+  <div class="card"><div class="ct">Результаты тестов</div>
+    <table class="tbl"><thead><tr><th>Ученик</th><th>Курс</th><th>Тест</th><th>Результат</th></tr></thead><tbody id="an-tb"></tbody></table>
   </div>
 </div>
 </main></div></div>
@@ -582,7 +561,7 @@ function submitGrade(action){
 if(!gTarget)return;
 var grade=document.getElementById(‘gV’).value,fb=document.getElementById(‘gFb’).value;
 if(action===‘graded’&&(!grade||grade<1||grade>10)){toast(‘Оценка от 1 до 10’,‘err’);return;}
-var upd={status:action===‘graded’?‘graded’:‘pending’,feedback:fb||’’,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+var upd={status:action===‘graded’?‘graded’:‘pending’,feedback:fb||’’,updatedAt:{_serverTimestamp:true}};
 if(action===‘graded’)upd.grade=parseInt(grade);
 db.collection(‘homeworks’).doc(gTarget.id).update(upd).then(function(){closeM(‘gM’);toast(action===‘graded’?‘Задание принято’:‘Задание возвращено’,‘ok’);loadHW();loadDash();}).catch(function(e){toast(‘Ошибка: ‘+e.message,‘err’);});
 }
@@ -611,7 +590,7 @@ userId:hwTarget,
 userEmail:hwTarget,
 userName:hwTarget===‘all’?‘Все ученики’:hwTarget,
 status:‘pending’,
-createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+createdAt:{_serverTimestamp:true},
 createdBy:CU.uid
 }).then(function(){
 closeM(‘hwAddM’);
@@ -677,7 +656,7 @@ if(!questions[i].question.trim()){toast(‘Вопрос ‘+(i+1)+’: введ�
 if(questions[i].type===‘choice’&&(questions[i].options||[]).filter(function(o){return o.trim();}).length<2){toast(‘Вопрос ‘+(i+1)+’: минимум 2 варианта’,‘err’);return;}
 if(questions[i].type===‘text’&&!String(questions[i].correct||’’).trim()){toast(‘Вопрос ‘+(i+1)+’: введите ответ’,‘err’);return;}
 }
-db.collection(‘tests’).doc(id).set({id:id,title:title,questions:questions,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:CU.uid}).then(function(){closeM(‘testM’);toast(‘Тест «’+title+’» сохранён!’,‘ok’);loadTests();}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
+db.collection(‘tests’).doc(id).set({id:id,title:title,questions:questions,updatedAt:{_serverTimestamp:true},createdBy:CU.uid}).then(function(){closeM(‘testM’);toast(‘Тест «’+title+’» сохранён!’,‘ok’);loadTests();}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
 }
 
 function renderLes(){
@@ -700,7 +679,7 @@ openM(‘lesM’);
 }
 function saveLesson(){
 if(!lesEdit)return;
-db.collection(‘lessonContent’).doc(lesEdit.cid+’*’+lesEdit.chid+’*’+lesEdit.lid).set({cid:lesEdit.cid,chid:lesEdit.chid,lid:lesEdit.lid,content:document.getElementById(‘lesC’).textContent,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){closeM(‘lesM’);toast(‘Урок сохранён!’,‘ok’);}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
+db.collection(‘lessonContent’).doc(lesEdit.cid+’*’+lesEdit.chid+’*’+lesEdit.lid).set({cid:lesEdit.cid,chid:lesEdit.chid,lid:lesEdit.lid,content:document.getElementById(‘lesC’).textContent,updatedAt:{_serverTimestamp:true}}).then(function(){closeM(‘lesM’);toast(‘Урок сохранён!’,‘ok’);}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
 }
 
 function loadStu(){
@@ -723,7 +702,7 @@ el.innerHTML=anns.map(function(a){return’<div class="card" style="border-left:
 function addAnn(){
 var title=document.getElementById(‘anT’).value.trim(),body=document.getElementById(‘anB’).value.trim();
 if(!title||!body){toast(‘Заполните поля’,‘err’);return;}
-db.collection(‘announcements’).add({title:title,body:body,type:document.getElementById(‘anTy’).value,createdAt:firebase.firestore.FieldValue.serverTimestamp(),createdBy:CU.uid}).then(function(){closeM(‘annM’);toast(‘Опубликовано!’,‘ok’);document.getElementById(‘anT’).value=’’;document.getElementById(‘anB’).value=’’;loadAnns();}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
+db.collection(‘announcements’).add({title:title,body:body,type:document.getElementById(‘anTy’).value,createdAt:{_serverTimestamp:true},createdBy:CU.uid}).then(function(){closeM(‘annM’);toast(‘Опубликовано!’,‘ok’);document.getElementById(‘anT’).value=’’;document.getElementById(‘anB’).value=’’;loadAnns();}).catch(function(e){toast(’Ошибка: ’+e.message,‘err’);});
 }
 function delAnn(id){if(!confirm(‘Удалить?’))return;db.collection(‘announcements’).doc(id).delete().then(function(){toast(‘Удалено’,‘ok’);loadAnns();}).catch(function(){});}
 
@@ -896,13 +875,12 @@ var ADMIN_COURSES_DATA={
     {id:'logic',name:'Логика',chapters:['Основы логики','Задачи на смекалку','Числовые закономерности']},
     {id:'olymp',name:'Олимпиадная математика',chapters:['Теория чисел','Комбинаторика','Неравенства','Олимпиадная геометрия']},
     {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:['ОГЭ часть 1','ОГЭ геометрия','ЕГЭ профиль']},
-    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']},
+    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']}
   ],
   physics:[
-    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество и магнетизм','Оптика и волны','Квантовая физика']},
+    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество и магнетизм','Оптика и волны','Квантовая физика']}
   ]
 };
-
 function onSubjChange(){
   var subj=document.getElementById('hwSubj').value;
   var sel=document.getElementById('hwC');
@@ -911,7 +889,6 @@ function onSubjChange(){
   if(!subj)return;
   (ADMIN_COURSES_DATA[subj]||[]).forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>';});
 }
-
 function onCourseChange(){
   var subj=document.getElementById('hwSubj').value;
   var cid=document.getElementById('hwC').value;
@@ -919,17 +896,13 @@ function onCourseChange(){
   sel.innerHTML='<option value="">Весь курс</option>';
   if(!subj||!cid)return;
   var course=(ADMIN_COURSES_DATA[subj]||[]).find(function(c){return c.id===cid;});
-  if(!course)return;
-  course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
+  if(course)course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
 }
-
 function fillHWSel(){
-  // Reset selects
   document.getElementById('hwSubj').value='';
   document.getElementById('hwC').innerHTML='<option value="">Сначала выберите предмет</option>';
   document.getElementById('hwChapter').innerHTML='<option value="">Весь курс</option>';
 }
-
 function toggleAsb(){
   var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbTog');
   sb.classList.toggle('col');m.classList.toggle('exp');
@@ -943,6 +916,7 @@ function toggleAsb(){
   }
 })();
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
+</script>
 
 </body>
 </html>
