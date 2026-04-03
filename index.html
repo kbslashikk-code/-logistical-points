@@ -9,6 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&display=swap" rel="stylesheet"/>
 <style>
 :root{
+  --bg:#faf8f3;--bg2:#f0ece3;--bg3:#e8e0d0;
+  --card:#ffffff;--card2:#f5f1e8;--card3:#ede6d5;
+  --line:#ddd5c0;--line2:#c8bda8;
+  --gold:#9a7520;--gold2:#b8922a;--gold4:rgba(154,117,32,.08);--gold3:rgba(154,117,32,.14);
+  --blue:#1e4fd4;--blue2:#2d64f0;--blue3:rgba(30,79,212,.09);
+  --green:#15803d;--green2:rgba(21,128,61,.1);
+  --red:#b91c1c;--red2:rgba(185,28,28,.1);
+  --orange:#c2410c;
+  --text:#1c1713;--text2:#5c5040;--text3:#a09070;
+  --f:'Calibri','Carlito','Trebuchet MS',Arial,sans-serif;
+  --fs:'Playfair Display','Georgia',serif;
+  --fm:'Consolas','Courier New',monospace;
+}
+[data-theme="dark"]{
   --bg:#07090e;--bg2:#0c0f19;--bg3:#101421;
   --card:#131824;--card2:#171d2c;--card3:#1b2234;
   --line:#1c2a40;--line2:#213048;
@@ -18,14 +32,12 @@
   --red:#ef4444;--red2:rgba(239,68,68,.1);
   --orange:#f97316;
   --text:#eceef8;--text2:#8892af;--text3:#47547a;
-  --f:'Calibri','Carlito','Trebuchet MS',Arial,sans-serif;
-  --fs:'Playfair Display','Georgia',serif;
-  --fm:'Consolas','Courier New',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:16px;line-height:1.65;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(59,110,245,.06) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 88% 92%,rgba(201,168,76,.04) 0%,transparent 55%);pointer-events:none;z-index:0}
+body{background:var(--bg);color:var(--text);font-family:var(--f);font-size:16px;line-height:1.65;overflow-x:hidden;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(184,146,42,.05) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 88% 92%,rgba(37,85,212,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
+[data-theme="dark"] body::before{background:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(59,110,245,.06) 0%,transparent 55%),radial-gradient(ellipse 50% 35% at 88% 92%,rgba(201,168,76,.04) 0%,transparent 55%)}
 
 /* TOAST */
 #tb{position:fixed;bottom:1.5rem;right:1.5rem;z-index:7000;display:flex;flex-direction:column;gap:.5rem}
@@ -94,8 +106,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;background:rgba(7,9,14,.92);
 .sh em{font-style:italic;color:var(–gold)}
 .rule{height:1px;background:linear-gradient(to right,transparent,var(–line2),transparent);position:relative;z-index:1}
 .subj{position:relative;z-index:1;overflow:hidden}
-.subj-math{background:linear-gradient(160deg,#080f22 0%,#0c1838 45%,var(–bg) 100%)}
-.subj-phys{background:linear-gradient(160deg,var(–bg) 0%,#081826 45%,var(–bg) 100%)}
+.subj-math{background:linear-gradient(160deg,#f0ead8 0%,#e8dfc4 45%,var(–bg) 100%)}
+[data-theme=“dark”] .subj-math{background:linear-gradient(160deg,#ede4cc 0%,#e5d8b0 40%,var(–bg) 100%)}
+[data-theme=“dark”] .subj-math{background:linear-gradient(160deg,#080f22 0%,#0c1838 45%,var(–bg) 100%)}
+.subj-phys{background:linear-gradient(160deg,var(–bg) 0%,#e8eef8 45%,var(–bg) 100%)}
+[data-theme=“dark”] .subj-phys{background:linear-gradient(160deg,var(–bg) 0%,#dde8f5 40%,var(–bg) 100%)}
+[data-theme=“dark”] .subj-phys{background:linear-gradient(160deg,var(–bg) 0%,#081826 45%,var(–bg) 100%)}
 .subj-inner{max-width:1200px;margin:0 auto;padding:6rem 2.5rem;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
 .subj-tag{display:inline-flex;padding:.32rem .9rem;border-radius:100px;font-family:var(–fm);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.2rem}
 .tag-math{background:var(–gold4);border:1px solid rgba(201,168,76,.22);color:var(–gold)}
@@ -240,10 +256,24 @@ footer{background:var(–bg);border-top:1px solid var(–line);padding:2rem 2.5r
 .trlb{font-family:var(–fm);font-size:.7rem;text-transform:uppercase;color:var(–text3);margin-top:.4rem}
 .trmsg{font-size:1rem;color:var(–text2);margin-top:.8rem}
 /* COURSE COVERS */
-.c1{background:linear-gradient(135deg,#0d1835,#1a2d70)}.c2{background:linear-gradient(135deg,#0a2015,#153530)}
-.c3{background:linear-gradient(135deg,#201508,#3a2010)}.c4{background:linear-gradient(135deg,#200815,#3a1030)}
-.c5{background:linear-gradient(135deg,#080e20,#102040)}.c6{background:linear-gradient(135deg,#151508,#252510)}
-.c7{background:linear-gradient(135deg,#081525,#0d2035)}
+.c1{background:linear-gradient(135deg,#c5d4f5,#8faee8)}
+[data-theme=“dark”] .c1{background:linear-gradient(135deg,#c8d8f5,#8ab0e8)}
+[data-theme=“dark”] .c1{background:linear-gradient(135deg,#0d1835,#1a2d70)}.c2{background:linear-gradient(135deg,#c5e8d5,#8ecfac)}
+[data-theme=“dark”] .c2{background:linear-gradient(135deg,#c8e8d5,#8ccfac)}
+[data-theme=“dark”] .c2{background:linear-gradient(135deg,#0a2015,#153530)}
+.c3{background:linear-gradient(135deg,#f0dfc0,#e0c090)}
+[data-theme=“dark”] .c3{background:linear-gradient(135deg,#f0dfc0,#e0c090)}
+[data-theme=“dark”] .c3{background:linear-gradient(135deg,#201508,#3a2010)}.c4{background:linear-gradient(135deg,#f0c0d5,#e090b8)}
+[data-theme=“dark”] .c4{background:linear-gradient(135deg,#f0c8d8,#e0a0c0)}
+[data-theme=“dark”] .c4{background:linear-gradient(135deg,#200815,#3a1030)}
+.c5{background:linear-gradient(135deg,#c8d8f8,#a0baf0)}
+[data-theme=“dark”] .c5{background:linear-gradient(135deg,#c8d8f8,#a0baf0)}
+[data-theme=“dark”] .c5{background:linear-gradient(135deg,#080e20,#102040)}.c6{background:linear-gradient(135deg,#e8e8c0,#d8d890)}
+[data-theme=“dark”] .c6{background:linear-gradient(135deg,#e8e8c0,#d8d890)}
+[data-theme=“dark”] .c6{background:linear-gradient(135deg,#151508,#252510)}
+.c7{background:linear-gradient(135deg,#c0d8f0,#90bce0)}
+[data-theme=“dark”] .c7{background:linear-gradient(135deg,#c0d8f0,#90bce8)}
+[data-theme=“dark”] .c7{background:linear-gradient(135deg,#081525,#0d2035)}
 /* ANIM */
 @keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .rv{opacity:0;transform:translateY(20px);transition:opacity .65s,transform .65s}
@@ -256,6 +286,10 @@ footer{background:var(–bg);border-top:1px solid var(–line);padding:2rem 2.5r
 .ssg{grid-template-columns:1fr 1fr}
 .dsb{transform:translateX(-100%)}.dmain{margin-left:0!important}
 }
+
+/* THEME TOGGLE */
+.theme-btn{position:fixed;bottom:1.5rem;left:1.5rem;z-index:600;width:44px;height:44px;border-radius:50%;background:var(–card);border:1px solid var(–line2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .2s;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.theme-btn:hover{border-color:var(–gold);transform:scale(1.08)}
 </style>
 
 </head>
@@ -327,6 +361,7 @@ footer{background:var(–bg);border-top:1px solid var(–line);padding:2rem 2.5r
     </div>
   </div>
 </nav>
+<button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Переключить тему">&#x263C;</button>
 <div id="homeV">
 <section style="position:relative;z-index:1">
   <div class="hero">
@@ -714,15 +749,25 @@ t.innerHTML=’<span>’+(type===‘ok’?‘✓’:type===‘err’?‘✕’:�
 b.appendChild(t);setTimeout(function(){t.classList.add(‘show’);},10);
 setTimeout(function(){t.classList.remove(‘show’);setTimeout(function(){t.remove();},400);},3500);
 }
-function fbErr(c){return({
+function fbErr(code){
+var m={
+‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,
+‘INVALID_PASSWORD’:‘Неверный пароль’,
+‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,
+‘EMAIL_EXISTS’:‘Email уже зарегистрирован’,
+‘WEAK_PASSWORD : Password should be at least 6 characters’:‘Пароль слишком короткий (мин. 6 символов)’,
+‘WEAK_PASSWORD’:‘Пароль слишком короткий (мин. 6 символов)’,
+‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток, подождите’,
+‘USER_DISABLED’:‘Аккаунт заблокирован’,
+‘INVALID_EMAIL’:‘Неверный формат email’,
 ‘auth/user-not-found’:‘Пользователь не найден’,
 ‘auth/wrong-password’:‘Неверный пароль’,
 ‘auth/email-already-in-use’:‘Email уже используется’,
-‘auth/invalid-email’:‘Некорректный email’,
-‘auth/weak-password’:‘Слабый пароль (мин. 6 символов)’,
-‘auth/too-many-requests’:‘Слишком много попыток — подождите’,
-‘auth/invalid-credential’:‘Неверный email или пароль’
-}[c])||’Ошибка: ’+c;}
+‘auth/invalid-email’:‘Неверный формат email’,
+‘auth/weak-password’:‘Пароль слишком короткий’
+};
+return m[code]||‘Ошибка входа. Проверьте данные.’;
+}
 
 function fbErr(c){
 var m={‘EMAIL_EXISTS’:‘Email уже используется’,‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,‘INVALID_PASSWORD’:‘Неверный пароль’,‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток — подождите’,‘WEAK_PASSWORD : Password should be at least 6 characters’:‘Слабый пароль (мин. 6 символов)’,‘auth/email-already-in-use’:‘Email уже используется’};
@@ -741,8 +786,11 @@ if(!d.registered){err.textContent=‘Пользователь не найден�
 // Проверяем верификацию email
 return fbRest(‘lookup’,{idToken:d.idToken}).then(function(u){
 var user=u.users&&u.users[0];
-if(!user||!user.emailVerified){
-err.textContent=‘Сначала подтвердите email — проверьте почту.’;err.classList.add(‘on’);unlock();return;
+if(!user){
+err.textContent=‘Пользователь не найден’;err.classList.add(‘on’);unlock();return;
+}
+if(!user.emailVerified){
+err.textContent=‘Подтвердите email — проверьте почту.’;err.classList.add(‘on’);unlock();return;
 }
 saveSess(d);
 CU={uid:d.localId,email:d.email};
@@ -787,8 +835,17 @@ fbRest(‘sendOobCode’,{requestType:‘PASSWORD_RESET’,email:e}).then(functi
 
 function updateNav(){
 var r=document.getElementById(‘navR’);
-if(CU&&UD){r.innerHTML=’<span class="nun">’+UD.name+’</span><button class="btn bd bs" onclick="showDash()">Кабинет</button><button class="btn bh bs" onclick="doLogout()">Выйти</button>’;}
-else{r.innerHTML=’<button class="btn bh bs" onclick="openM(\'authM\')">Войти</button><button class="btn bg bs" onclick="openM(\'authM\')">Начать →</button>’;}
+if(!r)return;
+if(CU&&UD){
+r.innerHTML=’’;
+var sp=document.createElement(‘span’);sp.className=‘nun’;sp.textContent=UD.name;r.appendChild(sp);
+var b1=document.createElement(‘button’);b1.className=‘btn bo bsm’;b1.textContent=‘Кабинет’;b1.onclick=showDash;r.appendChild(b1);
+var b2=document.createElement(‘button’);b2.className=‘btn brs bsm’;b2.textContent=‘Выйти’;b2.onclick=doLogout;r.appendChild(b2);
+} else {
+r.innerHTML=’’;
+var b3=document.createElement(‘button’);b3.className=‘btn bo bsm’;b3.textContent=‘Войти’;b3.onclick=function(){openM(‘authM’);};r.appendChild(b3);
+var b4=document.createElement(‘button’);b4.className=‘btn bg bsm’;b4.textContent=‘Начать →’;b4.onclick=function(){openM(‘authM’);};r.appendChild(b4);
+}
 }
 
 function showHome(){
@@ -1182,6 +1239,29 @@ var ro=new IntersectionObserver(function(entries){entries.forEach(function(e){if
 document.querySelectorAll('.rv').forEach(function(el){ro.observe(el);});
 // Close modals on backdrop click
 document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
+
+// Theme management
+function toggleTheme(){
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  if(isDark){
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('lp_theme','light');
+    document.getElementById('themeBtn').textContent='\u263C';
+  } else {
+    document.documentElement.setAttribute('data-theme','dark');
+    localStorage.setItem('lp_theme','dark');
+    document.getElementById('themeBtn').textContent='\u263E';
+  }
+}
+// Restore theme
+(function(){
+  var t=localStorage.getItem('lp_theme')||'light';
+  if(t==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    var btn=document.getElementById('themeBtn');
+    if(btn)btn.textContent='\u263E';
+  }
+})();
 </script>
 
 </body>
