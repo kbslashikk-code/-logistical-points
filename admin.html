@@ -428,7 +428,7 @@ fbRest(‘signInWithPassword’,{email:email,password:pass,returnSecureToken:tru
 clearTimeout(t);
 return fbRest(‘lookup’,{idToken:d.idToken}).then(function(u){
 var user=u.users&&u.users[0];
-if(!user||!user.emailVerified){err.textContent=‘Email не подтверждён’;err.classList.add(‘on’);btn.disabled=false;btn.textContent=‘Войти →’;return;}
+if(!user){err.textContent=‘Пользователь не найден’;err.classList.add(‘on’);btn.disabled=false;btn.textContent=‘Войти →’;return;}
 CU={uid:d.localId,email:d.email};
 localStorage.setItem(‘lp_admin’,d.localId);
 document.getElementById(‘lv’).style.display=‘none’;
@@ -439,8 +439,9 @@ loadDash();
 });
 }).catch(function(e){
 clearTimeout(t);
-var msgs={‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,‘INVALID_PASSWORD’:‘Неверный пароль’,‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток’};
-err.textContent=msgs[e.code]||’Ошибка: ’+(e.code||‘неизвестная’);
+var code=e&&(e.code||e.message||String(e));
+var msgs={‘INVALID_LOGIN_CREDENTIALS’:‘Неверный email или пароль’,‘INVALID_PASSWORD’:‘Неверный пароль’,‘EMAIL_NOT_FOUND’:‘Пользователь не найден’,‘TOO_MANY_ATTEMPTS_TRY_LATER’:‘Слишком много попыток’,‘INVALID_EMAIL’:‘Неверный формат email’};
+err.textContent=msgs[code]||‘Ошибка входа. Проверьте email и пароль.’;
 err.classList.add(‘on’);btn.disabled=false;btn.textContent=‘Войти →’;
 });
 }
