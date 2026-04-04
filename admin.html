@@ -801,122 +801,59 @@ loadDash();
 </script>
 
 <script>
-function toggleAdminSb(){
-  var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbToggle');
-  sb.classList.toggle('collapsed');m.classList.toggle('expanded');
-  tg.textContent=sb.classList.contains('collapsed')?'›':'‹';
-  localStorage.setItem('asb_collapsed',sb.classList.contains('collapsed')?'1':'0');
-}
-(function(){
-  if(localStorage.getItem('asb_collapsed')==='1'){
-    var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbToggle');
-    if(sb){sb.classList.add('collapsed');m.classList.add('expanded');tg.textContent='›';}
-  }
-})();
-</script>
-
-<script>
 function toggleAsb(){
-  var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbTog');
-  sb.classList.toggle('col');m.classList.toggle('exp');
-  tg.textContent=sb.classList.contains('col')?'›':'‹';
-  localStorage.setItem('asb_col',sb.classList.contains('col')?'1':'0');
+  var sb=document.getElementById("asb"),m=document.getElementById("amain"),tg=document.getElementById("asbTog");
+  sb.classList.toggle("col");m.classList.toggle("exp");
+  tg.textContent=sb.classList.contains("col")?"›":"‹";
+  localStorage.setItem("asb_col",sb.classList.contains("col")?"1":"0");
 }
 (function(){
-  if(localStorage.getItem('asb_col')==='1'){
-    var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbTog');
-    if(sb){sb.classList.add('col');if(m)m.classList.add('exp');if(tg)tg.textContent='›';}
+  if(localStorage.getItem("asb_col")==="1"){
+    var sb=document.getElementById("asb"),m=document.getElementById("amain"),tg=document.getElementById("asbTog");
+    if(sb){sb.classList.add("col");if(m)m.classList.add("exp");if(tg)tg.textContent="›";}
   }
 })();
-// Course data for admin HW assignment
+
 var ADMIN_COURSES_DATA={
   math:[
-    {id:'algebra',name:'Алгебра',chapters:['Числа и выражения','Уравнения и неравенства','Функции и графики','Прогрессии','Многочлены']},
-    {id:'geometry',name:'Геометрия',chapters:['Основные понятия','Треугольники','Четырёхугольники','Окружность','Стереометрия']},
-    {id:'logic',name:'Логика',chapters:['Основы логики','Задачи на смекалку','Числовые закономерности']},
-    {id:'olymp',name:'Олимпиадная математика',chapters:['Теория чисел','Комбинаторика','Неравенства','Олимпиадная геометрия']},
-    {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:['ОГЭ часть 1','ОГЭ геометрия','ЕГЭ профиль']},
-    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']},
+    {id:"algebra",name:"Algebra",chapters:["Numbers","Equations","Functions","Progressions","Polynomials"]},
+    {id:"geometry",name:"Geometry",chapters:["Basics","Triangles","Quadrilaterals","Circles","Solid geometry"]},
+    {id:"logic",name:"Logic",chapters:["Basics","Puzzles","Patterns"]},
+    {id:"olymp",name:"Olympiad math",chapters:["Number theory","Combinatorics","Inequalities","Geometry"]},
+    {id:"ege_oge",name:"OGE and EGE",chapters:["OGE part 1","OGE geometry","EGE profile"]},
+    {id:"combo",name:"Combinatorics",chapters:["Combinatorics","Probability"]}
   ],
-  physics:[
-    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество','Оптика и волны','Квантовая физика']},
-  ]
+  physics:[{id:"physics",name:"Physics",chapters:["Mechanics","Thermodynamics","Electricity","Optics","Quantum"]}]
 };
 
 function onSubjChange(){
-  var subj=document.getElementById('hwSubj').value;
-  var sel=document.getElementById('hwC');
-  sel.innerHTML='<option value="">Выбрать курс</option>';
-  document.getElementById('hwChapter').innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
+  var subj=document.getElementById("hwSubj").value;
+  var sel=document.getElementById("hwC");
+  sel.innerHTML="<option value=''>Select course</option>";
+  document.getElementById("hwChapter").innerHTML="<option value=''>All topics</option>";
   if(!subj)return;
-  var courses=ADMIN_COURSES_DATA[subj]||[];
-  courses.forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>';});
+  (ADMIN_COURSES_DATA[subj]||[]).forEach(function(c){sel.innerHTML+="<option value='"+c.id+"'>"+c.name+"</option>";});
 }
 
 function onCourseChange(){
-  var subj=document.getElementById('hwSubj').value;
-  var cid=document.getElementById('hwC').value;
-  var sel=document.getElementById('hwChapter');
-  sel.innerHTML='<option value="">Весь курс (без привязки к теме)</option>';
-  if(!subj||!cid)return;
-  var courses=ADMIN_COURSES_DATA[subj]||[];
-  var course=courses.find(function(c){return c.id===cid;});
-  if(!course)return;
-  course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
-}
-
-document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
-</script>
-
-<script>
-var ADMIN_COURSES_DATA={
-  math:[
-    {id:'algebra',name:'Алгебра',chapters:['Числа и выражения','Уравнения и неравенства','Функции и графики','Прогрессии','Многочлены']},
-    {id:'geometry',name:'Геометрия',chapters:['Основные понятия','Треугольники','Четырёхугольники','Окружность','Стереометрия']},
-    {id:'logic',name:'Логика',chapters:['Основы логики','Задачи на смекалку','Числовые закономерности']},
-    {id:'olymp',name:'Олимпиадная математика',chapters:['Теория чисел','Комбинаторика','Неравенства','Олимпиадная геометрия']},
-    {id:'ege_oge',name:'ОГЭ и ЕГЭ',chapters:['ОГЭ часть 1','ОГЭ геометрия','ЕГЭ профиль']},
-    {id:'combo',name:'Комбинаторика и вероятность',chapters:['Комбинаторика','Теория вероятностей']}
-  ],
-  physics:[
-    {id:'physics',name:'Физика',chapters:['Механика','Термодинамика','Электричество и магнетизм','Оптика и волны','Квантовая физика']}
-  ]
-};
-function onSubjChange(){
-  var subj=document.getElementById('hwSubj').value;
-  var sel=document.getElementById('hwC');
-  sel.innerHTML='<option value="">Выбрать курс</option>';
-  document.getElementById('hwChapter').innerHTML='<option value="">Весь курс</option>';
-  if(!subj)return;
-  (ADMIN_COURSES_DATA[subj]||[]).forEach(function(c){sel.innerHTML+='<option value="'+c.id+'">'+c.name+'</option>';});
-}
-function onCourseChange(){
-  var subj=document.getElementById('hwSubj').value;
-  var cid=document.getElementById('hwC').value;
-  var sel=document.getElementById('hwChapter');
-  sel.innerHTML='<option value="">Весь курс</option>';
+  var subj=document.getElementById("hwSubj").value;
+  var cid=document.getElementById("hwC").value;
+  var sel=document.getElementById("hwChapter");
+  sel.innerHTML="<option value=''>All topics</option>";
   if(!subj||!cid)return;
   var course=(ADMIN_COURSES_DATA[subj]||[]).find(function(c){return c.id===cid;});
-  if(course)course.chapters.forEach(function(ch){sel.innerHTML+='<option value="'+ch+'">'+ch+'</option>';});
+  if(course)course.chapters.forEach(function(ch){sel.innerHTML+="<option value='"+ch+"'>"+ch+"</option>";});
 }
+
 function fillHWSel(){
-  document.getElementById('hwSubj').value='';
-  document.getElementById('hwC').innerHTML='<option value="">Сначала выберите предмет</option>';
-  document.getElementById('hwChapter').innerHTML='<option value="">Весь курс</option>';
+  document.getElementById("hwSubj").value="";
+  document.getElementById("hwC").innerHTML="<option value=''>Select subject first</option>";
+  document.getElementById("hwChapter").innerHTML="<option value=''>All topics</option>";
 }
-function toggleAsb(){
-  var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbTog');
-  sb.classList.toggle('col');m.classList.toggle('exp');
-  tg.textContent=sb.classList.contains('col')?'›':'‹';
-  localStorage.setItem('asb_col',sb.classList.contains('col')?'1':'0');
-}
-(function(){
-  if(localStorage.getItem('asb_col')==='1'){
-    var sb=document.getElementById('asb'),m=document.getElementById('amain'),tg=document.getElementById('asbTog');
-    if(sb){sb.classList.add('col');if(m)m.classList.add('exp');if(tg)tg.textContent='›';}
-  }
-})();
-document.querySelectorAll('.ov').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('on');});});
+
+document.querySelectorAll(".ov").forEach(function(o){
+  o.addEventListener("click",function(e){if(e.target===o)o.classList.remove("on");});
+});
 </script>
 
 </body>
