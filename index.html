@@ -19,16 +19,17 @@
     --line: #e0d5c0;
     --gold: #9a7018;
     --gold2: #b89030;
-    --gold4: rgba(154,112,24,.07);
+    --gold3: rgba(154,112,24,0.1);
     --blue: #1a48c8;
     --blue2: #2a60e8;
+    --blue3: rgba(26,72,200,0.1);
     --green: #157a38;
     --red: #b81a1a;
     --text: #1a1510;
     --text2: #5a4e38;
     --text3: #9a8a6a;
     --f: 'Segoe UI', Arial, sans-serif;
-    --fs: 'Georgia', serif;
+    --fs: 'Georgia', 'Playfair Display', serif;
     --fm: 'Consolas', monospace;
 }
 
@@ -40,7 +41,10 @@
     --line: #374151;
     --gold: #d4a54a;
     --gold2: #e8c97a;
+    --gold3: rgba(212,165,74,0.1);
     --blue: #3b6ef5;
+    --blue2: #7ba3ff;
+    --blue3: rgba(59,110,245,0.1);
     --green: #22c55e;
     --red: #ef4444;
     --text: #f3f4f6;
@@ -53,6 +57,136 @@ body {
     color: var(--text);
     font-family: var(--f);
     transition: background 0.3s, color 0.3s;
+    overflow-x: hidden;
+}
+
+/* ============ ЗАГРУЗОЧНЫЙ ЭКРАН ============ */
+.loader-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loader-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-logo {
+    font-family: var(--fs);
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 2rem;
+}
+
+.loader-logo em {
+    color: var(--gold);
+    font-style: italic;
+}
+
+.loader-spinner {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1.5rem;
+    border: 3px solid var(--gold3);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loader-text {
+    color: var(--text2);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.loader-progress {
+    width: 200px;
+    height: 2px;
+    background: var(--gold3);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loader-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+}
+
+/* ============ АНИМАЦИИ ПОЯВЛЕНИЯ ============ */
+.fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.scale-in {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.scale-in.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.stagger-item.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Кнопки */
@@ -78,6 +212,7 @@ body {
 .btn.bg:hover {
     background: var(--gold2);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(154,112,24,0.3);
 }
 
 .btn.bo {
@@ -96,16 +231,25 @@ body {
     color: var(--red);
 }
 
+.btn.brs:hover {
+    background: rgba(184,26,26,0.2);
+}
+
+.bsm {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+}
+
 /* Навигация */
 nav {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    background: var(--bg);
+    background: rgba(var(--bg-rgb), 0.95);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
     z-index: 100;
-    backdrop-filter: blur(10px);
 }
 
 .nav-container {
@@ -143,6 +287,7 @@ nav {
     text-decoration: none;
     cursor: pointer;
     font-weight: 700;
+    transition: all 0.2s;
 }
 
 .nav-links a:hover {
@@ -178,6 +323,18 @@ nav {
     width: 90%;
     max-width: 450px;
     border: 1px solid var(--line);
+    animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 .modal-header {
@@ -220,6 +377,12 @@ nav {
     border-radius: 10px;
     color: var(--text);
     font-size: 0.95rem;
+    transition: border 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--gold);
 }
 
 .tabs {
@@ -237,6 +400,7 @@ nav {
     cursor: pointer;
     font-weight: 700;
     color: var(--text2);
+    transition: all 0.2s;
 }
 
 .tab.active {
@@ -261,6 +425,17 @@ nav {
     justify-content: center;
     text-align: center;
     padding: 6rem 2rem 4rem;
+    position: relative;
+}
+
+.hero-badge {
+    display: inline-flex;
+    background: var(--gold3);
+    padding: 0.3rem 1.2rem;
+    border-radius: 30px;
+    color: var(--gold);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
 }
 
 .hero h1 {
@@ -280,6 +455,7 @@ nav {
     max-width: 550px;
     margin-top: 1.5rem;
     color: var(--text2);
+    font-size: 1.1rem;
 }
 
 .hero-buttons {
@@ -290,6 +466,31 @@ nav {
     justify-content: center;
 }
 
+.hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text3);
+    letter-spacing: 1px;
+}
+
 /* Секции */
 .section {
     max-width: 1200px;
@@ -297,111 +498,212 @@ nav {
     padding: 5rem 2rem;
 }
 
+.section-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+}
+
 .section-title {
     font-family: var(--fs);
-    font-size: 2rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
     font-weight: 900;
     margin-bottom: 0.5rem;
 }
 
 .section-title em {
     color: var(--gold);
+    font-style: italic;
 }
 
 .section-subtitle {
     color: var(--text2);
     margin-bottom: 2rem;
+    font-size: 1rem;
+    max-width: 600px;
 }
 
-/* Карточки курсов */
+/* Карточки курсов - УЛУЧШЕННЫЕ */
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
     margin-top: 2rem;
 }
 
 .course-card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    position: relative;
 }
 
 .course-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     border-color: var(--gold);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
+}
+
+.course-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover::before {
+    transform: scaleX(1);
 }
 
 .course-icon {
-    height: 100px;
+    height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 900;
-    background: linear-gradient(135deg, var(--gold4), transparent);
+    background: linear-gradient(135deg, var(--gold3), transparent);
+    position: relative;
 }
 
-.course-info {
-    padding: 1.2rem;
+.course-icon span {
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover .course-icon span {
+    transform: scale(1.1);
 }
 
 .course-level {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 0.3rem;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--gold);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.course-info {
+    padding: 1.3rem;
 }
 
 .course-name {
     font-family: var(--fs);
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
+.course-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.7rem;
+    color: var(--text3);
+}
+
+.course-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
 .course-desc {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text2);
     margin-bottom: 1rem;
-    line-height: 1.5;
+    line-height: 1.6;
+}
+
+.course-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.topic-tag {
+    background: var(--bg2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    color: var(--text2);
+}
+
+.course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.course-price {
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.course-price free {
+    color: var(--green);
+}
+
+/* Секция физики - специальный стиль */
+.physics-section {
+    background: linear-gradient(135deg, var(--bg), var(--blue3));
 }
 
 /* Шаги */
 .steps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
     margin-top: 2rem;
 }
 
 .step {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.step:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
 }
 
 .step-number {
-    width: 35px;
-    height: 35px;
-    background: var(--gold4);
-    border-radius: 10px;
+    width: 45px;
+    height: 45px;
+    background: var(--gold3);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 1.2rem;
     color: var(--gold);
-    margin-bottom: 1rem;
+    margin: 0 auto 1rem;
 }
 
 .step-title {
     font-weight: 700;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
 }
 
 .step-desc {
@@ -490,6 +792,7 @@ footer {
     margin-bottom: 0.2rem;
     color: var(--text2);
     font-weight: 700;
+    transition: all 0.2s;
 }
 
 .sidebar-menu li:hover {
@@ -498,7 +801,7 @@ footer {
 }
 
 .sidebar-menu li.active {
-    background: var(--gold4);
+    background: var(--gold3);
     color: var(--gold);
 }
 
@@ -509,7 +812,7 @@ footer {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -520,6 +823,12 @@ footer {
     border-radius: 14px;
     padding: 1.2rem;
     text-align: center;
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
 }
 
 .stat-number {
@@ -542,35 +851,6 @@ footer {
     display: block;
 }
 
-/* Уроки */
-.lesson-list {
-    margin-top: 1rem;
-}
-
-.lesson-item {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.8rem;
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-}
-
-.lesson-item:hover {
-    background: var(--card2);
-}
-
-.lesson-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--gold);
-}
-
-.lesson-dot.completed {
-    background: var(--green);
-}
-
 /* ДЗ */
 .homework-item {
     display: flex;
@@ -580,6 +860,11 @@ footer {
     background: var(--card2);
     border-radius: 12px;
     margin-bottom: 0.8rem;
+    transition: all 0.2s;
+}
+
+.homework-item:hover {
+    transform: translateX(4px);
 }
 
 .homework-status {
@@ -633,6 +918,12 @@ footer {
     justify-content: center;
     font-size: 1.2rem;
     z-index: 100;
+    transition: all 0.3s;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+    border-color: var(--gold);
 }
 
 /* Адаптив */
@@ -641,10 +932,29 @@ footer {
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
     .course-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
+    .hero h1 { font-size: 2.5rem; }
+}
+
+@media (max-width: 480px) {
+    .section { padding: 3rem 1rem; }
+    .hero { padding: 5rem 1rem 3rem; }
 }
 </style>
 </head>
 <body>
+
+<!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
+<div class="loader-screen" id="loaderScreen">
+    <div class="loader-content">
+        <div class="loader-logo">Logistical <em>Points</em></div>
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Загрузка материалов...</div>
+        <div class="loader-progress">
+            <div class="loader-progress-bar" id="loaderProgressBar"></div>
+        </div>
+    </div>
+</div>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -720,12 +1030,17 @@ footer {
     </nav>
 
     <div class="hero">
-        <div style="display:inline-flex;background:var(--gold4);padding:0.3rem 1.2rem;border-radius:30px;color:var(--gold);font-size:0.85rem">Будущее начинается с нами</div>
-        <h1>Logistical<br><em>Points</em></h1>
-        <p>Подготовка к олимпиадам и экзаменам для школьников 1-11 классов. Математика и физика с индивидуальным подходом.</p>
-        <div class="hero-buttons">
+        <div class="hero-badge fade-up">✨ Будущее начинается с нами</div>
+        <h1 class="fade-up" style="transition-delay:0.1s">Logistical<br><em>Points</em></h1>
+        <p class="fade-up" style="transition-delay:0.2s">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов.<br>Математика и физика с индивидуальным подходом.</p>
+        <div class="hero-buttons fade-up" style="transition-delay:0.3s">
             <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
             <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
+        </div>
+        <div class="hero-stats fade-up" style="transition-delay:0.4s">
+            <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
+            <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
+            <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
         </div>
     </div>
 
@@ -733,19 +1048,19 @@ footer {
 
     <!-- Математика -->
     <section id="math" class="section">
-        <div style="display:inline-block;background:var(--gold4);padding:0.2rem 0.8rem;border-radius:20px;color:var(--gold);font-size:0.7rem">Математика</div>
-        <h2 class="section-title">От азов до <em>олимпиад</em></h2>
-        <p class="section-subtitle">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
+        <div class="section-badge fade-left">📐 Математика</div>
+        <h2 class="section-title fade-left" style="transition-delay:0.1s">От азов до <em>олимпиад</em></h2>
+        <p class="section-subtitle fade-left" style="transition-delay:0.2s">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
         <div class="course-grid" id="mathCourses"></div>
     </section>
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Физика -->
-    <section id="physics" class="section">
-        <div style="display:inline-block;background:rgba(26,72,200,0.1);padding:0.2rem 0.8rem;border-radius:20px;color:var(--blue);font-size:0.7rem">Физика</div>
-        <h2 class="section-title">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
-        <p class="section-subtitle">Механика, термодинамика, электричество, оптика, квантовая физика.</p>
+    <!-- Физика (расширенная секция) -->
+    <section id="physics" class="section physics-section">
+        <div class="section-badge fade-right">⚡ Физика</div>
+        <h2 class="section-title fade-right" style="transition-delay:0.1s">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
+        <p class="section-subtitle fade-right" style="transition-delay:0.2s">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
         <div class="course-grid" id="physicsCourses"></div>
     </section>
 
@@ -754,14 +1069,15 @@ footer {
     <!-- Как это работает -->
     <section class="section">
         <div style="text-align:center">
-            <div style="color:var(--gold);font-size:0.7rem;text-transform:uppercase">Как это работает</div>
+            <div class="section-badge">📖 Как это работает</div>
             <h2 class="section-title">Простой <em>процесс</em></h2>
+            <p class="section-subtitle" style="margin:0 auto">Всего 4 шага отделяют вас от новых знаний</p>
         </div>
         <div class="steps">
-            <div class="step"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
-            <div class="step"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
-            <div class="step"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
-            <div class="step"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
+            <div class="step stagger-item"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
+            <div class="step stagger-item"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
+            <div class="step stagger-item"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
+            <div class="step stagger-item"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
         </div>
     </section>
 
@@ -770,7 +1086,7 @@ footer {
     <!-- Преподаватель -->
     <section id="teacher" class="section">
         <div style="display:flex;flex-wrap:wrap;gap:3rem;align-items:center">
-            <div style="flex:1;min-width:250px">
+            <div style="flex:1;min-width:250px" class="fade-left">
                 <div style="background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line)">
                     <div style="height:250px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center">
                         <span style="font-size:5rem">👨‍🏫</span>
@@ -781,15 +1097,16 @@ footer {
                     </div>
                 </div>
             </div>
-            <div style="flex:2">
-                <h2 class="section-title">Ваш <em>преподаватель</em></h2>
+            <div style="flex:2" class="fade-right">
+                <div class="section-badge">👨‍🏫 Преподаватель</div>
+                <h2 class="section-title">Ваш <em>наставник</em></h2>
                 <p style="color:var(--text2);line-height:1.8">Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
-                <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями.</p>
+                <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями. Помогаю ученикам достигать высоких результатов на олимпиадах и экзаменах.</p>
                 <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem">
-                    <span style="background:var(--gold4);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">Олимпиадная математика</span>
-                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">Физика</span>
-                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">ЕГЭ / ОГЭ</span>
-                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">1-11 класс</span>
+                    <span style="background:var(--gold3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🏆 Олимпиадная математика</span>
+                    <span style="background:var(--blue3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">⚡ Физика</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">📝 ЕГЭ / ОГЭ</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🎓 1-11 класс</span>
                 </div>
             </div>
         </div>
@@ -826,7 +1143,6 @@ footer {
             </ul>
         </div>
         <div class="main-content">
-            <!-- Обзор -->
             <div id="overviewPane" class="dashboard-pane active">
                 <h2 style="margin-bottom:1.5rem">Добро пожаловать, <span id="welcomeName" style="color:var(--gold)"></span>!</h2>
                 <div class="stats-grid">
@@ -839,19 +1155,16 @@ footer {
                     <div id="continueLearning"></div>
                 </div>
             </div>
-            <!-- Мои курсы -->
             <div id="coursesPane" class="dashboard-pane">
                 <h2 style="margin-bottom:1rem">Мои курсы</h2>
                 <div id="myCoursesList"></div>
                 <h2 style="margin:1.5rem 0 1rem">Доступные курсы</h2>
                 <div id="availableCoursesList"></div>
             </div>
-            <!-- Домашние задания -->
             <div id="homeworkPane" class="dashboard-pane">
                 <h2 style="margin-bottom:1rem">Домашние задания</h2>
                 <div id="homeworkList"></div>
             </div>
-            <!-- Прогресс -->
             <div id="progressPane" class="dashboard-pane">
                 <h2 style="margin-bottom:1rem">Прогресс по курсам</h2>
                 <div id="progressList"></div>
@@ -865,18 +1178,155 @@ footer {
 <script>
 // ============ ДАННЫЕ ============
 const COURSES = [
-    { id: "algebra", name: "Алгебра с нуля до олимпиады", level: "5-11 класс", icon: "∑", subject: "math", desc: "Уравнения, неравенства, прогрессии, многочлены.", lessons: 48 },
-    { id: "geometry", name: "Геометрия", level: "7-11 класс", icon: "△", subject: "math", desc: "Треугольники, окружности, тела вращения.", lessons: 40 },
-    { id: "logic", name: "Логика и задачи на смекалку", level: "1-6 класс", icon: "∀", subject: "math", desc: "Логика, головоломки, математическое мышление.", lessons: 24 },
-    { id: "olymp", name: "Олимпиадная математика", level: "8-11 класс", icon: "🏆", subject: "math", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", lessons: 60 },
-    { id: "ege", name: "Подготовка к ОГЭ и ЕГЭ", level: "9 и 11 класс", icon: "✓", subject: "math", desc: "Полный курс по программе экзамена.", lessons: 52 },
-    { id: "combo", name: "Комбинаторика и теория вероятностей", level: "7-11 класс", icon: "C", subject: "math", desc: "Перестановки, сочетания, вероятность.", lessons: 28 },
-    { id: "physics", name: "Физика: от механики до квантового мира", level: "7-11 класс", icon: "F", subject: "physics", desc: "Механика, термодинамика, электричество, оптика, квантовая физика.", lessons: 55 }
+    { 
+        id: "algebra", 
+        name: "Алгебра с нуля до олимпиады", 
+        level: "5-11 класс", 
+        icon: "∑", 
+        subject: "math", 
+        desc: "Полный курс алгебры от простых уравнений до сложных олимпиадных задач. Разбор всех типов уравнений, неравенств, прогрессий и многочленов.", 
+        topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены", "Олимпиадные задачи"],
+        lessons: 48,
+        duration: "48 уроков",
+        price: "Бесплатно"
+    },
+    { 
+        id: "geometry", 
+        name: "Геометрия", 
+        level: "7-11 класс", 
+        icon: "△", 
+        subject: "math", 
+        desc: "Изучение геометрических фигур, теорем и доказательств. Планиметрия, стереометрия, векторы и координаты.", 
+        topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия", "Векторы"],
+        lessons: 40,
+        duration: "40 уроков",
+        price: "Бесплатно"
+    },
+    { 
+        id: "logic", 
+        name: "Логика и задачи на смекалку", 
+        level: "1-6 класс", 
+        icon: "∀", 
+        subject: "math", 
+        desc: "Развитие логического мышления через увлекательные задачи. Головоломки, ребусы, задачи на переливание и взвешивание.", 
+        topics: ["Логические задачи", "Головоломки", "Переливание", "Взвешивание", "Закономерности"],
+        lessons: 24,
+        duration: "24 урока",
+        price: "Бесплатно"
+    },
+    { 
+        id: "olymp", 
+        name: "Олимпиадная математика", 
+        level: "8-11 класс", 
+        icon: "🏆", 
+        subject: "math", 
+        desc: "Углубленная подготовка к Всероссийской олимпиаде школьников, Перельману, Эйлеру. Разбор сложных задач и нестандартных подходов.", 
+        topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия", "Архив задач ВсОШ"],
+        lessons: 60,
+        duration: "60 уроков",
+        price: "Бесплатно"
+    },
+    { 
+        id: "ege", 
+        name: "Подготовка к ОГЭ и ЕГЭ", 
+        level: "9 и 11 класс", 
+        icon: "✓", 
+        subject: "math", 
+        desc: "Полная подготовка к государственным экзаменам. Разбор всех типов заданий, стратегии решения, пробные варианты.", 
+        topics: ["ОГЭ часть 1", "ОГЭ геометрия", "ЕГЭ база", "ЕГЭ профиль", "Пробные варианты"],
+        lessons: 52,
+        duration: "52 урока",
+        price: "Бесплатно"
+    },
+    { 
+        id: "combo", 
+        name: "Комбинаторика и теория вероятностей", 
+        level: "7-11 класс", 
+        icon: "C", 
+        subject: "math", 
+        desc: "Изучение комбинаторных методов и теории вероятностей. Перестановки, сочетания, размещения, формулы вероятности.", 
+        topics: ["Перестановки", "Сочетания", "Размещения", "Вероятность", "Математическое ожидание"],
+        lessons: 28,
+        duration: "28 уроков",
+        price: "Бесплатно"
+    },
+    { 
+        id: "physics", 
+        name: "Физика: от механики до квантового мира", 
+        level: "7-11 класс", 
+        icon: "F", 
+        subject: "physics", 
+        desc: "Полный курс физики для школьников. Подробный разбор всех разделов: от кинематики до квантовой физики. Подготовка к ОГЭ, ЕГЭ и олимпиадам.", 
+        topics: ["Механика", "Термодинамика", "Электричество", "Магнетизм", "Оптика", "Квантовая физика", "Ядерная физика"],
+        lessons: 65,
+        duration: "65 уроков",
+        price: "Бесплатно"
+    }
 ];
 
 // ============ СОСТОЯНИЕ ============
 let currentUser = null;
 let userData = null;
+
+// ============ ЗАГРУЗОЧНЫЙ ЭКРАН ============
+function showLoader() {
+    const loader = document.getElementById("loaderScreen");
+    const progressBar = document.getElementById("loaderProgressBar");
+    const loaderText = document.getElementById("loaderText");
+    
+    let progress = 0;
+    const steps = [
+        "Загрузка материалов...",
+        "Подготовка курсов...",
+        "Настройка интерфейса...",
+        "Почти готово..."
+    ];
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        progressBar.style.width = progress + "%";
+        
+        const stepIndex = Math.floor(progress / 25);
+        if (stepIndex < steps.length) {
+            loaderText.textContent = steps[stepIndex];
+        }
+        
+        if (progress === 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                loader.classList.add("hide");
+                setTimeout(() => {
+                    loader.style.display = "none";
+                    initAnimations();
+                }, 500);
+            }, 300);
+        }
+    }, 200);
+}
+
+// ============ АНИМАЦИИ ПОЯВЛЕНИЯ ============
+function initAnimations() {
+    const animatedElements = document.querySelectorAll('.fade-up, .fade-left, .fade-right, .scale-in, .stagger-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+    
+    animatedElements.forEach(el => observer.observe(el));
+    
+    // Stagger элементы
+    const staggerGroups = document.querySelectorAll('.steps .step, .course-card');
+    staggerGroups.forEach((el, index) => {
+        el.style.transitionDelay = (index * 0.05) + "s";
+        observer.observe(el);
+    });
+}
 
 // ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
 function showToast(message, type = "info") {
@@ -955,7 +1405,6 @@ function handleLogin() {
         return;
     }
     
-    // Демо-вход
     const saved = localStorage.getItem("lp_user");
     if (saved) {
         try {
@@ -971,7 +1420,6 @@ function handleLogin() {
         } catch(e) {}
     }
     
-    // Создаем нового пользователя при входе (демо)
     const userId = "user_" + Date.now();
     currentUser = { uid: userId, email: email };
     userData = {
@@ -1026,20 +1474,17 @@ function handleLogout() {
 
 // ============ UI ОБНОВЛЕНИЕ ============
 function updateUIAfterLogin() {
-    // Обновляем навигацию
     const navButtons = document.getElementById("navButtons");
     if (navButtons) {
         navButtons.innerHTML = `<span style="color:var(--text2);margin-right:0.5rem">${userData.name || userData.email}</span>
                                 <button class="btn brs" onclick="handleLogout()">Выйти</button>`;
     }
     
-    // Обновляем дашборд
     document.getElementById("userName").textContent = userData.name || userData.email.split("@")[0];
     document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
     document.getElementById("userAvatar").textContent = (userData.name ? userData.name[0] : "У").toUpperCase();
     document.getElementById("welcomeName").textContent = userData.name || userData.email.split("@")[0];
     
-    // Статистика
     const enrolledCount = userData.enrolledCourses.length;
     let totalLessons = 0;
     userData.enrolledCourses.forEach(courseId => {
@@ -1050,11 +1495,9 @@ function updateUIAfterLogin() {
     document.getElementById("statLessons").textContent = totalLessons;
     document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
     
-    // Показать дашборд
     document.getElementById("homePage").style.display = "none";
     document.getElementById("dashboard").classList.add("active");
     
-    // Загружаем данные
     renderContinueLearning();
     renderMyCourses();
     renderAvailableCourses();
@@ -1069,13 +1512,26 @@ function renderCourseCards(containerId, subjectFilter) {
     
     const filtered = subjectFilter ? COURSES.filter(c => c.subject === subjectFilter) : COURSES;
     container.innerHTML = filtered.map(course => `
-        <div class="course-card" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
+        <div class="course-card scale-in" onclick="enrollAndOpenCourse('${course.id}')">
+            <div class="course-icon">
+                <span>${course.icon}</span>
+                <span class="course-level">${course.level}</span>
+            </div>
             <div class="course-info">
-                <div class="course-level">${course.level}</div>
                 <div class="course-name">${course.name}</div>
+                <div class="course-stats">
+                    <span>📚 ${course.duration}</span>
+                    <span>⭐ ${course.lessons} уроков</span>
+                </div>
                 <div class="course-desc">${course.desc}</div>
-                <button class="btn bg" style="width:100%">${currentUser ? "Открыть" : "Записаться"}</button>
+                <div class="course-topics">
+                    ${course.topics.slice(0, 3).map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+                    ${course.topics.length > 3 ? `<span class="topic-tag">+${course.topics.length - 3}</span>` : ''}
+                </div>
+                <div class="course-footer">
+                    <span class="course-price">${course.price}</span>
+                    <button class="btn bg bsm">${currentUser ? "Открыть" : "Записаться"}</button>
+                </div>
             </div>
         </div>
     `).join("");
@@ -1094,10 +1550,8 @@ function enrollAndOpenCourse(courseId) {
         renderAvailableCourses();
         renderContinueLearning();
         renderProgress();
-        // Обновляем статистику
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
     }
-    // Показываем курс (в демо-версии просто тост)
     const course = COURSES.find(c => c.id === courseId);
     showToast(`Курс "${course.name}" открыт. Уроки появятся soon!`, "info");
 }
@@ -1113,11 +1567,12 @@ function renderMyCourses() {
     }
     container.innerHTML = enrolled.map(course => `
         <div class="course-card" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
+            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info">
                 <div class="course-name">${course.name}</div>
+                <div class="course-stats"><span>📚 ${course.duration}</span><span>⭐ ${course.lessons} уроков</span></div>
                 <div class="course-desc">${course.desc}</div>
-                <button class="btn bg" style="width:100%">Продолжить</button>
+                <div class="course-footer"><button class="btn bg bsm">Продолжить</button></div>
             </div>
         </div>
     `).join("");
@@ -1134,11 +1589,12 @@ function renderAvailableCourses() {
     }
     container.innerHTML = available.map(course => `
         <div class="course-card" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
+            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info">
                 <div class="course-name">${course.name}</div>
+                <div class="course-stats"><span>📚 ${course.duration}</span><span>⭐ ${course.lessons} уроков</span></div>
                 <div class="course-desc">${course.desc}</div>
-                <button class="btn bg" style="width:100%">Записаться</button>
+                <div class="course-footer"><button class="btn bg bsm">Записаться</button></div>
             </div>
         </div>
     `).join("");
@@ -1155,7 +1611,7 @@ function renderContinueLearning() {
     }
     container.innerHTML = enrolled.slice(0, 3).map(course => `
         <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="enrollAndOpenCourse('${course.id}')">
-            <div style="width:40px;height:40px;background:var(--gold4);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
+            <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
             <div style="flex:1"><div style="font-weight:700">${course.name}</div><div style="font-size:0.8rem;color:var(--text2)">${course.level}</div></div>
             <button class="btn bg bsm">Открыть</button>
         </div>
@@ -1191,9 +1647,10 @@ function renderProgress() {
 
 // ============ ДОМАШНИЕ ЗАДАНИЯ ============
 const HOMEWORKS = [
-    { id: "hw1", title: "Алгебра: Решение уравнений", description: "Решите уравнения: 2x+5=15, 3(x-4)=2x+1", subject: "Алгебра", dueDate: "25.12.2024" },
-    { id: "hw2", title: "Геометрия: Теорема Пифагора", description: "Найдите гипотенузу прямоугольного треугольника с катетами 3 и 4", subject: "Геометрия", dueDate: "26.12.2024" },
-    { id: "hw3", title: "Физика: Законы Ньютона", description: "Тело массой 2 кг движется с ускорением 3 м/с². Найдите силу.", subject: "Физика", dueDate: "27.12.2024" }
+    { id: "hw1", title: "Алгебра: Решение уравнений", description: "Решите уравнения: 2x+5=15, 3(x-4)=2x+1, x²-5x+6=0", subject: "Алгебра", dueDate: "25.12.2024" },
+    { id: "hw2", title: "Геометрия: Теорема Пифагора", description: "Найдите гипотенузу прямоугольного треугольника с катетами 3 и 4. Найдите катет, если гипотенуза 10, а другой катет 6.", subject: "Геометрия", dueDate: "26.12.2024" },
+    { id: "hw3", title: "Физика: Законы Ньютона", description: "Тело массой 2 кг движется с ускорением 3 м/с². Найдите силу. Тело массой 5 кг под действием силы 20 Н. Найдите ускорение.", subject: "Физика", dueDate: "27.12.2024" },
+    { id: "hw4", title: "Физика: Кинематика", description: "Автомобиль разгоняется с 10 м/с до 30 м/с за 5 секунд. Найдите ускорение и пройденный путь.", subject: "Физика", dueDate: "28.12.2024" }
 ];
 
 function loadHomework() {
@@ -1268,22 +1725,25 @@ function toggleTheme() {
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 function init() {
-    // Тема
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") {
         document.documentElement.setAttribute("data-theme", "dark");
         document.getElementById("themeBtn").textContent = "☀️";
     }
     
-    // Загрузка курсов на главной
     renderCourseCards("mathCourses", "math");
     renderCourseCards("physicsCourses", "physics");
     
-    // Авторизация
+    showLoader();
+    
     if (!loadFromLocalStorage()) {
-        showHome();
+        setTimeout(() => {
+            showHome();
+        }, 1200);
     } else {
-        updateUIAfterLogin();
+        setTimeout(() => {
+            updateUIAfterLogin();
+        }, 1200);
     }
 }
 
