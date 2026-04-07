@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Logistical Points - Образовательная платформа</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+<title>Админ панель - Logistical Points</title>
 <style>
 * {
     margin: 0;
@@ -13,32 +12,6 @@
 }
 
 :root {
-    --bg: #faf7f0;
-    --bg2: #f2ece0;
-    --card: #ffffff;
-    --card2: #faf6ec;
-    --line: #e0d5c0;
-    --gold: #9a7018;
-    --gold2: #b89030;
-    --gold3: rgba(154,112,24,0.1);
-    --blue: #1a48c8;
-    --blue2: #2a60e8;
-    --blue3: rgba(26,72,200,0.1);
-    --green: #157a38;
-    --green2: rgba(21,122,56,0.1);
-    --red: #b81a1a;
-    --red2: rgba(184,26,26,0.1);
-    --orange: #c04010;
-    --orange2: rgba(192,64,16,0.1);
-    --text: #1a1510;
-    --text2: #5a4e38;
-    --text3: #9a8a6a;
-    --f: 'Segoe UI', Arial, sans-serif;
-    --fs: 'Playfair Display', Georgia, serif;
-    --fm: 'Consolas', monospace;
-}
-
-[data-theme="dark"] {
     --bg: #0a0e17;
     --bg2: #111827;
     --card: #1f2937;
@@ -46,26 +19,23 @@
     --line: #374151;
     --gold: #d4a54a;
     --gold2: #e8c97a;
-    --gold3: rgba(212,165,74,0.1);
-    --blue: #3b6ef5;
-    --blue2: #7ba3ff;
-    --blue3: rgba(59,110,245,0.1);
     --green: #22c55e;
     --green2: rgba(34,197,94,0.1);
     --red: #ef4444;
     --red2: rgba(239,68,68,0.1);
-    --orange: #f97316;
-    --orange2: rgba(249,115,22,0.1);
+    --blue: #3b6ef5;
+    --blue2: #7ba3ff;
+    --blue3: rgba(59,110,245,0.1);
     --text: #f3f4f6;
     --text2: #9ca3af;
     --text3: #6b7280;
+    --f: 'Segoe UI', Arial, sans-serif;
 }
 
 body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--f);
-    transition: all 0.3s;
 }
 
 /* Кнопки */
@@ -73,240 +43,81 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.7rem 1.5rem;
-    border-radius: 10px;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
     border: none;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
+    font-size: 0.85rem;
     transition: all 0.2s;
-    font-size: 0.95rem;
 }
 
-.btn.bg { background: var(--gold); color: white; }
-.btn.bg:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(154,112,24,0.3); }
-.btn.bo { background: transparent; border: 2px solid var(--line); color: var(--text); }
-.btn.bo:hover { border-color: var(--gold); color: var(--gold); }
-.btn.brs { background: var(--red2); color: var(--red); }
-.btn.brs:hover { background: rgba(184,26,26,0.2); }
-.bgs { background: var(--green2); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
-.bsm { padding: 0.4rem 1rem; font-size: 0.8rem; }
+.btn-primary { background: var(--gold); color: #1a1a2e; }
+.btn-primary:hover { background: var(--gold2); transform: translateY(-1px); }
+.btn-danger { background: var(--red2); color: var(--red); border: 1px solid var(--red); }
+.btn-danger:hover { background: var(--red); color: white; }
+.btn-success { background: var(--green2); color: var(--green); border: 1px solid var(--green); }
+.btn-success:hover { background: var(--green); color: white; }
+.btn-secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
-/* Навигация */
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(var(--bg-rgb), 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--line);
-    z-index: 100;
-}
-
-.nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 2rem;
+/* Вход */
+.login-container {
+    min-height: 100vh;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-family: var(--fs);
-    font-size: 1.2rem;
-    font-weight: 900;
-    cursor: pointer;
-    color: var(--text);
-}
-
-.logo em { color: var(--gold); font-style: italic; }
-
-/* Модальные окна */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(135deg, #0a0e17, #1a1f2e);
 }
 
-.modal-overlay.active { display: flex; }
-
-.modal {
+.login-card {
     background: var(--card);
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 2rem;
-    width: 90%;
-    max-width: 500px;
+    width: 100%;
+    max-width: 380px;
     border: 1px solid var(--line);
-    animation: modalIn 0.3s ease;
 }
 
-@keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.login-card h2 {
     margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--gold);
 }
 
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: var(--text2);
-}
-
-.form-group {
+.login-card input {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text);
     margin-bottom: 1rem;
 }
 
-.form-group label {
-    display: block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    color: var(--text3);
-    margin-bottom: 0.3rem;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 0.7rem 1rem;
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 0.95rem;
-}
-
-.tabs {
+/* Панель */
+.admin-container {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.tab {
-    flex: 1;
-    padding: 0.6rem;
-    background: var(--bg2);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--text2);
-}
-
-.tab.active { background: var(--gold); color: white; }
-
-.tab-pane { display: none; }
-.tab-pane.active { display: block; }
-
-/* Герой */
-.hero {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6rem 2rem 4rem;
-}
-
-.hero h1 {
-    font-family: var(--fs);
-    font-size: clamp(3rem, 8vw, 6rem);
-    font-weight: 900;
-    line-height: 1;
-}
-
-.hero h1 em { color: var(--gold); font-style: italic; }
-
-/* Карточки курсов */
-.course-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
-
-.course-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.course-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--gold);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-}
-
-.course-icon {
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, var(--gold3), transparent);
-}
-
-.course-info { padding: 1.2rem; }
-.course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-.course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
-
-/* Дашборд */
-.dashboard {
-    display: none;
-    min-height: 100vh;
-    padding-top: 70px;
-}
-
-.dashboard.active { display: block; }
-
-.dashboard-layout {
-    display: flex;
-    min-height: calc(100vh - 70px);
 }
 
 .sidebar {
-    width: 260px;
+    width: 240px;
     background: var(--bg2);
     border-right: 1px solid var(--line);
-    padding: 1.5rem;
+    padding: 1rem;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
 }
 
-.sidebar-user {
-    text-align: center;
-    padding-bottom: 1rem;
+.sidebar h3 {
+    padding: 0.8rem;
+    color: var(--gold);
+    font-size: 1rem;
     border-bottom: 1px solid var(--line);
     margin-bottom: 1rem;
-}
-
-.user-avatar {
-    width: 50px;
-    height: 50px;
-    background: var(--gold);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: white;
-    margin: 0 auto 0.5rem;
 }
 
 .sidebar-menu {
@@ -314,147 +125,172 @@ nav {
 }
 
 .sidebar-menu li {
-    padding: 0.7rem;
-    border-radius: 10px;
+    padding: 0.7rem 0.8rem;
+    border-radius: 6px;
     cursor: pointer;
     margin-bottom: 0.2rem;
     color: var(--text2);
-    font-weight: 700;
-}
-
-.sidebar-menu li:hover { background: var(--card); color: var(--text); }
-.sidebar-menu li.active { background: var(--gold3); color: var(--gold); }
-
-.main-content {
-    flex: 1;
-    padding: 2rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 1.2rem;
-    text-align: center;
-}
-
-.stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
-.stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
-
-.dashboard-pane { display: none; }
-.dashboard-pane.active { display: block; }
-
-/* Домашние задания */
-.homework-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 1rem;
-    background: var(--card2);
-    border-radius: 12px;
-    margin-bottom: 0.8rem;
-}
-
-.homework-status {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-top: 0.4rem;
-}
-
-.status-pending { background: var(--gold); }
-.status-submitted { background: var(--blue); }
-.status-graded { background: var(--green); }
-.status-returned { background: var(--orange); }
-
-.homework-image {
-    max-width: 200px;
-    max-height: 150px;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-    cursor: pointer;
-}
-
-/* Фото зона */
-.file-zone {
-    border: 2px dashed var(--line);
-    border-radius: 10px;
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
     transition: all 0.2s;
 }
 
-.file-zone:hover { border-color: var(--gold); background: var(--gold3); }
-
-.file-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.8rem;
-    padding: 0.5rem;
-    background: var(--bg2);
-    border-radius: 8px;
+.sidebar-menu li:hover {
+    background: var(--card);
+    color: var(--text);
 }
 
-.file-preview img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
+.sidebar-menu li.active {
+    background: var(--gold);
+    color: #1a1a2e;
 }
 
-/* Админ панель */
-.admin-login {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.admin-sidebar {
-    width: 260px;
-    background: var(--bg2);
-    border-right: 1px solid var(--line);
+.main-content {
+    flex: 1;
+    margin-left: 240px;
     padding: 1.5rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    overflow-y: auto;
 }
 
-.admin-main {
-    margin-left: 260px;
-    padding: 2rem;
-}
-
-.admin-card {
+/* Карточки */
+.card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 1.2rem;
     margin-bottom: 1rem;
 }
 
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.card-header h3 { font-size: 1rem; }
+
+/* Таблицы */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: 0.6rem;
+    color: var(--text3);
+    font-weight: 500;
+    border-bottom: 1px solid var(--line);
+}
+
+.table td {
+    padding: 0.6rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.table tr:hover td { background: var(--bg2); }
+
+/* Прогресс бар */
+.progress-bar {
+    width: 100px;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 0.8rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: 0.3rem;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+/* ДЗ карточка */
+.homework-card {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.homework-card .title {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.homework-card .meta {
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-bottom: 0.5rem;
+}
+
+.homework-card .solution {
+    background: var(--card);
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.homework-card img {
+    max-width: 150px;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+/* Теги */
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.badge-pending { background: var(--gold2); color: #1a1a2e; }
+.badge-submitted { background: var(--blue3); color: var(--blue2); }
+.badge-graded { background: var(--green2); color: var(--green); }
+
 /* Тост */
 .toast-container {
     position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 2000;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
 }
 
 .toast {
-    padding: 0.7rem 1.2rem;
-    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
     margin-top: 0.5rem;
     animation: slideIn 0.3s ease;
 }
@@ -468,755 +304,483 @@ nav {
     to { transform: translateX(0); opacity: 1; }
 }
 
-.theme-toggle {
+/* Модалка */
+.modal {
+    display: none;
     position: fixed;
-    bottom: 1.5rem;
-    left: 1.5rem;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 2px solid var(--line);
-    cursor: pointer;
-    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    z-index: 100;
 }
 
-/* Адаптив */
-@media (max-width: 768px) {
-    .sidebar { display: none; }
-    .main-content { margin-left: 0; }
-    .admin-sidebar { display: none; }
-    .admin-main { margin-left: 0; }
-    .course-grid { grid-template-columns: 1fr; }
+.modal.active { display: flex; }
+
+.modal-content {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid var(--line);
 }
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text3);
+}
+
+/* Утилиты */
+.flex { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.justify-between { display: flex; justify-content: space-between; align-items: center; }
+.mt-2 { margin-top: 0.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.w-100 { width: 100%; }
+.cursor-pointer { cursor: pointer; }
 </style>
 </head>
 <body>
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Модальное окно авторизации -->
-<div class="modal-overlay" id="authModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 id="authTitle">Вход</h3>
-            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-        </div>
-        <div class="tabs">
-            <button class="tab active" onclick="switchAuthTab('login')">Войти</button>
-            <button class="tab" onclick="switchAuthTab('register')">Регистрация</button>
-        </div>
-        <div id="loginPanel" class="tab-pane active">
-            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
-            <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••"></div>
-            <button class="btn bg" style="width:100%" onclick="handleLogin()">Войти</button>
-        </div>
-        <div id="registerPanel" class="tab-pane">
-            <div class="form-group"><label>Имя</label><input type="text" id="regName" placeholder="Иван Иванов"></div>
-            <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
-            <div class="form-group"><label>Класс</label>
-                <select id="regGrade">
-                    <option value="">Выберите класс</option>
-                    <option value="1-4">1-4 класс</option>
-                    <option value="5-6">5-6 класс</option>
-                    <option value="7-8">7-8 класс</option>
-                    <option value="9">9 класс (ОГЭ)</option>
-                    <option value="10-11">10-11 класс (ЕГЭ)</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Пароль</label><input type="password" id="regPassword" placeholder="минимум 6 символов"></div>
-            <button class="btn bg" style="width:100%" onclick="handleRegister()">Создать аккаунт</button>
-        </div>
-    </div>
-</div>
-
-<!-- Модалка отправки ДЗ -->
-<div class="modal-overlay" id="hwSubmitModal">
-    <div class="modal" style="max-width: 560px">
-        <div class="modal-header">
-            <h3>Сдать домашнее задание</h3>
-            <button class="modal-close" onclick="closeHWModal()">&times;</button>
-        </div>
-        <div class="form-group"><label>Задание</label><input type="text" id="hwSubmitTitle" readonly></div>
-        <div class="form-group"><label>Описание</label><textarea id="hwSubmitDesc" readonly rows="2"></textarea></div>
-        <div class="form-group"><label>Ваше решение</label><textarea id="hwSubmitSolution" placeholder="Напишите решение здесь..."></textarea></div>
-        <div class="form-group">
-            <label>Прикрепить фото</label>
-            <div class="file-zone" id="fileZone" onclick="document.getElementById('hwFileInput').click()">
-                <div style="font-size: 2rem; margin-bottom: 0.3rem">📷</div>
-                <div style="font-size: 0.8rem; color: var(--text3)">Нажмите или перетащите фото</div>
-            </div>
-            <input type="file" id="hwFileInput" accept="image/*" style="display: none" onchange="handleFileSelect(this)">
-            <div id="filePreview" class="file-preview" style="display: none">
-                <img id="previewImg" src="">
-                <span id="fileName"></span>
-                <button class="btn bo bsm" onclick="clearFile()">Удалить</button>
-            </div>
-        </div>
-        <div style="display: flex; gap: 0.8rem">
-            <button class="btn bg" style="flex:1" onclick="submitHomework()">Отправить</button>
-            <button class="btn bo" onclick="closeHWModal()">Отмена</button>
-        </div>
-    </div>
-</div>
-
-<!-- Главная страница -->
-<div id="homePage">
-    <nav>
-        <div class="nav-container">
-            <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
-            <div class="nav-buttons" id="navButtons">
-                <button class="btn bo" onclick="openAuthModal()">Войти</button>
-                <button class="btn bg" onclick="openAuthModal()">Начать</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="hero">
-        <h1>Logistical<br><em>Points</em></h1>
-        <p style="margin-top: 1rem; color: var(--text2); max-width: 550px">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов. Математика и физика с индивидуальным подходом.</p>
-        <div class="hero-buttons" style="display: flex; gap: 1rem; margin-top: 2rem">
-            <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
-        </div>
-    </div>
-
-    <div style="height:1px;background:var(--line)"></div>
-
-    <!-- Курсы -->
-    <div style="max-width:1200px;margin:0 auto;padding:4rem 2rem">
-        <h2 class="section-title" style="font-family:var(--fs);font-size:2rem;margin-bottom:0.5rem">Наши <em>курсы</em></h2>
-        <div class="course-grid" id="coursesGrid"></div>
-    </div>
-
-    <footer style="background:var(--bg2);border-top:1px solid var(--line);padding:2rem;text-align:center">
-        <div>Logistical <em style="color:var(--gold)">Points</em></div>
-        <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text3)">© 2025 Logistical Points</div>
-    </footer>
-</div>
-
-<!-- Личный кабинет ученика -->
-<div id="dashboard" class="dashboard">
-    <nav>
-        <div class="nav-container">
-            <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
-            <div class="nav-buttons"><button class="btn brs" onclick="handleLogout()">Выйти</button></div>
-        </div>
-    </nav>
-    <div class="dashboard-layout">
-        <div class="sidebar">
-            <div class="sidebar-user">
-                <div class="user-avatar" id="userAvatar">У</div>
-                <div class="user-name" id="userName"></div>
-                <div class="user-grade" id="userGrade"></div>
-            </div>
-            <ul class="sidebar-menu">
-                <li data-pane="overview" class="active" onclick="switchPane('overview', this)">📊 Обзор</li>
-                <li data-pane="courses" onclick="switchPane('courses', this)">📚 Мои курсы</li>
-                <li data-pane="homework" onclick="switchPane('homework', this); loadStudentHomework()">📝 Домашние задания</li>
-                <li data-pane="progress" onclick="switchPane('progress', this)">📈 Прогресс</li>
-            </ul>
-        </div>
-        <div class="main-content">
-            <div id="overviewPane" class="dashboard-pane active">
-                <h2 style="margin-bottom:1.5rem">Добро пожаловать, <span id="welcomeName" style="color:var(--gold)"></span>!</h2>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Уроков</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div>
-                </div>
-                <div class="admin-card"><h3>Продолжить обучение</h3><div id="continueLearning"></div></div>
-            </div>
-            <div id="coursesPane" class="dashboard-pane"><h2>Мои курсы</h2><div id="myCoursesList"></div><h2 style="margin-top:1.5rem">Доступные курсы</h2><div id="availableCoursesList"></div></div>
-            <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания</h2><div id="studentHomeworkList"></div></div>
-            <div id="progressPane" class="dashboard-pane"><h2>Прогресс по курсам</h2><div id="progressList"></div></div>
-        </div>
+<!-- Вход -->
+<div id="loginContainer" class="login-container">
+    <div class="login-card">
+        <h2>🔐 Logistical Points</h2>
+        <h2 style="font-size: 1rem; margin-top: -0.5rem; margin-bottom: 1rem;">Админ панель</h2>
+        <input type="email" id="adminEmail" placeholder="Email" value="kb.slash@mail.ru">
+        <input type="password" id="adminPassword" placeholder="Пароль">
+        <button class="btn btn-primary w-100" onclick="adminLogin()">Войти</button>
     </div>
 </div>
 
 <!-- Админ панель -->
-<div id="adminPanel" style="display: none">
-    <nav>
-        <div class="nav-container">
-            <div class="logo">Logistical <em>Points</em> <span style="font-size:0.7rem;margin-left:0.5rem;color:var(--gold)">Админ</span></div>
-            <div class="nav-buttons"><button class="btn brs" onclick="logoutAdmin()">Выйти</button></div>
-        </div>
-    </nav>
-    <div class="dashboard-layout">
+<div id="adminPanel" style="display: none;">
+    <div class="admin-container">
         <div class="sidebar">
-            <div class="sidebar-user"><div class="user-avatar">A</div><div class="user-name">Администратор</div><div class="user-grade">kb.slash@mail.ru</div></div>
+            <h3>📊 Logistical Points</h3>
             <ul class="sidebar-menu">
-                <li data-admin="dashboard" class="active" onclick="switchAdminPane('dashboard', this)">📊 Дашборд</li>
-                <li data-admin="homework" onclick="switchAdminPane('homework', this); loadAdminHomework()">📝 ДЗ (все)</li>
-                <li data-admin="addHomework" onclick="switchAdminPane('addHomework', this)">➕ Добавить ДЗ</li>
-                <li data-admin="courses" onclick="switchAdminPane('courses', this)">📚 Курсы</li>
-                <li data-admin="students" onclick="switchAdminPane('students', this); loadStudents()">👥 Ученики</li>
+                <li data-tab="dashboard" class="active" onclick="switchTab('dashboard')">📈 Дашборд</li>
+                <li data-tab="students" onclick="switchTab('students'); loadStudents()">👥 Ученики</li>
+                <li data-tab="homework" onclick="switchTab('homework'); loadAllHomework()">📝 ДЗ на проверку</li>
+                <li data-tab="addHomework" onclick="switchTab('addHomework')">➕ Добавить ДЗ</li>
+                <li data-tab="allHomework" onclick="switchTab('allHomework'); loadAllHomeworkHistory()">📋 Все ДЗ</li>
             </ul>
         </div>
         <div class="main-content">
-            <div id="adminDashboard" class="dashboard-pane active">
-                <h2>Админ-дашборд</h2>
-                <div class="stats-grid" id="adminStats"></div>
-                <div class="admin-card"><h3>Последние ДЗ на проверке</h3><div id="pendingHomeworkList"></div></div>
+            <!-- Дашборд -->
+            <div id="dashboardTab" class="tab-content active">
+                <div class="card">
+                    <h3>📊 Статистика</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: var(--bg2); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--gold)" id="statStudents">0</div>
+                            <div style="font-size: 0.75rem; color: var(--text3)">Учеников</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: var(--bg2); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--blue2)" id="statCourses">0</div>
+                            <div style="font-size: 0.75rem; color: var(--text3)">Записей на курсы</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: var(--bg2); border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--green)" id="statHomeworkPending">0</div>
+                            <div style="font-size: 0.75rem; color: var(--text3)">ДЗ на проверке</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📝 Последние ДЗ на проверке</h3>
+                    <div id="recentHomeworkList"></div>
+                </div>
             </div>
-            <div id="adminHomework" class="dashboard-pane"><h2>Все домашние задания</h2><div id="allHomeworkList"></div></div>
-            <div id="adminAddHomework" class="dashboard-pane">
-                <h2>Добавить домашнее задание</h2>
-                <div class="admin-card">
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="adminHwTitle" placeholder="Заголовок задания"></div>
-                    <div class="form-group"><label>Описание</label><textarea id="adminHwDesc" rows="3" placeholder="Условие задачи..."></textarea></div>
+
+            <!-- Ученики -->
+            <div id="studentsTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header"><h3>👥 Список учеников</h3></div>
+                    <div id="studentsList"></div>
+                </div>
+            </div>
+
+            <!-- ДЗ на проверку -->
+            <div id="homeworkTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header"><h3>📝 Домашние задания на проверку</h3></div>
+                    <div id="pendingHomeworkList"></div>
+                </div>
+            </div>
+
+            <!-- Добавить ДЗ -->
+            <div id="addHomeworkTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <h3>➕ Добавить домашнее задание</h3>
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="hwTitle" placeholder="Например: Алгебра - Квадратные уравнения"></div>
+                    <div class="form-group"><label>Описание / условие</label><textarea id="hwDescription" rows="4" placeholder="Текст задачи..."></textarea></div>
                     <div class="form-group"><label>Предмет</label>
-                        <select id="adminHwSubject" onchange="onAdminSubjectChange()">
+                        <select id="hwSubject" onchange="updateCourses()">
                             <option value="">Выберите предмет</option>
                             <option value="math">Математика</option>
                             <option value="physics">Физика</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Курс</label><select id="adminHwCourse"></select></div>
-                    <div class="form-group"><label>Кому (email ученика или 'all' для всех)</label><input type="text" id="adminHwTarget" placeholder="all или email@example.com"></div>
-                    <div class="form-group"><label>Срок сдачи</label><input type="date" id="adminHwDue"></div>
-                    <button class="btn bg" onclick="createHomework()">Создать задание</button>
+                    <div class="form-group"><label>Курс</label><select id="hwCourse"></select></div>
+                    <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all - для всех, или email@example.com"></div>
+                    <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
+                    <div class="form-group"><label>Фото к заданию (необязательно)</label><input type="file" id="hwImage" accept="image/*"></div>
+                    <button class="btn btn-primary w-100" onclick="createHomework()">➕ Создать задание</button>
                 </div>
             </div>
-            <div id="adminCourses" class="dashboard-pane"><h2>Управление курсами</h2><div id="adminCoursesList"></div></div>
-            <div id="adminStudents" class="dashboard-pane"><h2>Ученики</h2><div id="studentsList"></div></div>
+
+            <!-- Все ДЗ -->
+            <div id="allHomeworkTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header"><h3>📋 История всех домашних заданий</h3></div>
+                    <div id="allHomeworkList"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+<!-- Модалка проверки ДЗ -->
+<div id="gradeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Проверка домашнего задания</h3>
+            <button class="modal-close" onclick="closeGradeModal()">&times;</button>
+        </div>
+        <div id="gradeModalContent"></div>
+        <div class="form-group"><label>Оценка (1-10)</label><input type="number" id="gradeValue" min="1" max="10" placeholder="8"></div>
+        <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
+        <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
+            <button class="btn btn-success" onclick="submitGrade('graded')">✓ Принять</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">↺ Вернуть на доработку</button>
+            <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ============ ДАННЫЕ ============
+const firebaseConfig = {
+    apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
+    authDomain: "logistical-points.firebaseapp.com",
+    projectId: "logistical-points",
+    storageBucket: "logistical-points.firebasestorage.app"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 const COURSES = [
-    { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", lessons: 48 },
-    { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", lessons: 40 },
-    { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Механика, термодинамика, электричество, оптика.", lessons: 55 },
-    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", lessons: 60 }
+    { id: "algebra", name: "Алгебра", subject: "math" },
+    { id: "geometry", name: "Геометрия", subject: "math" },
+    { id: "physics", name: "Физика", subject: "physics" },
+    { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
 
-// ============ СОСТОЯНИЕ ============
-let currentUser = null;
-let userData = null;
-let currentHomeworkId = null;
-let currentFileData = null;
+let currentGradingHw = null;
 
-// ============ ХРАНЕНИЕ ============
-function saveToLocalStorage() {
-    if (currentUser && userData) {
-        localStorage.setItem("lp_user", JSON.stringify({ uid: currentUser.uid, email: currentUser.email, data: userData }));
-    }
+function showToast(msg, type) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-function loadFromLocalStorage() {
-    const saved = localStorage.getItem("lp_user");
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            currentUser = { uid: data.uid, email: data.email };
-            userData = data.data;
-            if (!userData.enrolledCourses) userData.enrolledCourses = [];
-            if (!userData.completedLessons) userData.completedLessons = [];
-            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            updateUIAfterLogin();
-            return true;
-        } catch(e) {}
-    }
-    return false;
-}
-
-function clearLocalStorage() {
-    localStorage.removeItem("lp_user");
-    currentUser = null;
-    userData = null;
-}
-
-// ============ АВТОРИЗАЦИЯ ============
-function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
-function closeAuthModal() { document.getElementById("authModal").classList.remove("active"); }
-
-function switchAuthTab(tab) {
-    const loginPanel = document.getElementById("loginPanel");
-    const registerPanel = document.getElementById("registerPanel");
-    const tabs = document.querySelectorAll(".tab");
-    if (tab === "login") {
-        loginPanel.classList.add("active");
-        registerPanel.classList.remove("active");
-        tabs[0].classList.add("active");
-        tabs[1].classList.remove("active");
-        document.getElementById("authTitle").textContent = "Вход";
-    } else {
-        loginPanel.classList.remove("active");
-        registerPanel.classList.add("active");
-        tabs[0].classList.remove("active");
-        tabs[1].classList.add("active");
-        document.getElementById("authTitle").textContent = "Регистрация";
-    }
-}
-
-function handleLogin() {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-    if (!email || !password) { showToast("Заполните все поля", "error"); return; }
+// Вход
+function adminLogin() {
+    const email = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value;
     
-    // Проверка на админа
-    if (email === "kb.slash@mail.ru" && password === "admin123") {
-        showAdminPanel();
-        closeAuthModal();
+    if (email !== "kb.slash@mail.ru") {
+        showToast("Доступ запрещён. Только для администратора.", "error");
+        return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, password).then(async (userCredential) => {
+        const user = userCredential.user;
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
         showToast("Добро пожаловать в админ-панель!", "success");
-        return;
-    }
-    
-    const saved = localStorage.getItem("lp_user");
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            if (data.email === email) {
-                currentUser = { uid: data.uid, email: data.email };
-                userData = data.data;
-                updateUIAfterLogin();
-                closeAuthModal();
-                showToast("Добро пожаловать!", "success");
-                return;
-            }
-        } catch(e) {}
-    }
-    
-    const userId = "user_" + Date.now();
-    currentUser = { uid: userId, email: email };
-    userData = {
-        name: email.split("@")[0],
-        email: email,
-        grade: "",
-        enrolledCourses: [],
-        completedLessons: [],
-        homeworkSubmissions: []
-    };
-    saveToLocalStorage();
-    updateUIAfterLogin();
-    closeAuthModal();
-    showToast("Добро пожаловать!", "success");
-}
-
-function handleRegister() {
-    const name = document.getElementById("regName").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
-    const grade = document.getElementById("regGrade").value;
-    const password = document.getElementById("regPassword").value;
-    if (!name || !email || !grade || password.length < 6) {
-        showToast("Заполните все поля правильно", "error");
-        return;
-    }
-    const userId = "user_" + Date.now();
-    currentUser = { uid: userId, email: email };
-    userData = {
-        name: name, email: email, grade: grade,
-        enrolledCourses: [], completedLessons: [], homeworkSubmissions: []
-    };
-    saveToLocalStorage();
-    updateUIAfterLogin();
-    closeAuthModal();
-    showToast("Регистрация успешна!", "success");
-}
-
-function handleLogout() { clearLocalStorage(); location.reload(); }
-
-// ============ АДМИН ПАНЕЛЬ ============
-function showAdminPanel() {
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("dashboard").classList.remove("active");
-    document.getElementById("adminPanel").style.display = "block";
-    loadAdminDashboard();
-}
-
-function logoutAdmin() {
-    document.getElementById("adminPanel").style.display = "none";
-    document.getElementById("homePage").style.display = "block";
-}
-
-function switchAdminPane(paneId, el) {
-    document.querySelectorAll("#adminPanel .dashboard-pane").forEach(p => p.classList.remove("active"));
-    document.getElementById(`admin${paneId.charAt(0).toUpperCase() + paneId.slice(1)}`).classList.add("active");
-    document.querySelectorAll("#adminPanel .sidebar-menu li").forEach(li => li.classList.remove("active"));
-    if (el) el.classList.add("active");
-}
-
-function loadAdminDashboard() {
-    const allHomeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    const pending = allHomeworks.filter(h => h.status === "submitted");
-    const users = JSON.parse(localStorage.getItem("lp_users") || "[]");
-    document.getElementById("adminStats").innerHTML = `
-        <div class="stat-card"><div class="stat-number">${users.length}</div><div class="stat-label">Учеников</div></div>
-        <div class="stat-card"><div class="stat-number">${allHomeworks.length}</div><div class="stat-label">Всего ДЗ</div></div>
-        <div class="stat-card"><div class="stat-number">${pending.length}</div><div class="stat-label">На проверке</div></div>
-    `;
-    document.getElementById("pendingHomeworkList").innerHTML = pending.length ? pending.map(h => `
-        <div class="homework-item"><div><strong>${h.title}</strong><div style="font-size:0.8rem">${h.userName || h.userEmail}</div></div><button class="btn bg bsm" onclick="openGradeModal('${h.id}')">Проверить</button></div>
-    `).join("") : "<p>Нет ДЗ на проверке</p>";
-}
-
-function loadAdminHomework() {
-    const allHomeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    document.getElementById("allHomeworkList").innerHTML = allHomeworks.map(h => `
-        <div class="admin-card"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${h.title}</strong><div style="font-size:0.8rem">Ученик: ${h.userName || h.userEmail} | Статус: ${h.status}</div></div><button class="btn brs bsm" onclick="deleteHomework('${h.id}')">Удалить</button></div>
-        ${h.solution ? `<div style="margin-top:0.5rem;padding:0.5rem;background:var(--bg2);border-radius:8px"><strong>Решение:</strong> ${h.solution}</div>` : ""}
-        ${h.fileData ? `<div style="margin-top:0.5rem"><img src="${h.fileData}" style="max-width:150px;border-radius:8px"></div>` : ""}
-        ${h.feedback ? `<div style="margin-top:0.5rem;color:var(--blue2)"><strong>Фидбек:</strong> ${h.feedback}</div>` : ""}
-        ${h.grade ? `<div style="margin-top:0.5rem;color:var(--green)"><strong>Оценка:</strong> ${h.grade}/10</div>` : ""}
-        </div>
-    `).join("");
-}
-
-function onAdminSubjectChange() {
-    const subject = document.getElementById("adminHwSubject").value;
-    const courseSelect = document.getElementById("adminHwCourse");
-    if (subject === "math") {
-        courseSelect.innerHTML = `<option value="algebra">Алгебра</option><option value="geometry">Геометрия</option><option value="olymp">Олимпиадная математика</option>`;
-    } else if (subject === "physics") {
-        courseSelect.innerHTML = `<option value="physics">Физика</option>`;
-    }
-}
-
-function createHomework() {
-    const title = document.getElementById("adminHwTitle").value.trim();
-    const description = document.getElementById("adminHwDesc").value.trim();
-    const subject = document.getElementById("adminHwSubject").value;
-    const courseId = document.getElementById("adminHwCourse").value;
-    const target = document.getElementById("adminHwTarget").value.trim() || "all";
-    const dueDate = document.getElementById("adminHwDue").value;
-    if (!title || !subject || !courseId) { showToast("Заполните обязательные поля", "error"); return; }
-    
-    const homeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    const newHw = {
-        id: "hw_" + Date.now(),
-        title: title,
-        description: description,
-        subject: subject,
-        courseId: courseId,
-        userEmail: target,
-        userName: target === "all" ? "Все ученики" : target,
-        dueDate: dueDate,
-        status: "pending",
-        createdAt: new Date().toISOString()
-    };
-    homeworks.push(newHw);
-    localStorage.setItem("lp_homeworks", JSON.stringify(homeworks));
-    showToast("Задание создано!", "success");
-    document.getElementById("adminHwTitle").value = "";
-    document.getElementById("adminHwDesc").value = "";
-    loadAdminHomework();
-}
-
-function openGradeModal(hwId) {
-    const homeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    const hw = homeworks.find(h => h.id === hwId);
-    if (!hw) return;
-    const grade = prompt(`Оцените задание "${hw.title}" (1-10):`, "8");
-    if (grade && grade >= 1 && grade <= 10) {
-        const feedback = prompt("Комментарий ученику:", "Хорошая работа!");
-        hw.grade = grade;
-        hw.feedback = feedback;
-        hw.status = "graded";
-        localStorage.setItem("lp_homeworks", JSON.stringify(homeworks));
-        showToast("Задание проверено!", "success");
-        loadAdminDashboard();
-        loadAdminHomework();
-    }
-}
-
-function deleteHomework(id) {
-    if (!confirm("Удалить задание?")) return;
-    let homeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    homeworks = homeworks.filter(h => h.id !== id);
-    localStorage.setItem("lp_homeworks", JSON.stringify(homeworks));
-    showToast("Удалено", "success");
-    loadAdminHomework();
-}
-
-function loadStudents() {
-    const users = JSON.parse(localStorage.getItem("lp_users") || "[]");
-    document.getElementById("studentsList").innerHTML = users.map(u => `
-        <div class="admin-card"><div><strong>${u.name || u.email}</strong><div>Email: ${u.email} | Класс: ${u.grade || "не указан"}</div><div>Курсов: ${(u.enrolledCourses || []).length}</div></div></div>
-    `).join("");
-}
-
-// ============ UI ОБНОВЛЕНИЕ ============
-function updateUIAfterLogin() {
-    const navButtons = document.getElementById("navButtons");
-    if (navButtons) {
-        navButtons.innerHTML = `<span style="margin-right:0.5rem">${userData.name || userData.email}</span><button class="btn brs" onclick="handleLogout()">Выйти</button>`;
-    }
-    document.getElementById("userName").textContent = userData.name || userData.email.split("@")[0];
-    document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
-    document.getElementById("userAvatar").textContent = (userData.name ? userData.name[0] : "У").toUpperCase();
-    document.getElementById("welcomeName").textContent = userData.name || userData.email.split("@")[0];
-    
-    const enrolledCount = userData.enrolledCourses.length;
-    let totalLessons = 0;
-    userData.enrolledCourses.forEach(courseId => {
-        const course = COURSES.find(c => c.id === courseId);
-        if (course) totalLessons += course.lessons;
+        loadDashboard();
+    }).catch(error => {
+        showToast("Неверный пароль", "error");
     });
-    document.getElementById("statCourses").textContent = enrolledCount;
-    document.getElementById("statLessons").textContent = totalLessons;
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-    
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("dashboard").classList.add("active");
-    
-    renderCoursesGrid();
-    renderMyCourses();
-    renderAvailableCourses();
-    renderContinueLearning();
-    renderProgress();
-    loadStudentHomework();
 }
 
-function renderCoursesGrid() {
-    const container = document.getElementById("coursesGrid");
-    if (container) {
-        container.innerHTML = COURSES.map(course => `
-            <div class="course-card" onclick="enrollCourse('${course.id}')">
-                <div class="course-icon">${course.icon}</div>
-                <div class="course-info">
-                    <div class="course-name">${course.name}</div>
-                    <div class="course-desc">${course.desc}</div>
-                    <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button>
+// Переключение вкладок
+function switchTab(tab) {
+    document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
+    document.getElementById(`${tab}Tab`).style.display = "block";
+    document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
+    document.querySelector(`.sidebar-menu li[data-tab="${tab}"]`).classList.add("active");
+}
+
+// Дашборд
+async function loadDashboard() {
+    const usersSnap = await db.collection("users").get();
+    const users = [];
+    usersSnap.forEach(doc => users.push(doc.data()));
+    
+    let totalEnrollments = 0;
+    users.forEach(u => totalEnrollments += (u.enrolledCourses || []).length);
+    
+    const homeworksSnap = await db.collection("homeworks").get();
+    let pending = 0;
+    homeworksSnap.forEach(doc => { if (doc.data().status === "submitted") pending++; });
+    
+    document.getElementById("statStudents").textContent = users.length;
+    document.getElementById("statCourses").textContent = totalEnrollments;
+    document.getElementById("statHomeworkPending").textContent = pending;
+    
+    const pendingHw = [];
+    homeworksSnap.forEach(doc => {
+        const hw = doc.data();
+        if (hw.status === "submitted") pendingHw.push({ id: doc.id, ...hw });
+    });
+    
+    const recentContainer = document.getElementById("recentHomeworkList");
+    if (pendingHw.length === 0) {
+        recentContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
+    } else {
+        recentContainer.innerHTML = pendingHw.slice(0, 5).map(hw => `
+            <div class="homework-card">
+                <div class="justify-between">
+                    <div><span class="title">${hw.title}</span><div class="meta">${hw.userName || hw.userEmail} · ${hw.courseId}</div></div>
+                    <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
             </div>
         `).join("");
     }
 }
 
-function enrollCourse(courseId) {
-    if (!currentUser) { openAuthModal(); return; }
-    if (!userData.enrolledCourses.includes(courseId)) {
-        userData.enrolledCourses.push(courseId);
-        saveToLocalStorage();
-        showToast("Вы записаны на курс!", "success");
-        renderMyCourses();
-        renderAvailableCourses();
-        renderContinueLearning();
-        renderProgress();
-        document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
-        document.getElementById("statLessons").textContent += COURSES.find(c => c.id === courseId).lessons;
-    }
-    showToast(`Курс открыт!`, "info");
+// Ученики
+async function loadStudents() {
+    const usersSnap = await db.collection("users").get();
+    const users = [];
+    usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+    
+    const homeworksSnap = await db.collection("homeworks").get();
+    const submissions = [];
+    homeworksSnap.forEach(doc => {
+        const hw = doc.data();
+        if (hw.status === "submitted") submissions.push(hw);
+    });
+    
+    const container = document.getElementById("studentsList");
+    container.innerHTML = `
+        <table class="table">
+            <thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс</th><th>ДЗ сдано</th></tr></thead>
+            <tbody>
+                ${users.map(user => {
+                    const userSubmissions = submissions.filter(s => s.userEmail === user.email);
+                    const coursesList = (user.enrolledCourses || []).map(cid => {
+                        const course = COURSES.find(c => c.id === cid);
+                        return course ? course.name : cid;
+                    }).join(", ");
+                    return `
+                        <tr>
+                            <td><strong>${user.name || user.email.split("@")[0]}</strong></td>
+                            <td style="color: var(--text3); font-size: 0.8rem;">${user.email}</td>
+                            <td><span class="badge badge-pending">${user.grade || "—"}</span></td>
+                            <td style="font-size: 0.8rem;">${coursesList || "—"}</td>
+                            <td>—</td>
+                            <td>${userSubmissions.length}</td>
+                        </tr>
+                    `;
+                }).join("")}
+            </tbody>
+        </table>
+    `;
 }
 
-function renderMyCourses() {
-    const container = document.getElementById("myCoursesList");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Вы ещё не записаны ни на один курс.</p>"; return; }
-    container.innerHTML = enrolled.map(course => `
-        <div class="course-card" onclick="enrollCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
-        </div>
-    `).join("");
-}
-
-function renderAvailableCourses() {
-    const container = document.getElementById("availableCoursesList");
-    if (!container) return;
-    const available = COURSES.filter(c => !userData.enrolledCourses.includes(c.id));
-    if (available.length === 0) { container.innerHTML = "<p>Вы записаны на все курсы!</p>"; return; }
-    container.innerHTML = available.map(course => `
-        <div class="course-card" onclick="enrollCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Записаться</button></div>
-        </div>
-    `).join("");
-}
-
-function renderContinueLearning() {
-    const container = document.getElementById("continueLearning");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс чтобы начать.</p>"; return; }
-    container.innerHTML = enrolled.slice(0, 3).map(course => `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line)" onclick="enrollCourse('${course.id}')">
-            <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
-            <div style="flex:1"><div style="font-weight:700">${course.name}</div><div style="font-size:0.8rem;color:var(--text2)">${course.level}</div></div>
-            <button class="btn bg bsm">Открыть</button>
-        </div>
-    `).join("");
-}
-
-function renderProgress() {
-    const container = document.getElementById("progressList");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; return; }
-    container.innerHTML = enrolled.map(course => {
-        const completedCount = userData.completedLessons.filter(l => l.startsWith(course.id)).length;
-        const percent = course.lessons > 0 ? Math.round(completedCount / course.lessons * 100) : 0;
-        return `<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
-            <div style="display:flex;justify-content:space-between"><div><strong>${course.name}</strong></div><div style="color:var(--gold)">${percent}%</div></div>
-            <div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.5rem"><div style="width:${percent}%;height:100%;background:var(--gold);border-radius:3px"></div></div>
-            <div style="font-size:0.75rem;margin-top:0.5rem">${completedCount} из ${course.lessons} уроков</div>
-        </div>`;
-    }).join("");
-}
-
-function loadStudentHomework() {
-    const allHomeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    const userHomeworks = allHomeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
-    const submissions = userData.homeworkSubmissions || [];
-    const container = document.getElementById("studentHomeworkList");
-    if (userHomeworks.length === 0) { container.innerHTML = "<p>Нет домашних заданий.</p>"; return; }
-    container.innerHTML = userHomeworks.map(hw => {
-        const submitted = submissions.find(s => s.id === hw.id);
-        return `
-            <div class="homework-item">
-                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
-                <div style="flex:1">
-                    <div style="font-weight:700">${hw.title}</div>
-                    <div style="font-size:0.8rem;color:var(--text2)">${hw.description || "Нет описания"}</div>
-                    <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">${hw.subject} · Срок: ${hw.dueDate || "не указан"}</div>
-                    ${submitted && submitted.fileData ? `<img src="${submitted.fileData}" class="homework-image" onclick="window.open(this.src)">` : ""}
-                    ${submitted && submitted.solution ? `<div style="font-size:0.8rem;margin-top:0.3rem">Решение: ${submitted.solution}</div>` : ""}
-                    ${hw.feedback ? `<div style="font-size:0.8rem;color:var(--blue2);margin-top:0.3rem">💬 ${hw.feedback}</div>` : ""}
-                    ${hw.grade ? `<div style="font-size:0.8rem;color:var(--green);margin-top:0.3rem">⭐ Оценка: ${hw.grade}/10</div>` : ""}
-                </div>
-                ${!submitted ? `<button class="btn bg bsm" onclick="openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green)">✓ Сдано</span>`}
-            </div>
-        `;
-    }).join("");
-}
-
-function openHomeworkSubmit(id, title, description) {
-    currentHomeworkId = id;
-    document.getElementById("hwSubmitTitle").value = title;
-    document.getElementById("hwSubmitDesc").value = description;
-    document.getElementById("hwSubmitSolution").value = "";
-    clearFile();
-    openModal("hwSubmitModal");
-}
-
-function handleFileSelect(input) {
-    const file = input.files[0];
-    if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            currentFileData = e.target.result;
-            document.getElementById("previewImg").src = currentFileData;
-            document.getElementById("fileName").textContent = file.name;
-            document.getElementById("filePreview").style.display = "flex";
-        };
-        reader.readAsDataURL(file);
-    } else {
-        showToast("Пожалуйста, выберите изображение", "error");
-    }
-}
-
-function clearFile() {
-    currentFileData = null;
-    document.getElementById("filePreview").style.display = "none";
-    document.getElementById("hwFileInput").value = "";
-}
-
-function submitHomework() {
-    const solution = document.getElementById("hwSubmitSolution").value.trim();
-    if (!solution && !currentFileData) {
-        showToast("Напишите решение или прикрепите фото", "error");
+// Все ДЗ на проверку
+async function loadAllHomework() {
+    const snapshot = await db.collection("homeworks").get();
+    const homeworks = [];
+    snapshot.forEach(doc => {
+        const hw = doc.data();
+        if (hw.status === "submitted") homeworks.push({ id: doc.id, ...hw });
+    });
+    
+    const container = document.getElementById("pendingHomeworkList");
+    if (homeworks.length === 0) {
+        container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
         return;
     }
     
-    const allHomeworks = JSON.parse(localStorage.getItem("lp_homeworks") || "[]");
-    const hwIndex = allHomeworks.findIndex(h => h.id === currentHomeworkId);
-    if (hwIndex !== -1) {
-        allHomeworks[hwIndex].status = "submitted";
-        allHomeworks[hwIndex].solution = solution;
-        allHomeworks[hwIndex].fileData = currentFileData;
-        allHomeworks[hwIndex].submittedAt = new Date().toISOString();
-        localStorage.setItem("lp_homeworks", JSON.stringify(allHomeworks));
+    container.innerHTML = homeworks.map(hw => `
+        <div class="homework-card">
+            <div class="justify-between">
+                <div><span class="title">${hw.title}</span><div class="meta">${hw.userName || hw.userEmail} · ${hw.courseId} · Срок: ${hw.dueDate || "не указан"}</div></div>
+                <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
+            </div>
+            <div class="solution">${hw.solution ? hw.solution.substring(0, 200) : "Нет текстового решения"}</div>
+            ${hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : ""}
+        </div>
+    `).join("");
+}
+
+// История всех ДЗ
+async function loadAllHomeworkHistory() {
+    const snapshot = await db.collection("homeworks").get();
+    const homeworks = [];
+    snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+    homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    const container = document.getElementById("allHomeworkList");
+    if (homeworks.length === 0) {
+        container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных заданий</div>";
+        return;
     }
     
-    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-    userData.homeworkSubmissions.push({ id: currentHomeworkId, solution: solution, fileData: currentFileData, date: new Date().toISOString() });
-    saveToLocalStorage();
+    container.innerHTML = homeworks.map(hw => `
+        <div class="homework-card">
+            <div class="justify-between">
+                <div><span class="title">${hw.title}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : hw.userEmail} · ${hw.courseId} · Статус: ${hw.status}</div></div>
+                <div class="flex">
+                    ${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
+                    <button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button>
+                </div>
+            </div>
+            <div class="solution"><strong>Условие:</strong> ${hw.description || "Нет описания"}</div>
+            ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${hw.solution}</div>` : ""}
+            ${hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : ""}
+            ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${hw.feedback} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}
+        </div>
+    `).join("");
+}
+
+// Модалка проверки
+async function openGradeModal(hwId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    currentGradingHw = { id: hwId, ...doc.data() };
     
-    showToast("Задание отправлено на проверку!", "success");
-    closeHWModal();
-    loadStudentHomework();
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+    document.getElementById("gradeModalContent").innerHTML = `
+        <div><strong>${currentGradingHw.title}</strong></div>
+        <div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${currentGradingHw.userName || currentGradingHw.userEmail}</div>
+        <div class="solution"><strong>Решение:</strong> ${currentGradingHw.solution || "Нет текстового решения"}</div>
+        ${currentGradingHw.fileData ? `<img src="${currentGradingHw.fileData}" style="max-width: 200px;" onclick="window.open(this.src)">` : ""}
+    `;
+    document.getElementById("gradeValue").value = "";
+    document.getElementById("gradeFeedback").value = "";
+    document.getElementById("gradeModal").classList.add("active");
 }
 
-function closeHWModal() { closeModal("hwSubmitModal"); currentHomeworkId = null; clearFile(); }
-
-function switchPane(paneId, el) {
-    document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
-    document.getElementById(`${paneId}Pane`).classList.add("active");
-    document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
-    if (el) el.classList.add("active");
+function closeGradeModal() {
+    document.getElementById("gradeModal").classList.remove("active");
+    currentGradingHw = null;
 }
 
-function openModal(id) { document.getElementById(id).classList.add("active"); }
-function closeModal(id) { document.getElementById(id).classList.remove("active"); }
-
-function showToast(message, type) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-function showHome() {
-    if (currentUser) {
-        document.getElementById("homePage").style.display = "none";
-        document.getElementById("dashboard").classList.add("active");
-    } else {
-        document.getElementById("homePage").style.display = "block";
-        document.getElementById("dashboard").classList.remove("active");
+async function submitGrade(action) {
+    if (!currentGradingHw) return;
+    const grade = document.getElementById("gradeValue").value;
+    const feedback = document.getElementById("gradeFeedback").value;
+    
+    const updateData = {
+        status: action === "graded" ? "graded" : "returned",
+        feedback: feedback || "",
+        gradedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if (action === "graded" && grade && grade >= 1 && grade <= 10) {
+        updateData.grade = parseInt(grade);
     }
+    
+    await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
+    showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
+    closeGradeModal();
+    loadAllHomework();
+    loadAllHomeworkHistory();
+    loadDashboard();
 }
 
-function toggleTheme() {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (isDark) {
-        document.documentElement.removeAttribute("data-theme");
-        localStorage.setItem("lp_theme", "light");
-        document.getElementById("themeBtn").textContent = "🌙";
-    } else {
-        document.documentElement.setAttribute("data-theme", "dark");
-        localStorage.setItem("lp_theme", "dark");
-        document.getElementById("themeBtn").textContent = "☀️";
-    }
+async function deleteHomework(id) {
+    if (!confirm("Удалить задание?")) return;
+    await db.collection("homeworks").doc(id).delete();
+    showToast("Задание удалено", "success");
+    loadAllHomeworkHistory();
+    loadDashboard();
 }
 
-// Сохранение пользователей в localStorage для админки
-function saveUserToStorage() {
-    const users = JSON.parse(localStorage.getItem("lp_users") || "[]");
-    if (currentUser && !users.find(u => u.email === currentUser.email)) {
-        users.push({ uid: currentUser.uid, email: currentUser.email, name: userData.name, grade: userData.grade, enrolledCourses: userData.enrolledCourses });
-        localStorage.setItem("lp_users", JSON.stringify(users));
-    }
+// Создание ДЗ
+function updateCourses() {
+    const subject = document.getElementById("hwSubject").value;
+    const courseSelect = document.getElementById("hwCourse");
+    const available = COURSES.filter(c => c.subject === subject);
+    courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
 }
 
-// Инициализация
-function init() {
-    const savedTheme = localStorage.getItem("lp_theme");
-    if (savedTheme === "dark") {
-        document.documentElement.setAttribute("data-theme", "dark");
-        document.getElementById("themeBtn").textContent = "☀️";
+async function createHomework() {
+    const title = document.getElementById("hwTitle").value.trim();
+    const description = document.getElementById("hwDescription").value.trim();
+    const subject = document.getElementById("hwSubject").value;
+    const courseId = document.getElementById("hwCourse").value;
+    const target = document.getElementById("hwTarget").value.trim() || "all";
+    const dueDate = document.getElementById("hwDueDate").value;
+    const imageFile = document.getElementById("hwImage").files[0];
+    
+    if (!title || !subject || !courseId) {
+        showToast("Заполните заголовок, предмет и курс", "error");
+        return;
     }
-    renderCoursesGrid();
-    if (!loadFromLocalStorage()) {
-        showHome();
-    } else {
-        saveUserToStorage();
-        updateUIAfterLogin();
+    
+    let imageData = null;
+    if (imageFile) {
+        imageData = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(imageFile);
+        });
     }
+    
+    await db.collection("homeworks").add({
+        title, description, subject, courseId,
+        userEmail: target, userName: target === "all" ? "Все ученики" : target,
+        dueDate, imageData,
+        status: "pending",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    showToast("Задание создано!", "success");
+    document.getElementById("hwTitle").value = "";
+    document.getElementById("hwDescription").value = "";
+    document.getElementById("hwSubject").value = "";
+    document.getElementById("hwCourse").innerHTML = "";
+    document.getElementById("hwTarget").value = "";
+    document.getElementById("hwDueDate").value = "";
+    document.getElementById("hwImage").value = "";
 }
 
-init();
+// Автоматическая загрузка при входе
+auth.onAuthStateChanged(async (user) => {
+    if (user && user.email === "kb.slash@mail.ru") {
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        loadDashboard();
+    }
+});
 </script>
 </body>
 </html>
