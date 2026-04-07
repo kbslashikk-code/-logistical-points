@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Logistical Points - Образовательная платформа</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
 * {
     margin: 0;
@@ -24,12 +25,15 @@
     --blue2: #2a60e8;
     --blue3: rgba(26,72,200,0.1);
     --green: #157a38;
+    --green2: rgba(21,122,56,0.1);
     --red: #b81a1a;
+    --red2: rgba(184,26,26,0.1);
+    --orange: #c04010;
     --text: #1a1510;
     --text2: #5a4e38;
     --text3: #9a8a6a;
     --f: 'Segoe UI', Arial, sans-serif;
-    --fs: 'Georgia', 'Playfair Display', serif;
+    --fs: 'Playfair Display', Georgia, serif;
     --fm: 'Consolas', monospace;
 }
 
@@ -46,7 +50,10 @@
     --blue2: #7ba3ff;
     --blue3: rgba(59,110,245,0.1);
     --green: #22c55e;
+    --green2: rgba(34,197,94,0.1);
     --red: #ef4444;
+    --red2: rgba(239,68,68,0.1);
+    --orange: #f97316;
     --text: #f3f4f6;
     --text2: #9ca3af;
     --text3: #6b7280;
@@ -56,140 +63,9 @@ body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--f);
-    transition: background 0.3s, color 0.3s;
-    overflow-x: hidden;
+    transition: all 0.3s;
 }
 
-/* ============ ЗАГРУЗОЧНЫЙ ЭКРАН ============ */
-.loader-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-}
-
-.loader-screen.hide {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.loader-content {
-    text-align: center;
-}
-
-.loader-logo {
-    font-family: var(--fs);
-    font-size: 3rem;
-    font-weight: 900;
-    color: var(--text);
-    margin-bottom: 2rem;
-}
-
-.loader-logo em {
-    color: var(--gold);
-    font-style: italic;
-}
-
-.loader-spinner {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 1.5rem;
-    border: 3px solid var(--gold3);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loader-text {
-    color: var(--text2);
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-}
-
-.loader-progress {
-    width: 200px;
-    height: 2px;
-    background: var(--gold3);
-    margin: 1rem auto 0;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.loader-progress-bar {
-    width: 0%;
-    height: 100%;
-    background: var(--gold);
-    transition: width 0.3s ease;
-}
-
-/* ============ АНИМАЦИИ ПОЯВЛЕНИЯ ============ */
-.fade-up {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-up.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.fade-left {
-    opacity: 0;
-    transform: translateX(-30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-left.visible {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.fade-right {
-    opacity: 0;
-    transform: translateX(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-right.visible {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.scale-in {
-    opacity: 0;
-    transform: scale(0.95);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.scale-in.visible {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.stagger-item {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.stagger-item.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Кнопки */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -204,43 +80,13 @@ body {
     font-size: 0.95rem;
 }
 
-.btn.bg {
-    background: var(--gold);
-    color: white;
-}
+.btn.bg { background: var(--gold); color: white; }
+.btn.bg:hover { background: var(--gold2); transform: translateY(-2px); }
+.btn.bo { background: transparent; border: 2px solid var(--line); color: var(--text); }
+.btn.bo:hover { border-color: var(--gold); color: var(--gold); }
+.btn.brs { background: var(--red2); color: var(--red); }
+.bsm { padding: 0.4rem 1rem; font-size: 0.8rem; }
 
-.btn.bg:hover {
-    background: var(--gold2);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(154,112,24,0.3);
-}
-
-.btn.bo {
-    background: transparent;
-    border: 2px solid var(--line);
-    color: var(--text);
-}
-
-.btn.bo:hover {
-    border-color: var(--gold);
-    color: var(--gold);
-}
-
-.btn.brs {
-    background: rgba(184,26,26,0.1);
-    color: var(--red);
-}
-
-.btn.brs:hover {
-    background: rgba(184,26,26,0.2);
-}
-
-.bsm {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-}
-
-/* Навигация */
 nav {
     position: fixed;
     top: 0;
@@ -269,38 +115,8 @@ nav {
     color: var(--text);
 }
 
-.logo em {
-    color: var(--gold);
-    font-style: italic;
-}
+.logo em { color: var(--gold); font-style: italic; }
 
-.nav-links {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-}
-
-.nav-links a {
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    color: var(--text2);
-    text-decoration: none;
-    cursor: pointer;
-    font-weight: 700;
-    transition: all 0.2s;
-}
-
-.nav-links a:hover {
-    background: var(--card2);
-    color: var(--text);
-}
-
-.nav-buttons {
-    display: flex;
-    gap: 0.7rem;
-}
-
-/* Модальные окна */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -312,9 +128,7 @@ nav {
     justify-content: center;
 }
 
-.modal-overlay.active {
-    display: flex;
-}
+.modal-overlay.active { display: flex; }
 
 .modal {
     background: var(--card);
@@ -327,14 +141,8 @@ nav {
 }
 
 @keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .modal-header {
@@ -342,11 +150,6 @@ nav {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-}
-
-.modal-header h3 {
-    font-family: var(--fs);
-    font-size: 1.3rem;
 }
 
 .modal-close {
@@ -369,7 +172,7 @@ nav {
     margin-bottom: 0.3rem;
 }
 
-.form-group input, .form-group select {
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
     padding: 0.7rem 1rem;
     background: var(--bg2);
@@ -377,12 +180,6 @@ nav {
     border-radius: 10px;
     color: var(--text);
     font-size: 0.95rem;
-    transition: border 0.2s;
-}
-
-.form-group input:focus, .form-group select:focus {
-    outline: none;
-    border-color: var(--gold);
 }
 
 .tabs {
@@ -400,23 +197,12 @@ nav {
     cursor: pointer;
     font-weight: 700;
     color: var(--text2);
-    transition: all 0.2s;
 }
 
-.tab.active {
-    background: var(--gold);
-    color: white;
-}
+.tab.active { background: var(--gold); color: white; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
 
-.tab-pane {
-    display: none;
-}
-
-.tab-pane.active {
-    display: block;
-}
-
-/* Герой секция */
 .hero {
     min-height: 100vh;
     display: flex;
@@ -425,17 +211,6 @@ nav {
     justify-content: center;
     text-align: center;
     padding: 6rem 2rem 4rem;
-    position: relative;
-}
-
-.hero-badge {
-    display: inline-flex;
-    background: var(--gold3);
-    padding: 0.3rem 1.2rem;
-    border-radius: 30px;
-    color: var(--gold);
-    font-size: 0.85rem;
-    margin-bottom: 1.5rem;
 }
 
 .hero h1 {
@@ -443,292 +218,52 @@ nav {
     font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 900;
     line-height: 1;
-    color: var(--text);
 }
 
-.hero h1 em {
-    color: var(--gold);
-    font-style: italic;
-}
+.hero h1 em { color: var(--gold); font-style: italic; }
 
-.hero p {
-    max-width: 550px;
-    margin-top: 1.5rem;
-    color: var(--text2);
-    font-size: 1.1rem;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.hero-stats {
-    display: flex;
-    gap: 3rem;
-    margin-top: 4rem;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--gold);
-}
-
-.stat-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    color: var(--text3);
-    letter-spacing: 1px;
-}
-
-/* Секции */
-.section {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 5rem 2rem;
-}
-
-.section-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--gold);
-    margin-bottom: 0.5rem;
-}
-
-.section-title {
-    font-family: var(--fs);
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-}
-
-.section-title em {
-    color: var(--gold);
-    font-style: italic;
-}
-
-.section-subtitle {
-    color: var(--text2);
-    margin-bottom: 2rem;
-    font-size: 1rem;
-    max-width: 600px;
-}
-
-/* Карточки курсов - УЛУЧШЕННЫЕ */
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
     margin-top: 2rem;
 }
 
 .course-card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    position: relative;
+    transition: all 0.3s;
 }
 
 .course-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-4px);
     border-color: var(--gold);
-    box-shadow: 0 20px 30px -12px rgba(0,0,0,0.15);
-}
-
-.course-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.course-card:hover::before {
-    transform: scaleX(1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
 .course-icon {
-    height: 120px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
-    font-weight: 900;
+    font-size: 2.5rem;
     background: linear-gradient(135deg, var(--gold3), transparent);
-    position: relative;
 }
 
-.course-icon span {
-    transition: transform 0.3s ease;
-}
+.course-info { padding: 1.2rem; }
+.course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; }
 
-.course-card:hover .course-icon span {
-    transform: scale(1.1);
-}
-
-.course-level {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: var(--gold);
-    color: white;
-    padding: 0.2rem 0.6rem;
-    border-radius: 20px;
-    font-size: 0.65rem;
-    font-weight: 700;
-}
-
-.course-info {
-    padding: 1.3rem;
-}
-
-.course-name {
-    font-family: var(--fs);
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.course-stats {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 0.8rem;
-    font-size: 0.7rem;
-    color: var(--text3);
-}
-
-.course-stats span {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-.course-desc {
-    font-size: 0.9rem;
-    color: var(--text2);
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.course-topics {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-}
-
-.topic-tag {
-    background: var(--bg2);
-    padding: 0.2rem 0.6rem;
-    border-radius: 15px;
-    font-size: 0.7rem;
-    color: var(--text2);
-}
-
-.course-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.5rem;
-}
-
-.course-price {
-    font-weight: 700;
-    color: var(--gold);
-}
-
-.course-price free {
-    color: var(--green);
-}
-
-/* Секция физики - специальный стиль */
-.physics-section {
-    background: linear-gradient(135deg, var(--bg), var(--blue3));
-}
-
-/* Шаги */
-.steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-}
-
-.step {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.step:hover {
-    transform: translateY(-4px);
-    border-color: var(--gold);
-}
-
-.step-number {
-    width: 45px;
-    height: 45px;
-    background: var(--gold3);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: var(--gold);
-    margin: 0 auto 1rem;
-}
-
-.step-title {
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.step-desc {
-    font-size: 0.85rem;
-    color: var(--text2);
-}
-
-/* Футер */
-footer {
-    background: var(--bg2);
-    border-top: 1px solid var(--line);
-    padding: 2rem;
-    text-align: center;
-}
-
-/* Личный кабинет */
 .dashboard {
     display: none;
     min-height: 100vh;
     padding-top: 70px;
 }
 
-.dashboard.active {
-    display: block;
-}
+.dashboard.active { display: block; }
 
 .dashboard-layout {
     display: flex;
@@ -740,15 +275,6 @@ footer {
     background: var(--bg2);
     border-right: 1px solid var(--line);
     padding: 1.5rem;
-    transition: width 0.3s;
-}
-
-.sidebar.collapsed {
-    width: 70px;
-}
-
-.sidebar.collapsed .sidebar-text {
-    display: none;
 }
 
 .sidebar-user {
@@ -772,15 +298,6 @@ footer {
     margin: 0 auto 0.5rem;
 }
 
-.user-name {
-    font-weight: 700;
-}
-
-.user-grade {
-    font-size: 0.7rem;
-    color: var(--text3);
-}
-
 .sidebar-menu {
     list-style: none;
 }
@@ -792,18 +309,10 @@ footer {
     margin-bottom: 0.2rem;
     color: var(--text2);
     font-weight: 700;
-    transition: all 0.2s;
 }
 
-.sidebar-menu li:hover {
-    background: var(--card);
-    color: var(--text);
-}
-
-.sidebar-menu li.active {
-    background: var(--gold3);
-    color: var(--gold);
-}
+.sidebar-menu li:hover { background: var(--card); color: var(--text); }
+.sidebar-menu li.active { background: var(--gold3); color: var(--gold); }
 
 .main-content {
     flex: 1;
@@ -812,7 +321,7 @@ footer {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -823,35 +332,14 @@ footer {
     border-radius: 14px;
     padding: 1.2rem;
     text-align: center;
-    transition: all 0.3s;
 }
 
-.stat-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--gold);
-}
+.stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
+.stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
 
-.stat-number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--gold);
-}
+.dashboard-pane { display: none; }
+.dashboard-pane.active { display: block; }
 
-.stat-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    color: var(--text3);
-}
-
-.dashboard-pane {
-    display: none;
-}
-
-.dashboard-pane.active {
-    display: block;
-}
-
-/* ДЗ */
 .homework-item {
     display: flex;
     align-items: flex-start;
@@ -860,11 +348,7 @@ footer {
     background: var(--card2);
     border-radius: 12px;
     margin-bottom: 0.8rem;
-    transition: all 0.2s;
-}
-
-.homework-item:hover {
-    transform: translateX(4px);
+    cursor: pointer;
 }
 
 .homework-status {
@@ -873,12 +357,54 @@ footer {
     border-radius: 50%;
     margin-top: 0.4rem;
 }
-
 .status-pending { background: var(--gold); }
 .status-submitted { background: var(--blue); }
 .status-graded { background: var(--green); }
 
-/* Тост уведомления */
+.homework-image {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+.file-zone {
+    border: 2px dashed var(--line);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.file-zone:hover { border-color: var(--gold); background: var(--gold3); }
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+    padding: 0.5rem;
+    background: var(--bg2);
+    border-radius: 8px;
+}
+
+.file-preview img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.admin-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+}
+
 .toast-container {
     position: fixed;
     bottom: 1.5rem;
@@ -902,7 +428,6 @@ footer {
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* Тема */
 .theme-toggle {
     position: fixed;
     bottom: 1.5rem;
@@ -918,47 +443,20 @@ footer {
     justify-content: center;
     font-size: 1.2rem;
     z-index: 100;
-    transition: all 0.3s;
 }
 
-.theme-toggle:hover {
-    transform: scale(1.05);
-    border-color: var(--gold);
-}
-
-/* Адаптив */
 @media (max-width: 768px) {
-    .nav-links { display: none; }
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
     .course-grid { grid-template-columns: 1fr; }
-    .hero-stats { gap: 1.5rem; }
-    .hero h1 { font-size: 2.5rem; }
-}
-
-@media (max-width: 480px) {
-    .section { padding: 3rem 1rem; }
-    .hero { padding: 5rem 1rem 3rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- ЗАГРУЗОЧНЫЙ ЭКРАН -->
-<div class="loader-screen" id="loaderScreen">
-    <div class="loader-content">
-        <div class="loader-logo">Logistical <em>Points</em></div>
-        <div class="loader-spinner"></div>
-        <div class="loader-text" id="loaderText">Загрузка материалов...</div>
-        <div class="loader-progress">
-            <div class="loader-progress-bar" id="loaderProgressBar"></div>
-        </div>
-    </div>
-</div>
-
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Модальное окно авторизации -->
+<!-- Модалка авторизации -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header">
@@ -970,151 +468,89 @@ footer {
             <button class="tab" onclick="switchAuthTab('register')">Регистрация</button>
         </div>
         <div id="loginPanel" class="tab-pane active">
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" id="loginPassword" placeholder="••••••">
-            </div>
+            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
+            <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••"></div>
             <button class="btn bg" style="width:100%" onclick="handleLogin()">Войти</button>
-            <p style="text-align:center;margin-top:1rem;font-size:0.8rem">
-                <span style="color:var(--gold);cursor:pointer" onclick="showForgot()">Забыли пароль?</span>
-            </p>
+            <p style="text-align:center;margin-top:1rem;font-size:0.8rem"><span style="color:var(--gold);cursor:pointer" onclick="showResetPassword()">Забыли пароль?</span></p>
         </div>
         <div id="registerPanel" class="tab-pane">
-            <div class="form-group">
-                <label>Имя</label>
-                <input type="text" id="regName" placeholder="Иван Иванов">
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="regEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-                <label>Класс</label>
-                <select id="regGrade">
-                    <option value="">Выберите класс</option>
-                    <option value="1-4">1-4 класс</option>
-                    <option value="5-6">5-6 класс</option>
-                    <option value="7-8">7-8 класс</option>
-                    <option value="9">9 класс (ОГЭ)</option>
-                    <option value="10-11">10-11 класс (ЕГЭ)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" id="regPassword" placeholder="минимум 6 символов">
-            </div>
+            <div class="form-group"><label>Имя</label><input type="text" id="regName" placeholder="Иван Иванов"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
+            <div class="form-group"><label>Класс</label><select id="regGrade"><option value="">Выберите класс</option><option value="1-4">1-4 класс</option><option value="5-6">5-6 класс</option><option value="7-8">7-8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10-11 класс (ЕГЭ)</option></select></div>
+            <div class="form-group"><label>Пароль</label><input type="password" id="regPassword" placeholder="минимум 6 символов"></div>
             <button class="btn bg" style="width:100%" onclick="handleRegister()">Создать аккаунт</button>
         </div>
     </div>
 </div>
 
-<!-- Главная страница -->
+<!-- Модалка сброса пароля -->
+<div class="modal-overlay" id="resetModal">
+    <div class="modal">
+        <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
+        <div class="form-group"><label>Email</label><input type="email" id="resetEmail" placeholder="your@email.com"></div>
+        <button class="btn bg" style="width:100%" onclick="sendResetPassword()">Отправить ссылку</button>
+    </div>
+</div>
+
+<!-- Модалка просмотра ДЗ -->
+<div class="modal-overlay" id="homeworkViewModal">
+    <div class="modal" style="max-width: 600px">
+        <div class="modal-header"><h3 id="viewHwTitle"></h3><button class="modal-close" onclick="closeHomeworkView()">&times;</button></div>
+        <div id="viewHwContent"></div>
+    </div>
+</div>
+
+<!-- Модалка отправки ДЗ -->
+<div class="modal-overlay" id="hwSubmitModal">
+    <div class="modal" style="max-width: 560px">
+        <div class="modal-header"><h3>Сдать домашнее задание</h3><button class="modal-close" onclick="closeHWModal()">&times;</button></div>
+        <div class="form-group"><label>Задание</label><input type="text" id="hwSubmitTitle" readonly></div>
+        <div class="form-group"><label>Описание</label><div id="hwSubmitDesc" style="background:var(--bg2);padding:0.7rem;border-radius:8px;font-size:0.9rem"></div></div>
+        <div class="form-group"><label>Ваше решение</label><textarea id="hwSubmitSolution" placeholder="Напишите решение здесь..." rows="4"></textarea></div>
+        <div class="form-group">
+            <label>Прикрепить фото</label>
+            <div class="file-zone" onclick="document.getElementById('hwFileInput').click()">
+                <div style="font-size: 2rem">📷</div>
+                <div style="font-size: 0.8rem">Нажмите или перетащите фото</div>
+            </div>
+            <input type="file" id="hwFileInput" accept="image/*" style="display: none" onchange="handleFileSelect(this)">
+            <div id="filePreview" class="file-preview" style="display: none">
+                <img id="previewImg">
+                <span id="fileName"></span>
+                <button class="btn bo bsm" onclick="clearFile()">Удалить</button>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.8rem">
+            <button class="btn bg" style="flex:1" onclick="submitHomeworkAnswer()">Отправить</button>
+            <button class="btn bo" onclick="closeHWModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- Главная -->
 <div id="homePage">
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
-            <ul class="nav-links">
-                <li><a onclick="scrollToSection('math')">Математика</a></li>
-                <li><a onclick="scrollToSection('physics')">Физика</a></li>
-                <li><a onclick="scrollToSection('teacher')">Преподаватель</a></li>
-            </ul>
             <div class="nav-buttons" id="navButtons">
                 <button class="btn bo" onclick="openAuthModal()">Войти</button>
                 <button class="btn bg" onclick="openAuthModal()">Начать</button>
             </div>
         </div>
     </nav>
-
     <div class="hero">
-        <div class="hero-badge fade-up">✨ Будущее начинается с нами</div>
-        <h1 class="fade-up" style="transition-delay:0.1s">Logistical<br><em>Points</em></h1>
-        <p class="fade-up" style="transition-delay:0.2s">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов.<br>Математика и физика с индивидуальным подходом.</p>
-        <div class="hero-buttons fade-up" style="transition-delay:0.3s">
-            <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
-            <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
-        </div>
-        <div class="hero-stats fade-up" style="transition-delay:0.4s">
-            <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
-            <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
-            <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
-        </div>
+        <h1>Logistical<br><em>Points</em></h1>
+        <p style="margin-top:1rem;color:var(--text2);max-width:550px">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов</p>
+        <div style="display:flex;gap:1rem;margin-top:2rem"><button class="btn bg" onclick="openAuthModal()">Начать учиться</button></div>
     </div>
-
     <div style="height:1px;background:var(--line)"></div>
-
-    <!-- Математика -->
-    <section id="math" class="section">
-        <div class="section-badge fade-left">📐 Математика</div>
-        <h2 class="section-title fade-left" style="transition-delay:0.1s">От азов до <em>олимпиад</em></h2>
-        <p class="section-subtitle fade-left" style="transition-delay:0.2s">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
-        <div class="course-grid" id="mathCourses"></div>
-    </section>
-
-    <div style="height:1px;background:var(--line)"></div>
-
-    <!-- Физика (расширенная секция) -->
-    <section id="physics" class="section physics-section">
-        <div class="section-badge fade-right">⚡ Физика</div>
-        <h2 class="section-title fade-right" style="transition-delay:0.1s">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
-        <p class="section-subtitle fade-right" style="transition-delay:0.2s">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
-        <div class="course-grid" id="physicsCourses"></div>
-    </section>
-
-    <div style="height:1px;background:var(--line)"></div>
-
-    <!-- Как это работает -->
-    <section class="section">
-        <div style="text-align:center">
-            <div class="section-badge">📖 Как это работает</div>
-            <h2 class="section-title">Простой <em>процесс</em></h2>
-            <p class="section-subtitle" style="margin:0 auto">Всего 4 шага отделяют вас от новых знаний</p>
-        </div>
-        <div class="steps">
-            <div class="step stagger-item"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
-            <div class="step stagger-item"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
-            <div class="step stagger-item"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
-            <div class="step stagger-item"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
-        </div>
-    </section>
-
-    <div style="height:1px;background:var(--line)"></div>
-
-    <!-- Преподаватель -->
-    <section id="teacher" class="section">
-        <div style="display:flex;flex-wrap:wrap;gap:3rem;align-items:center">
-            <div style="flex:1;min-width:250px" class="fade-left">
-                <div style="background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line)">
-                    <div style="height:250px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center">
-                        <span style="font-size:5rem">👨‍🏫</span>
-                    </div>
-                    <div style="padding:1.2rem;text-align:center">
-                        <div style="font-weight:700">Егоров Степан Евгеньевич</div>
-                        <div style="font-size:0.7rem;color:var(--gold)">СПбГЭТУ «ЛЭТИ»</div>
-                    </div>
-                </div>
-            </div>
-            <div style="flex:2" class="fade-right">
-                <div class="section-badge">👨‍🏫 Преподаватель</div>
-                <h2 class="section-title">Ваш <em>наставник</em></h2>
-                <p style="color:var(--text2);line-height:1.8">Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
-                <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями. Помогаю ученикам достигать высоких результатов на олимпиадах и экзаменах.</p>
-                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem">
-                    <span style="background:var(--gold3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🏆 Олимпиадная математика</span>
-                    <span style="background:var(--blue3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">⚡ Физика</span>
-                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">📝 ЕГЭ / ОГЭ</span>
-                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🎓 1-11 класс</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
+    <div style="max-width:1200px;margin:0 auto;padding:4rem 2rem">
+        <h2 style="font-family:var(--fs);font-size:2rem;margin-bottom:0.5rem">Наши <em>курсы</em></h2>
+        <div class="course-grid" id="coursesGrid"></div>
+    </div>
+    <footer style="background:var(--bg2);border-top:1px solid var(--line);padding:2rem;text-align:center">
         <div>Logistical <em style="color:var(--gold)">Points</em></div>
-        <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text3)">© 2025 Logistical Points · Егоров С.Е.</div>
+        <div style="margin-top:0.5rem;font-size:0.7rem">© 2025 Logistical Points</div>
     </footer>
 </div>
 
@@ -1123,264 +559,115 @@ footer {
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
-            <div class="nav-buttons">
-                <button class="btn brs" onclick="handleLogout()">Выйти</button>
-            </div>
+            <div class="nav-buttons"><button class="btn brs" onclick="handleLogout()">Выйти</button></div>
         </div>
     </nav>
     <div class="dashboard-layout">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-user">
-                <div class="user-avatar" id="userAvatar">У</div>
-                <div class="user-name" id="userName"></div>
-                <div class="user-grade" id="userGrade"></div>
-            </div>
+        <div class="sidebar">
+            <div class="sidebar-user"><div class="user-avatar" id="userAvatar">У</div><div class="user-name" id="userName"></div><div class="user-grade" id="userGrade"></div></div>
             <ul class="sidebar-menu">
-                <li data-pane="overview" class="active" onclick="switchDashboardPane('overview', this)">📊 Обзор</li>
-                <li data-pane="courses" onclick="switchDashboardPane('courses', this)">📚 Мои курсы</li>
-                <li data-pane="homework" onclick="switchDashboardPane('homework', this); loadHomework()">📝 Домашние задания</li>
-                <li data-pane="progress" onclick="switchDashboardPane('progress', this)">📈 Прогресс</li>
+                <li data-pane="overview" class="active" onclick="switchPane('overview', this)">📊 Обзор</li>
+                <li data-pane="courses" onclick="switchPane('courses', this)">📚 Мои курсы</li>
+                <li data-pane="homework" onclick="switchPane('homework', this); loadHomeworkCourses()">📝 Домашние задания</li>
+                <li data-pane="progress" onclick="switchPane('progress', this)">📈 Прогресс</li>
             </ul>
         </div>
         <div class="main-content">
             <div id="overviewPane" class="dashboard-pane active">
                 <h2 style="margin-bottom:1.5rem">Добро пожаловать, <span id="welcomeName" style="color:var(--gold)"></span>!</h2>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Уроков</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div>
+                <div class="stats-grid"><div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div><div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div></div>
+                <div class="admin-card"><h3>Продолжить обучение</h3><div id="continueLearning"></div></div>
+            </div>
+            <div id="coursesPane" class="dashboard-pane"><h2>Мои курсы</h2><div id="myCoursesList"></div><h2 style="margin-top:1.5rem">Доступные курсы</h2><div id="availableCoursesList"></div></div>
+            <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания по курсам</h2><div id="homeworkCoursesList"></div><div id="homeworkListByCourse" style="margin-top:1rem"></div></div>
+            <div id="progressPane" class="dashboard-pane"><h2>Прогресс по курсам</h2><div id="progressList"></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- Админ панель -->
+<div id="adminPanel" style="display: none">
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Logistical <em>Points</em> <span style="font-size:0.7rem;color:var(--gold)">Админ</span></div>
+            <div class="nav-buttons"><button class="btn brs" onclick="logoutAdmin()">Выйти</button></div>
+        </div>
+    </nav>
+    <div class="dashboard-layout">
+        <div class="sidebar">
+            <div class="sidebar-user"><div class="user-avatar">A</div><div class="user-name">Администратор</div><div class="user-grade">kb.slash@mail.ru</div></div>
+            <ul class="sidebar-menu">
+                <li data-admin="dashboard" class="active" onclick="switchAdminPane('dashboard', this)">📊 Дашборд</li>
+                <li data-admin="homework" onclick="switchAdminPane('homework', this); loadAdminHomework()">📝 Все ДЗ</li>
+                <li data-admin="addHomework" onclick="switchAdminPane('addHomework', this)">➕ Добавить ДЗ</li>
+                <li data-admin="students" onclick="switchAdminPane('students', this); loadStudents()">👥 Ученики</li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div id="adminDashboard" class="dashboard-pane active"><h2>Админ-дашборд</h2><div class="stats-grid" id="adminStats"></div><div class="admin-card"><h3>ДЗ на проверке</h3><div id="pendingHomeworkList"></div></div></div>
+            <div id="adminHomework" class="dashboard-pane"><h2>Все домашние задания</h2><div id="allHomeworkList"></div></div>
+            <div id="adminAddHomework" class="dashboard-pane">
+                <h2>Добавить домашнее задание</h2>
+                <div class="admin-card">
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="adminHwTitle" placeholder="Заголовок задания"></div>
+                    <div class="form-group"><label>Описание / условие</label><textarea id="adminHwDesc" rows="4" placeholder="Условие задачи..."></textarea></div>
+                    <div class="form-group"><label>Предмет</label><select id="adminHwSubject" onchange="onAdminSubjectChange()"><option value="">Выберите</option><option value="math">Математика</option><option value="physics">Физика</option></select></div>
+                    <div class="form-group"><label>Курс</label><select id="adminHwCourse"></select></div>
+                    <div class="form-group"><label>Кому (email или 'all')</label><input type="text" id="adminHwTarget" placeholder="all или email@example.com"></div>
+                    <div class="form-group"><label>Срок сдачи</label><input type="date" id="adminHwDue"></div>
+                    <div class="form-group"><label>Фото к заданию (необязательно)</label><input type="file" id="adminHwImage" accept="image/*"></div>
+                    <button class="btn bg" onclick="createHomework()">Создать задание</button>
                 </div>
-                <div style="background:var(--card);border-radius:14px;padding:1.2rem;border:1px solid var(--line)">
-                    <h3 style="margin-bottom:1rem">Продолжить обучение</h3>
-                    <div id="continueLearning"></div>
-                </div>
             </div>
-            <div id="coursesPane" class="dashboard-pane">
-                <h2 style="margin-bottom:1rem">Мои курсы</h2>
-                <div id="myCoursesList"></div>
-                <h2 style="margin:1.5rem 0 1rem">Доступные курсы</h2>
-                <div id="availableCoursesList"></div>
-            </div>
-            <div id="homeworkPane" class="dashboard-pane">
-                <h2 style="margin-bottom:1rem">Домашние задания</h2>
-                <div id="homeworkList"></div>
-            </div>
-            <div id="progressPane" class="dashboard-pane">
-                <h2 style="margin-bottom:1rem">Прогресс по курсам</h2>
-                <div id="progressList"></div>
-            </div>
+            <div id="adminStudents" class="dashboard-pane"><h2>Ученики</h2><div id="studentsList"></div></div>
         </div>
     </div>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <script>
-// ============ ДАННЫЕ ============
+// Firebase конфигурация
+const firebaseConfig = {
+    apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
+    authDomain: "logistical-points.firebaseapp.com",
+    projectId: "logistical-points",
+    storageBucket: "logistical-points.firebasestorage.app",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:abc123def456"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Курсы (без количества уроков)
 const COURSES = [
-    { 
-        id: "algebra", 
-        name: "Алгебра с нуля до олимпиады", 
-        level: "5-11 класс", 
-        icon: "∑", 
-        subject: "math", 
-        desc: "Полный курс алгебры от простых уравнений до сложных олимпиадных задач. Разбор всех типов уравнений, неравенств, прогрессий и многочленов.", 
-        topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены", "Олимпиадные задачи"],
-        lessons: 48,
-        duration: "48 уроков",
-        price: "Бесплатно"
-    },
-    { 
-        id: "geometry", 
-        name: "Геометрия", 
-        level: "7-11 класс", 
-        icon: "△", 
-        subject: "math", 
-        desc: "Изучение геометрических фигур, теорем и доказательств. Планиметрия, стереометрия, векторы и координаты.", 
-        topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия", "Векторы"],
-        lessons: 40,
-        duration: "40 уроков",
-        price: "Бесплатно"
-    },
-    { 
-        id: "logic", 
-        name: "Логика и задачи на смекалку", 
-        level: "1-6 класс", 
-        icon: "∀", 
-        subject: "math", 
-        desc: "Развитие логического мышления через увлекательные задачи. Головоломки, ребусы, задачи на переливание и взвешивание.", 
-        topics: ["Логические задачи", "Головоломки", "Переливание", "Взвешивание", "Закономерности"],
-        lessons: 24,
-        duration: "24 урока",
-        price: "Бесплатно"
-    },
-    { 
-        id: "olymp", 
-        name: "Олимпиадная математика", 
-        level: "8-11 класс", 
-        icon: "🏆", 
-        subject: "math", 
-        desc: "Углубленная подготовка к Всероссийской олимпиаде школьников, Перельману, Эйлеру. Разбор сложных задач и нестандартных подходов.", 
-        topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия", "Архив задач ВсОШ"],
-        lessons: 60,
-        duration: "60 уроков",
-        price: "Бесплатно"
-    },
-    { 
-        id: "ege", 
-        name: "Подготовка к ОГЭ и ЕГЭ", 
-        level: "9 и 11 класс", 
-        icon: "✓", 
-        subject: "math", 
-        desc: "Полная подготовка к государственным экзаменам. Разбор всех типов заданий, стратегии решения, пробные варианты.", 
-        topics: ["ОГЭ часть 1", "ОГЭ геометрия", "ЕГЭ база", "ЕГЭ профиль", "Пробные варианты"],
-        lessons: 52,
-        duration: "52 урока",
-        price: "Бесплатно"
-    },
-    { 
-        id: "combo", 
-        name: "Комбинаторика и теория вероятностей", 
-        level: "7-11 класс", 
-        icon: "C", 
-        subject: "math", 
-        desc: "Изучение комбинаторных методов и теории вероятностей. Перестановки, сочетания, размещения, формулы вероятности.", 
-        topics: ["Перестановки", "Сочетания", "Размещения", "Вероятность", "Математическое ожидание"],
-        lessons: 28,
-        duration: "28 уроков",
-        price: "Бесплатно"
-    },
-    { 
-        id: "physics", 
-        name: "Физика: от механики до квантового мира", 
-        level: "7-11 класс", 
-        icon: "F", 
-        subject: "physics", 
-        desc: "Полный курс физики для школьников. Подробный разбор всех разделов: от кинематики до квантовой физики. Подготовка к ОГЭ, ЕГЭ и олимпиадам.", 
-        topics: ["Механика", "Термодинамика", "Электричество", "Магнетизм", "Оптика", "Квантовая физика", "Ядерная физика"],
-        lessons: 65,
-        duration: "65 уроков",
-        price: "Бесплатно"
-    }
+    { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены." },
+    { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения." },
+    { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Механика, термодинамика, электричество, оптика." },
+    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру." }
 ];
 
-// ============ СОСТОЯНИЕ ============
 let currentUser = null;
 let userData = null;
-
-// ============ ЗАГРУЗОЧНЫЙ ЭКРАН ============
-function showLoader() {
-    const loader = document.getElementById("loaderScreen");
-    const progressBar = document.getElementById("loaderProgressBar");
-    const loaderText = document.getElementById("loaderText");
-    
-    let progress = 0;
-    const steps = [
-        "Загрузка материалов...",
-        "Подготовка курсов...",
-        "Настройка интерфейса...",
-        "Почти готово..."
-    ];
-    
-    const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress > 100) progress = 100;
-        progressBar.style.width = progress + "%";
-        
-        const stepIndex = Math.floor(progress / 25);
-        if (stepIndex < steps.length) {
-            loaderText.textContent = steps[stepIndex];
-        }
-        
-        if (progress === 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-                loader.classList.add("hide");
-                setTimeout(() => {
-                    loader.style.display = "none";
-                    initAnimations();
-                }, 500);
-            }, 300);
-        }
-    }, 200);
-}
-
-// ============ АНИМАЦИИ ПОЯВЛЕНИЯ ============
-function initAnimations() {
-    const animatedElements = document.querySelectorAll('.fade-up, .fade-left, .fade-right, .scale-in, .stagger-item');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-    
-    animatedElements.forEach(el => observer.observe(el));
-    
-    // Stagger элементы
-    const staggerGroups = document.querySelectorAll('.steps .step, .course-card');
-    staggerGroups.forEach((el, index) => {
-        el.style.transitionDelay = (index * 0.05) + "s";
-        observer.observe(el);
-    });
-}
-
-// ============ ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ============
-function showToast(message, type = "info") {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-function saveToLocalStorage() {
-    if (currentUser && userData) {
-        localStorage.setItem("lp_user", JSON.stringify({ uid: currentUser.uid, email: currentUser.email, data: userData }));
-    }
-}
-
-function loadFromLocalStorage() {
-    const saved = localStorage.getItem("lp_user");
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            currentUser = { uid: data.uid, email: data.email };
-            userData = data.data;
-            if (!userData.enrolledCourses) userData.enrolledCourses = [];
-            if (!userData.completedLessons) userData.completedLessons = [];
-            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            updateUIAfterLogin();
-            return true;
-        } catch(e) {}
-    }
-    return false;
-}
-
-function clearLocalStorage() {
-    localStorage.removeItem("lp_user");
-    currentUser = null;
-    userData = null;
-}
+let currentHomework = null;
+let currentFileData = null;
 
 // ============ АВТОРИЗАЦИЯ ============
-function openAuthModal() {
-    document.getElementById("authModal").classList.add("active");
-}
-
-function closeAuthModal() {
-    document.getElementById("authModal").classList.remove("active");
-}
+function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
+function closeAuthModal() { document.getElementById("authModal").classList.remove("active"); }
+function openResetModal() { document.getElementById("resetModal").classList.add("active"); }
+function closeResetModal() { document.getElementById("resetModal").classList.remove("active"); }
 
 function switchAuthTab(tab) {
     const loginPanel = document.getElementById("loginPanel");
     const registerPanel = document.getElementById("registerPanel");
     const tabs = document.querySelectorAll(".tab");
-    
     if (tab === "login") {
         loginPanel.classList.add("active");
         registerPanel.classList.remove("active");
@@ -1396,44 +683,50 @@ function switchAuthTab(tab) {
     }
 }
 
+function showResetPassword() {
+    closeAuthModal();
+    openResetModal();
+}
+
+function sendResetPassword() {
+    const email = document.getElementById("resetEmail").value.trim();
+    if (!email) { showToast("Введите email", "error"); return; }
+    auth.sendPasswordResetEmail(email).then(() => {
+        showToast("Ссылка для сброса отправлена на почту", "success");
+        closeResetModal();
+    }).catch(error => { showToast(error.message, "error"); });
+}
+
 function handleLogin() {
     const email = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
+    if (!email || !password) { showToast("Заполните все поля", "error"); return; }
     
-    if (!email || !password) {
-        showToast("Заполните все поля", "error");
+    if (email === "kb.slash@mail.ru" && password === "admin123") {
+        showAdminPanel();
+        closeAuthModal();
         return;
     }
     
-    const saved = localStorage.getItem("lp_user");
-    if (saved) {
-        try {
-            const data = JSON.parse(saved);
-            if (data.email === email) {
-                currentUser = { uid: data.uid, email: data.email };
-                userData = data.data;
-                updateUIAfterLogin();
-                closeAuthModal();
-                showToast("Добро пожаловать!", "success");
-                return;
-            }
-        } catch(e) {}
-    }
-    
-    const userId = "user_" + Date.now();
-    currentUser = { uid: userId, email: email };
-    userData = {
-        name: email.split("@")[0],
-        email: email,
-        grade: "",
-        enrolledCourses: [],
-        completedLessons: [],
-        homeworkSubmissions: []
-    };
-    saveToLocalStorage();
-    updateUIAfterLogin();
-    closeAuthModal();
-    showToast("Добро пожаловать!", "success");
+    auth.signInWithEmailAndPassword(email, password).then(async (userCredential) => {
+        const user = userCredential.user;
+        if (!user.emailVerified) {
+            showToast("Подтвердите email. Проверьте почту!", "error");
+            auth.signOut();
+            return;
+        }
+        const doc = await db.collection("users").doc(user.uid).get();
+        if (doc.exists) {
+            userData = doc.data();
+        } else {
+            userData = { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+            await db.collection("users").doc(user.uid).set(userData);
+        }
+        currentUser = user;
+        updateUIAfterLogin();
+        closeAuthModal();
+        showToast("Добро пожаловать!", "success");
+    }).catch(error => { showToast(error.message, "error"); });
 }
 
 function handleRegister() {
@@ -1441,110 +734,64 @@ function handleRegister() {
     const email = document.getElementById("regEmail").value.trim();
     const grade = document.getElementById("regGrade").value;
     const password = document.getElementById("regPassword").value;
-    
     if (!name || !email || !grade || password.length < 6) {
-        showToast("Заполните все поля правильно (пароль мин. 6 символов)", "error");
+        showToast("Заполните все поля правильно", "error");
         return;
     }
-    
-    const userId = "user_" + Date.now();
-    currentUser = { uid: userId, email: email };
-    userData = {
-        name: name,
-        email: email,
-        grade: grade,
-        enrolledCourses: [],
-        completedLessons: [],
-        homeworkSubmissions: []
-    };
-    saveToLocalStorage();
-    updateUIAfterLogin();
-    closeAuthModal();
-    showToast("Регистрация успешна!", "success");
-}
-
-function showForgot() {
-    showToast("Ссылка для восстановления отправлена на ваш email", "info");
+    auth.createUserWithEmailAndPassword(email, password).then(async (userCredential) => {
+        const user = userCredential.user;
+        await user.sendEmailVerification();
+        userData = { name: name, email: email, grade: grade, enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+        await db.collection("users").doc(user.uid).set(userData);
+        showToast("Регистрация успешна! Подтвердите email", "success");
+        closeAuthModal();
+        await auth.signOut();
+    }).catch(error => { showToast(error.message, "error"); });
 }
 
 function handleLogout() {
-    clearLocalStorage();
-    location.reload();
+    auth.signOut().then(() => {
+        currentUser = null;
+        userData = null;
+        location.reload();
+    });
 }
 
-// ============ UI ОБНОВЛЕНИЕ ============
+// ============ UI ============
 function updateUIAfterLogin() {
-    const navButtons = document.getElementById("navButtons");
-    if (navButtons) {
-        navButtons.innerHTML = `<span style="color:var(--text2);margin-right:0.5rem">${userData.name || userData.email}</span>
-                                <button class="btn brs" onclick="handleLogout()">Выйти</button>`;
-    }
-    
-    document.getElementById("userName").textContent = userData.name || userData.email.split("@")[0];
+    document.getElementById("navButtons").innerHTML = `<span style="margin-right:0.5rem">${userData.name}</span><button class="btn brs" onclick="handleLogout()">Выйти</button>`;
+    document.getElementById("userName").textContent = userData.name;
     document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
-    document.getElementById("userAvatar").textContent = (userData.name ? userData.name[0] : "У").toUpperCase();
-    document.getElementById("welcomeName").textContent = userData.name || userData.email.split("@")[0];
-    
-    const enrolledCount = userData.enrolledCourses.length;
-    let totalLessons = 0;
-    userData.enrolledCourses.forEach(courseId => {
-        const course = COURSES.find(c => c.id === courseId);
-        if (course) totalLessons += course.lessons;
-    });
-    document.getElementById("statCourses").textContent = enrolledCount;
-    document.getElementById("statLessons").textContent = totalLessons;
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-    
+    document.getElementById("userAvatar").textContent = userData.name[0].toUpperCase();
+    document.getElementById("welcomeName").textContent = userData.name;
+    document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
+    document.getElementById("statHomework").textContent = (userData.homeworkSubmissions || []).length;
     document.getElementById("homePage").style.display = "none";
     document.getElementById("dashboard").classList.add("active");
-    
-    renderContinueLearning();
+    renderCoursesGrid();
     renderMyCourses();
     renderAvailableCourses();
+    renderContinueLearning();
     renderProgress();
-    loadHomework();
 }
 
-// ============ ОТОБРАЖЕНИЕ КУРСОВ ============
-function renderCourseCards(containerId, subjectFilter) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    
-    const filtered = subjectFilter ? COURSES.filter(c => c.subject === subjectFilter) : COURSES;
-    container.innerHTML = filtered.map(course => `
-        <div class="course-card scale-in" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon">
-                <span>${course.icon}</span>
-                <span class="course-level">${course.level}</span>
+function renderCoursesGrid() {
+    const container = document.getElementById("coursesGrid");
+    if (container) {
+        container.innerHTML = COURSES.map(course => `
+            <div class="course-card" onclick="enrollCourse('${course.id}')">
+                <div class="course-icon">${course.icon}</div>
+                <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
             </div>
-            <div class="course-info">
-                <div class="course-name">${course.name}</div>
-                <div class="course-stats">
-                    <span>📚 ${course.duration}</span>
-                    <span>⭐ ${course.lessons} уроков</span>
-                </div>
-                <div class="course-desc">${course.desc}</div>
-                <div class="course-topics">
-                    ${course.topics.slice(0, 3).map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
-                    ${course.topics.length > 3 ? `<span class="topic-tag">+${course.topics.length - 3}</span>` : ''}
-                </div>
-                <div class="course-footer">
-                    <span class="course-price">${course.price}</span>
-                    <button class="btn bg bsm">${currentUser ? "Открыть" : "Записаться"}</button>
-                </div>
-            </div>
-        </div>
-    `).join("");
-}
-
-function enrollAndOpenCourse(courseId) {
-    if (!currentUser) {
-        openAuthModal();
-        return;
+        `).join("");
     }
+}
+
+function enrollCourse(courseId) {
+    if (!currentUser) { openAuthModal(); return; }
     if (!userData.enrolledCourses.includes(courseId)) {
         userData.enrolledCourses.push(courseId);
-        saveToLocalStorage();
+        db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
         showToast("Вы записаны на курс!", "success");
         renderMyCourses();
         renderAvailableCourses();
@@ -1552,28 +799,17 @@ function enrollAndOpenCourse(courseId) {
         renderProgress();
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
     }
-    const course = COURSES.find(c => c.id === courseId);
-    showToast(`Курс "${course.name}" открыт. Уроки появятся soon!`, "info");
 }
 
 function renderMyCourses() {
     const container = document.getElementById("myCoursesList");
     if (!container) return;
-    
-    const enrolled = userData.enrolledCourses.map(courseId => COURSES.find(c => c.id === courseId)).filter(c => c);
-    if (enrolled.length === 0) {
-        container.innerHTML = "<p style='color:var(--text3)'>Вы ещё не записаны ни на один курс.</p>";
-        return;
-    }
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>Вы ещё не записаны ни на один курс.</p>"; return; }
     container.innerHTML = enrolled.map(course => `
-        <div class="course-card" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
-            <div class="course-info">
-                <div class="course-name">${course.name}</div>
-                <div class="course-stats"><span>📚 ${course.duration}</span><span>⭐ ${course.lessons} уроков</span></div>
-                <div class="course-desc">${course.desc}</div>
-                <div class="course-footer"><button class="btn bg bsm">Продолжить</button></div>
-            </div>
+        <div class="course-card" onclick="enrollCourse('${course.id}')">
+            <div class="course-icon">${course.icon}</div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
         </div>
     `).join("");
 }
@@ -1581,21 +817,12 @@ function renderMyCourses() {
 function renderAvailableCourses() {
     const container = document.getElementById("availableCoursesList");
     if (!container) return;
-    
     const available = COURSES.filter(c => !userData.enrolledCourses.includes(c.id));
-    if (available.length === 0) {
-        container.innerHTML = "<p style='color:var(--text3)'>Вы записаны на все доступные курсы!</p>";
-        return;
-    }
+    if (available.length === 0) { container.innerHTML = "<p>Вы записаны на все курсы!</p>"; return; }
     container.innerHTML = available.map(course => `
-        <div class="course-card" onclick="enrollAndOpenCourse('${course.id}')">
-            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
-            <div class="course-info">
-                <div class="course-name">${course.name}</div>
-                <div class="course-stats"><span>📚 ${course.duration}</span><span>⭐ ${course.lessons} уроков</span></div>
-                <div class="course-desc">${course.desc}</div>
-                <div class="course-footer"><button class="btn bg bsm">Записаться</button></div>
-            </div>
+        <div class="course-card" onclick="enrollCourse('${course.id}')">
+            <div class="course-icon">${course.icon}</div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Записаться</button></div>
         </div>
     `).join("");
 }
@@ -1603,16 +830,12 @@ function renderAvailableCourses() {
 function renderContinueLearning() {
     const container = document.getElementById("continueLearning");
     if (!container) return;
-    
-    const enrolled = userData.enrolledCourses.map(courseId => COURSES.find(c => c.id === courseId)).filter(c => c);
-    if (enrolled.length === 0) {
-        container.innerHTML = "<p style='color:var(--text3)'>Запишитесь на курс чтобы начать.</p>";
-        return;
-    }
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс чтобы начать.</p>"; return; }
     container.innerHTML = enrolled.slice(0, 3).map(course => `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="enrollAndOpenCourse('${course.id}')">
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line)" onclick="enrollCourse('${course.id}')">
             <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
-            <div style="flex:1"><div style="font-weight:700">${course.name}</div><div style="font-size:0.8rem;color:var(--text2)">${course.level}</div></div>
+            <div style="flex:1"><div style="font-weight:700">${course.name}</div></div>
             <button class="btn bg bsm">Открыть</button>
         </div>
     `).join("");
@@ -1621,71 +844,250 @@ function renderContinueLearning() {
 function renderProgress() {
     const container = document.getElementById("progressList");
     if (!container) return;
-    
-    const enrolled = userData.enrolledCourses.map(courseId => COURSES.find(c => c.id === courseId)).filter(c => c);
-    if (enrolled.length === 0) {
-        container.innerHTML = "<p style='color:var(--text3)'>Нет данных о прогрессе.</p>";
-        return;
-    }
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; return; }
     container.innerHTML = enrolled.map(course => {
-        const completedCount = userData.completedLessons.filter(l => l.startsWith(course.id)).length;
-        const percent = course.lessons > 0 ? Math.round(completedCount / course.lessons * 100) : 0;
-        return `
-            <div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-                    <div><span style="font-size:1.2rem;margin-right:0.5rem">${course.icon}</span><strong>${course.name}</strong></div>
-                    <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">${percent}%</div>
-                </div>
-                <div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">
-                    <div style="width:${percent}%;height:100%;background:var(--gold);border-radius:3px"></div>
-                </div>
-                <div style="font-size:0.75rem;color:var(--text3);margin-top:0.5rem">${completedCount} из ${course.lessons} уроков</div>
-            </div>
-        `;
+        const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
+        return `<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
+            <div style="display:flex;justify-content:space-between"><div><strong>${course.name}</strong></div></div>
+            <div style="font-size:0.75rem;margin-top:0.5rem">Выполнено материалов: ${completedCount}</div>
+        </div>`;
     }).join("");
 }
 
 // ============ ДОМАШНИЕ ЗАДАНИЯ ============
-const HOMEWORKS = [
-    { id: "hw1", title: "Алгебра: Решение уравнений", description: "Решите уравнения: 2x+5=15, 3(x-4)=2x+1, x²-5x+6=0", subject: "Алгебра", dueDate: "25.12.2024" },
-    { id: "hw2", title: "Геометрия: Теорема Пифагора", description: "Найдите гипотенузу прямоугольного треугольника с катетами 3 и 4. Найдите катет, если гипотенуза 10, а другой катет 6.", subject: "Геометрия", dueDate: "26.12.2024" },
-    { id: "hw3", title: "Физика: Законы Ньютона", description: "Тело массой 2 кг движется с ускорением 3 м/с². Найдите силу. Тело массой 5 кг под действием силы 20 Н. Найдите ускорение.", subject: "Физика", dueDate: "27.12.2024" },
-    { id: "hw4", title: "Физика: Кинематика", description: "Автомобиль разгоняется с 10 м/с до 30 м/с за 5 секунд. Найдите ускорение и пройденный путь.", subject: "Физика", dueDate: "28.12.2024" }
-];
+async function loadHomeworkCourses() {
+    const container = document.getElementById("homeworkCoursesList");
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>У вас нет активных курсов</p>"; return; }
+    container.innerHTML = enrolled.map(course => `
+        <div class="course-card" onclick="loadHomeworkByCourse('${course.id}')">
+            <div class="course-icon">${course.icon}</div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg bsm">Показать задания</button></div>
+        </div>
+    `).join("");
+    document.getElementById("homeworkListByCourse").innerHTML = "";
+}
 
-function loadHomework() {
-    const container = document.getElementById("homeworkList");
-    if (!container) return;
-    
-    const submittedIds = userData.homeworkSubmissions.map(s => s.id);
-    container.innerHTML = HOMEWORKS.map(hw => {
-        const submitted = submittedIds.includes(hw.id);
+async function loadHomeworkByCourse(courseId) {
+    const course = COURSES.find(c => c.id === courseId);
+    const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
+    const homeworks = [];
+    snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+    const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
+    const submissions = userData.homeworkSubmissions || [];
+    const container = document.getElementById("homeworkListByCourse");
+    if (filtered.length === 0) { container.innerHTML = "<p>Нет домашних заданий по этому курсу</p>"; return; }
+    container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
+        const submitted = submissions.find(s => s.id === hw.id);
         return `
-            <div class="homework-item">
+            <div class="homework-item" onclick="viewHomework('${hw.id}')">
                 <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
                 <div style="flex:1">
                     <div style="font-weight:700">${hw.title}</div>
-                    <div style="font-size:0.8rem;color:var(--text2);margin-top:0.2rem">${hw.description}</div>
-                    <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">${hw.subject} · Срок: ${hw.dueDate}</div>
+                    <div style="font-size:0.8rem;color:var(--text2)">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
+                    <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">Срок: ${hw.dueDate || "не указан"}</div>
+                    ${hw.grade ? `<div style="color:var(--green);margin-top:0.3rem">⭐ Оценка: ${hw.grade}/10</div>` : ""}
                 </div>
-                ${!submitted ? `<button class="btn bg bsm" onclick="submitHomework('${hw.id}', '${hw.title}')">Сдать</button>` : `<span style="color:var(--green);font-size:0.8rem">✓ Сдано</span>`}
+                ${!submitted ? `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green)">✓ Сдано</span>`}
             </div>
         `;
     }).join("");
 }
 
-function submitHomework(hwId, hwTitle) {
-    const answer = prompt(`Введите решение для "${hwTitle}":`);
-    if (answer && answer.trim()) {
-        userData.homeworkSubmissions.push({ id: hwId, title: hwTitle, answer: answer.trim(), date: new Date().toISOString() });
-        saveToLocalStorage();
-        showToast("Задание отправлено на проверку!", "success");
-        loadHomework();
-        document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+async function viewHomework(hwId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    document.getElementById("viewHwTitle").textContent = hw.title;
+    document.getElementById("viewHwContent").innerHTML = `
+        <div style="margin-bottom:1rem"><strong>Описание:</strong><div style="margin-top:0.5rem;padding:0.7rem;background:var(--bg2);border-radius:8px">${hw.description || "Нет описания"}</div></div>
+        ${hw.imageData ? `<div><strong>Фото к заданию:</strong><div style="margin-top:0.5rem"><img src="${hw.imageData}" style="max-width:100%;border-radius:8px;cursor:pointer" onclick="window.open(this.src)"></div></div>` : ""}
+        <div style="margin-top:1rem"><strong>Срок сдачи:</strong> ${hw.dueDate || "не указан"}</div>
+    `;
+    document.getElementById("homeworkViewModal").classList.add("active");
+}
+
+function closeHomeworkView() { document.getElementById("homeworkViewModal").classList.remove("active"); }
+
+function openHomeworkSubmit(id, title, description) {
+    currentHomework = { id, title, description };
+    document.getElementById("hwSubmitTitle").value = title;
+    document.getElementById("hwSubmitDesc").innerHTML = description;
+    document.getElementById("hwSubmitSolution").value = "";
+    clearFile();
+    document.getElementById("hwSubmitModal").classList.add("active");
+}
+
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentFileData = e.target.result;
+            document.getElementById("previewImg").src = currentFileData;
+            document.getElementById("fileName").textContent = file.name;
+            document.getElementById("filePreview").style.display = "flex";
+        };
+        reader.readAsDataURL(file);
+    } else { showToast("Выберите изображение", "error"); }
+}
+
+function clearFile() {
+    currentFileData = null;
+    document.getElementById("filePreview").style.display = "none";
+    document.getElementById("hwFileInput").value = "";
+}
+
+async function submitHomeworkAnswer() {
+    const solution = document.getElementById("hwSubmitSolution").value.trim();
+    if (!solution && !currentFileData) { showToast("Напишите решение или прикрепите фото", "error"); return; }
+    const hwRef = db.collection("homeworks").doc(currentHomework.id);
+    const hwDoc = await hwRef.get();
+    const hwData = hwDoc.data();
+    await hwRef.update({
+        status: "submitted",
+        solution: solution,
+        fileData: currentFileData,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userName: userData.name,
+        userEmail: currentUser.email
+    });
+    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
+    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+    showToast("Задание отправлено!", "success");
+    closeHWModal();
+    loadHomeworkByCourse(hwData.courseId);
+    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+}
+
+function closeHWModal() { document.getElementById("hwSubmitModal").classList.remove("active"); currentHomework = null; clearFile(); }
+
+// ============ АДМИНКА ============
+function showAdminPanel() {
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("dashboard").classList.remove("active");
+    document.getElementById("adminPanel").style.display = "block";
+    loadAdminDashboard();
+}
+
+function logoutAdmin() {
+    document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("homePage").style.display = "block";
+}
+
+function switchAdminPane(paneId, el) {
+    document.querySelectorAll("#adminPanel .dashboard-pane").forEach(p => p.classList.remove("active"));
+    document.getElementById(`admin${paneId.charAt(0).toUpperCase() + paneId.slice(1)}`).classList.add("active");
+    document.querySelectorAll("#adminPanel .sidebar-menu li").forEach(li => li.classList.remove("active"));
+    if (el) el.classList.add("active");
+}
+
+async function loadAdminDashboard() {
+    const usersSnap = await db.collection("users").get();
+    const homeworksSnap = await db.collection("homeworks").get();
+    const pending = [];
+    homeworksSnap.forEach(doc => { if (doc.data().status === "submitted") pending.push(doc.data()); });
+    document.getElementById("adminStats").innerHTML = `<div class="stat-card"><div class="stat-number">${usersSnap.size}</div><div class="stat-label">Учеников</div></div>
+        <div class="stat-card"><div class="stat-number">${homeworksSnap.size}</div><div class="stat-label">Всего ДЗ</div></div>
+        <div class="stat-card"><div class="stat-number">${pending.length}</div><div class="stat-label">На проверке</div></div>`;
+    document.getElementById("pendingHomeworkList").innerHTML = pending.length ? pending.map(h => `<div class="homework-item"><div><strong>${h.title}</strong><div>${h.userName || h.userEmail}</div></div><button class="btn bg bsm" onclick="openGradeModal('${h.id}')">Проверить</button></div>`).join("") : "<p>Нет ДЗ на проверке</p>";
+}
+
+async function loadAdminHomework() {
+    const snapshot = await db.collection("homeworks").get();
+    const homeworks = [];
+    snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+    document.getElementById("allHomeworkList").innerHTML = homeworks.map(h => `
+        <div class="admin-card"><div style="display:flex;justify-content:space-between"><div><strong>${h.title}</strong><div style="font-size:0.8rem">${h.userName || h.userEmail} | ${h.courseId} | ${h.status}</div></div><button class="btn brs bsm" onclick="deleteHomework('${h.id}')">Удалить</button></div>
+        ${h.solution ? `<div style="margin-top:0.5rem;background:var(--bg2);padding:0.5rem;border-radius:8px"><strong>Решение:</strong> ${h.solution}</div>` : ""}
+        ${h.fileData ? `<img src="${h.fileData}" style="max-width:100px;border-radius:8px;margin-top:0.5rem">` : ""}
+        ${h.feedback ? `<div style="margin-top:0.5rem;color:var(--blue2)">💬 ${h.feedback}</div>` : ""}
+        ${h.grade ? `<div style="color:var(--green)">⭐ Оценка: ${h.grade}/10</div>` : ""}
+        </div>
+    `).join("");
+}
+
+async function openGradeModal(hwId) {
+    const grade = prompt("Оценка (1-10):", "8");
+    if (grade && grade >= 1 && grade <= 10) {
+        const feedback = prompt("Комментарий:", "Хорошая работа!");
+        await db.collection("homeworks").doc(hwId).update({ grade: parseInt(grade), feedback: feedback, status: "graded" });
+        showToast("Задание проверено!", "success");
+        loadAdminDashboard();
+        loadAdminHomework();
     }
 }
 
-// ============ НАВИГАЦИЯ ============
+async function deleteHomework(id) {
+    if (!confirm("Удалить задание?")) return;
+    await db.collection("homeworks").doc(id).delete();
+    showToast("Удалено", "success");
+    loadAdminHomework();
+}
+
+function onAdminSubjectChange() {
+    const subject = document.getElementById("adminHwSubject").value;
+    const courseSelect = document.getElementById("adminHwCourse");
+    if (subject === "math") { courseSelect.innerHTML = `<option value="algebra">Алгебра</option><option value="geometry">Геометрия</option><option value="olymp">Олимпиадная математика</option>`; }
+    else if (subject === "physics") { courseSelect.innerHTML = `<option value="physics">Физика</option>`; }
+}
+
+async function createHomework() {
+    const title = document.getElementById("adminHwTitle").value.trim();
+    const description = document.getElementById("adminHwDesc").value.trim();
+    const subject = document.getElementById("adminHwSubject").value;
+    const courseId = document.getElementById("adminHwCourse").value;
+    const target = document.getElementById("adminHwTarget").value.trim() || "all";
+    const dueDate = document.getElementById("adminHwDue").value;
+    const imageFile = document.getElementById("adminHwImage").files[0];
+    if (!title || !subject || !courseId) { showToast("Заполните обязательные поля", "error"); return; }
+    
+    let imageData = null;
+    if (imageFile) {
+        imageData = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.readAsDataURL(imageFile);
+        });
+    }
+    
+    await db.collection("homeworks").add({
+        title, description, subject, courseId, userEmail: target, userName: target === "all" ? "Все ученики" : target,
+        dueDate, imageData, status: "pending", createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast("Задание создано!", "success");
+    document.getElementById("adminHwTitle").value = "";
+    document.getElementById("adminHwDesc").value = "";
+    document.getElementById("adminHwImage").value = "";
+    loadAdminHomework();
+}
+
+async function loadStudents() {
+    const snapshot = await db.collection("users").get();
+    const users = [];
+    snapshot.forEach(doc => users.push(doc.data()));
+    document.getElementById("studentsList").innerHTML = users.map(u => `
+        <div class="admin-card"><div><strong>${u.name}</strong><div>Email: ${u.email} | Класс: ${u.grade || "не указан"}</div><div>Курсов: ${(u.enrolledCourses || []).length}</div></div></div>
+    `).join("");
+}
+
+function switchPane(paneId, el) {
+    document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
+    document.getElementById(`${paneId}Pane`).classList.add("active");
+    document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
+    if (el) el.classList.add("active");
+}
+
+function showToast(message, type) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
 function showHome() {
     if (currentUser) {
         document.getElementById("homePage").style.display = "none";
@@ -1694,20 +1096,6 @@ function showHome() {
         document.getElementById("homePage").style.display = "block";
         document.getElementById("dashboard").classList.remove("active");
     }
-}
-
-function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-    }
-}
-
-function switchDashboardPane(paneId, element) {
-    document.querySelectorAll(".dashboard-pane").forEach(pane => pane.classList.remove("active"));
-    document.getElementById(`${paneId}Pane`).classList.add("active");
-    document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
-    if (element) element.classList.add("active");
 }
 
 function toggleTheme() {
@@ -1723,28 +1111,32 @@ function toggleTheme() {
     }
 }
 
-// ============ ИНИЦИАЛИЗАЦИЯ ============
+// Инициализация
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") {
         document.documentElement.setAttribute("data-theme", "dark");
         document.getElementById("themeBtn").textContent = "☀️";
     }
-    
-    renderCourseCards("mathCourses", "math");
-    renderCourseCards("physicsCourses", "physics");
-    
-    showLoader();
-    
-    if (!loadFromLocalStorage()) {
-        setTimeout(() => {
-            showHome();
-        }, 1200);
-    } else {
-        setTimeout(() => {
+    renderCoursesGrid();
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            if (!user.emailVerified && user.email !== "kb.slash@mail.ru") {
+                showToast("Подтвердите email!", "error");
+                await auth.signOut();
+                return;
+            }
+            const doc = await db.collection("users").doc(user.uid).get();
+            userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+            currentUser = user;
             updateUIAfterLogin();
-        }, 1200);
-    }
+        } else {
+            currentUser = null;
+            userData = null;
+            document.getElementById("homePage").style.display = "block";
+            document.getElementById("dashboard").classList.remove("active");
+        }
+    });
 }
 
 init();
