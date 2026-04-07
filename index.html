@@ -15,12 +15,16 @@
 :root {
     --bg: #faf7f0;
     --bg2: #f2ece0;
+    --bg3: #e8dfc8;
     --card: #ffffff;
     --card2: #faf6ec;
+    --card3: #f2ead8;
     --line: #e0d5c0;
+    --line2: #ccc0a0;
     --gold: #9a7018;
     --gold2: #b89030;
     --gold3: rgba(154,112,24,0.1);
+    --gold4: rgba(154,112,24,.07);
     --blue: #1a48c8;
     --blue2: #2a60e8;
     --blue3: rgba(26,72,200,0.1);
@@ -29,6 +33,7 @@
     --red: #b81a1a;
     --red2: rgba(184,26,26,0.1);
     --orange: #c04010;
+    --orange2: rgba(192,64,16,0.1);
     --text: #1a1510;
     --text2: #5a4e38;
     --text3: #9a8a6a;
@@ -40,12 +45,16 @@
 [data-theme="dark"] {
     --bg: #0a0e17;
     --bg2: #111827;
+    --bg3: #1a1f2e;
     --card: #1f2937;
     --card2: #374151;
+    --card3: #4b5563;
     --line: #374151;
+    --line2: #4b5563;
     --gold: #d4a54a;
     --gold2: #e8c97a;
     --gold3: rgba(212,165,74,0.1);
+    --gold4: rgba(212,165,74,.06);
     --blue: #3b6ef5;
     --blue2: #7ba3ff;
     --blue3: rgba(59,110,245,0.1);
@@ -54,6 +63,7 @@
     --red: #ef4444;
     --red2: rgba(239,68,68,0.1);
     --orange: #f97316;
+    --orange2: rgba(249,115,22,0.1);
     --text: #f3f4f6;
     --text2: #9ca3af;
     --text3: #6b7280;
@@ -64,6 +74,132 @@ body {
     color: var(--text);
     font-family: var(--f);
     transition: all 0.3s;
+    overflow-x: hidden;
+}
+
+/* Загрузочный экран */
+.loader-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loader-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-logo {
+    font-family: var(--fs);
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 2rem;
+}
+
+.loader-logo em { color: var(--gold); font-style: italic; }
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 1rem;
+    border: 3px solid var(--gold3);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loader-text {
+    color: var(--text2);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+}
+
+.loader-progress {
+    width: 200px;
+    height: 2px;
+    background: var(--gold3);
+    margin: 1rem auto 0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loader-progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+}
+
+/* Анимации появления */
+.fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.scale-in {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.scale-in.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.stagger-item.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .btn {
@@ -81,7 +217,7 @@ body {
 }
 
 .btn.bg { background: var(--gold); color: white; }
-.btn.bg:hover { background: var(--gold2); transform: translateY(-2px); }
+.btn.bg:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(154,112,24,0.3); }
 .btn.bo { background: transparent; border: 2px solid var(--line); color: var(--text); }
 .btn.bo:hover { border-color: var(--gold); color: var(--gold); }
 .btn.brs { background: var(--red2); color: var(--red); }
@@ -116,6 +252,26 @@ nav {
 }
 
 .logo em { color: var(--gold); font-style: italic; }
+
+.nav-links {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.nav-links a {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    color: var(--text2);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.nav-links a:hover {
+    background: var(--card2);
+    color: var(--text);
+}
 
 .modal-overlay {
     display: none;
@@ -213,6 +369,16 @@ nav {
     padding: 6rem 2rem 4rem;
 }
 
+.hero-badge {
+    display: inline-flex;
+    background: var(--gold3);
+    padding: 0.3rem 1.2rem;
+    border-radius: 30px;
+    color: var(--gold);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+}
+
 .hero h1 {
     font-family: var(--fs);
     font-size: clamp(3rem, 8vw, 6rem);
@@ -222,9 +388,72 @@ nav {
 
 .hero h1 em { color: var(--gold); font-style: italic; }
 
+.hero p {
+    max-width: 550px;
+    margin-top: 1.5rem;
+    color: var(--text2);
+    font-size: 1.1rem;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text3);
+    letter-spacing: 1px;
+}
+
+.section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+}
+
+.section-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-family: var(--fs);
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+}
+
+.section-title em { color: var(--gold); font-style: italic; }
+
+.section-subtitle {
+    color: var(--text2);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    max-width: 600px;
+}
+
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
 }
@@ -253,9 +482,85 @@ nav {
     background: linear-gradient(135deg, var(--gold3), transparent);
 }
 
-.course-info { padding: 1.2rem; }
+.course-level {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--gold);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.course-info { padding: 1.2rem; position: relative; }
 .course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-.course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; }
+.course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
+
+.course-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.topic-tag {
+    background: var(--bg2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 15px;
+    font-size: 0.7rem;
+    color: var(--text2);
+}
+
+.physics-section {
+    background: linear-gradient(135deg, var(--bg), var(--blue3));
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.step {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.step:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+}
+
+.step-number {
+    width: 45px;
+    height: 45px;
+    background: var(--gold3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin: 0 auto 1rem;
+}
+
+.step-title { font-weight: 700; margin-bottom: 0.5rem; }
+.step-desc { font-size: 0.85rem; color: var(--text2); }
+
+footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--line);
+    padding: 2rem;
+    text-align: center;
+}
 
 .dashboard {
     display: none;
@@ -297,6 +602,9 @@ nav {
     color: white;
     margin: 0 auto 0.5rem;
 }
+
+.user-name { font-weight: 700; }
+.user-grade { font-size: 0.7rem; color: var(--text3); }
 
 .sidebar-menu {
     list-style: none;
@@ -446,9 +754,11 @@ nav {
 }
 
 @media (max-width: 768px) {
+    .nav-links { display: none; }
     .sidebar { display: none; }
     .main-content { margin-left: 0; }
     .course-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 1.5rem; }
 }
 </style>
 </head>
@@ -456,13 +766,20 @@ nav {
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Модалка авторизации -->
+<!-- Загрузочный экран -->
+<div class="loader-screen" id="loaderScreen">
+    <div class="loader-content">
+        <div class="loader-logo">Logistical <em>Points</em></div>
+        <div class="loader-spinner"></div>
+        <div class="loader-text" id="loaderText">Загрузка материалов...</div>
+        <div class="loader-progress"><div class="loader-progress-bar" id="loaderProgressBar"></div></div>
+    </div>
+</div>
+
+<!-- Модалки -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
-        <div class="modal-header">
-            <h3 id="authTitle">Вход</h3>
-            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-        </div>
+        <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
         <div class="tabs">
             <button class="tab active" onclick="switchAuthTab('login')">Войти</button>
             <button class="tab" onclick="switchAuthTab('register')">Регистрация</button>
@@ -483,7 +800,6 @@ nav {
     </div>
 </div>
 
-<!-- Модалка сброса пароля -->
 <div class="modal-overlay" id="resetModal">
     <div class="modal">
         <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
@@ -492,7 +808,6 @@ nav {
     </div>
 </div>
 
-<!-- Модалка просмотра ДЗ -->
 <div class="modal-overlay" id="homeworkViewModal">
     <div class="modal" style="max-width: 600px">
         <div class="modal-header"><h3 id="viewHwTitle"></h3><button class="modal-close" onclick="closeHomeworkView()">&times;</button></div>
@@ -500,7 +815,6 @@ nav {
     </div>
 </div>
 
-<!-- Модалка отправки ДЗ -->
 <div class="modal-overlay" id="hwSubmitModal">
     <div class="modal" style="max-width: 560px">
         <div class="modal-header"><h3>Сдать домашнее задание</h3><button class="modal-close" onclick="closeHWModal()">&times;</button></div>
@@ -515,8 +829,7 @@ nav {
             </div>
             <input type="file" id="hwFileInput" accept="image/*" style="display: none" onchange="handleFileSelect(this)">
             <div id="filePreview" class="file-preview" style="display: none">
-                <img id="previewImg">
-                <span id="fileName"></span>
+                <img id="previewImg"><span id="fileName"></span>
                 <button class="btn bo bsm" onclick="clearFile()">Удалить</button>
             </div>
         </div>
@@ -527,30 +840,109 @@ nav {
     </div>
 </div>
 
-<!-- Главная -->
+<!-- Главная страница -->
 <div id="homePage">
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
+            <ul class="nav-links">
+                <li><a onclick="scrollToSection('math')">Математика</a></li>
+                <li><a onclick="scrollToSection('physics')">Физика</a></li>
+                <li><a onclick="scrollToSection('teacher')">Преподаватель</a></li>
+            </ul>
             <div class="nav-buttons" id="navButtons">
                 <button class="btn bo" onclick="openAuthModal()">Войти</button>
                 <button class="btn bg" onclick="openAuthModal()">Начать</button>
             </div>
         </div>
     </nav>
+
     <div class="hero">
-        <h1>Logistical<br><em>Points</em></h1>
-        <p style="margin-top:1rem;color:var(--text2);max-width:550px">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов</p>
-        <div style="display:flex;gap:1rem;margin-top:2rem"><button class="btn bg" onclick="openAuthModal()">Начать учиться</button></div>
+        <div class="hero-badge fade-up">✨ Будущее начинается с нами</div>
+        <h1 class="fade-up" style="transition-delay:0.1s">Logistical<br><em>Points</em></h1>
+        <p class="fade-up" style="transition-delay:0.2s">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов. Математика и физика с индивидуальным подходом.</p>
+        <div class="hero-buttons fade-up" style="transition-delay:0.3s; display:flex; gap:1rem; margin-top:2rem">
+            <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
+            <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
+        </div>
+        <div class="hero-stats fade-up" style="transition-delay:0.4s">
+            <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
+            <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
+            <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
+        </div>
     </div>
+
     <div style="height:1px;background:var(--line)"></div>
-    <div style="max-width:1200px;margin:0 auto;padding:4rem 2rem">
-        <h2 style="font-family:var(--fs);font-size:2rem;margin-bottom:0.5rem">Наши <em>курсы</em></h2>
-        <div class="course-grid" id="coursesGrid"></div>
-    </div>
-    <footer style="background:var(--bg2);border-top:1px solid var(--line);padding:2rem;text-align:center">
+
+    <!-- Математика -->
+    <section id="math" class="section">
+        <div class="section-badge fade-left">📐 Математика</div>
+        <h2 class="section-title fade-left" style="transition-delay:0.1s">От азов до <em>олимпиад</em></h2>
+        <p class="section-subtitle fade-left" style="transition-delay:0.2s">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
+        <div class="course-grid" id="mathCourses"></div>
+    </section>
+
+    <div style="height:1px;background:var(--line)"></div>
+
+    <!-- Физика -->
+    <section id="physics" class="section physics-section">
+        <div class="section-badge fade-right">⚡ Физика</div>
+        <h2 class="section-title fade-right" style="transition-delay:0.1s">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
+        <p class="section-subtitle fade-right" style="transition-delay:0.2s">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
+        <div class="course-grid" id="physicsCourses"></div>
+    </section>
+
+    <div style="height:1px;background:var(--line)"></div>
+
+    <!-- Как это работает -->
+    <section class="section">
+        <div style="text-align:center">
+            <div class="section-badge">📖 Как это работает</div>
+            <h2 class="section-title">Простой <em>процесс</em></h2>
+            <p class="section-subtitle" style="margin:0 auto">Всего 4 шага отделяют вас от новых знаний</p>
+        </div>
+        <div class="steps">
+            <div class="step stagger-item"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
+            <div class="step stagger-item"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
+            <div class="step stagger-item"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
+            <div class="step stagger-item"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
+        </div>
+    </section>
+
+    <div style="height:1px;background:var(--line)"></div>
+
+    <!-- Преподаватель -->
+    <section id="teacher" class="section">
+        <div style="display:flex;flex-wrap:wrap;gap:3rem;align-items:center">
+            <div style="flex:1;min-width:250px" class="fade-left">
+                <div style="background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line)">
+                    <div style="height:250px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:5rem">👨‍🏫</span>
+                    </div>
+                    <div style="padding:1.2rem;text-align:center">
+                        <div style="font-weight:700">Егоров Степан Евгеньевич</div>
+                        <div style="font-size:0.7rem;color:var(--gold)">СПбГЭТУ «ЛЭТИ»</div>
+                    </div>
+                </div>
+            </div>
+            <div style="flex:2" class="fade-right">
+                <div class="section-badge">👨‍🏫 Преподаватель</div>
+                <h2 class="section-title">Ваш <em>наставник</em></h2>
+                <p style="color:var(--text2);line-height:1.8">Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
+                <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями. Помогаю ученикам достигать высоких результатов на олимпиадах и экзаменах.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem">
+                    <span style="background:var(--gold3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🏆 Олимпиадная математика</span>
+                    <span style="background:var(--blue3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">⚡ Физика</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">📝 ЕГЭ / ОГЭ</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🎓 1-11 класс</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
         <div>Logistical <em style="color:var(--gold)">Points</em></div>
-        <div style="margin-top:0.5rem;font-size:0.7rem">© 2025 Logistical Points</div>
+        <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text3)">© 2026 Logistical Points · Егоров С.Е.</div>
     </footer>
 </div>
 
@@ -585,45 +977,6 @@ nav {
     </div>
 </div>
 
-<!-- Админ панель -->
-<div id="adminPanel" style="display: none">
-    <nav>
-        <div class="nav-container">
-            <div class="logo">Logistical <em>Points</em> <span style="font-size:0.7rem;color:var(--gold)">Админ</span></div>
-            <div class="nav-buttons"><button class="btn brs" onclick="logoutAdmin()">Выйти</button></div>
-        </div>
-    </nav>
-    <div class="dashboard-layout">
-        <div class="sidebar">
-            <div class="sidebar-user"><div class="user-avatar">A</div><div class="user-name">Администратор</div><div class="user-grade">kb.slash@mail.ru</div></div>
-            <ul class="sidebar-menu">
-                <li data-admin="dashboard" class="active" onclick="switchAdminPane('dashboard', this)">📊 Дашборд</li>
-                <li data-admin="homework" onclick="switchAdminPane('homework', this); loadAdminHomework()">📝 Все ДЗ</li>
-                <li data-admin="addHomework" onclick="switchAdminPane('addHomework', this)">➕ Добавить ДЗ</li>
-                <li data-admin="students" onclick="switchAdminPane('students', this); loadStudents()">👥 Ученики</li>
-            </ul>
-        </div>
-        <div class="main-content">
-            <div id="adminDashboard" class="dashboard-pane active"><h2>Админ-дашборд</h2><div class="stats-grid" id="adminStats"></div><div class="admin-card"><h3>ДЗ на проверке</h3><div id="pendingHomeworkList"></div></div></div>
-            <div id="adminHomework" class="dashboard-pane"><h2>Все домашние задания</h2><div id="allHomeworkList"></div></div>
-            <div id="adminAddHomework" class="dashboard-pane">
-                <h2>Добавить домашнее задание</h2>
-                <div class="admin-card">
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="adminHwTitle" placeholder="Заголовок задания"></div>
-                    <div class="form-group"><label>Описание / условие</label><textarea id="adminHwDesc" rows="4" placeholder="Условие задачи..."></textarea></div>
-                    <div class="form-group"><label>Предмет</label><select id="adminHwSubject" onchange="onAdminSubjectChange()"><option value="">Выберите</option><option value="math">Математика</option><option value="physics">Физика</option></select></div>
-                    <div class="form-group"><label>Курс</label><select id="adminHwCourse"></select></div>
-                    <div class="form-group"><label>Кому (email или 'all')</label><input type="text" id="adminHwTarget" placeholder="all или email@example.com"></div>
-                    <div class="form-group"><label>Срок сдачи</label><input type="date" id="adminHwDue"></div>
-                    <div class="form-group"><label>Фото к заданию (необязательно)</label><input type="file" id="adminHwImage" accept="image/*"></div>
-                    <button class="btn bg" onclick="createHomework()">Создать задание</button>
-                </div>
-            </div>
-            <div id="adminStudents" class="dashboard-pane"><h2>Ученики</h2><div id="studentsList"></div></div>
-        </div>
-    </div>
-</div>
-
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -631,26 +984,22 @@ nav {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase конфигурация
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
     authDomain: "logistical-points.firebaseapp.com",
     projectId: "logistical-points",
-    storageBucket: "logistical-points.firebasestorage.app",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abc123def456"
+    storageBucket: "logistical-points.firebasestorage.app"
 };
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Курсы (без количества уроков)
 const COURSES = [
-    { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены." },
-    { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения." },
-    { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Механика, термодинамика, электричество, оптика." },
-    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру." }
+    { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
+    { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
+    { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics" },
+    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру. Разбор сложных задач.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math" }
 ];
 
 let currentUser = null;
@@ -658,106 +1007,95 @@ let userData = null;
 let currentHomework = null;
 let currentFileData = null;
 
-// ============ АВТОРИЗАЦИЯ ============
+// Загрузочный экран
+function showLoader() {
+    const loader = document.getElementById("loaderScreen");
+    const progressBar = document.getElementById("loaderProgressBar");
+    const loaderText = document.getElementById("loaderText");
+    let progress = 0;
+    const steps = ["Загрузка материалов...", "Подготовка курсов...", "Настройка интерфейса...", "Почти готово..."];
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        progressBar.style.width = progress + "%";
+        const stepIndex = Math.floor(progress / 25);
+        if (stepIndex < steps.length) loaderText.textContent = steps[stepIndex];
+        if (progress === 100) {
+            clearInterval(interval);
+            setTimeout(() => { loader.classList.add("hide"); setTimeout(() => loader.style.display = "none", 500); }, 300);
+        }
+    }, 200);
+}
+
+function initAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll(".fade-up, .fade-left, .fade-right, .scale-in, .stagger-item").forEach(el => observer.observe(el));
+    document.querySelectorAll(".steps .step, .course-card").forEach((el, i) => { el.style.transitionDelay = (i * 0.05) + "s"; observer.observe(el); });
+}
+
+function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: "smooth" }); }
+
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
 function closeAuthModal() { document.getElementById("authModal").classList.remove("active"); }
 function openResetModal() { document.getElementById("resetModal").classList.add("active"); }
 function closeResetModal() { document.getElementById("resetModal").classList.remove("active"); }
-
-function switchAuthTab(tab) {
-    const loginPanel = document.getElementById("loginPanel");
-    const registerPanel = document.getElementById("registerPanel");
-    const tabs = document.querySelectorAll(".tab");
-    if (tab === "login") {
-        loginPanel.classList.add("active");
-        registerPanel.classList.remove("active");
-        tabs[0].classList.add("active");
-        tabs[1].classList.remove("active");
-        document.getElementById("authTitle").textContent = "Вход";
-    } else {
-        loginPanel.classList.remove("active");
-        registerPanel.classList.add("active");
-        tabs[0].classList.remove("active");
-        tabs[1].classList.add("active");
-        document.getElementById("authTitle").textContent = "Регистрация";
-    }
-}
-
-function showResetPassword() {
-    closeAuthModal();
-    openResetModal();
-}
+function showResetPassword() { closeAuthModal(); openResetModal(); }
 
 function sendResetPassword() {
     const email = document.getElementById("resetEmail").value.trim();
     if (!email) { showToast("Введите email", "error"); return; }
-    auth.sendPasswordResetEmail(email).then(() => {
-        showToast("Ссылка для сброса отправлена на почту", "success");
-        closeResetModal();
-    }).catch(error => { showToast(error.message, "error"); });
+    auth.sendPasswordResetEmail(email).then(() => { showToast("Ссылка для сброса отправлена на почту", "success"); closeResetModal(); })
+        .catch(error => showToast(error.message, "error"));
+}
+
+function switchAuthTab(tab) {
+    const loginPanel = document.getElementById("loginPanel"), registerPanel = document.getElementById("registerPanel"), tabs = document.querySelectorAll(".tab");
+    if (tab === "login") {
+        loginPanel.classList.add("active"); registerPanel.classList.remove("active");
+        tabs[0].classList.add("active"); tabs[1].classList.remove("active");
+        document.getElementById("authTitle").textContent = "Вход";
+    } else {
+        loginPanel.classList.remove("active"); registerPanel.classList.add("active");
+        tabs[0].classList.remove("active"); tabs[1].classList.add("active");
+        document.getElementById("authTitle").textContent = "Регистрация";
+    }
 }
 
 function handleLogin() {
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
+    const email = document.getElementById("loginEmail").value.trim(), password = document.getElementById("loginPassword").value;
     if (!email || !password) { showToast("Заполните все поля", "error"); return; }
-    
-    if (email === "kb.slash@mail.ru" && password === "admin123") {
-        showAdminPanel();
-        closeAuthModal();
-        return;
-    }
-    
     auth.signInWithEmailAndPassword(email, password).then(async (userCredential) => {
         const user = userCredential.user;
-        if (!user.emailVerified) {
-            showToast("Подтвердите email. Проверьте почту!", "error");
-            auth.signOut();
-            return;
-        }
+        if (!user.emailVerified) { showToast("Подтвердите email. Проверьте почту!", "error"); auth.signOut(); return; }
         const doc = await db.collection("users").doc(user.uid).get();
-        if (doc.exists) {
-            userData = doc.data();
-        } else {
-            userData = { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
-            await db.collection("users").doc(user.uid).set(userData);
-        }
+        userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+        if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
         currentUser = user;
         updateUIAfterLogin();
         closeAuthModal();
         showToast("Добро пожаловать!", "success");
-    }).catch(error => { showToast(error.message, "error"); });
+    }).catch(error => showToast(error.message, "error"));
 }
 
 function handleRegister() {
-    const name = document.getElementById("regName").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
-    const grade = document.getElementById("regGrade").value;
-    const password = document.getElementById("regPassword").value;
-    if (!name || !email || !grade || password.length < 6) {
-        showToast("Заполните все поля правильно", "error");
-        return;
-    }
+    const name = document.getElementById("regName").value.trim(), email = document.getElementById("regEmail").value.trim();
+    const grade = document.getElementById("regGrade").value, password = document.getElementById("regPassword").value;
+    if (!name || !email || !grade || password.length < 6) { showToast("Заполните все поля правильно", "error"); return; }
     auth.createUserWithEmailAndPassword(email, password).then(async (userCredential) => {
         const user = userCredential.user;
         await user.sendEmailVerification();
-        userData = { name: name, email: email, grade: grade, enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+        userData = { name, email, grade, enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
         await db.collection("users").doc(user.uid).set(userData);
         showToast("Регистрация успешна! Подтвердите email", "success");
         closeAuthModal();
         await auth.signOut();
-    }).catch(error => { showToast(error.message, "error"); });
+    }).catch(error => showToast(error.message, "error"));
 }
 
-function handleLogout() {
-    auth.signOut().then(() => {
-        currentUser = null;
-        userData = null;
-        location.reload();
-    });
-}
+function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
-// ============ UI ============
 function updateUIAfterLogin() {
     document.getElementById("navButtons").innerHTML = `<span style="margin-right:0.5rem">${userData.name}</span><button class="btn brs" onclick="handleLogout()">Выйти</button>`;
     document.getElementById("userName").textContent = userData.name;
@@ -776,15 +1114,22 @@ function updateUIAfterLogin() {
 }
 
 function renderCoursesGrid() {
-    const container = document.getElementById("coursesGrid");
-    if (container) {
-        container.innerHTML = COURSES.map(course => `
-            <div class="course-card" onclick="enrollCourse('${course.id}')">
-                <div class="course-icon">${course.icon}</div>
-                <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
-            </div>
-        `).join("");
-    }
+    const mathContainer = document.getElementById("mathCourses");
+    const physicsContainer = document.getElementById("physicsCourses");
+    if (mathContainer) mathContainer.innerHTML = COURSES.filter(c => c.subject === "math").map(course => `
+        <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
+            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
+            <div class="course-topics">${course.topics.slice(0, 3).map(t => `<span class="topic-tag">${t}</span>`).join("")}</div>
+            <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
+        </div>`).join("");
+    if (physicsContainer) physicsContainer.innerHTML = COURSES.filter(c => c.subject === "physics").map(course => `
+        <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
+            <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
+            <div class="course-topics">${course.topics.map(t => `<span class="topic-tag">${t}</span>`).join("")}</div>
+            <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
+        </div>`).join("");
 }
 
 function enrollCourse(courseId) {
@@ -793,10 +1138,7 @@ function enrollCourse(courseId) {
         userData.enrolledCourses.push(courseId);
         db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
         showToast("Вы записаны на курс!", "success");
-        renderMyCourses();
-        renderAvailableCourses();
-        renderContinueLearning();
-        renderProgress();
+        renderMyCourses(); renderAvailableCourses(); renderContinueLearning(); renderProgress();
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
     }
 }
@@ -810,8 +1152,7 @@ function renderMyCourses() {
         <div class="course-card" onclick="enrollCourse('${course.id}')">
             <div class="course-icon">${course.icon}</div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
-        </div>
-    `).join("");
+        </div>`).join("");
 }
 
 function renderAvailableCourses() {
@@ -823,8 +1164,7 @@ function renderAvailableCourses() {
         <div class="course-card" onclick="enrollCourse('${course.id}')">
             <div class="course-icon">${course.icon}</div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Записаться</button></div>
-        </div>
-    `).join("");
+        </div>`).join("");
 }
 
 function renderContinueLearning() {
@@ -837,8 +1177,7 @@ function renderContinueLearning() {
             <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
             <div style="flex:1"><div style="font-weight:700">${course.name}</div></div>
             <button class="btn bg bsm">Открыть</button>
-        </div>
-    `).join("");
+        </div>`).join("");
 }
 
 function renderProgress() {
@@ -855,7 +1194,7 @@ function renderProgress() {
     }).join("");
 }
 
-// ============ ДОМАШНИЕ ЗАДАНИЯ ============
+// Домашние задания
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
@@ -877,7 +1216,7 @@ async function loadHomeworkByCourse(courseId) {
     const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
     const submissions = userData.homeworkSubmissions || [];
     const container = document.getElementById("homeworkListByCourse");
-    if (filtered.length === 0) { container.innerHTML = "<p>Нет домашних заданий по этому курсу</p>"; return; }
+    if (filtered.length === 0) { container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3><p>Домашних заданий пока нет. Они появятся после добавления администратором.</p>`; return; }
     container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
         const submitted = submissions.find(s => s.id === hw.id);
         return `
@@ -963,115 +1302,6 @@ async function submitHomeworkAnswer() {
 
 function closeHWModal() { document.getElementById("hwSubmitModal").classList.remove("active"); currentHomework = null; clearFile(); }
 
-// ============ АДМИНКА ============
-function showAdminPanel() {
-    document.getElementById("homePage").style.display = "none";
-    document.getElementById("dashboard").classList.remove("active");
-    document.getElementById("adminPanel").style.display = "block";
-    loadAdminDashboard();
-}
-
-function logoutAdmin() {
-    document.getElementById("adminPanel").style.display = "none";
-    document.getElementById("homePage").style.display = "block";
-}
-
-function switchAdminPane(paneId, el) {
-    document.querySelectorAll("#adminPanel .dashboard-pane").forEach(p => p.classList.remove("active"));
-    document.getElementById(`admin${paneId.charAt(0).toUpperCase() + paneId.slice(1)}`).classList.add("active");
-    document.querySelectorAll("#adminPanel .sidebar-menu li").forEach(li => li.classList.remove("active"));
-    if (el) el.classList.add("active");
-}
-
-async function loadAdminDashboard() {
-    const usersSnap = await db.collection("users").get();
-    const homeworksSnap = await db.collection("homeworks").get();
-    const pending = [];
-    homeworksSnap.forEach(doc => { if (doc.data().status === "submitted") pending.push(doc.data()); });
-    document.getElementById("adminStats").innerHTML = `<div class="stat-card"><div class="stat-number">${usersSnap.size}</div><div class="stat-label">Учеников</div></div>
-        <div class="stat-card"><div class="stat-number">${homeworksSnap.size}</div><div class="stat-label">Всего ДЗ</div></div>
-        <div class="stat-card"><div class="stat-number">${pending.length}</div><div class="stat-label">На проверке</div></div>`;
-    document.getElementById("pendingHomeworkList").innerHTML = pending.length ? pending.map(h => `<div class="homework-item"><div><strong>${h.title}</strong><div>${h.userName || h.userEmail}</div></div><button class="btn bg bsm" onclick="openGradeModal('${h.id}')">Проверить</button></div>`).join("") : "<p>Нет ДЗ на проверке</p>";
-}
-
-async function loadAdminHomework() {
-    const snapshot = await db.collection("homeworks").get();
-    const homeworks = [];
-    snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
-    document.getElementById("allHomeworkList").innerHTML = homeworks.map(h => `
-        <div class="admin-card"><div style="display:flex;justify-content:space-between"><div><strong>${h.title}</strong><div style="font-size:0.8rem">${h.userName || h.userEmail} | ${h.courseId} | ${h.status}</div></div><button class="btn brs bsm" onclick="deleteHomework('${h.id}')">Удалить</button></div>
-        ${h.solution ? `<div style="margin-top:0.5rem;background:var(--bg2);padding:0.5rem;border-radius:8px"><strong>Решение:</strong> ${h.solution}</div>` : ""}
-        ${h.fileData ? `<img src="${h.fileData}" style="max-width:100px;border-radius:8px;margin-top:0.5rem">` : ""}
-        ${h.feedback ? `<div style="margin-top:0.5rem;color:var(--blue2)">💬 ${h.feedback}</div>` : ""}
-        ${h.grade ? `<div style="color:var(--green)">⭐ Оценка: ${h.grade}/10</div>` : ""}
-        </div>
-    `).join("");
-}
-
-async function openGradeModal(hwId) {
-    const grade = prompt("Оценка (1-10):", "8");
-    if (grade && grade >= 1 && grade <= 10) {
-        const feedback = prompt("Комментарий:", "Хорошая работа!");
-        await db.collection("homeworks").doc(hwId).update({ grade: parseInt(grade), feedback: feedback, status: "graded" });
-        showToast("Задание проверено!", "success");
-        loadAdminDashboard();
-        loadAdminHomework();
-    }
-}
-
-async function deleteHomework(id) {
-    if (!confirm("Удалить задание?")) return;
-    await db.collection("homeworks").doc(id).delete();
-    showToast("Удалено", "success");
-    loadAdminHomework();
-}
-
-function onAdminSubjectChange() {
-    const subject = document.getElementById("adminHwSubject").value;
-    const courseSelect = document.getElementById("adminHwCourse");
-    if (subject === "math") { courseSelect.innerHTML = `<option value="algebra">Алгебра</option><option value="geometry">Геометрия</option><option value="olymp">Олимпиадная математика</option>`; }
-    else if (subject === "physics") { courseSelect.innerHTML = `<option value="physics">Физика</option>`; }
-}
-
-async function createHomework() {
-    const title = document.getElementById("adminHwTitle").value.trim();
-    const description = document.getElementById("adminHwDesc").value.trim();
-    const subject = document.getElementById("adminHwSubject").value;
-    const courseId = document.getElementById("adminHwCourse").value;
-    const target = document.getElementById("adminHwTarget").value.trim() || "all";
-    const dueDate = document.getElementById("adminHwDue").value;
-    const imageFile = document.getElementById("adminHwImage").files[0];
-    if (!title || !subject || !courseId) { showToast("Заполните обязательные поля", "error"); return; }
-    
-    let imageData = null;
-    if (imageFile) {
-        imageData = await new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.readAsDataURL(imageFile);
-        });
-    }
-    
-    await db.collection("homeworks").add({
-        title, description, subject, courseId, userEmail: target, userName: target === "all" ? "Все ученики" : target,
-        dueDate, imageData, status: "pending", createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showToast("Задание создано!", "success");
-    document.getElementById("adminHwTitle").value = "";
-    document.getElementById("adminHwDesc").value = "";
-    document.getElementById("adminHwImage").value = "";
-    loadAdminHomework();
-}
-
-async function loadStudents() {
-    const snapshot = await db.collection("users").get();
-    const users = [];
-    snapshot.forEach(doc => users.push(doc.data()));
-    document.getElementById("studentsList").innerHTML = users.map(u => `
-        <div class="admin-card"><div><strong>${u.name}</strong><div>Email: ${u.email} | Класс: ${u.grade || "не указан"}</div><div>Курсов: ${(u.enrolledCourses || []).length}</div></div></div>
-    `).join("");
-}
-
 function switchPane(paneId, el) {
     document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
     document.getElementById(`${paneId}Pane`).classList.add("active");
@@ -1114,25 +1344,20 @@ function toggleTheme() {
 // Инициализация
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
-    if (savedTheme === "dark") {
-        document.documentElement.setAttribute("data-theme", "dark");
-        document.getElementById("themeBtn").textContent = "☀️";
-    }
+    if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
     renderCoursesGrid();
+    showLoader();
+    setTimeout(() => initAnimations(), 100);
     auth.onAuthStateChanged(async (user) => {
         if (user) {
-            if (!user.emailVerified && user.email !== "kb.slash@mail.ru") {
-                showToast("Подтвердите email!", "error");
-                await auth.signOut();
-                return;
-            }
+            if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
             const doc = await db.collection("users").doc(user.uid).get();
             userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+            if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
             currentUser = user;
             updateUIAfterLogin();
         } else {
-            currentUser = null;
-            userData = null;
+            currentUser = null; userData = null;
             document.getElementById("homePage").style.display = "block";
             document.getElementById("dashboard").classList.remove("active");
         }
