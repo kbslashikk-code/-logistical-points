@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0, viewport-fit=cover">
 <title>Logistical Points - Образовательная платформа</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
@@ -490,6 +490,7 @@ nav {
     justify-content: center;
     font-size: 2.5rem;
     background: linear-gradient(135deg, var(--gold3), transparent);
+    position: relative;
 }
 
 .course-level {
@@ -763,6 +764,7 @@ footer {
     z-index: 100;
 }
 
+/* Мобильная адаптация */
 @media (max-width: 768px) {
     .nav-links { display: none; }
     .mobile-menu-btn { display: block; }
@@ -1308,7 +1310,10 @@ function renderProgress() {
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>У вас нет активных курсов</p>"; return; }
+    if (enrolled.length === 0) { 
+        container.innerHTML = "<p>У вас нет активных курсов</p>"; 
+        return; 
+    }
     container.innerHTML = enrolled.map(course => `
         <div class="course-card" onclick="showHomeworkForCourse('${course.id}')">
             <div class="course-icon">${course.icon}</div>
@@ -1329,15 +1334,18 @@ async function showHomeworkForCourse(courseId) {
     const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
     const homeworks = [];
     snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+    
     const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
     const submissions = Array.isArray(userData.homeworkSubmissions) ? userData.homeworkSubmissions : [];
+    
     const container = document.getElementById("homeworkDetailView");
     if (filtered.length === 0) {
         container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3><p>Домашних заданий пока нет. Они появятся после добавления администратором.</p>`;
         return;
     }
+    
     container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
-        const submitted = submissions.find(s => s.id === hw.id);
+        const submitted = submissions.find(s => s && s.id === hw.id);
         return `
             <div class="homework-item" onclick="viewHomework('${hw.id}')">
                 <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
@@ -1416,7 +1424,7 @@ async function submitHomeworkAnswer() {
     showToast("Задание отправлено!", "success");
     closeHWModal();
     // Обновляем отображение заданий для текущего курса
-    if (hwData.courseId) showHomeworkForCourse(hwData.courseId);
+    if (hwData && hwData.courseId) showHomeworkForCourse(hwData.courseId);
     document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
 }
 
