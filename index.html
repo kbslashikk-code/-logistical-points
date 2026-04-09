@@ -77,7 +77,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Загрузочный экран */
 .loader-screen {
     position: fixed;
     top: 0;
@@ -146,7 +145,6 @@ body {
     transition: width 0.3s ease;
 }
 
-/* Анимации появления */
 .fade-up {
     opacity: 0;
     transform: translateY(30px);
@@ -651,7 +649,6 @@ footer {
 .dashboard-pane { display: none; }
 .dashboard-pane.active { display: block; }
 
-/* Конспекты */
 .lessons-container {
     margin-top: 1rem;
 }
@@ -714,7 +711,6 @@ footer {
     border-radius: 8px;
 }
 
-/* Домашние задания */
 .homework-item {
     display: flex;
     align-items: flex-start;
@@ -833,7 +829,6 @@ footer {
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Загрузочный экран -->
 <div class="loader-screen" id="loaderScreen">
     <div class="loader-content">
         <div class="loader-logo">Logistical <em>Points</em></div>
@@ -843,7 +838,6 @@ footer {
     </div>
 </div>
 
-<!-- Модалки -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
@@ -917,7 +911,6 @@ footer {
     </div>
 </div>
 
-<!-- Главная страница -->
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -951,7 +944,6 @@ footer {
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Математика -->
     <section id="math" class="section">
         <div class="section-badge fade-left">📐 Математика</div>
         <h2 class="section-title fade-left" style="transition-delay:0.1s">От азов до <em>олимпиад</em></h2>
@@ -961,7 +953,6 @@ footer {
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Физика -->
     <section id="physics" class="section physics-section">
         <div class="section-badge fade-right">⚡ Физика</div>
         <h2 class="section-title fade-right" style="transition-delay:0.1s">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
@@ -971,7 +962,6 @@ footer {
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Как это работает -->
     <section class="section">
         <div style="text-align:center">
             <div class="section-badge">📖 Как это работает</div>
@@ -988,7 +978,6 @@ footer {
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Преподаватель -->
     <section id="teacher" style="padding: 40px 0;">
         <div class="teacher-container" style="display: flex; flex-wrap: wrap; gap: 3rem; align-items: center; max-width: 1100px; margin: 0 auto; padding: 20px;">
             <div style="flex: 1; min-width: 300px;">
@@ -1023,7 +1012,6 @@ footer {
     </footer>
 </div>
 
-<!-- Личный кабинет -->
 <div id="dashboard" class="dashboard">
     <nav>
         <div class="nav-container">
@@ -1088,9 +1076,9 @@ let currentUser = null;
 let userData = null;
 let currentHomework = null;
 let currentFileData = null;
-let currentCourseForLessons = null;
+let currentLessonData = null;
+window.currentLessonsModal = null;
 
-// Загрузочный экран
 function showLoader() {
     const loader = document.getElementById("loaderScreen");
     const progressBar = document.getElementById("loaderProgressBar");
@@ -1252,8 +1240,16 @@ function renderMyCourses() {
         </div>`).join("");
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
-    currentCourseForLessons = COURSES.find(c => c.id === courseId);
+    const course = COURSES.find(c => c.id === courseId);
+    if (!course) return;
+    
+    if (window.currentLessonsModal) {
+        window.currentLessonsModal.remove();
+        window.currentLessonsModal = null;
+    }
+    
     const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
     const lessons = [];
     lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
@@ -1261,11 +1257,12 @@ async function openCourseLessons(courseId) {
     const modal = document.createElement("div");
     modal.className = "modal-overlay active";
     modal.style.display = "flex";
+    modal.style.zIndex = "2000";
     
     let lessonsHtml = `<div class="modal" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
         <div class="modal-header">
-            <h3>📖 ${currentCourseForLessons.name} - Конспекты</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+            <h3>📖 ${course.name} - Конспекты</h3>
+            <button class="modal-close" onclick="this.closest('.modal-overlay').remove(); window.currentLessonsModal = null;">&times;</button>
         </div>`;
     
     if (lessons.length === 0) {
@@ -1275,38 +1272,41 @@ async function openCourseLessons(courseId) {
         </div>`;
     } else {
         lessonsHtml += `<div class="lessons-container">`;
-        lessons.forEach(lesson => {
+        for (const lesson of lessons) {
             const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
             lessonsHtml += `
-                <div class="lesson-item" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
-                    <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}"></div>
-                    <div class="lesson-info">
-                        <div class="lesson-title">${lesson.title}</div>
-                        <div class="lesson-desc">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
+                <div class="lesson-item" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: var(--card2); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                        <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 10px; height: 10px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
+                        <div class="lesson-info" style="flex: 1;">
+                            <div class="lesson-title" style="font-weight: 700; margin-bottom: 0.2rem;">${lesson.title}</div>
+                            <div class="lesson-desc" style="font-size: 0.8rem; color: var(--text2);">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
+                        </div>
                     </div>
                     ${!isCompleted ? '<span style="color: var(--gold); font-size: 0.7rem;">📖 Не прочитано</span>' : '<span style="color: var(--green); font-size: 0.7rem;">✓ Прочитано</span>'}
                 </div>
             `;
-        });
+        }
         lessonsHtml += `</div>`;
     }
     
     lessonsHtml += `</div>`;
     modal.innerHTML = lessonsHtml;
     document.body.appendChild(modal);
+    window.currentLessonsModal = modal;
 }
 
 async function viewLesson(lessonId, courseId, title) {
     const doc = await db.collection("lessons").doc(lessonId).get();
     const lesson = doc.data();
-    currentLesson = { id: lessonId, courseId: courseId, title: title };
+    currentLessonData = { id: lessonId, courseId: courseId, title: title };
     
-    let content = `<div class="lesson-content-view">${lesson.content || "Нет содержания"}</div>`;
+    let content = `<div class="lesson-content-view" style="line-height: 1.8;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.fileData) {
         if (lesson.fileType === "application/pdf") {
-            content += `<iframe src="${lesson.fileData}"></iframe>`;
+            content += `<iframe src="${lesson.fileData}" style="width: 100%; height: 500px; border: none; margin-top: 1rem;"></iframe>`;
         } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
-            content += `<img src="${lesson.fileData}" onclick="window.open(this.src)">`;
+            content += `<img src="${lesson.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">`;
         }
     }
     
@@ -1317,21 +1317,26 @@ async function viewLesson(lessonId, courseId, title) {
 
 function closeLessonView() { 
     document.getElementById("lessonViewModal").classList.remove("active"); 
-    currentLesson = null;
+    currentLessonData = null;
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ markLessonCompleted
 async function markLessonCompleted() {
-    if (!currentLesson) return;
-    const lessonKey = `${currentLesson.courseId}_${currentLesson.id}`;
+    if (!currentLessonData) return;
+    const lessonKey = `${currentLessonData.courseId}_${currentLessonData.id}`;
     if (!userData.completedLessons) userData.completedLessons = [];
     if (!userData.completedLessons.includes(lessonKey)) {
         userData.completedLessons.push(lessonKey);
         await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
         showToast("Конспект отмечен как пройденный!", "success");
         closeLessonView();
-        if (currentCourseForLessons) {
-            openCourseLessons(currentCourseForLessons.id);
+        
+        if (window.currentLessonsModal) {
+            window.currentLessonsModal.remove();
+            window.currentLessonsModal = null;
+            openCourseLessons(currentLessonData.courseId);
         }
+        
         renderProgress();
         updateLessonsCount();
     }
@@ -1355,7 +1360,7 @@ function renderContinueLearning() {
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
     if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс чтобы начать.</p>"; return; }
     container.innerHTML = enrolled.slice(0, 3).map(course => `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line)" onclick="openCourseLessons('${course.id}')">
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="openCourseLessons('${course.id}')">
             <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
             <div style="flex:1"><div style="font-weight:700">${course.name}</div></div>
             <button class="btn bg bsm">Продолжить</button>
@@ -1368,13 +1373,14 @@ async function renderProgress() {
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
     if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; return; }
     
+    container.innerHTML = "";
     for (const course of enrolled) {
         const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
         const totalLessons = lessonsSnap.size;
         const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
         const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
         
-        const progressHtml = `<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
+        container.innerHTML += `<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
                 <div><strong>${course.name}</strong></div>
                 <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">${percent}%</div>
@@ -1384,15 +1390,9 @@ async function renderProgress() {
             </div>
             <div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ${completedCount} из ${totalLessons}</div>
         </div>`;
-        
-        const existing = container.innerHTML;
-        if (!existing.includes(course.id)) {
-            container.innerHTML += progressHtml;
-        }
     }
 }
 
-// Домашние задания
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
@@ -1418,15 +1418,15 @@ async function loadHomeworkByCourse(courseId) {
     container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
         const submitted = submissions.find(s => s.id === hw.id);
         return `
-            <div class="homework-item" onclick="viewHomework('${hw.id}')">
-                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
+            <div class="homework-item" style="display: flex; align-items: flex-start; gap: 0.8rem; padding: 1rem; background: var(--card2); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer;" onclick="viewHomework('${hw.id}')">
+                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}" style="width: 10px; height: 10px; border-radius: 50%; margin-top: 0.4rem; background: ${submitted ? 'var(--blue)' : 'var(--gold)'};"></div>
                 <div style="flex:1">
                     <div style="font-weight:700">${hw.title}</div>
                     <div style="font-size:0.8rem;color:var(--text2)">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
                     <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">Срок: ${hw.dueDate || "не указан"}</div>
                     ${hw.grade ? `<div style="color:var(--green);margin-top:0.3rem">⭐ Оценка: ${hw.grade}/10</div>` : ""}
                 </div>
-                ${!submitted ? `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green)">✓ Сдано</span>`}
+                ${!submitted ? `<button class="btn bg bsm" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green); font-size:0.8rem;">✓ Сдано</span>`}
             </div>
         `;
     }).join("");
@@ -1539,7 +1539,6 @@ function toggleTheme() {
     }
 }
 
-// Инициализация
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
