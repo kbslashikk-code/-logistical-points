@@ -1244,50 +1244,47 @@ function renderMyCourses() {
 // ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) return;
-    
-    if (window.currentLessonsModal) {
-        window.currentLessonsModal.remove();
-        window.currentLessonsModal = null;
+    if (!course) {
+        alert("Курс не найден");
+        return;
     }
     
+    // Получаем конспекты из Firestore
     const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
     const lessons = [];
     lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
     
-    const modal = document.createElement("div");
-    modal.className = "modal-overlay active";
-    modal.style.display = "flex";
-    modal.style.zIndex = "2000";
+    console.log("Найдено конспектов:", lessons.length);
     
-    let lessonsHtml = `<div class="modal" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
-        <div class="modal-header">
-            <h3>📖 ${course.name} - Конспекты</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove(); window.currentLessonsModal = null;">&times;</button>
-        </div>`;
-    
-    if (lessons.length === 0) {
-        lessonsHtml += `<div style="padding: 2rem; text-align: center; color: var(--text3);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
-            <div>Конспектов пока нет. Они появятся после добавления администратором.</div>
-        </div>`;
-    } else {
-        lessonsHtml += `<div class="lessons-container">`;
-        for (const lesson of lessons) {
-            const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
-            lessonsHtml += `
-                <div class="lesson-item" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
-                    <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}"></div>
-                    <div class="lesson-info">
-                        <div class="lesson-title">${lesson.title}</div>
-                        <div class="lesson-desc">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
-                    </div>
-                    ${!isCompleted ? '<span style="color: var(--gold); font-size: 0.7rem;">📖 Не прочитано</span>' : '<span style="color: var(--green); font-size: 0.7rem;">✓ Прочитано</span>'}
+    // Создаём модальное окно
+    const modalHtml = `
+        <div id="testLessonsModal" class="modal-overlay active" style="display: flex; z-index: 3000;">
+            <div class="modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3>📖 ${course.name} - Конспекты (${lessons.length})</h3>
+                    <button class="modal-close" onclick="document.getElementById('testLessonsModal').remove()">&times;</button>
                 </div>
-            `;
-        }
-        lessonsHtml += `</div>`;
-    }
+                <div id="testLessonsList">
+                    ${lessons.length === 0 ? '<div style="padding: 2rem; text-align: center;">📚 Конспектов пока нет</div>' : 
+                        lessons.map(lesson => `
+                            <div style="padding: 1rem; border-bottom: 1px solid var(--line); cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
+                                <div style="font-weight: 700;">${lesson.title}</div>
+                                <div style="font-size: 0.8rem; color: var(--text2);">${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Удаляем старое окно если есть
+    const oldModal = document.getElementById("testLessonsModal");
+    if (oldModal) oldModal.remove();
+    
+    // Добавляем новое окно
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
     
     lessonsHtml += `</div>`;
     modal.innerHTML = lessonsHtml;
