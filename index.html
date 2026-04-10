@@ -1240,31 +1240,30 @@ function renderMyCourses() {
         </div>`).join("");
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     if (!course) return;
-    
+
     if (window.currentLessonsModal) {
         window.currentLessonsModal.remove();
         window.currentLessonsModal = null;
     }
-    
+
     const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
     const lessons = [];
     lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
-    
+
     const modal = document.createElement("div");
     modal.className = "modal-overlay active";
     modal.style.display = "flex";
     modal.style.zIndex = "2000";
-    
+
     let lessonsHtml = `<div class="modal" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
         <div class="modal-header">
             <h3>📖 ${course.name} - Конспекты</h3>
             <button class="modal-close" onclick="this.closest('.modal-overlay').remove(); window.currentLessonsModal = null;">&times;</button>
         </div>`;
-    
+
     if (lessons.length === 0) {
         lessonsHtml += `<div style="padding: 2rem; text-align: center; color: var(--text3);">
             <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
@@ -1275,21 +1274,19 @@ async function openCourseLessons(courseId) {
         for (const lesson of lessons) {
             const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
             lessonsHtml += `
-                <div class="lesson-item" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: var(--card2); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
-                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
-                        <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 10px; height: 10px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                        <div class="lesson-info" style="flex: 1;">
-                            <div class="lesson-title" style="font-weight: 700; margin-bottom: 0.2rem;">${lesson.title}</div>
-                            <div class="lesson-desc" style="font-size: 0.8rem; color: var(--text2);">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
-                        </div>
+                <div class="lesson-item" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
+                    <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}"></div>
+                    <div class="lesson-info">
+                        <div class="lesson-title">${lesson.title}</div>
+                        <div class="lesson-desc">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
                     </div>
-                    ${!isCompleted ? '<span style="color: var(--gold); font-size: 0.7rem;">📖 Не прочитано</span>' : '<span style="color: var(--green); font-size: 0.7rem;">✓ Прочитано</span>'}
+                    ${!isCompleted ? '<span class="lesson-badge">📖 Не прочитано</span>' : '<span class="lesson-badge completed">✓ Прочитано</span>'}
                 </div>
             `;
         }
         lessonsHtml += `</div>`;
     }
-    
+
     lessonsHtml += `</div>`;
     modal.innerHTML = lessonsHtml;
     document.body.appendChild(modal);
@@ -1301,12 +1298,12 @@ async function viewLesson(lessonId, courseId, title) {
     const lesson = doc.data();
     currentLessonData = { id: lessonId, courseId: courseId, title: title };
     
-    let content = `<div class="lesson-content-view" style="line-height: 1.8;">${lesson.content || "Нет содержания"}</div>`;
+    let content = `<div class="lesson-content-view">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.fileData) {
         if (lesson.fileType === "application/pdf") {
-            content += `<iframe src="${lesson.fileData}" style="width: 100%; height: 500px; border: none; margin-top: 1rem;"></iframe>`;
+            content += `<iframe src="${lesson.fileData}"></iframe>`;
         } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
-            content += `<img src="${lesson.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">`;
+            content += `<img src="${lesson.fileData}" onclick="window.open(this.src)">`;
         }
     }
     
@@ -1320,7 +1317,6 @@ function closeLessonView() {
     currentLessonData = null;
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ markLessonCompleted
 async function markLessonCompleted() {
     if (!currentLessonData) return;
     const lessonKey = `${currentLessonData.courseId}_${currentLessonData.id}`;
@@ -1418,15 +1414,15 @@ async function loadHomeworkByCourse(courseId) {
     container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
         const submitted = submissions.find(s => s.id === hw.id);
         return `
-            <div class="homework-item" style="display: flex; align-items: flex-start; gap: 0.8rem; padding: 1rem; background: var(--card2); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer;" onclick="viewHomework('${hw.id}')">
-                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}" style="width: 10px; height: 10px; border-radius: 50%; margin-top: 0.4rem; background: ${submitted ? 'var(--blue)' : 'var(--gold)'};"></div>
+            <div class="homework-item" onclick="viewHomework('${hw.id}')">
+                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
                 <div style="flex:1">
                     <div style="font-weight:700">${hw.title}</div>
                     <div style="font-size:0.8rem;color:var(--text2)">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
                     <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">Срок: ${hw.dueDate || "не указан"}</div>
                     ${hw.grade ? `<div style="color:var(--green);margin-top:0.3rem">⭐ Оценка: ${hw.grade}/10</div>` : ""}
                 </div>
-                ${!submitted ? `<button class="btn bg bsm" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green); font-size:0.8rem;">✓ Сдано</span>`}
+                ${!submitted ? `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green)">✓ Сдано</span>`}
             </div>
         `;
     }).join("");
