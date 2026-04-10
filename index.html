@@ -1405,28 +1405,58 @@ async function loadHomeworkCourses() {
 
 async function loadHomeworkByCourse(courseId) {
     const course = COURSES.find(c => c.id === courseId);
+    if (!course) return;
+    
     const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
     const homeworks = [];
     snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
     const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
     const submissions = userData.homeworkSubmissions || [];
-    const container = document.getElementById("homeworkListByCourse");
-    if (filtered.length === 0) { container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3><p>Домашних заданий пока нет. Они появятся после добавления администратором.</p>`; return; }
-    container.innerHTML = `<h3 style="margin-bottom:1rem">${course.name}</h3>` + filtered.map(hw => {
-        const submitted = submissions.find(s => s.id === hw.id);
-        return `
-            <div class="homework-item" onclick="viewHomework('${hw.id}')">
-                <div class="homework-status ${submitted ? 'status-submitted' : 'status-pending'}"></div>
-                <div style="flex:1">
-                    <div style="font-weight:700">${hw.title}</div>
-                    <div style="font-size:0.8rem;color:var(--text2)">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
-                    <div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem">Срок: ${hw.dueDate || "не указан"}</div>
-                    ${hw.grade ? `<div style="color:var(--green);margin-top:0.3rem">⭐ Оценка: ${hw.grade}/10</div>` : ""}
+    
+    // Создаём модальное окно
+    const modalHtml = `
+        <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000;">
+            <div class="modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3>📝 ${course.name} - Домашние задания (${filtered.length})</h3>
+                    <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()">&times;</button>
                 </div>
-                ${!submitted ? `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">Сдать</button>` : `<span style="color:var(--green)">✓ Сдано</span>`}
+                <div id="homeworkModalContent_${courseId}">
+                    ${filtered.length === 0 ? '<div style="padding: 2rem; text-align: center;">📋 Домашних заданий пока нет</div>' : 
+                        filtered.map(hw => {
+                            const submitted = submissions.find(s => s.id === hw.id);
+                            return `
+                                <div style="padding: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div>
+                                            <div style="font-weight: 700;">${hw.title}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.2rem;">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
+                                            <div style="font-size: 0.7rem; color: var(--text3); margin-top: 0.3rem;">📅 Срок: ${hw.dueDate || "не указан"}</div>
+                                            ${hw.grade ? `<div style="color: var(--green); margin-top: 0.3rem;">⭐ Оценка: ${hw.grade}/10</div>` : ""}
+                                        </div>
+                                        <div>
+                                            ${!submitted ? 
+                                                `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}'); document.getElementById('homeworkModal_${courseId}').remove();">Сдать</button>` : 
+                                                `<span style="color: var(--green);">✓ Сдано</span>`
+                                            }
+                                        </div>
+                                    </div>
+                                    ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100px; border-radius: 8px; margin-top: 0.5rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
+                                </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
             </div>
-        `;
-    }).join("");
+        </div>
+    `;
+    
+    // Удаляем старое окно если есть
+    const oldModal = document.getElementById(`homeworkModal_${courseId}`);
+    if (oldModal) oldModal.remove();
+    
+    // Добавляем новое окно
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
 async function viewHomework(hwId) {
