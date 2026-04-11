@@ -1421,7 +1421,7 @@ async function openHomeworkDetail(hwId, courseId) {
                         ` : `
                             <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
                                 <div style="font-size: 1rem; margin-bottom: 1rem;">📝 Вы ещё не сдали это задание</div>
-                                <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
+                                <button class="btn bg" id="openSubmitBtn" data-hwid="${hw.id}" data-title="${hw.title.replace(/'/g, "\\'")}" data-desc="${(hw.description || "").replace(/'/g, "\\'")}">📤 Сдать задание</button>
                             </div>
                         `}
                     </div>
@@ -1458,7 +1458,7 @@ async function openHomeworkDetail(hwId, courseId) {
                                 <strong>💬 Комментарий преподавателя:</strong>
                                 <div style="margin-top: 0.5rem; line-height: 1.6;">${hw.feedback || "Нет комментариев"}</div>
                             </div>
-                            <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Доработать и отправить</button>
+                            <button class="btn bg" id="openSubmitBtn" data-hwid="${hw.id}" data-title="${hw.title.replace(/'/g, "\\'")}" data-desc="${(hw.description || "").replace(/'/g, "\\'")}">📤 Доработать и отправить</button>
                         </div>
                     ` : ''}
                 </div>
@@ -1469,6 +1469,20 @@ async function openHomeworkDetail(hwId, courseId) {
     const oldModal = document.getElementById("homeworkDetailModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
+    
+    // Добавляем обработчик на кнопку после создания модального окна
+    const openBtn = document.getElementById("openSubmitBtn");
+    if (openBtn) {
+        openBtn.onclick = function() {
+            const hwId = this.getAttribute("data-hwid");
+            const title = this.getAttribute("data-title");
+            const desc = this.getAttribute("data-desc");
+            // Закрываем окно просмотра
+            document.getElementById("homeworkDetailModal").remove();
+            // Открываем окно отправки
+            openHomeworkSubmit(hwId, title, desc);
+        };
+    }
 }
 
 function openHomeworkSubmit(id, title, description) {
@@ -1506,17 +1520,34 @@ async function submitHomeworkAnswer() {
         showToast("Напишите решение или прикрепите фото", "error"); 
         return; 
     }
+    if (!currentHomework) {
+        showToast("Ошибка: задание не выбрано", "error");
+        return;
+    }
     const hwRef = db.collection("homeworks").doc(currentHomework.id);
-    const hwDoc = await hwRef.get();
-    const hwData = hwDoc.data();
     await hwRef.update({
         status: "submitted",
         solution: solution,
-        fileData: currentFileData,
+        fileData: currentFileData || null,
         submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
         userName: userData.name,
         userEmail: currentUser.email
     });
+    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
+    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+    showToast("Задание отправлено!", "success");
+    closeHWModal();
+    
+    // Закрываем все окна с ДЗ
+    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
+    openModals.forEach(modal => modal.remove());
+    
+    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+    
+    // Обновляем список ДЗ
+    loadHomeworkCourses();
+}
     if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
     userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
     await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
