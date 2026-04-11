@@ -980,6 +980,15 @@ const firebaseConfig = {
     projectId: "logistical-points",
     storageBucket: "logistical-points.firebasestorage.app"
 };
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
