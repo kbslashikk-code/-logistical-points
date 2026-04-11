@@ -1325,6 +1325,34 @@ async function renderProgress() {
         </div>`;
     }
 }
+// Сжатие изображения перед отправкой
+function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 800;
+            if (width > height && width > maxSize) {
+                height = height * maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = width * maxSize / height;
+                height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            callback(dataUrl);
+        };
+    };
+}
 
 // ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ============
 
@@ -1478,15 +1506,28 @@ async function openHomeworkSubmit(hwId, courseId) {
     window.handleDynamicFileSelect = function(input) {
         const file = input.files[0];
         if (file && file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                window.dynamicFileData = e.target.result;
-                document.getElementById("dynPreviewImg").src = window.dynamicFileData;
-                document.getElementById("dynFileName").textContent = file.name;
-                document.getElementById("dynFilePreview").style.display = "flex";
-            };
-            reader.readAsDataURL(file);
-        } else { alert("Выберите изображение"); }
+            // Сжатие, если файл больше 500 КБ
+            if (file.size > 500 * 1024) {
+                compressImage(file, function(compressedDataUrl) {
+                    window.dynamicFileData = compressedDataUrl;
+                    document.getElementById("dynPreviewImg").src = compressedDataUrl;
+                    document.getElementById("dynFileName").textContent = file.name;
+                    document.getElementById("dynFilePreview").style.display = "flex";
+                    alert("Фото сжато и готово к отправке");
+                });
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    window.dynamicFileData = e.target.result;
+                    document.getElementById("dynPreviewImg").src = window.dynamicFileData;
+                    document.getElementById("dynFileName").textContent = file.name;
+                    document.getElementById("dynFilePreview").style.display = "flex";
+                };
+                reader.readAsDataURL(file);
+            }
+        } else {
+            alert("Выберите изображение");
+        }
     };
     window.clearDynamicFile = function() {
         window.dynamicFileData = null;
