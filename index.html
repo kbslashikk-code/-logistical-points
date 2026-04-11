@@ -1521,10 +1521,13 @@ async function submitHomeworkAnswer() {
     await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
     showToast("Задание отправлено!", "success");
     closeHWModal();
-    loadHomeworkByCourse(hwData.courseId);
+    
+    // Закрываем модальное окно с ДЗ если оно открыто
+    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
+    openModals.forEach(modal => modal.remove());
+    
     document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
 }
-
 function closeHWModal() { document.getElementById("hwSubmitModal").classList.remove("active"); currentHomework = null; clearFile(); }
 
 function switchPane(paneId, el) {
