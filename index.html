@@ -1212,10 +1212,6 @@ async function openCourseLessons(courseId) {
         </div>
     `;
     
-    const oldModal = document.getElementById(`lessonsModal_${courseId}`);
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
-    window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
 }
     
     const oldModal = document.getElementById(`lessonsModal_${courseId}`);
