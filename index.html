@@ -711,71 +711,6 @@ footer {
     border-radius: 8px;
 }
 
-.homework-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 1rem;
-    background: var(--card2);
-    border-radius: 12px;
-    margin-bottom: 0.8rem;
-    cursor: pointer;
-}
-
-.homework-status {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-top: 0.4rem;
-}
-.status-pending { background: var(--gold); }
-.status-submitted { background: var(--blue); }
-.status-graded { background: var(--green); }
-
-.homework-image {
-    max-width: 200px;
-    max-height: 150px;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-    cursor: pointer;
-}
-
-.file-zone {
-    border: 2px dashed var(--line);
-    border-radius: 10px;
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.file-zone:hover { border-color: var(--gold); background: var(--gold3); }
-
-.file-preview {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.8rem;
-    padding: 0.5rem;
-    background: var(--bg2);
-    border-radius: 8px;
-}
-
-.file-preview img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.admin-card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-}
-
 .toast-container {
     position: fixed;
     bottom: 1.5rem;
@@ -876,13 +811,6 @@ footer {
         <div style="margin-top: 1rem; text-align: right;">
             <button class="btn btn-success" onclick="markLessonCompleted()">✓ Отметить как пройденный</button>
         </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="homeworkViewModal">
-    <div class="modal" style="max-width: 600px">
-        <div class="modal-header"><h3 id="viewHwTitle"></h3><button class="modal-close" onclick="closeHomeworkView()">&times;</button></div>
-        <div id="viewHwContent"></div>
     </div>
 </div>
 
@@ -1042,7 +970,7 @@ footer {
                 <h2 style="margin-top:1.5rem">Доступные курсы</h2>
                 <div id="availableCoursesList"></div>
             </div>
-            <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания по курсам</h2><div id="homeworkCoursesList"></div><div id="homeworkListByCourse" style="margin-top:1rem"></div></div>
+            <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания по курсам</h2><div id="homeworkCoursesList"></div></div>
             <div id="progressPane" class="dashboard-pane"><h2>Прогресс по курсам</h2><div id="progressList"></div></div>
         </div>
     </div>
@@ -1390,7 +1318,7 @@ async function renderProgress() {
     }
 }
 
-// ============ ДОМАШНИЕ ЗАДАНИЯ (ОБНОВЛЁННЫЕ) ============
+// ============ ДОМАШНИЕ ЗАДАНИЯ ============
 
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
@@ -1402,7 +1330,6 @@ async function loadHomeworkCourses() {
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg bsm">Показать задания</button></div>
         </div>
     `).join("");
-    document.getElementById("homeworkListByCourse").innerHTML = "";
 }
 
 async function loadHomeworkByCourse(courseId) {
@@ -1470,7 +1397,6 @@ async function openHomeworkDetail(hwId, courseId) {
                         <button class="modal-close" onclick="document.getElementById('homeworkDetailModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
                     </div>
                     
-                    <!-- Условие задачи -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
                         <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
@@ -1478,7 +1404,6 @@ async function openHomeworkDetail(hwId, courseId) {
                         <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
                     </div>
                     
-                    <!-- Решение ученика -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
                         ${submitted ? `
@@ -1492,7 +1417,6 @@ async function openHomeworkDetail(hwId, courseId) {
                         `}
                     </div>
                     
-                    <!-- Результат проверки -->
                     ${hw.status === "graded" ? `
                         <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line);">
                             <h3 style="margin-bottom: 1rem; color: var(--gold);">📊 Результат проверки</h3>
@@ -1544,99 +1468,6 @@ async function openHomeworkDetail(hwId, courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// Отправка решения (оставляем как есть, но добавим закрытие окон)
-async function submitHomeworkAnswer() {
-    const solution = document.getElementById("hwSubmitSolution").value.trim();
-    if (!solution && !currentFileData) { 
-        showToast("Напишите решение или прикрепите фото", "error"); 
-        return; 
-    }
-    const hwRef = db.collection("homeworks").doc(currentHomework.id);
-    const hwDoc = await hwRef.get();
-    const hwData = hwDoc.data();
-    await hwRef.update({
-        status: "submitted",
-        solution: solution,
-        fileData: currentFileData,
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userName: userData.name,
-        userEmail: currentUser.email
-    });
-    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
-    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
-    showToast("Задание отправлено!", "success");
-    closeHWModal();
-    
-    // Закрываем все открытые окна с ДЗ
-    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
-    openModals.forEach(modal => modal.remove());
-    const detailModal = document.getElementById("homeworkDetailModal");
-    if (detailModal) detailModal.remove();
-    
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-}
-    
-    // Создаём модальное окно
-    const modalHtml = `
-        <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000;">
-            <div class="modal" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
-                <div class="modal-header">
-                    <h3>📝 ${course.name} - Домашние задания (${filtered.length})</h3>
-                    <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()">&times;</button>
-                </div>
-                <div id="homeworkModalContent_${courseId}">
-                    ${filtered.length === 0 ? '<div style="padding: 2rem; text-align: center;">📋 Домашних заданий пока нет</div>' : 
-                        filtered.map(hw => {
-                            const submitted = submissions.find(s => s.id === hw.id);
-                            return `
-                                <div style="padding: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem;">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                        <div>
-                                            <div style="font-weight: 700;">${hw.title}</div>
-                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.2rem;">${hw.description ? hw.description.substring(0, 100) : "Нет описания"}</div>
-                                            <div style="font-size: 0.7rem; color: var(--text3); margin-top: 0.3rem;">📅 Срок: ${hw.dueDate || "не указан"}</div>
-                                            ${hw.grade ? `<div style="color: var(--green); margin-top: 0.3rem;">⭐ Оценка: ${hw.grade}/10</div>` : ""}
-                                        </div>
-                                        <div>
-                                            ${!submitted ? 
-                                                `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}'); document.getElementById('homeworkModal_${courseId}').remove();">Сдать</button>` : 
-                                                `<span style="color: var(--green);">✓ Сдано</span>`
-                                            }
-                                        </div>
-                                    </div>
-                                    ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100px; border-radius: 8px; margin-top: 0.5rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
-                                </div>
-                            `;
-                        }).join('')
-                    }
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Удаляем старое окно если есть
-    const oldModal = document.getElementById(`homeworkModal_${courseId}`);
-    if (oldModal) oldModal.remove();
-    
-    // Добавляем новое окно
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
-}
-
-async function viewHomework(hwId) {
-    const doc = await db.collection("homeworks").doc(hwId).get();
-    const hw = doc.data();
-    document.getElementById("viewHwTitle").textContent = hw.title;
-    document.getElementById("viewHwContent").innerHTML = `
-        <div style="margin-bottom:1rem"><strong>Описание:</strong><div style="margin-top:0.5rem;padding:0.7rem;background:var(--bg2);border-radius:8px">${hw.description || "Нет описания"}</div></div>
-        ${hw.imageData ? `<div><strong>Фото к заданию:</strong><div style="margin-top:0.5rem"><img src="${hw.imageData}" style="max-width:100%;border-radius:8px;cursor:pointer" onclick="window.open(this.src)"></div></div>` : ""}
-        <div style="margin-top:1rem"><strong>Срок сдачи:</strong> ${hw.dueDate || "не указан"}</div>
-    `;
-    document.getElementById("homeworkViewModal").classList.add("active");
-}
-
-function closeHomeworkView() { document.getElementById("homeworkViewModal").classList.remove("active"); }
-
 function openHomeworkSubmit(id, title, description) {
     currentHomework = { id, title, description };
     document.getElementById("hwSubmitTitle").value = title;
@@ -1668,7 +1499,10 @@ function clearFile() {
 
 async function submitHomeworkAnswer() {
     const solution = document.getElementById("hwSubmitSolution").value.trim();
-    if (!solution && !currentFileData) { showToast("Напишите решение или прикрепите фото", "error"); return; }
+    if (!solution && !currentFileData) { 
+        showToast("Напишите решение или прикрепите фото", "error"); 
+        return; 
+    }
     const hwRef = db.collection("homeworks").doc(currentHomework.id);
     const hwDoc = await hwRef.get();
     const hwData = hwDoc.data();
@@ -1686,13 +1520,19 @@ async function submitHomeworkAnswer() {
     showToast("Задание отправлено!", "success");
     closeHWModal();
     
-    // Закрываем модальное окно с ДЗ если оно открыто
     const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
     openModals.forEach(modal => modal.remove());
+    const detailModal = document.getElementById("homeworkDetailModal");
+    if (detailModal) detailModal.remove();
     
     document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
 }
-function closeHWModal() { document.getElementById("hwSubmitModal").classList.remove("active"); currentHomework = null; clearFile(); }
+
+function closeHWModal() { 
+    document.getElementById("hwSubmitModal").classList.remove("active"); 
+    currentHomework = null; 
+    clearFile(); 
+}
 
 function switchPane(paneId, el) {
     document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
