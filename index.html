@@ -1395,6 +1395,23 @@ async function openHomeworkDetail(hwId, courseId) {
     const submissions = userData.homeworkSubmissions || [];
     const submitted = submissions.find(s => s.id === hwId);
     
+    // Функция для открытия окна отправки
+    const openSubmitWindow = function() {
+        // Закрываем окно просмотра
+        const modal = document.getElementById("homeworkDetailModal");
+        if (modal) modal.remove();
+        
+        // Устанавливаем currentHomework
+        currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
+        
+        // Открываем окно отправки
+        document.getElementById("hwSubmitTitle").value = hw.title;
+        document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
+        document.getElementById("hwSubmitSolution").value = "";
+        clearFile();
+        document.getElementById("hwSubmitModal").classList.add("active");
+    };
+    
     const modalHtml = `
         <div id="homeworkDetailModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
             <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
@@ -1475,24 +1492,8 @@ async function openHomeworkDetail(hwId, courseId) {
         const newBtn = openBtn.cloneNode(true);
         openBtn.parentNode.replaceChild(newBtn, openBtn);
         
-        newBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Закрываем окно просмотра
-            const modal = document.getElementById("homeworkDetailModal");
-            if (modal) modal.remove();
-            
-            // Устанавливаем currentHomework
-            currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
-            
-            // Открываем окно отправки напрямую
-            document.getElementById("hwSubmitTitle").value = hw.title;
-            document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
-            document.getElementById("hwSubmitSolution").value = "";
-            clearFile();
-            document.getElementById("hwSubmitModal").classList.add("active");
-        };
+        // Привязываем функцию открытия окна отправки
+        newBtn.onclick = openSubmitWindow;
     }
 }
 
@@ -1513,14 +1514,19 @@ function handleFileSelect(input) {
         const reader = new FileReader();
         reader.onload = function(e) {
             currentFileData = e.target.result;
-            document.getElementById("previewImg").src = currentFileData;
-            document.getElementById("fileName").textContent = file.name;
-            document.getElementById("filePreview").style.display = "flex";
+            const previewImg = document.getElementById("previewImg");
+            const fileNameSpan = document.getElementById("fileName");
+            const filePreview = document.getElementById("filePreview");
+            
+            if (previewImg) previewImg.src = currentFileData;
+            if (fileNameSpan) fileNameSpan.textContent = file.name;
+            if (filePreview) filePreview.style.display = "flex";
         };
         reader.readAsDataURL(file);
-    } else { showToast("Выберите изображение", "error"); }
+    } else {
+        showToast("Выберите изображение", "error");
+    }
 }
-
 function clearFile() {
     currentFileData = null;
     document.getElementById("filePreview").style.display = "none";
