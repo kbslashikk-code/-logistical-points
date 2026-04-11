@@ -1470,18 +1470,34 @@ async function openHomeworkDetail(hwId, courseId) {
     
     const openBtn = document.getElementById("openSubmitBtn");
     if (openBtn) {
-        openBtn.onclick = function() {
+        openBtn.onclick = function(e) {
+            e.preventDefault();
             const hwId = this.getAttribute("data-hwid");
             const title = this.getAttribute("data-title");
             const desc = this.getAttribute("data-desc");
-            document.getElementById("homeworkDetailModal").remove();
-            openHomeworkSubmit(hwId, title, desc);
+            
+            // Закрываем окно просмотра
+            const modal = document.getElementById("homeworkDetailModal");
+            if (modal) modal.remove();
+            
+            // Устанавливаем currentHomework
+            currentHomework = { id: hwId, title: title, description: desc };
+            console.log("currentHomework установлен:", currentHomework);
+            
+            // Открываем окно отправки
+            document.getElementById("hwSubmitTitle").value = title;
+            document.getElementById("hwSubmitDesc").innerHTML = desc;
+            document.getElementById("hwSubmitSolution").value = "";
+            clearFile();
+            document.getElementById("hwSubmitModal").classList.add("active");
         };
     }
 }
 
 function openHomeworkSubmit(id, title, description) {
-    currentHomework = { id, title, description };
+    console.log("openHomeworkSubmit вызвана с id:", id);
+    currentHomework = { id: id, title: title, description: description };
+    console.log("currentHomework установлен:", currentHomework);
     document.getElementById("hwSubmitTitle").value = title;
     document.getElementById("hwSubmitDesc").innerHTML = description;
     document.getElementById("hwSubmitSolution").value = "";
