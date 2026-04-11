@@ -1,3 +1,6 @@
+Вот полный исправленный код пользовательского сайта. Он включает все разделы (авторизация, курсы, конспекты, прогресс) и исправленную систему домашних заданий с автоматическим сжатием фото.
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -998,6 +1001,7 @@ let currentFileData = null;
 let currentLessonData = null;
 window.currentLessonsModal = null;
 
+// ---- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (авторизация, курсы, конспекты) ----
 function showLoader() {
     const loader = document.getElementById("loaderScreen");
     const progressBar = document.getElementById("loaderProgressBar");
@@ -1325,7 +1329,7 @@ async function renderProgress() {
     }
 }
 
-// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ С СЖАТИЕМ ФОТО) ============
+// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ============
 
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
@@ -1392,7 +1396,6 @@ async function loadHomeworkByCourse(courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// Функция для просмотра уже сданного задания
 async function viewSubmittedHomework(hwId, courseId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1426,7 +1429,6 @@ async function viewSubmittedHomework(hwId, courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// Функция открытия окна отправки (использует существующее модальное окно hwSubmitModal)
 function openHomeworkSubmit(id, title, description) {
     currentHomework = { id: id, title: title, description: description };
     document.getElementById("hwSubmitTitle").value = title;
@@ -1436,7 +1438,7 @@ function openHomeworkSubmit(id, title, description) {
     document.getElementById("hwSubmitModal").classList.add("active");
 }
 
-// Функция сжатия изображения (помещаем в глобальную область, чтобы использовать везде)
+// Сжатие изображения
 function compressImage(file, callback) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -1465,7 +1467,6 @@ function compressImage(file, callback) {
     };
 }
 
-// Обработчики фото с автоматическим сжатием при большом размере
 function handleFileSelect(input) {
     const file = input.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -1504,7 +1505,6 @@ function clearFile() {
     document.getElementById("hwFileInput").value = "";
 }
 
-// Отправка ответа (с сохранением сжатого фото)
 async function submitHomeworkAnswer() {
     const solution = document.getElementById("hwSubmitSolution").value.trim();
     const fileData = currentFileData;
@@ -1547,11 +1547,9 @@ async function submitHomeworkAnswer() {
         
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
-        // Закрываем все окна с ДЗ
         const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
         openModals.forEach(modal => modal.remove());
         
-        // Обновляем список ДЗ
         loadHomeworkCourses();
         
     } catch (error) {
@@ -1605,7 +1603,6 @@ function toggleTheme() {
     }
 }
 
-// Обработчик на кнопку отправки
 document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById("submitHomeworkBtn");
     if (submitBtn) {
