@@ -1390,63 +1390,40 @@ async function loadHomeworkByCourse(courseId) {
 }
 
 async function openHomeworkDetail(hwId, courseId) {
-    alert("1. openHomeworkDetail вызвана");
+    // Получаем данные задания
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
-    alert("2. Данные загружены: " + hw.title);
     
+    // Проверяем, сдано ли уже
     const submissions = userData.homeworkSubmissions || [];
     const submitted = submissions.find(s => s.id === hwId);
-    alert("3. submitted = " + (submitted ? "ДА" : "НЕТ"));
     
+    // Если сдано — показываем окно просмотра (упрощённо)
     if (submitted) {
-        alert("4. Показываем окно просмотра (уже сдано)");
-        // ... код для просмотра (сокращённо) ...
-        const modalHtml = `...`; // здесь можно оставить полный код или упростить
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
+        alert("Задание уже сдано, показываем просмотр");
+        // Здесь можно показать окно просмотра, но для несданных это не нужно
         return;
     }
     
-    alert("5. Открываем окно отправки");
+    // Для НЕСДАННЫХ — сразу открываем окно отправки
+    alert("Открываем окно отправки для: " + hw.title);
+    
     currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
+    
     document.getElementById("hwSubmitTitle").value = hw.title;
     document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
     document.getElementById("hwSubmitSolution").value = "";
     clearFile();
     
+    // Принудительно показываем модальное окно
     const modal = document.getElementById("hwSubmitModal");
     if (modal) {
-        alert("6. Модальное окно найдено, открываем");
         modal.classList.add("active");
-        alert("7. Окно отправки открыто");
+        modal.style.display = "flex";
+        alert("Окно отправки должно открыться");
     } else {
-        alert("6. ОШИБКА: элемент hwSubmitModal не найден!");
+        alert("Ошибка: элемент hwSubmitModal не найден!");
     }
-}
-
-function handleFileSelect(input) {
-    const file = input.files[0];
-    if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            currentFileData = e.target.result;
-            const previewImg = document.getElementById("previewImg");
-            const fileNameSpan = document.getElementById("fileName");
-            const filePreview = document.getElementById("filePreview");
-            
-            if (previewImg) previewImg.src = currentFileData;
-            if (fileNameSpan) fileNameSpan.textContent = file.name;
-            if (filePreview) filePreview.style.display = "flex";
-        };
-        reader.readAsDataURL(file);
-    } else {
-        showToast("Выберите изображение", "error");
-    }
-}
-function clearFile() {
-    currentFileData = null;
-    document.getElementById("filePreview").style.display = "none";
-    document.getElementById("hwFileInput").value = "";
 }
 async function viewHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
