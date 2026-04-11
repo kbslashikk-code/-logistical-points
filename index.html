@@ -1390,75 +1390,114 @@ async function loadHomeworkByCourse(courseId) {
 }
 
 async function openHomeworkDetail(hwId, courseId) {
-    // Получаем данные задания
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
     
-    // Проверяем, сдано ли уже
     const submissions = userData.homeworkSubmissions || [];
     const submitted = submissions.find(s => s.id === hwId);
     
-    // Если сдано — показываем окно просмотра (упрощённо)
     if (submitted) {
-        alert("Задание уже сдано, показываем просмотр");
-        // Здесь можно показать окно просмотра, но для несданных это не нужно
+        // Показываем просмотр (можно оставить как есть, но сейчас важно для несданных)
+        alert("Задание уже сдано");
         return;
     }
     
-    // Для НЕСДАННЫХ — сразу открываем окно отправки
-    alert("Открываем окно отправки для: " + hw.title);
-    
+    // Принудительно создаём окно отправки прямо сейчас
     currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
     
-    document.getElementById("hwSubmitTitle").value = hw.title;
-    document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
-    document.getElementById("hwSubmitSolution").value = "";
-    clearFile();
+    // Удаляем старое окно, если есть
+    const oldModal = document.getElementById("dynamicSubmitModal");
+    if (oldModal) oldModal.remove();
     
-    // Принудительно показываем модальное окно
-    const modal = document.getElementById("hwSubmitModal");
-    if (modal) {
-        modal.classList.add("active");
-        modal.style.display = "flex";
-        alert("Окно отправки должно открыться");
-    } else {
-        alert("Ошибка: элемент hwSubmitModal не найден!");
-    }
-}
-async function viewHomework(hwId) {
-    const doc = await db.collection("homeworks").doc(hwId).get();
-    const hw = doc.data();
-    
-    const modalHtml = `
-        <div id="homeworkViewModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${hw.title}</h2>
-                        <button class="modal-close" onclick="document.getElementById('homeworkViewModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
-                    </div>
-                    
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
-                        <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
-                        ${hw.imageData ? `<div style="margin-top: 1rem;"><img src="${hw.imageData}" style="max-width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open(this.src)"></div>` : ""}
-                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
-                    </div>
-                    
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
-                        <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
-                            <button class="btn bg" onclick="document.getElementById('homeworkViewModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
-                        </div>
-                    </div>
+    // Создаём новое модальное окно
+    const modalDiv = document.createElement("div");
+    modalDiv.id = "dynamicSubmitModal";
+    modalDiv.className = "modal-overlay active";
+    modalDiv.style.cssText = "display: flex; z-index: 10000; background: var(--bg);";
+    modalDiv.innerHTML = `
+        <div style="background: var(--card); border-radius: 20px; padding: 2rem; width: 90%; max-width: 560px; margin: auto; max-height: 90vh; overflow-y: auto; border: 1px solid var(--line);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="font-family: var(--fs);">📤 Сдать домашнее задание</h3>
+                <button class="modal-close" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+            </div>
+            <div class="form-group"><label>Задание</label><input type="text" id="dynHwTitle" readonly style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line);"></div>
+            <div class="form-group"><label>Описание</label><div id="dynHwDesc" style="background:var(--bg2); padding:0.7rem; border-radius:8px; margin-bottom:1rem;"></div></div>
+            <div class="form-group"><label>Ваше решение</label><textarea id="dynHwSolution" rows="4" style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line);"></textarea></div>
+            <div class="form-group">
+                <label>Прикрепить фото</label>
+                <div class="file-zone" style="border:2px dashed var(--line); border-radius:10px; padding:1rem; text-align:center; cursor:pointer;" onclick="document.getElementById('dynFileInput').click()">
+                    <div style="font-size:2rem;">📷</div>
+                    <div style="font-size:0.8rem;">Нажмите или перетащите фото</div>
                 </div>
+                <input type="file" id="dynFileInput" accept="image/*" style="display:none" onchange="handleDynamicFileSelect(this)">
+                <div id="dynFilePreview" style="display:none; margin-top:0.8rem; padding:0.5rem; background:var(--bg2); border-radius:8px; display:flex; align-items:center; gap:0.8rem;">
+                    <img id="dynPreviewImg" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+                    <span id="dynFileName"></span>
+                    <button class="btn bo bsm" style="margin-left:auto;" onclick="clearDynamicFile()">Удалить</button>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+                <button class="btn bg" style="flex:1" id="dynSubmitBtn">Отправить</button>
+                <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove()">Отмена</button>
             </div>
         </div>
     `;
+    document.body.appendChild(modalDiv);
     
-    const oldModal = document.getElementById("homeworkViewModal");
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    // Заполняем данные
+    document.getElementById("dynHwTitle").value = hw.title;
+    document.getElementById("dynHwDesc").innerHTML = hw.description || "Нет описания";
+    
+    // Обработчик отправки
+    document.getElementById("dynSubmitBtn").onclick = async function() {
+        const solution = document.getElementById("dynHwSolution").value.trim();
+        const fileData = window.dynamicFileData || null;
+        if (!solution && !fileData) {
+            alert("Напишите решение или прикрепите фото");
+            return;
+        }
+        try {
+            await db.collection("homeworks").doc(hwId).update({
+                status: "submitted",
+                solution: solution,
+                fileData: fileData,
+                submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                userName: userData.name,
+                userEmail: currentUser.email
+            });
+            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+            userData.homeworkSubmissions.push({ id: hwId, solution: solution, fileData: fileData });
+            await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+            alert("✅ Задание отправлено!");
+            modalDiv.remove();
+            document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+            loadHomeworkCourses();
+        } catch(e) {
+            alert("Ошибка: " + e.message);
+        }
+    };
+    
+    // Вспомогательные функции для фото
+    window.handleDynamicFileSelect = function(input) {
+        const file = input.files[0];
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                window.dynamicFileData = e.target.result;
+                document.getElementById("dynPreviewImg").src = window.dynamicFileData;
+                document.getElementById("dynFileName").textContent = file.name;
+                document.getElementById("dynFilePreview").style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert("Выберите изображение");
+        }
+    };
+    window.clearDynamicFile = function() {
+        window.dynamicFileData = null;
+        document.getElementById("dynFilePreview").style.display = "none";
+        document.getElementById("dynFileInput").value = "";
+    };
 }
 async function submitHomeworkAnswer() {
     console.log("submitHomeworkAnswer вызвана");
