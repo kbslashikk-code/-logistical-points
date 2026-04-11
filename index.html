@@ -1370,36 +1370,54 @@ async function loadHomeworkCourses() {
 
 async function loadHomeworkByCourse(courseId) {
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) return;
+    if (!course) {
+        showToast("Курс не найден", "error");
+        return;
+    }
     
-    const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
-    const homeworks = [];
-    snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
-    const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
-    const submissions = userData.homeworkSubmissions || [];
+    // Проверка авторизации
+    if (!currentUser || !currentUser.email) {
+        showToast("Ошибка авторизации", "error");
+        return;
+    }
     
-    const modalHtml = `
-        <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📝 ${course.name} - Домашние задания</h2>
-                        <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
-                    </div>
-                    <div>
-                        ${filtered.length === 0 ? '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">📋 Домашних заданий пока нет</div>' : 
-                            filtered.map(hw => {
+    showToast(`Загрузка заданий для ${course.name}...`, "info");
+    
+    try {
+        const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
+        const homeworks = [];
+        snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+        
+        // Фильтруем: только "all" или текущий ученик
+        const filtered = homeworks.filter(hw => hw.userEmail === "all" || hw.userEmail === currentUser.email);
+        const submissions = userData?.homeworkSubmissions || [];
+        
+        if (filtered.length === 0) {
+            showToast("Нет заданий для этого курса", "info");
+            return;
+        }
+        
+        // Строим модальное окно
+        const modalHtml = `
+            <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
+                <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                            <h2 style="font-family: var(--fs); font-size: 1.8rem;">📝 ${course.name} - Домашние задания</h2>
+                            <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
+                        </div>
+                        <div>
+                            ${filtered.map(hw => {
                                 const submitted = submissions.find(s => s.id === hw.id);
                                 const statusText = submitted ? "✅ Сдано" : "⏳ Ожидает";
                                 const statusColor = submitted ? "var(--green)" : "var(--gold)";
-                                // Для несданных заданий — кнопка "Сдать", для сданных — "Просмотреть"
                                 const actionBtn = submitted ? 
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}', '${courseId}')">👁️ Просмотреть</button>` :
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать</button>`;
+                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}', '${courseId}')">Просмотреть</button>` :
+                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}')">📤 Сдать</button>`;
                                 return `
                                     <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                                         <div>
-                                            <div style="font-weight: 700; font-size: 1.1rem;">${hw.title}</div>
+                                            <div style="font-weight: 700; font-size: 1.1rem;">${escapeHtml(hw.title)}</div>
                                             <div style="font-size: 0.8rem; color: var(--text3); margin-top: 0.2rem;">📅 Срок: ${hw.dueDate || "не указан"}</div>
                                             ${hw.grade ? `<div style="color: var(--green); margin-top: 0.2rem;">⭐ Оценка: ${hw.grade}/10</div>` : ""}
                                         </div>
@@ -1409,17 +1427,20 @@ async function loadHomeworkByCourse(courseId) {
                                         </div>
                                     </div>
                                 `;
-                            }).join('')
-                        }
+                            }).join('')}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `;
-    
-    const oldModal = document.getElementById(`homeworkModal_${courseId}`);
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
+        `;
+        
+        const oldModal = document.getElementById(`homeworkModal_${courseId}`);
+        if (oldModal) oldModal.remove();
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+    } catch (err) {
+        console.error(err);
+        showToast("Ошибка загрузки заданий: " + err.message, "error");
+    }
 }
 
 // Функция для просмотра уже сданного задания
