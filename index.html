@@ -1401,6 +1401,7 @@ async function openHomeworkDetail(hwId, courseId) {
                         <button class="modal-close" onclick="document.getElementById('homeworkDetailModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
                     </div>
                     
+                    <!-- Условие задачи -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
                         <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
@@ -1408,6 +1409,7 @@ async function openHomeworkDetail(hwId, courseId) {
                         <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
                     </div>
                     
+                    <!-- Решение ученика или кнопка сдачи -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
                         ${submitted ? `
@@ -1455,11 +1457,10 @@ async function openHomeworkDetail(hwId, courseId) {
                             </div>
                             <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Доработать и отправить</button>
                         </div>
-                    ` : `
+                    ` : submitted ? null : `
                         <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line); text-align: center;">
                             <div style="font-size: 2rem; margin-bottom: 0.5rem;">📤</div>
                             <div style="font-size: 1rem;">Задание ожидает выполнения</div>
-                            <button class="btn bg" style="margin-top: 1rem;" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
                         </div>
                     `}
                 </div>
