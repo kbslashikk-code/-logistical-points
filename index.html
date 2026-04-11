@@ -1618,5 +1618,27 @@ function init() {
 
 init();
 </script>
+<!-- ТЕСТОВАЯ КНОПКА ДЛЯ ОТЛАДКИ -->
+<div style="position: fixed; bottom: 200px; right: 10px; z-index: 99999;">
+    <button id="testDebugBtn" style="background: orange; color: black; border: none; border-radius: 10px; padding: 10px 15px; font-size: 14px; font-weight: bold; cursor: pointer;">🐞 ТЕСТ ОТПРАВКИ</button>
+</div>
+
+<script>
+document.getElementById('testDebugBtn').onclick = function() {
+    alert("Кнопка нажата! Проверяем currentHomework: " + (currentHomework ? currentHomework.id : "null"));
+    
+    if (!currentHomework) {
+        alert("Ошибка: задание не выбрано! Сначала откройте ДЗ и нажмите 'Сдать задание'");
+        return;
+    }
+    
+    const solution = document.getElementById("hwSubmitSolution").value;
+    alert("Решение: " + (solution || "(пусто)"));
+    alert("Фото: " + (currentFileData ? "есть" : "нет"));
+    
+    // Пробуем отправить напрямую
+    submitHomeworkAnswer();
+};
+</script>
 </body>
 </html>
