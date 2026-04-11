@@ -1429,92 +1429,92 @@ async function viewSubmittedHomework(hwId, courseId) {
 }
 
 // Функция открытия окна отправки (использует существующее модальное окно hwSubmitModal)
-function openHomeworkSubmit(id, title, description) {
-    currentHomework = { id: id, title: title, description: description };
-    document.getElementById("hwSubmitTitle").value = title;
-    document.getElementById("hwSubmitDesc").innerHTML = description;
-    document.getElementById("hwSubmitSolution").value = "";
-    clearFile();
-    document.getElementById("hwSubmitModal").classList.add("active");
-}
-
-// Обработчики фото
-function handleFileSelect(input) {
-    const file = input.files[0];
-    if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            currentFileData = e.target.result;
-            document.getElementById("previewImg").src = currentFileData;
-            document.getElementById("fileName").textContent = file.name;
-            document.getElementById("filePreview").style.display = "flex";
-        };
-        reader.readAsDataURL(file);
-    } else {
-        showToast("Выберите изображение", "error");
-    }
-}
-
-function clearFile() {
-    currentFileData = null;
-    document.getElementById("filePreview").style.display = "none";
-    document.getElementById("hwFileInput").value = "";
-}
-
-// Отправка ответа
-async function submitHomeworkAnswer() {
-    const solution = document.getElementById("hwSubmitSolution").value.trim();
-    const fileData = currentFileData;
-    
-    if (!solution && !fileData) { 
-        showToast("Напишите решение или прикрепите фото", "error"); 
-        return; 
-    }
-    
-    if (!currentHomework || !currentHomework.id) {
-        showToast("Ошибка: задание не выбрано", "error");
-        return;
-    }
-    
-    try {
-        const hwRef = db.collection("homeworks").doc(currentHomework.id);
-        await hwRef.update({
-            status: "submitted",
-            solution: solution,
-            fileData: fileData || null,
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            userName: userData.name,
-            userEmail: currentUser.email
-        });
-        
-        if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-        userData.homeworkSubmissions.push({ 
-            id: currentHomework.id, 
-            solution: solution, 
-            fileData: fileData,
-            date: new Date().toISOString()
-        });
-        
-        await db.collection("users").doc(currentUser.uid).update({ 
-            homeworkSubmissions: userData.homeworkSubmissions 
-        });
-        
-        showToast("Задание отправлено!", "success");
-        closeHWModal();
-        
-        document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-        
-        // Закрываем все окна с ДЗ
-        const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
-        openModals.forEach(modal => modal.remove());
-        
-        // Обновляем список ДЗ
-        loadHomeworkCourses();
-        
-    } catch (error) {
-        console.error("Ошибка:", error);
-        showToast("Ошибка отправки: " + error.message, "error");
-    }
+async function openHomeworkSubmit(hwId, courseId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    const modalHtml = `
+        <div id="dynamicSubmitModal" class="modal-overlay active" style="display: flex; z-index: 10000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📤 Сдать задание: ${hw.title}</h2>
+                        <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
+                    </div>
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
+                        <div style="line-height: 1.8;">${hw.description || "Нет описания"}</div>
+                        ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100%; margin-top: 1rem; border-radius: 8px;">` : ""}
+                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
+                    </div>
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
+                        <textarea id="dynSolution" rows="6" placeholder="Напишите решение здесь..." style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line); margin-bottom:1rem;"></textarea>
+                        <div class="form-group">
+                            <label>Прикрепить фото</label>
+                            <div class="file-zone" style="border:2px dashed var(--line); border-radius:10px; padding:1rem; text-align:center; cursor:pointer;" onclick="document.getElementById('dynFileInput').click()">
+                                <div style="font-size:2rem;">📷</div>
+                                <div style="font-size:0.8rem;">Нажмите или перетащите фото</div>
+                            </div>
+                            <input type="file" id="dynFileInput" accept="image/*" style="display:none" onchange="handleDynamicFileSelect(this)">
+                            <div id="dynFilePreview" style="display:none; margin-top:0.8rem; padding:0.5rem; background:var(--bg2); border-radius:8px; display:flex; align-items:center; gap:0.8rem;">
+                                <img id="dynPreviewImg" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+                                <span id="dynFileName"></span>
+                                <button class="btn bo bsm" style="margin-left:auto;" onclick="clearDynamicFile()">Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+                        <button class="btn bg" style="flex:1" id="dynSubmitBtn">Отправить</button>
+                        <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove()">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    const oldModal = document.getElementById("dynamicSubmitModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    window.dynamicFileData = null;
+    window.handleDynamicFileSelect = function(input) {
+        const file = input.files[0];
+        if (file && file.type.startsWith("image/")) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                window.dynamicFileData = e.target.result;
+                document.getElementById("dynPreviewImg").src = window.dynamicFileData;
+                document.getElementById("dynFileName").textContent = file.name;
+                document.getElementById("dynFilePreview").style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        } else { alert("Выберите изображение"); }
+    };
+    window.clearDynamicFile = function() {
+        window.dynamicFileData = null;
+        document.getElementById("dynFilePreview").style.display = "none";
+        document.getElementById("dynFileInput").value = "";
+    };
+    document.getElementById("dynSubmitBtn").onclick = async function() {
+        const solution = document.getElementById("dynSolution").value.trim();
+        const fileData = window.dynamicFileData;
+        if (!solution && !fileData) { alert("Напишите решение или прикрепите фото"); return; }
+        try {
+            await db.collection("homeworks").doc(hwId).update({
+                status: "submitted",
+                solution: solution,
+                fileData: fileData || null,
+                submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                userName: userData.name,
+                userEmail: currentUser.email
+            });
+            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+            userData.homeworkSubmissions.push({ id: hwId, solution: solution, fileData: fileData });
+            await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+            alert("✅ Задание отправлено!");
+            document.getElementById("dynamicSubmitModal").remove();
+            document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+            loadHomeworkCourses();
+        } catch(e) { alert("Ошибка: " + e.message); }
+    };
 }
 
 function closeHWModal() { 
