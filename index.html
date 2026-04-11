@@ -1157,7 +1157,8 @@ function renderMyCourses() {
         <div class="course-card" onclick="openCourseLessons('${course.id}')">
             <div class="course-icon">${course.icon}</div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
-        </div>`).join("");
+        </div>
+    `).join("");
 }
 
 async function openCourseLessons(courseId) {
@@ -1601,27 +1602,6 @@ function init() {
 }
 
 init();
-</script>
-<!-- Временная кнопка для диагностики -->
-<div style="position: fixed; bottom: 80px; right: 10px; z-index: 9999;">
-    <button id="debugBtn" style="background: red; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer;">🐛</button>
-</div>
-
-<script>
-document.getElementById('debugBtn')?.addEventListener('click', async () => {
-    // Проверяем конспекты
-    const lessonsSnap = await db.collection("lessons").get();
-    let message = `Конспектов в базе: ${lessonsSnap.size}\n\n`;
-    
-    lessonsSnap.forEach(doc => {
-        const data = doc.data();
-        message += `📖 ${data.title}\n   courseId: ${data.courseId || "НЕ ЗАДАН!"}\n\n`;
-    });
-    
-    message += `\nВаши курсы: ${(userData?.enrolledCourses || []).join(", ") || "нет"}`;
-    
-    alert(message);
-});
 </script>
 </body>
 </html>
