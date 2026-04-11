@@ -6,7 +6,6 @@
 <title>Logistical Points - Образовательная платформа</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
-/* ... все стили остаются без изменений ... */
 * {
     margin: 0;
     padding: 0;
@@ -1161,6 +1160,7 @@ function renderMyCourses() {
     `).join("");
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
     console.log("openCourseLessons вызван для:", courseId);
     const course = COURSES.find(c => c.id === courseId);
@@ -1211,8 +1211,6 @@ async function openCourseLessons(courseId) {
             </div>
         </div>
     `;
-    
-}
     
     const oldModal = document.getElementById(`lessonsModal_${courseId}`);
     if (oldModal) oldModal.remove();
