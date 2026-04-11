@@ -1407,7 +1407,7 @@ async function openHomeworkDetail(hwId, courseId) {
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
                         <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
-                        ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
+                        ${hw.imageData ? `<div style="margin-top: 1rem;"><img src="${hw.imageData}" style="max-width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open(this.src)"></div>` : ""}
                         <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
                     </div>
                     
@@ -1415,7 +1415,7 @@ async function openHomeworkDetail(hwId, courseId) {
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
                         ${submitted ? `
                             <div style="line-height: 1.8; color: var(--text2);">${submitted.solution || "Текстовое решение не указано"}</div>
-                            ${submitted.fileData ? `<img src="${submitted.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
+                            ${submitted.fileData ? `<div style="margin-top: 1rem;"><img src="${submitted.fileData}" style="max-width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open(this.src)"></div>` : ""}
                         ` : `
                             <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
                                 <div style="font-size: 1rem; margin-bottom: 1rem;">📝 Вы ещё не сдали это задание</div>
@@ -1471,7 +1471,11 @@ async function openHomeworkDetail(hwId, courseId) {
     // Находим кнопку и добавляем обработчик
     const openBtn = document.getElementById("openSubmitBtn");
     if (openBtn) {
-        openBtn.onclick = function(e) {
+        // Убираем все предыдущие обработчики
+        const newBtn = openBtn.cloneNode(true);
+        openBtn.parentNode.replaceChild(newBtn, openBtn);
+        
+        newBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
             
@@ -1481,9 +1485,8 @@ async function openHomeworkDetail(hwId, courseId) {
             
             // Устанавливаем currentHomework
             currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
-            console.log("currentHomework установлен:", currentHomework);
             
-            // Открываем окно отправки
+            // Открываем окно отправки напрямую
             document.getElementById("hwSubmitTitle").value = hw.title;
             document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
             document.getElementById("hwSubmitSolution").value = "";
@@ -1523,7 +1526,41 @@ function clearFile() {
     document.getElementById("filePreview").style.display = "none";
     document.getElementById("hwFileInput").value = "";
 }
-
+async function viewHomework(hwId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    
+    const modalHtml = `
+        <div id="homeworkViewModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${hw.title}</h2>
+                        <button class="modal-close" onclick="document.getElementById('homeworkViewModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
+                    </div>
+                    
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
+                        <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
+                        ${hw.imageData ? `<div style="margin-top: 1rem;"><img src="${hw.imageData}" style="max-width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open(this.src)"></div>` : ""}
+                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
+                    </div>
+                    
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
+                        <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
+                            <button class="btn bg" onclick="document.getElementById('homeworkViewModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const oldModal = document.getElementById("homeworkViewModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
 async function submitHomeworkAnswer() {
     console.log("submitHomeworkAnswer вызвана");
     console.log("currentHomework:", currentHomework);
