@@ -1390,6 +1390,8 @@ async function renderProgress() {
     }
 }
 
+// ============ ДОМАШНИЕ ЗАДАНИЯ (ОБНОВЛЁННЫЕ) ============
+
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
@@ -1412,6 +1414,168 @@ async function loadHomeworkByCourse(courseId) {
     snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
     const filtered = homeworks.filter(h => h.userEmail === "all" || h.userEmail === currentUser.email);
     const submissions = userData.homeworkSubmissions || [];
+    
+    const modalHtml = `
+        <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📝 ${course.name} - Домашние задания</h2>
+                        <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
+                    </div>
+                    <div>
+                        ${filtered.length === 0 ? '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">📋 Домашних заданий пока нет</div>' : 
+                            filtered.map(hw => {
+                                const submitted = submissions.find(s => s.id === hw.id);
+                                const statusText = submitted ? "✅ Сдано" : "⏳ Ожидает";
+                                const statusColor = submitted ? "var(--green)" : "var(--gold)";
+                                return `
+                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 1.1rem;">${hw.title}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text3); margin-top: 0.2rem;">📅 Срок: ${hw.dueDate || "не указан"}</div>
+                                            ${hw.grade ? `<div style="color: var(--green); margin-top: 0.2rem;">⭐ Оценка: ${hw.grade}/10</div>` : ""}
+                                        </div>
+                                        <div style="display: flex; gap: 0.8rem; align-items: center;">
+                                            <span style="font-size: 0.8rem; color: ${statusColor};">${statusText}</span>
+                                            <button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkDetail('${hw.id}', '${courseId}')">👁️ Просмотреть</button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const oldModal = document.getElementById(`homeworkModal_${courseId}`);
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+async function openHomeworkDetail(hwId, courseId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    const submissions = userData.homeworkSubmissions || [];
+    const submitted = submissions.find(s => s.id === hwId);
+    
+    const modalHtml = `
+        <div id="homeworkDetailModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${hw.title}</h2>
+                        <button class="modal-close" onclick="document.getElementById('homeworkDetailModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
+                    </div>
+                    
+                    <!-- Условие задачи -->
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
+                        <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
+                        ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
+                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
+                    </div>
+                    
+                    <!-- Решение ученика -->
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
+                        ${submitted ? `
+                            <div style="line-height: 1.8; color: var(--text2);">${submitted.solution || "Текстовое решение не указано"}</div>
+                            ${submitted.fileData ? `<img src="${submitted.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">` : ""}
+                        ` : `
+                            <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
+                                <div style="font-size: 1rem; margin-bottom: 1rem;">📝 Вы ещё не сдали это задание</div>
+                                <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- Результат проверки -->
+                    ${hw.status === "graded" ? `
+                        <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line);">
+                            <h3 style="margin-bottom: 1rem; color: var(--gold);">📊 Результат проверки</h3>
+                            <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--green);">${hw.grade}/10</div>
+                                    <div style="font-size: 0.7rem; color: var(--text3);">Оценка</div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="height: 8px; background: var(--line); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${(hw.grade/10)*100}%; height: 100%; background: var(--green); border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: var(--blue3); border-radius: 12px; padding: 1rem;">
+                                <strong>💬 Комментарий преподавателя:</strong>
+                                <div style="margin-top: 0.5rem; line-height: 1.6;">${hw.feedback || "Нет комментариев"}</div>
+                            </div>
+                        </div>
+                    ` : hw.status === "submitted" ? `
+                        <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line); text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+                            <div style="font-size: 1rem;">Задание отправлено на проверку</div>
+                            <div style="font-size: 0.8rem; color: var(--text3); margin-top: 0.5rem;">Преподаватель проверит его в ближайшее время</div>
+                        </div>
+                    ` : hw.status === "returned" ? `
+                        <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line);">
+                            <h3 style="margin-bottom: 1rem; color: var(--orange);">🔄 Задание возвращено на доработку</h3>
+                            <div style="background: var(--orange2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                                <strong>💬 Комментарий преподавателя:</strong>
+                                <div style="margin-top: 0.5rem; line-height: 1.6;">${hw.feedback || "Нет комментариев"}</div>
+                            </div>
+                            <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Доработать и отправить</button>
+                        </div>
+                    ` : `
+                        <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line); text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📤</div>
+                            <div style="font-size: 1rem;">Задание ожидает выполнения</div>
+                            <button class="btn bg" style="margin-top: 1rem;" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать задание</button>
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const oldModal = document.getElementById("homeworkDetailModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+// Отправка решения (оставляем как есть, но добавим закрытие окон)
+async function submitHomeworkAnswer() {
+    const solution = document.getElementById("hwSubmitSolution").value.trim();
+    if (!solution && !currentFileData) { 
+        showToast("Напишите решение или прикрепите фото", "error"); 
+        return; 
+    }
+    const hwRef = db.collection("homeworks").doc(currentHomework.id);
+    const hwDoc = await hwRef.get();
+    const hwData = hwDoc.data();
+    await hwRef.update({
+        status: "submitted",
+        solution: solution,
+        fileData: currentFileData,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userName: userData.name,
+        userEmail: currentUser.email
+    });
+    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
+    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+    showToast("Задание отправлено!", "success");
+    closeHWModal();
+    
+    // Закрываем все открытые окна с ДЗ
+    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
+    openModals.forEach(modal => modal.remove());
+    const detailModal = document.getElementById("homeworkDetailModal");
+    if (detailModal) detailModal.remove();
+    
+    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+}
     
     // Создаём модальное окно
     const modalHtml = `
