@@ -1162,55 +1162,59 @@ function renderMyCourses() {
 
 // ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
-    console.log("openCourseLessons вызван для:", courseId);
-    
-    // Получаем информацию о курсе
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) {
-        alert("Курс не найден: " + courseId);
-        return;
+    if (!course) return;
+
+    if (window.currentLessonsModal) {
+        window.currentLessonsModal.remove();
+        window.currentLessonsModal = null;
     }
-    
-    // Получаем конспекты
+
     const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
     const lessons = [];
     lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
-    
-    // Простое модальное окно через alert для проверки
-    if (lessons.length === 0) {
-        alert("Конспектов для курса " + course.name + " пока нет!");
-        return;
-    }
-    
-    // Создаём простое модальное окно
-    const modalDiv = document.createElement('div');
-    modalDiv.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:10000; overflow-y:auto; padding:20px;';
-    
-    let html = `
-        <div style="max-width:800px; margin:0 auto;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:2px solid var(--gold); padding-bottom:10px;">
-                <h2 style="font-family:var(--fs);">📖 ${course.name} - Конспекты (${lessons.length})</h2>
-                <button onclick="this.closest('div').remove()" style="font-size:24px; background:none; border:none; cursor:pointer;">&times;</button>
+
+    const modalHtml = `
+        <div id="lessonsModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${course.name} - Конспекты (${lessons.length})</h2>
+                        <button class="modal-close" onclick="document.getElementById('lessonsModal_${courseId}').remove(); window.currentLessonsModal = null;" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
+                    </div>
+                    <div>
+                        ${lessons.length === 0 ? 
+                            '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">📚 Конспектов пока нет. Они появятся после добавления администратором.</div>' : 
+                            lessons.map(lesson => {
+                                const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
+                                const lessonTitle = lesson.title || "Без названия";
+                                const lessonDesc = lesson.description ? lesson.description.substring(0, 100) : "Нет описания";
+                                return `
+                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lessonTitle.replace(/'/g, "\\'")}')">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                                <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 12px; height: 12px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
+                                                <div style="font-weight: 700; font-size: 1.1rem;">${lessonTitle}</div>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lessonDesc}</div>
+                                        </div>
+                                        <div>
+                                            ${!isCompleted ? '<span style="font-size: 0.7rem; color: var(--gold);">📖 Не прочитано</span>' : '<span style="font-size: 0.7rem; color: var(--green);">✓ Прочитано</span>'}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')
+                        }
+                    </div>
+                </div>
             </div>
+        </div>
     `;
     
-    for (const lesson of lessons) {
-        const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
-        html += `
-            <div style="background:var(--card2); border-radius:16px; padding:15px; margin-bottom:10px; border:1px solid var(--line); cursor:pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="width:12px; height:12px; border-radius:50%; background:${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                    <div style="font-weight:700;">${lesson.title}</div>
-                </div>
-                <div style="font-size:0.8rem; color:var(--text2); margin-left:22px;">${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div>
-                <div style="margin-left:22px; font-size:0.7rem; color:${isCompleted ? 'var(--green)' : 'var(--gold)'};">${isCompleted ? '✓ Прочитано' : '📖 Не прочитано'}</div>
-            </div>
-        `;
-    }
-    
-    html += `</div>`;
-    modalDiv.innerHTML = html;
-    document.body.appendChild(modalDiv);
+    const oldModal = document.getElementById(`lessonsModal_${courseId}`);
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
 }
 
 async function viewLesson(lessonId, courseId, title) {
@@ -1386,6 +1390,7 @@ async function loadHomeworkByCourse(courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ openHomeworkDetail (без дублирования кнопки)
 async function openHomeworkDetail(hwId, courseId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1401,7 +1406,6 @@ async function openHomeworkDetail(hwId, courseId) {
                         <button class="modal-close" onclick="document.getElementById('homeworkDetailModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
                     </div>
                     
-                    <!-- Условие задачи -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
                         <div style="line-height: 1.8; color: var(--text2);">${hw.description || "Нет описания"}</div>
@@ -1409,7 +1413,6 @@ async function openHomeworkDetail(hwId, courseId) {
                         <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
                     </div>
                     
-                    <!-- Решение ученика или кнопка сдачи -->
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
                         ${submitted ? `
@@ -1457,12 +1460,7 @@ async function openHomeworkDetail(hwId, courseId) {
                             </div>
                             <button class="btn bg" onclick="document.getElementById('homeworkDetailModal').remove(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Доработать и отправить</button>
                         </div>
-                    ` : submitted ? null : `
-                        <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; border: 1px solid var(--line); text-align: center;">
-                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📤</div>
-                            <div style="font-size: 1rem;">Задание ожидает выполнения</div>
-                        </div>
-                    `}
+                    ` : ''}
                 </div>
             </div>
         </div>
