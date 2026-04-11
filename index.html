@@ -1162,6 +1162,7 @@ function renderMyCourses() {
 }
 
 async function openCourseLessons(courseId) {
+    console.log("openCourseLessons вызван для:", courseId);
     const course = COURSES.find(c => c.id === courseId);
     if (!course) return;
 
@@ -1187,14 +1188,16 @@ async function openCourseLessons(courseId) {
                             '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">📚 Конспектов пока нет. Они появятся после добавления администратором.</div>' : 
                             lessons.map(lesson => {
                                 const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
+                                const lessonTitle = lesson.title || "Без названия";
+                                const lessonDesc = lesson.description ? lesson.description.substring(0, 100) : "Нет описания";
                                 return `
-                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
+                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lessonTitle.replace(/'/g, "\\'")}')">
                                         <div style="flex: 1;">
                                             <div style="display: flex; align-items: center; gap: 0.8rem;">
                                                 <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 12px; height: 12px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                                                <div style="font-weight: 700; font-size: 1.1rem;">${lesson.title}</div>
+                                                <div style="font-weight: 700; font-size: 1.1rem;">${lessonTitle}</div>
                                             </div>
-                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lessonDesc}</div>
                                         </div>
                                         <div>
                                             ${!isCompleted ? '<span style="font-size: 0.7rem; color: var(--gold);">📖 Не прочитано</span>' : '<span style="font-size: 0.7rem; color: var(--green);">✓ Прочитано</span>'}
@@ -1208,6 +1211,12 @@ async function openCourseLessons(courseId) {
             </div>
         </div>
     `;
+    
+    const oldModal = document.getElementById(`lessonsModal_${courseId}`);
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
+}
     
     const oldModal = document.getElementById(`lessonsModal_${courseId}`);
     if (oldModal) oldModal.remove();
