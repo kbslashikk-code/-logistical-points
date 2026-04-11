@@ -563,6 +563,7 @@ const COURSES = [
 let currentGradingHw = null;
 let currentEditLessonId = null;
 
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -582,6 +583,56 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
+// Сжатие изображений перед сохранением
+function compressImage(file, callback) {
+    if (!file.type.startsWith('image/')) {
+        // Для PDF – просто читаем как есть, но проверяем размер
+        if (file.size > 1024 * 1024) {
+            showToast("PDF слишком большой (максимум 1 МБ)", "error");
+            callback(null);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => callback(e.target.result);
+        reader.onerror = () => callback(null);
+        reader.readAsDataURL(file);
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 800;
+            if (width > height && width > maxSize) {
+                height = height * maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = width * maxSize / height;
+                height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            let quality = 0.7;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (dataUrl.length > 800 * 1024 && quality > 0.3) {
+                quality -= 0.1;
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            callback(dataUrl);
+        };
+        img.onerror = () => callback(null);
+    };
+    reader.onerror = () => callback(null);
+}
+
+// ========== АВТОРИЗАЦИЯ ==========
 function adminLogin() {
     const email = document.getElementById("adminEmail").value.trim();
     const password = document.getElementById("adminPassword").value;
@@ -594,6 +645,7 @@ function adminLogin() {
         document.getElementById("adminPanel").style.display = "block";
         showToast("Добро пожаловать в админ-панель!", "success");
         loadDashboard();
+        initAdminPanel(); // инициализация после входа
     }).catch(() => showToast("Неверный пароль", "error"));
 }
 
@@ -604,6 +656,7 @@ function switchTab(tab) {
     document.querySelector(`.sidebar-menu li[data-tab="${tab}"]`).classList.add("active");
 }
 
+// ========== ДАШБОРД ==========
 async function loadDashboard() {
     try {
         const usersSnap = await db.collection("users").get();
@@ -630,36 +683,30 @@ async function loadDashboard() {
     }
 }
 
+// ========== УЧЕНИКИ ==========
 async function loadStudents() {
     try {
-        const usersSnap = await db.collection("users"). get();
+        const usersSnap = await db.collection("users").get();
         const users = [];
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-        
         const container = document.getElementById("studentsList");
         if (!container) return;
-        
         if (users.length === 0) {
             container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Учеников пока нет</div>";
             return;
         }
-
-        // Простая таблица без сложных расчётов прогресса (для гарантии)
-        let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс</th><th>ДЗ сдано</th></tr></thead><tbody>';
+        let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>ДЗ сдано</th></tr></thead><tbody>';
         for (const user of users) {
             const name = user.name || (user.email ? user.email.split('@')[0] : 'Без имени');
             const email = user.email || '—';
             const grade = user.grade || '—';
             const courses = (user.enrolledCourses || []).join(', ') || '—';
             const submissions = (user.homeworkSubmissions || []).length;
-            // Упрощённый прогресс: просто строка
-            const progress = '—';
             html += `<tr>
-                <td><strong>${name}</strong></td>
-                <td style="color: var(--text3); font-size: 0.8rem;">${email}</td>
-                <td><span class="badge badge-pending">${grade}</span></td>
-                <td style="font-size: 0.8rem;">${courses}</td>
-                <td>${progress}</td>
+                <td><strong>${escapeHtml(name)}</strong></td>
+                <td style="color: var(--text3); font-size: 0.8rem;">${escapeHtml(email)}</td>
+                <td><span class="badge badge-pending">${escapeHtml(grade)}</span></td>
+                <td style="font-size: 0.8rem;">${escapeHtml(courses)}</td>
                 <td>${submissions}</td>
             </tr>`;
         }
@@ -671,6 +718,7 @@ async function loadStudents() {
     }
 }
 
+// ========== КОНСПЕКТЫ ==========
 async function loadLessons() {
     try {
         const snapshot = await db.collection("lessons").get();
@@ -706,7 +754,7 @@ async function viewLesson(lessonId) {
     let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.fileData) {
         if (lesson.fileType === "application/pdf") content += `<iframe src="${lesson.fileData}" style="width:100%; height:500px; margin-top:1rem; border:none;"></iframe>`;
-        else if (lesson.fileType.startsWith("image/")) content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
+        else if (lesson.fileType && lesson.fileType.startsWith("image/")) content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -759,8 +807,13 @@ async function saveEditedLesson() {
     if (!title || !subject || !courseId) { showToast("Заполните название, предмет и курс", "error"); return; }
     let fileData = null, fileType = null;
     if (file) {
-        fileData = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
-        fileType = file.type;
+        await new Promise((resolve) => {
+            compressImage(file, (dataUrl) => {
+                fileData = dataUrl;
+                fileType = file.type;
+                resolve();
+            });
+        });
     }
     const updateData = { title, description, subject, courseId, content, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (fileData) { updateData.fileData = fileData; updateData.fileType = fileType; }
@@ -771,6 +824,7 @@ async function saveEditedLesson() {
     loadDashboard();
 }
 
+// ========== ДОБАВЛЕНИЕ КОНСПЕКТА ==========
 function updateLessonCourses() {
     const subject = document.getElementById("lessonSubject").value;
     const courseSelect = document.getElementById("lessonCourse");
@@ -789,8 +843,13 @@ async function createLesson() {
     if (!title || !subject || !courseId) { showToast("Заполните название, предмет и выберите курс!", "error"); return; }
     let fileData = null, fileType = null;
     if (file) {
-        fileData = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
-        fileType = file.type;
+        await new Promise((resolve) => {
+            compressImage(file, (dataUrl) => {
+                fileData = dataUrl;
+                fileType = file.type;
+                resolve();
+            });
+        });
     }
     await db.collection("lessons").add({
         title, description, subject, courseId, content, fileData, fileType,
@@ -826,6 +885,7 @@ document.getElementById("lessonFile")?.addEventListener("change", function(e) {
     }
 });
 
+// ========== ДОМАШНИЕ ЗАДАНИЯ (АДМИН) ==========
 async function loadAllHomework() {
     try {
         const snapshot = await db.collection("homeworks").get();
@@ -884,6 +944,8 @@ async function deleteHomework(id) {
     loadAllHomeworkHistory();
     loadDashboard();
 }
+
+// ========== ДОБАВЛЕНИЕ ДЗ (АДМИН) ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -900,8 +962,22 @@ async function createHomework() {
     const imageFile = document.getElementById("hwImage").files[0];
     if (!title || !subject || !courseId) { showToast("Заполните заголовок, предмет и курс", "error"); return; }
     let imageData = null;
-    if (imageFile) { imageData = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(imageFile); }); }
-    await db.collection("homeworks").add({ title, description, subject, courseId, userEmail: target, userName: target === "all" ? "Все ученики" : target, dueDate, imageData, status: "pending", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    if (imageFile) {
+        await new Promise((resolve) => {
+            compressImage(imageFile, (dataUrl) => {
+                imageData = dataUrl;
+                resolve();
+            });
+        });
+    }
+    await db.collection("homeworks").add({
+        title, description, subject, courseId,
+        userEmail: target,
+        userName: target === "all" ? "Все ученики" : target,
+        dueDate, imageData,
+        status: "pending",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
     showToast("Задание создано!", "success");
     document.getElementById("hwTitle").value = "";
     document.getElementById("hwDescription").value = "";
@@ -913,11 +989,31 @@ async function createHomework() {
     loadDashboard();
 }
 
+// ========== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ПОСЛЕ ВХОДА ==========
+function initAdminPanel() {
+    // Устанавливаем предмет по умолчанию для добавления конспекта
+    const lessonSubject = document.getElementById("lessonSubject");
+    if (lessonSubject) {
+        lessonSubject.value = "math";
+        updateLessonCourses();
+    }
+    // Для добавления ДЗ – тоже можно оставить пустым, но пользователь сам выберет
+    const hwSubject = document.getElementById("hwSubject");
+    if (hwSubject && hwSubject.value === "") {
+        // Ничего не делаем, пусть выберет вручную
+    }
+}
+
+// ========== АВТОРИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
 auth.onAuthStateChanged(async (user) => {
     if (user && user.email === "kb.slash@mail.ru") {
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
         loadDashboard();
+        initAdminPanel();
+    } else if (user && user.email !== "kb.slash@mail.ru") {
+        await auth.signOut();
+        location.reload();
     }
 });
 </script>
