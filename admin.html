@@ -38,7 +38,6 @@ body {
     font-family: var(--f);
 }
 
-/* Кнопки */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -62,7 +61,6 @@ body {
 .btn-secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
-/* Вход */
 .login-container {
     min-height: 100vh;
     display: flex;
@@ -96,7 +94,6 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Панель */
 .admin-container {
     display: flex;
     min-height: 100vh;
@@ -149,7 +146,6 @@ body {
     padding: 1.5rem;
 }
 
-/* Карточки */
 .card {
     background: var(--card);
     border: 1px solid var(--line);
@@ -169,7 +165,6 @@ body {
 
 .card-header h3 { font-size: 1rem; }
 
-/* Таблицы */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -191,7 +186,6 @@ body {
 
 .table tr:hover td { background: var(--bg2); }
 
-/* Прогресс бар */
 .progress-bar {
     width: 100px;
     height: 6px;
@@ -206,7 +200,6 @@ body {
     border-radius: 3px;
 }
 
-/* Формы */
 .form-group {
     margin-bottom: 0.8rem;
 }
@@ -233,7 +226,6 @@ body {
     border-color: var(--gold);
 }
 
-/* ДЗ карточка */
 .homework-card, .lesson-card {
     background: var(--bg2);
     border-radius: 8px;
@@ -267,7 +259,6 @@ body {
     cursor: pointer;
 }
 
-/* Теги */
 .badge {
     display: inline-block;
     padding: 0.15rem 0.5rem;
@@ -280,7 +271,6 @@ body {
 .badge-submitted { background: var(--blue3); color: var(--blue2); }
 .badge-graded { background: var(--green2); color: var(--green); }
 
-/* Тост */
 .toast-container {
     position: fixed;
     bottom: 1rem;
@@ -304,7 +294,6 @@ body {
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* Модалка */
 .modal {
     display: none;
     position: fixed;
@@ -348,7 +337,6 @@ body {
     color: var(--text3);
 }
 
-/* Утилиты */
 .flex { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .justify-between { display: flex; justify-content: space-between; align-items: center; }
 .mt-2 { margin-top: 0.5rem; }
@@ -361,7 +349,6 @@ body {
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Вход -->
 <div id="loginContainer" class="login-container">
     <div class="login-card">
         <h2>🔐 Logistical Points</h2>
@@ -372,7 +359,6 @@ body {
     </div>
 </div>
 
-<!-- Админ панель -->
 <div id="adminPanel" style="display: none;">
     <div class="admin-container">
         <div class="sidebar">
@@ -388,7 +374,6 @@ body {
             </ul>
         </div>
         <div class="main-content">
-            <!-- Дашборд -->
             <div id="dashboardTab" class="tab-content active">
                 <div class="card">
                     <h3>📊 Статистика</h3>
@@ -417,7 +402,6 @@ body {
                 </div>
             </div>
 
-            <!-- Ученики с прогрессом -->
             <div id="studentsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>👥 Список учеников и их прогресс</h3></div>
@@ -425,7 +409,6 @@ body {
                 </div>
             </div>
 
-            <!-- Конспекты -->
             <div id="lessonsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>📖 Все конспекты</h3></div>
@@ -433,7 +416,6 @@ body {
                 </div>
             </div>
 
-            <!-- ДЗ на проверку -->
             <div id="homeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>📝 Домашние задания на проверку</h3></div>
@@ -441,7 +423,6 @@ body {
                 </div>
             </div>
 
-            <!-- Добавить конспект -->
             <div id="addLessonTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>➕ Добавить конспект</h3>
@@ -454,7 +435,7 @@ body {
                             <option value="physics">Физика</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Курс</label><select id="lessonCourse"></select></div>
+                    <div class="form-group"><label>Курс (ВАЖНО: выберите курс)</label><select id="lessonCourse"></select></div>
                     <div class="form-group"><label>Содержание конспекта (текст, HTML)</label>
                         <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги для форматирования..."></textarea>
                     </div>
@@ -469,7 +450,6 @@ body {
                 </div>
             </div>
 
-            <!-- Добавить ДЗ -->
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>➕ Добавить домашнее задание</h3>
@@ -490,7 +470,6 @@ body {
                 </div>
             </div>
 
-            <!-- Все ДЗ -->
             <div id="allHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>📋 История всех домашних заданий</h3></div>
@@ -501,7 +480,6 @@ body {
     </div>
 </div>
 
-<!-- Модалка проверки ДЗ -->
 <div id="gradeModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -519,7 +497,6 @@ body {
     </div>
 </div>
 
-<!-- Модалка просмотра конспекта -->
 <div id="viewLessonModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -565,7 +542,6 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Вход
 function adminLogin() {
     const email = document.getElementById("adminEmail").value.trim();
     const password = document.getElementById("adminPassword").value;
@@ -585,7 +561,6 @@ function adminLogin() {
     });
 }
 
-// Переключение вкладок
 function switchTab(tab) {
     document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
     document.getElementById(`${tab}Tab`).style.display = "block";
@@ -593,7 +568,6 @@ function switchTab(tab) {
     document.querySelector(`.sidebar-menu li[data-tab="${tab}"]`).classList.add("active");
 }
 
-// Дашборд
 async function loadDashboard() {
     const usersSnap = await db.collection("users").get();
     const users = [];
@@ -634,7 +608,6 @@ async function loadDashboard() {
     }
 }
 
-// Ученики с прогрессом
 async function loadStudents() {
     const usersSnap = await db.collection("users").get();
     const users = [];
@@ -651,7 +624,9 @@ async function loadStudents() {
     const totalLessonsByCourse = {};
     lessonsSnap.forEach(doc => {
         const lesson = doc.data();
-        totalLessonsByCourse[lesson.courseId] = (totalLessonsByCourse[lesson.courseId] || 0) + 1;
+        if (lesson.courseId) {
+            totalLessonsByCourse[lesson.courseId] = (totalLessonsByCourse[lesson.courseId] || 0) + 1;
+        }
     });
     
     const container = document.getElementById("studentsList");
@@ -686,7 +661,6 @@ async function loadStudents() {
     `;
 }
 
-// Конспекты
 async function loadLessons() {
     const snapshot = await db.collection("lessons").get();
     const lessons = [];
@@ -702,7 +676,7 @@ async function loadLessons() {
     container.innerHTML = lessons.map(lesson => `
         <div class="lesson-card">
             <div class="justify-between">
-                <div><span class="title">${lesson.title}</span><div class="meta">${lesson.courseId} · ${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div></div>
+                <div><span class="title">${lesson.title}</span><div class="meta">${lesson.courseId || "Без курса"} · ${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div></div>
                 <div class="flex">
                     <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
                     <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
@@ -742,12 +716,14 @@ async function deleteLesson(id) {
     loadDashboard();
 }
 
-// Создание конспекта
 function updateLessonCourses() {
     const subject = document.getElementById("lessonSubject").value;
     const courseSelect = document.getElementById("lessonCourse");
     const available = COURSES.filter(c => c.subject === subject);
     courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+    if (available.length === 0) {
+        courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
+    }
 }
 
 async function createLesson() {
@@ -759,7 +735,7 @@ async function createLesson() {
     const file = document.getElementById("lessonFile").files[0];
     
     if (!title || !subject || !courseId) {
-        showToast("Заполните название, предмет и курс", "error");
+        showToast("Заполните название, предмет и выберите курс!", "error");
         return;
     }
     
@@ -774,9 +750,15 @@ async function createLesson() {
         fileType = file.type;
     }
     
+    // ВАЖНО: добавляем конспект с правильным courseId
     await db.collection("lessons").add({
-        title, description, subject, courseId, content,
-        fileData, fileType,
+        title: title,
+        description: description,
+        subject: subject,
+        courseId: courseId,  // ЭТО ПОЛЕ КЛЮЧЕВОЕ!
+        content: content,
+        fileData: fileData,
+        fileType: fileType,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
@@ -792,7 +774,6 @@ async function createLesson() {
     loadDashboard();
 }
 
-// Фото для конспекта
 document.getElementById("lessonFile")?.addEventListener("change", function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -811,7 +792,6 @@ document.getElementById("lessonFile")?.addEventListener("change", function(e) {
     }
 });
 
-// Все ДЗ на проверку
 async function loadAllHomework() {
     const snapshot = await db.collection("homeworks").get();
     const homeworks = [];
@@ -838,7 +818,6 @@ async function loadAllHomework() {
     `).join("");
 }
 
-// История всех ДЗ
 async function loadAllHomeworkHistory() {
     const snapshot = await db.collection("homeworks").get();
     const homeworks = [];
@@ -868,7 +847,6 @@ async function loadAllHomeworkHistory() {
     `).join("");
 }
 
-// Модалка проверки
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
@@ -919,7 +897,6 @@ async function deleteHomework(id) {
     loadDashboard();
 }
 
-// Создание ДЗ
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -969,7 +946,6 @@ async function createHomework() {
     loadDashboard();
 }
 
-// Автоматическая загрузка при входе
 auth.onAuthStateChanged(async (user) => {
     if (user && user.email === "kb.slash@mail.ru") {
         document.getElementById("loginContainer").style.display = "none";
