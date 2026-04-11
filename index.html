@@ -1419,7 +1419,7 @@ async function openHomeworkDetail(hwId, courseId) {
                         ` : `
                             <div style="padding: 2rem; text-align: center; background: var(--bg2); border-radius: 12px;">
                                 <div style="font-size: 1rem; margin-bottom: 1rem;">📝 Вы ещё не сдали это задание</div>
-                                <button class="btn bg" id="openSubmitBtn" data-hwid="${hw.id}" data-title="${hw.title.replace(/'/g, "\\'")}" data-desc="${(hw.description || "").replace(/'/g, "\\'")}">📤 Сдать задание</button>
+                                <button class="btn bg" id="openSubmitBtn" style="cursor: pointer;">📤 Сдать задание</button>
                             </div>
                         `}
                     </div>
@@ -1456,7 +1456,7 @@ async function openHomeworkDetail(hwId, courseId) {
                                 <strong>💬 Комментарий преподавателя:</strong>
                                 <div style="margin-top: 0.5rem; line-height: 1.6;">${hw.feedback || "Нет комментариев"}</div>
                             </div>
-                            <button class="btn bg" id="openSubmitBtn" data-hwid="${hw.id}" data-title="${hw.title.replace(/'/g, "\\'")}" data-desc="${(hw.description || "").replace(/'/g, "\\'")}">📤 Доработать и отправить</button>
+                            <button class="btn bg" id="openSubmitBtn" style="cursor: pointer;">📤 Доработать и отправить</button>
                         </div>
                     ` : ''}
                 </div>
@@ -1468,25 +1468,24 @@ async function openHomeworkDetail(hwId, courseId) {
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
     
+    // Находим кнопку и добавляем обработчик
     const openBtn = document.getElementById("openSubmitBtn");
     if (openBtn) {
         openBtn.onclick = function(e) {
             e.preventDefault();
-            const hwId = this.getAttribute("data-hwid");
-            const title = this.getAttribute("data-title");
-            const desc = this.getAttribute("data-desc");
+            e.stopPropagation();
             
             // Закрываем окно просмотра
             const modal = document.getElementById("homeworkDetailModal");
             if (modal) modal.remove();
             
             // Устанавливаем currentHomework
-            currentHomework = { id: hwId, title: title, description: desc };
+            currentHomework = { id: hwId, title: hw.title, description: hw.description || "" };
             console.log("currentHomework установлен:", currentHomework);
             
             // Открываем окно отправки
-            document.getElementById("hwSubmitTitle").value = title;
-            document.getElementById("hwSubmitDesc").innerHTML = desc;
+            document.getElementById("hwSubmitTitle").value = hw.title;
+            document.getElementById("hwSubmitDesc").innerHTML = hw.description || "Нет описания";
             document.getElementById("hwSubmitSolution").value = "";
             clearFile();
             document.getElementById("hwSubmitModal").classList.add("active");
@@ -1526,35 +1525,62 @@ function clearFile() {
 }
 
 async function submitHomeworkAnswer() {
+    console.log("submitHomeworkAnswer вызвана");
+    console.log("currentHomework:", currentHomework);
+    
     const solution = document.getElementById("hwSubmitSolution").value.trim();
-    if (!solution && !currentFileData) { 
+    const fileData = currentFileData;
+    
+    if (!solution && !fileData) { 
         showToast("Напишите решение или прикрепите фото", "error"); 
         return; 
     }
-    if (!currentHomework) {
+    
+    if (!currentHomework || !currentHomework.id) {
         showToast("Ошибка: задание не выбрано", "error");
         return;
     }
-    const hwRef = db.collection("homeworks").doc(currentHomework.id);
-    await hwRef.update({
-        status: "submitted",
-        solution: solution,
-        fileData: currentFileData || null,
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userName: userData.name,
-        userEmail: currentUser.email
-    });
-    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
-    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
-    showToast("Задание отправлено!", "success");
-    closeHWModal();
     
-    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
-    openModals.forEach(modal => modal.remove());
-    
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-    loadHomeworkCourses();
+    try {
+        const hwRef = db.collection("homeworks").doc(currentHomework.id);
+        await hwRef.update({
+            status: "submitted",
+            solution: solution,
+            fileData: fileData || null,
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            userName: userData.name,
+            userEmail: currentUser.email
+        });
+        
+        if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+        userData.homeworkSubmissions.push({ 
+            id: currentHomework.id, 
+            solution: solution, 
+            fileData: fileData,
+            date: new Date().toISOString()
+        });
+        
+        await db.collection("users").doc(currentUser.uid).update({ 
+            homeworkSubmissions: userData.homeworkSubmissions 
+        });
+        
+        showToast("Задание отправлено!", "success");
+        closeHWModal();
+        
+        // Обновляем статистику
+        document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+        
+        // Закрываем все окна с ДЗ
+        const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
+        openModals.forEach(modal => modal.remove());
+        
+        // Обновляем список ДЗ
+        loadHomeworkCourses();
+        
+    } catch (error) {
+        console.error("Ошибка:", error);
+        showToast("Ошибка отправки: " + error.message, "error");
+    }
 }
 
 function closeHWModal() { 
