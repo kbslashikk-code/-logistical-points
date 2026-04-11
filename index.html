@@ -6,7 +6,6 @@
 <title>Logistical Points - Образовательная платформа</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
-/* ========== ВСЕ ВАШИ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ========== */
 * {
     margin: 0;
     padding: 0;
@@ -1326,7 +1325,7 @@ async function renderProgress() {
     }
 }
 
-// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ============
+// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ С СЖАТИЕМ ФОТО) ============
 
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
@@ -1364,7 +1363,6 @@ async function loadHomeworkByCourse(courseId) {
                                 const submitted = submissions.find(s => s.id === hw.id);
                                 const statusText = submitted ? "✅ Сдано" : "⏳ Ожидает";
                                 const statusColor = submitted ? "var(--green)" : "var(--gold)";
-                                // Для несданных заданий — кнопка "Сдать", для сданных — "Просмотреть"
                                 const actionBtn = submitted ? 
                                     `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}', '${courseId}')">👁️ Просмотреть</button>` :
                                     `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${hw.title.replace(/'/g, "\\'")}', '${(hw.description || "").replace(/'/g, "\\'")}')">📤 Сдать</button>`;
@@ -1438,18 +1436,63 @@ function openHomeworkSubmit(id, title, description) {
     document.getElementById("hwSubmitModal").classList.add("active");
 }
 
-// Обработчики фото
+// Функция сжатия изображения (помещаем в глобальную область, чтобы использовать везде)
+function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 800;
+            if (width > height && width > maxSize) {
+                height = height * maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = width * maxSize / height;
+                height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            callback(dataUrl);
+        };
+    };
+}
+
+// Обработчики фото с автоматическим сжатием при большом размере
 function handleFileSelect(input) {
     const file = input.files[0];
     if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            currentFileData = e.target.result;
-            document.getElementById("previewImg").src = currentFileData;
-            document.getElementById("fileName").textContent = file.name;
-            document.getElementById("filePreview").style.display = "flex";
-        };
-        reader.readAsDataURL(file);
+        if (file.size > 500 * 1024) {
+            compressImage(file, function(compressedDataUrl) {
+                currentFileData = compressedDataUrl;
+                const previewImg = document.getElementById("previewImg");
+                const fileNameSpan = document.getElementById("fileName");
+                const filePreview = document.getElementById("filePreview");
+                if (previewImg) previewImg.src = compressedDataUrl;
+                if (fileNameSpan) fileNameSpan.textContent = file.name;
+                if (filePreview) filePreview.style.display = "flex";
+                showToast("Фото сжато и готово к отправке", "info");
+            });
+        } else {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentFileData = e.target.result;
+                const previewImg = document.getElementById("previewImg");
+                const fileNameSpan = document.getElementById("fileName");
+                const filePreview = document.getElementById("filePreview");
+                if (previewImg) previewImg.src = currentFileData;
+                if (fileNameSpan) fileNameSpan.textContent = file.name;
+                if (filePreview) filePreview.style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        }
     } else {
         showToast("Выберите изображение", "error");
     }
@@ -1461,7 +1504,7 @@ function clearFile() {
     document.getElementById("hwFileInput").value = "";
 }
 
-// Отправка ответа
+// Отправка ответа (с сохранением сжатого фото)
 async function submitHomeworkAnswer() {
     const solution = document.getElementById("hwSubmitSolution").value.trim();
     const fileData = currentFileData;
