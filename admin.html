@@ -632,19 +632,10 @@ async function loadDashboard() {
 
 async function loadStudents() {
     try {
-        const usersSnap = await db.collection("users").get();
+        const usersSnap = await db.collection("users"). get();
         const users = [];
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
         
-        const lessonsSnap = await db.collection("lessons").get();
-        const totalLessonsByCourse = {};
-        lessonsSnap.forEach(doc => {
-            const lesson = doc.data();
-            if (lesson.courseId) {
-                totalLessonsByCourse[lesson.courseId] = (totalLessonsByCourse[lesson.courseId] || 0) + 1;
-            }
-        });
-
         const container = document.getElementById("studentsList");
         if (!container) return;
         
@@ -653,35 +644,30 @@ async function loadStudents() {
             return;
         }
 
-        let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс по курсам</th><th>ДЗ сдано</th></tr></thead><tbody>';
+        // Простая таблица без сложных расчётов прогресса (для гарантии)
+        let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс</th><th>ДЗ сдано</th></tr></thead><tbody>';
         for (const user of users) {
-            const userName = user.name || (user.email ? user.email.split('@')[0] : 'Без имени');
-            const userEmail = user.email || '—';
-            const userGrade = user.grade || '—';
-            const userSubmissions = Array.isArray(user.homeworkSubmissions) ? user.homeworkSubmissions.length : 0;
-            const enrolledCourses = (user.enrolledCourses || []).map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-            let progressHtml = "";
-            for (const course of enrolledCourses) {
-                const total = totalLessonsByCourse[course.id] || 0;
-                const completed = (user.completedLessons || []).filter(l => l && l.startsWith(course.id)).length;
-                const percent = total > 0 ? Math.round(completed / total * 100) : 0;
-                progressHtml += `<div style="margin-bottom: 0.5rem;"><strong>${escapeHtml(course.name)}</strong><div class="progress-bar" style="margin-top: 0.2rem;"><div class="progress-fill" style="width: ${percent}%;"></div></div><span style="font-size: 0.7rem;">${completed}/${total} (${percent}%)</span></div>`;
-            }
-            if (progressHtml === "") progressHtml = "—";
+            const name = user.name || (user.email ? user.email.split('@')[0] : 'Без имени');
+            const email = user.email || '—';
+            const grade = user.grade || '—';
+            const courses = (user.enrolledCourses || []).join(', ') || '—';
+            const submissions = (user.homeworkSubmissions || []).length;
+            // Упрощённый прогресс: просто строка
+            const progress = '—';
             html += `<tr>
-                <td><strong>${escapeHtml(userName)}</strong></td>
-                <td style="color: var(--text3); font-size: 0.8rem;">${escapeHtml(userEmail)}</td>
-                <td><span class="badge badge-pending">${escapeHtml(userGrade)}</span></td>
-                <td style="font-size: 0.8rem;">${enrolledCourses.map(c => escapeHtml(c.name)).join(", ") || "—"}</td>
-                <td style="min-width: 200px;">${progressHtml}</td>
-                <td>${userSubmissions}</td>
+                <td><strong>${name}</strong></td>
+                <td style="color: var(--text3); font-size: 0.8rem;">${email}</td>
+                <td><span class="badge badge-pending">${grade}</span></td>
+                <td style="font-size: 0.8rem;">${courses}</td>
+                <td>${progress}</td>
+                <td>${submissions}</td>
             </tr>`;
         }
         html += '</tbody></table>';
         container.innerHTML = html;
     } catch (err) {
         console.error(err);
-        document.getElementById("studentsList").innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--red)'>Ошибка загрузки учеников</div>";
+        document.getElementById("studentsList").innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--red)'>Ошибка: " + err.message + "</div>";
     }
 }
 
