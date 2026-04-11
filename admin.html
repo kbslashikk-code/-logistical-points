@@ -614,25 +614,47 @@ async function loadDashboard() {
 
 async function loadStudents() {
     const usersSnap = await db.collection("users").get();
-    const users = []; usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-    const homeworksSnap = await db.collection("homeworks").get();
-    const submissions = [];
-    homeworksSnap.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") submissions.push(hw); });
+    const users = [];
+    usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+    
+    // Получаем все конспекты для подсчёта общего количества уроков по курсам
     const lessonsSnap = await db.collection("lessons").get();
     const totalLessonsByCourse = {};
-    lessonsSnap.forEach(doc => { const lesson = doc.data(); if (lesson.courseId) totalLessonsByCourse[lesson.courseId] = (totalLessonsByCourse[lesson.courseId] || 0) + 1; });
+    lessonsSnap.forEach(doc => {
+        const lesson = doc.data();
+        if (lesson.courseId) {
+            totalLessonsByCourse[lesson.courseId] = (totalLessonsByCourse[lesson.courseId] || 0) + 1;
+        }
+    });
+
     const container = document.getElementById("studentsList");
-    container.innerHTML = `<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс по курсам</th><th>ДЗ сдано</th></tr></thead><tbody>${users.map(user => {
-        const userSubmissions = submissions.filter(s => s.userEmail === user.email);
+    if (users.length === 0) {
+        container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Учеников пока нет</div>";
+        return;
+    }
+
+    let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>Прогресс по курсам</th><th>ДЗ сдано</th></tr></thead><tbody>';
+    for (const user of users) {
+        const userSubmissions = (user.homeworkSubmissions || []).length;
         const enrolledCourses = (user.enrolledCourses || []).map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-        const progressHtml = enrolledCourses.map(course => {
+        let progressHtml = "";
+        for (const course of enrolledCourses) {
             const total = totalLessonsByCourse[course.id] || 0;
             const completed = (user.completedLessons || []).filter(l => l.startsWith(course.id)).length;
             const percent = total > 0 ? Math.round(completed / total * 100) : 0;
-            return `<div style="margin-bottom: 0.5rem;"><strong>${course.name}</strong><div class="progress-bar" style="margin-top: 0.2rem;"><div class="progress-fill" style="width: ${percent}%;"></div></div><span style="font-size: 0.7rem;">${completed}/${total} (${percent}%)</span></div>`;
-        }).join("");
-        return `<tr><td><strong>${user.name || user.email.split("@")[0]}</strong></td><td style="color: var(--text3); font-size: 0.8rem;">${user.email}</td><td><span class="badge badge-pending">${user.grade || "—"}</span></td><td style="font-size: 0.8rem;">${enrolledCourses.map(c => c.name).join(", ") || "—"}</td><td style="min-width: 200px;">${progressHtml || "—"}</td><td>${userSubmissions.length}</td></tr>`;
-    }).join("")}</tbody></table>`;
+            progressHtml += `<div style="margin-bottom: 0.5rem;"><strong>${course.name}</strong><div class="progress-bar" style="margin-top: 0.2rem;"><div class="progress-fill" style="width: ${percent}%;"></div></div><span style="font-size: 0.7rem;">${completed}/${total} (${percent}%)</span></div>`;
+        }
+        html += `<tr>
+            <td><strong>${user.name || user.email.split("@")[0]}</strong></td>
+            <td style="color: var(--text3); font-size: 0.8rem;">${user.email}</td>
+            <td><span class="badge badge-pending">${user.grade || "—"}</span></td>
+            <td style="font-size: 0.8rem;">${enrolledCourses.map(c => c.name).join(", ") || "—"}</td>
+            <td style="min-width: 200px;">${progressHtml || "—"}</td>
+            <td>${userSubmissions}</td>
+        </tr>`;
+    }
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 async function loadLessons() {
