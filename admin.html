@@ -892,57 +892,5 @@ auth.onAuthStateChanged(async (user) => {
     }
 });
 </script>
-<div id="debugLog" style="position: fixed; bottom: 0; left: 0; right: 0; background: black; color: lime; font-size: 12px; padding: 5px; z-index: 9999; max-height: 150px; overflow-y: auto; font-family: monospace;"></div>
-<script>
-function debug(msg) {
-    const logDiv = document.getElementById('debugLog');
-    if (logDiv) {
-        const p = document.createElement('div');
-        p.textContent = new Date().toLocaleTimeString() + ' ' + msg;
-        logDiv.appendChild(p);
-        logDiv.scrollTop = logDiv.scrollHeight;
-    }
-}
-// Перехватываем ошибки
-window.onerror = function(msg, url, line, col, error) {
-    debug('ОШИБКА: ' + msg + ' в строке ' + line);
-    return false;
-};
-// Переопределяем loadStudents для вывода логов
-const originalLoadStudents = loadStudents;
-window.loadStudents = async function() {
-    debug('loadStudents вызвана');
-    try {
-        const usersSnap = await db.collection("users").get();
-        debug('Получено документов: ' + usersSnap.size);
-        const users = [];
-        usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-        debug('users массив: ' + JSON.stringify(users.map(u => u.email)));
-        const container = document.getElementById("studentsList");
-        if (!container) {
-            debug('ОШИБКА: элемент studentsList не найден');
-            return;
-        }
-        if (users.length === 0) {
-            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Учеников пока нет</div>";
-            debug('Нет учеников');
-            return;
-        }
-        // Генерируем упрощённую таблицу
-        let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th></tr></thead><tbody>';
-        for (const user of users) {
-            html += `<tr><td>${user.name || user.email || 'Без имени'}</td><td>${user.email || 'нет email'}</td></tr>`;
-        }
-        html += '</tbody></table>';
-        container.innerHTML = html;
-        debug('Таблица отрисована, учеников: ' + users.length);
-    } catch (err) {
-        debug('ОШИБКА в loadStudents: ' + err.message);
-    }
-};
-// Вызываем при загрузке вкладки
-document.querySelector('[data-tab="students"]')?.setAttribute('onclick', "switchTab('students'); loadStudents(); debug('Переключение на учеников');");
-debug('Отладка включена');
-</script>
 </body>
 </html>
