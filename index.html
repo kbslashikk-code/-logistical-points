@@ -823,7 +823,7 @@ footer {
             </div>
         </div>
         <div style="display: flex; gap: 0.8rem">
-            <button class="btn bg" style="flex:1" onclick="submitHomeworkAnswer()">Отправить</button>
+            <button class="btn bg" style="flex:1" id="submitHomeworkBtn">Отправить</button>
             <button class="btn bo" onclick="closeHWModal()">Отмена</button>
         </div>
     </div>
@@ -1160,7 +1160,6 @@ function renderMyCourses() {
     `).join("");
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ openCourseLessons
 async function openCourseLessons(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     if (!course) return;
@@ -1390,7 +1389,6 @@ async function loadHomeworkByCourse(courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ openHomeworkDetail (без дублирования кнопки)
 async function openHomeworkDetail(hwId, courseId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1470,16 +1468,13 @@ async function openHomeworkDetail(hwId, courseId) {
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
     
-    // Добавляем обработчик на кнопку после создания модального окна
     const openBtn = document.getElementById("openSubmitBtn");
     if (openBtn) {
         openBtn.onclick = function() {
             const hwId = this.getAttribute("data-hwid");
             const title = this.getAttribute("data-title");
             const desc = this.getAttribute("data-desc");
-            // Закрываем окно просмотра
             document.getElementById("homeworkDetailModal").remove();
-            // Открываем окно отправки
             openHomeworkSubmit(hwId, title, desc);
         };
     }
@@ -1539,27 +1534,11 @@ async function submitHomeworkAnswer() {
     showToast("Задание отправлено!", "success");
     closeHWModal();
     
-    // Закрываем все окна с ДЗ
     const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
     openModals.forEach(modal => modal.remove());
     
     document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-    
-    // Обновляем список ДЗ
     loadHomeworkCourses();
-}
-    if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-    userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, fileData: currentFileData });
-    await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
-    showToast("Задание отправлено!", "success");
-    closeHWModal();
-    
-    const openModals = document.querySelectorAll('[id^="homeworkModal_"]');
-    openModals.forEach(modal => modal.remove());
-    const detailModal = document.getElementById("homeworkDetailModal");
-    if (detailModal) detailModal.remove();
-    
-    document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
 }
 
 function closeHWModal() { 
@@ -1606,6 +1585,14 @@ function toggleTheme() {
         document.getElementById("themeBtn").textContent = "☀️";
     }
 }
+
+// Добавляем обработчик на кнопку отправки после загрузки страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const submitBtn = document.getElementById("submitHomeworkBtn");
+    if (submitBtn) {
+        submitBtn.onclick = submitHomeworkAnswer;
+    }
+});
 
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
