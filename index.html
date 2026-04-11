@@ -1182,39 +1182,46 @@ async function openCourseLessons(courseId) {
     const lessons = [];
     lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
 
-    const modal = document.createElement("div");
-    modal.className = "modal-overlay active";
-    modal.style.display = "flex";
-    modal.style.zIndex = "2000";
-
-    let lessonsHtml = `<div class="modal" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
-        <div class="modal-header">
-            <h3>📖 ${course.name} - Конспекты</h3>
-            <button class="modal-close" onclick="this.closest('.modal-overlay').remove(); window.currentLessonsModal = null;">&times;</button>
-        </div>`;
-
-    if (lessons.length === 0) {
-        lessonsHtml += `<div style="padding: 2rem; text-align: center; color: var(--text3);">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
-            <div>Конспектов пока нет. Они появятся после добавления администратором.</div>
-        </div>`;
-    } else {
-        lessonsHtml += `<div class="lessons-container">`;
-        for (const lesson of lessons) {
-            const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
-            lessonsHtml += `
-                <div class="lesson-item" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
-                    <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}"></div>
-                    <div class="lesson-info">
-                        <div class="lesson-title">${lesson.title}</div>
-                        <div class="lesson-desc">${lesson.description ? lesson.description.substring(0, 80) : "Нет описания"}</div>
+    const modalHtml = `
+        <div id="lessonsModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${course.name} - Конспекты (${lessons.length})</h2>
+                        <button class="modal-close" onclick="document.getElementById('lessonsModal_${courseId}').remove(); window.currentLessonsModal = null;" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
                     </div>
-                    ${!isCompleted ? '<span class="lesson-badge">📖 Не прочитано</span>' : '<span class="lesson-badge completed">✓ Прочитано</span>'}
+                    <div>
+                        ${lessons.length === 0 ? 
+                            '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">📚 Конспектов пока нет. Они появятся после добавления администратором.</div>' : 
+                            lessons.map(lesson => {
+                                const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
+                                return `
+                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lesson.title.replace(/'/g, "\\'")}')">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                                <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 12px; height: 12px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
+                                                <div style="font-weight: 700; font-size: 1.1rem;">${lesson.title}</div>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lesson.description ? lesson.description.substring(0, 100) : "Нет описания"}</div>
+                                        </div>
+                                        <div>
+                                            ${!isCompleted ? '<span style="font-size: 0.7rem; color: var(--gold);">📖 Не прочитано</span>' : '<span style="font-size: 0.7rem; color: var(--green);">✓ Прочитано</span>'}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')
+                        }
+                    </div>
                 </div>
-            `;
-        }
-        lessonsHtml += `</div>`;
-    }
+            </div>
+        </div>
+    `;
+    
+    const oldModal = document.getElementById(`lessonsModal_${courseId}`);
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
+}
 
     lessonsHtml += `</div>`;
     modal.innerHTML = lessonsHtml;
@@ -1227,23 +1234,33 @@ async function viewLesson(lessonId, courseId, title) {
     const lesson = doc.data();
     currentLessonData = { id: lessonId, courseId: courseId, title: title };
     
-    let content = `<div class="lesson-content-view">${lesson.content || "Нет содержания"}</div>`;
-    if (lesson.fileData) {
-        if (lesson.fileType === "application/pdf") {
-            content += `<iframe src="${lesson.fileData}"></iframe>`;
-        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
-            content += `<img src="${lesson.fileData}" onclick="window.open(this.src)">`;
-        }
-    }
+    const modalHtml = `
+        <div id="lessonDetailModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${title}</h2>
+                        <button class="modal-close" onclick="document.getElementById('lessonDetailModal').remove();" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
+                    </div>
+                    
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
+                        <div style="line-height: 1.8; color: var(--text2);">${lesson.content || "Нет содержания"}</div>
+                        ${lesson.fileData ? (lesson.fileType === "application/pdf" ? 
+                            `<iframe src="${lesson.fileData}" style="width: 100%; height: 500px; border: none; margin-top: 1rem; border-radius: 8px;"></iframe>` : 
+                            `<img src="${lesson.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">`) : ""}
+                    </div>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                        <button class="btn bg" onclick="markLessonCompletedFromModal()">✓ Отметить как пройденный</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
     
-    document.getElementById("viewLessonTitle").textContent = title;
-    document.getElementById("viewLessonContent").innerHTML = content;
-    document.getElementById("lessonViewModal").classList.add("active");
-}
-
-function closeLessonView() { 
-    document.getElementById("lessonViewModal").classList.remove("active"); 
-    currentLessonData = null;
+    const oldModal = document.getElementById("lessonDetailModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
 async function markLessonCompleted() {
