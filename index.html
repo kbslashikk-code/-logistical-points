@@ -6,6 +6,7 @@
 <title>Logistical Points - Образовательная платформа</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
+/* ... все стили остаются без изменений ... */
 * {
     margin: 0;
     padding: 0;
@@ -804,16 +805,6 @@ footer {
     </div>
 </div>
 
-<div class="modal-overlay" id="lessonViewModal">
-    <div class="modal" style="max-width: 700px">
-        <div class="modal-header"><h3 id="viewLessonTitle"></h3><button class="modal-close" onclick="closeLessonView()">&times;</button></div>
-        <div id="viewLessonContent" style="max-height: 60vh; overflow-y: auto;"></div>
-        <div style="margin-top: 1rem; text-align: right;">
-            <button class="btn btn-success" onclick="markLessonCompleted()">✓ Отметить как пройденный</button>
-        </div>
-    </div>
-</div>
-
 <div class="modal-overlay" id="hwSubmitModal">
     <div class="modal" style="max-width: 560px">
         <div class="modal-header"><h3>Сдать домашнее задание</h3><button class="modal-close" onclick="closeHWModal()">&times;</button></div>
@@ -1223,12 +1214,6 @@ async function openCourseLessons(courseId) {
     window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
 }
 
-    lessonsHtml += `</div>`;
-    modal.innerHTML = lessonsHtml;
-    document.body.appendChild(modal);
-    window.currentLessonsModal = modal;
-}
-
 async function viewLesson(lessonId, courseId, title) {
     const doc = await db.collection("lessons").doc(lessonId).get();
     const lesson = doc.data();
@@ -1263,7 +1248,7 @@ async function viewLesson(lessonId, courseId, title) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-async function markLessonCompleted() {
+async function markLessonCompletedFromModal() {
     if (!currentLessonData) return;
     const lessonKey = `${currentLessonData.courseId}_${currentLessonData.id}`;
     if (!userData.completedLessons) userData.completedLessons = [];
@@ -1271,12 +1256,15 @@ async function markLessonCompleted() {
         userData.completedLessons.push(lessonKey);
         await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
         showToast("Конспект отмечен как пройденный!", "success");
-        closeLessonView();
+        
+        const detailModal = document.getElementById("lessonDetailModal");
+        if (detailModal) detailModal.remove();
         
         if (window.currentLessonsModal) {
+            const courseId = currentLessonData.courseId;
             window.currentLessonsModal.remove();
             window.currentLessonsModal = null;
-            openCourseLessons(currentLessonData.courseId);
+            openCourseLessons(courseId);
         }
         
         renderProgress();
