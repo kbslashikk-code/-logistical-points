@@ -633,20 +633,53 @@ function compressImage(file, callback) {
 }
 
 // ========== АВТОРИЗАЦИЯ ==========
-function adminLogin() {
+async function adminLogin() {
     const email = document.getElementById("adminEmail").value.trim();
     const password = document.getElementById("adminPassword").value;
+    
     if (email !== "kb.slash@mail.ru") {
         showToast("Доступ запрещён. Только для администратора.", "error");
         return;
     }
-    auth.signInWithEmailAndPassword(email, password).then(() => {
+    
+    if (!password) {
+        showToast("Введите пароль", "error");
+        return;
+    }
+    
+    showToast("Выполняется вход...", "info");
+    
+    try {
+        // Пытаемся войти
+        await auth.signInWithEmailAndPassword(email, password);
+        showToast("Добро пожаловать в админ-панель!", "success");
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
-        showToast("Добро пожаловать в админ-панель!", "success");
         loadDashboard();
-        initAdminPanel(); // инициализация после входа
-    }).catch(() => showToast("Неверный пароль", "error"));
+        initAdminPanel();
+    } catch (error) {
+        // Если пользователь не найден, создаем его
+        if (error.code === 'auth/user-not-found') {
+            showToast("Создание администратора...", "info");
+            try {
+                // Создаем пользователя-администратора
+                await auth.createUserWithEmailAndPassword(email, password);
+                showToast("Администратор создан! Вход выполнен.", "success");
+                document.getElementById("loginContainer").style.display = "none";
+                document.getElementById("adminPanel").style.display = "block";
+                loadDashboard();
+                initAdminPanel();
+            } catch (createError) {
+                console.error("Ошибка создания:", createError);
+                showToast("Ошибка создания администратора: " + createError.message, "error");
+            }
+        } else if (error.code === 'auth/wrong-password') {
+            showToast("Неверный пароль", "error");
+        } else {
+            console.error("Ошибка входа:", error);
+            showToast("Ошибка: " + error.message, "error");
+        }
+    }
 }
 
 function switchTab(tab) {
@@ -1012,8 +1045,13 @@ auth.onAuthStateChanged(async (user) => {
         loadDashboard();
         initAdminPanel();
     } else if (user && user.email !== "kb.slash@mail.ru") {
+        // Если залогинен не тот пользователь - разлогиниваем
         await auth.signOut();
         location.reload();
+    } else {
+        // Не залогинены - показываем форму входа
+        document.getElementById("loginContainer").style.display = "flex";
+        document.getElementById("adminPanel").style.display = "none";
     }
 });
 </script>
