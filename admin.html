@@ -583,10 +583,54 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
+// ========== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ОТКРЫТИЯ ФАЙЛОВ ==========
+function openFileInBrowser(fileData, fileType, fileName) {
+    if (!fileData) {
+        showToast("Файл не найден", "error");
+        return;
+    }
+    
+    // Для изображений - просто открываем в новом окне
+    if (fileType && fileType.startsWith('image/')) {
+        const win = window.open();
+        win.document.write(`<img src="${fileData}" style="max-width:100%; height:auto; background:#000;" onerror="document.body.innerHTML='<h3>Ошибка загрузки изображения</h3>'">`);
+        win.document.title = fileName || "Изображение";
+        return;
+    }
+    
+    // Для PDF - создаем временную ссылку с указанием MIME-типа
+    if (fileType === 'application/pdf' || (fileData.startsWith('data:application/pdf'))) {
+        try {
+            // Создаем blob из data URL
+            const byteCharacters = atob(fileData.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const win = window.open(url);
+            if (!win) {
+                showToast("Разрешите всплывающие окна для открытия PDF", "error");
+            }
+            // Освобождаем URL через некоторое время
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) {
+            showToast("Ошибка открытия PDF: " + e.message, "error");
+        }
+        return;
+    }
+    
+    // Для других типов или если тип не определен - пробуем открыть как есть
+    const win = window.open();
+    win.document.write(`<iframe src="${fileData}" style="width:100%; height:100%; border:none;" onerror="this.style.display='none'; document.body.innerHTML='<h3>Не удалось открыть файл</h3>'"></iframe>`);
+    win.document.title = fileName || "Просмотр файла";
+}
+
 // Сжатие изображений перед сохранением
 function compressImage(file, callback) {
     if (!file.type.startsWith('image/')) {
-        // Для PDF – просто читаем как есть, но проверяем размер
         if (file.size > 1024 * 1024) {
             showToast("PDF слишком большой (максимум 1 МБ)", "error");
             callback(null);
@@ -650,7 +694,6 @@ async function adminLogin() {
     showToast("Выполняется вход...", "info");
     
     try {
-        // Пытаемся войти
         await auth.signInWithEmailAndPassword(email, password);
         showToast("Добро пожаловать в админ-панель!", "success");
         document.getElementById("loginContainer").style.display = "none";
@@ -658,11 +701,9 @@ async function adminLogin() {
         loadDashboard();
         initAdminPanel();
     } catch (error) {
-        // Если пользователь не найден, создаем его
         if (error.code === 'auth/user-not-found') {
             showToast("Создание администратора...", "info");
             try {
-                // Создаем пользователя-администратора
                 await auth.createUserWithEmailAndPassword(email, password);
                 showToast("Администратор создан! Вход выполнен.", "success");
                 document.getElementById("loginContainer").style.display = "none";
@@ -771,7 +812,7 @@ async function loadLessons() {
                     </div>
                 </div>
                 <div class="content">${escapeHtml(lesson.content ? lesson.content.substring(0, 150) : "Нет содержания")}...</div>
-                ${lesson.fileData ? (lesson.fileType === "application/pdf" ? `<div>📄 PDF файл</div>` : `<img src="${lesson.fileData}" onclick="window.open(this.src)">`) : ""}
+                ${lesson.fileData ? (lesson.fileType === "application/pdf" ? `<div><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">📄 Открыть PDF</button></div>` : `<img src="${lesson.fileData}" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')" style="cursor:pointer;">`) : ""}
             </div>
         `).join("");
     } catch (err) {
@@ -786,8 +827,11 @@ async function viewLesson(lessonId) {
     document.getElementById("viewLessonTitle").textContent = lesson.title;
     let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.fileData) {
-        if (lesson.fileType === "application/pdf") content += `<iframe src="${lesson.fileData}" style="width:100%; height:500px; margin-top:1rem; border:none;"></iframe>`;
-        else if (lesson.fileType && lesson.fileType.startsWith("image/")) content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
+        if (lesson.fileType === "application/pdf") {
+            content += `<div style="margin-top:1rem;"><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">📄 Открыть PDF</button></div>`;
+        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
+            content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px; cursor:pointer;" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">`;
+        }
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -926,7 +970,7 @@ async function loadAllHomework() {
         snapshot.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") homeworks.push({ id: doc.id, ...hw }); });
         const container = document.getElementById("pendingHomeworkList");
         if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div><div class="solution">${escapeHtml(hw.solution ? hw.solution.substring(0,200) : "Нет текстового решения")}</div>${hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : ""}</div>`).join("");
+        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div><div class="solution">${escapeHtml(hw.solution ? hw.solution.substring(0,200) : "Нет текстового решения")}</div>${hw.fileData ? `<button class="btn btn-primary" onclick="openFileInBrowser('${hw.fileData}', '${hw.fileType || 'image/jpeg'}', 'Решение ученика')">📎 Открыть файл</button>` : ""}</div>`).join("");
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки ДЗ", "error");
@@ -941,7 +985,7 @@ async function loadAllHomeworkHistory() {
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const container = document.getElementById("allHomeworkList");
         if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных заданий</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div></div><div class="flex">${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}<button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button></div></div><div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}${hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : ""}${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}</div>`).join("");
+        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div></div><div class="flex">${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}<button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button></div></div><div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}${hw.fileData ? `<button class="btn btn-primary" onclick="openFileInBrowser('${hw.fileData}', '${hw.fileType || 'image/jpeg'}', 'Файл решения')">📎 Открыть файл решения</button>` : ""}${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}</div>`).join("");
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки истории ДЗ", "error");
@@ -951,7 +995,11 @@ async function loadAllHomeworkHistory() {
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
-    document.getElementById("gradeModalContent").innerHTML = `<div><strong>${escapeHtml(currentGradingHw.title)}</strong></div><div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div><div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>${currentGradingHw.fileData ? `<img src="${currentGradingHw.fileData}" style="max-width: 200px;" onclick="window.open(this.src)">` : ""}`;
+    let fileHtml = "";
+    if (currentGradingHw.fileData) {
+        fileHtml = `<button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openFileInBrowser('${currentGradingHw.fileData}', '${currentGradingHw.fileType || 'image/jpeg'}', 'Файл решения')">📎 Открыть файл ученика</button>`;
+    }
+    document.getElementById("gradeModalContent").innerHTML = `<div><strong>${escapeHtml(currentGradingHw.title)}</strong></div><div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div><div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>${fileHtml}`;
     document.getElementById("gradeValue").value = "";
     document.getElementById("gradeFeedback").value = "";
     document.getElementById("gradeModal").classList.add("active");
@@ -1024,16 +1072,10 @@ async function createHomework() {
 
 // ========== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ПОСЛЕ ВХОДА ==========
 function initAdminPanel() {
-    // Устанавливаем предмет по умолчанию для добавления конспекта
     const lessonSubject = document.getElementById("lessonSubject");
     if (lessonSubject) {
         lessonSubject.value = "math";
         updateLessonCourses();
-    }
-    // Для добавления ДЗ – тоже можно оставить пустым, но пользователь сам выберет
-    const hwSubject = document.getElementById("hwSubject");
-    if (hwSubject && hwSubject.value === "") {
-        // Ничего не делаем, пусть выберет вручную
     }
 }
 
@@ -1045,11 +1087,9 @@ auth.onAuthStateChanged(async (user) => {
         loadDashboard();
         initAdminPanel();
     } else if (user && user.email !== "kb.slash@mail.ru") {
-        // Если залогинен не тот пользователь - разлогиниваем
         await auth.signOut();
         location.reload();
     } else {
-        // Не залогинены - показываем форму входа
         document.getElementById("loginContainer").style.display = "flex";
         document.getElementById("adminPanel").style.display = "none";
     }
