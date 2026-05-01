@@ -540,7 +540,7 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
@@ -554,16 +554,19 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 const COURSES = [
-    { id: "algebra", name: "Алгебра", subject: "math" },
-    { id: "geometry", name: "Геометрия", subject: "math" },
-    { id: "physics", name: "Физика", subject: "physics" },
-    { id: "olymp", name: "Олимпиадная математика", subject: "math" }
+    const COURSES = [
+    { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
+    { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
+    { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics" },
+    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру. Разбор сложных задач.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math" }
 ];
 
-let currentGradingHw = null;
-let currentEditLessonId = null;
+let currentUser = null;
+let userData = null;
+let currentHomework = null;
+let currentLessonData = null;
+let currentFiles = [];
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -583,58 +586,35 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// ========== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ОТКРЫТИЯ ФАЙЛОВ ==========
-function openFileInBrowser(fileData, fileType, fileName) {
-    if (!fileData) {
-        showToast("Файл не найден", "error");
-        return;
-    }
-    
-    // Для изображений - просто открываем в новом окне
-    if (fileType && fileType.startsWith('image/')) {
-        const win = window.open();
-        win.document.write(`<img src="${fileData}" style="max-width:100%; height:auto; background:#000;" onerror="document.body.innerHTML='<h3>Ошибка загрузки изображения</h3>'">`);
-        win.document.title = fileName || "Изображение";
-        return;
-    }
-    
-    // Для PDF - создаем временную ссылку с указанием MIME-типа
-    if (fileType === 'application/pdf' || (fileData.startsWith('data:application/pdf'))) {
-        try {
-            // Создаем blob из data URL
-            const byteCharacters = atob(fileData.split(',')[1]);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: 'application/pdf' });
-            const url = URL.createObjectURL(blob);
-            const win = window.open(url);
-            if (!win) {
-                showToast("Разрешите всплывающие окна для открытия PDF", "error");
-            }
-            // Освобождаем URL через некоторое время
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        } catch (e) {
-            showToast("Ошибка открытия PDF: " + e.message, "error");
-        }
-        return;
-    }
-    
-    // Для других типов или если тип не определен - пробуем открыть как есть
-    const win = window.open();
-    win.document.write(`<iframe src="${fileData}" style="width:100%; height:100%; border:none;" onerror="this.style.display='none'; document.body.innerHTML='<h3>Не удалось открыть файл</h3>'"></iframe>`);
-    win.document.title = fileName || "Просмотр файла";
+// ========== STORAGE ФУНКЦИИ ==========
+async function uploadFileToStorage(file, folder, fileName) {
+    if (!currentUser) throw new Error("Пользователь не авторизован");
+    const fileRef = storage.ref(`${folder}/${currentUser.uid}/${Date.now()}_${fileName}`);
+    const snapshot = await fileRef.put(file);
+    const downloadURL = await snapshot.ref.getDownloadURL();
+    return downloadURL;
 }
 
-// Сжатие изображений перед сохранением
+async function uploadMultipleFiles(files, folder) {
+    const uploadPromises = files.map(async (fileData, index) => {
+        const response = await fetch(fileData.data);
+        const blob = await response.blob();
+        const fakeFile = new File([blob], fileData.name, { 
+            type: fileData.type === 'image' ? 'image/jpeg' : 'application/pdf' 
+        });
+        const url = await uploadFileToStorage(fakeFile, folder, fileData.name);
+        return { name: fileData.name, url: url, type: fileData.type, size: fileData.size };
+    });
+    return await Promise.all(uploadPromises);
+}
+
+// Сжатие изображений
 function compressImage(file, callback) {
     if (!file.type.startsWith('image/')) {
-        if (file.size > 1024 * 1024) {
-            showToast("PDF слишком большой (максимум 1 МБ)", "error");
-            callback(null);
-            return;
+        if (file.size > 50 * 1024 * 1024) { 
+            showToast("Файл слишком большой (максимум 50 МБ)", "error"); 
+            callback(null); 
+            return; 
         }
         const reader = new FileReader();
         reader.onload = e => callback(e.target.result);
@@ -642,6 +622,7 @@ function compressImage(file, callback) {
         reader.readAsDataURL(file);
         return;
     }
+    
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = function(event) {
@@ -649,9 +630,8 @@ function compressImage(file, callback) {
         img.src = event.target.result;
         img.onload = function() {
             const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxSize = 800;
+            let width = img.width, height = img.height;
+            const maxSize = 1600;
             if (width > height && width > maxSize) {
                 height = height * maxSize / width;
                 width = maxSize;
@@ -663,9 +643,9 @@ function compressImage(file, callback) {
             canvas.height = height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            let quality = 0.7;
+            let quality = 0.85;
             let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            while (dataUrl.length > 800 * 1024 && quality > 0.3) {
+            while (dataUrl.length > 5 * 1024 * 1024 && quality > 0.3) {
                 quality -= 0.1;
                 dataUrl = canvas.toDataURL('image/jpeg', quality);
             }
@@ -675,6 +655,216 @@ function compressImage(file, callback) {
     };
     reader.onerror = () => callback(null);
 }
+
+function renderFileList(containerId, filesArray, onRemoveFunc) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (filesArray.length === 0) {
+        container.innerHTML = '';
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = filesArray.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${file.data}" onclick="window.open('${file.data}')" style="cursor:pointer;">` : '📄'}
+            <span style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(file.name)}</span>
+            <span class="remove-file" onclick="${onRemoveFunc}(${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+window.handleMultipleFilesSelect = async function(input) {
+    const files = Array.from(input.files);
+    if (currentFiles.length + files.length > 5) {
+        showToast("Можно прикрепить не более 5 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} слишком большой (>50 МБ)`, "error");
+            continue;
+        }
+        showToast(`Обработка ${file.name}...`, "info");
+        await new Promise((resolve) => {
+            compressImage(file, (dataUrl) => {
+                if (dataUrl) {
+                    currentFiles.push({ name: file.name, data: dataUrl, type: file.type.startsWith('image/') ? 'image' : 'pdf', size: file.size });
+                    showToast(`Файл ${file.name} загружен!`, "success");
+                } else {
+                    showToast(`Ошибка загрузки ${file.name}`, "error");
+                }
+                resolve();
+            });
+        });
+    }
+    renderFileList('dynFilesPreview', currentFiles, 'removeCurrentFile');
+    input.value = '';
+};
+
+window.removeCurrentFile = function(idx) {
+    currentFiles.splice(idx, 1);
+    renderFileList('dynFilesPreview', currentFiles, 'removeCurrentFile');
+    if (currentFiles.length === 0) {
+        document.getElementById('dynFilesPreview').style.display = 'none';
+    }
+};
+
+function openHomeworkSubmit(hwId, title, description) {
+    currentHomework = { id: hwId, title: title };
+    currentFiles = [];
+    
+    const modalHtml = `
+        <div id="dynamicSubmitModal" class="modal-overlay active" style="display: flex; z-index: 10000; background: var(--bg);">
+            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📤 Сдать задание: ${escapeHtml(title)}</h2>
+                        <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
+                    </div>
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
+                        <div style="line-height: 1.8;">${escapeHtml(description)}</div>
+                    </div>
+                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
+                        <textarea id="dynSolution" rows="6" placeholder="Напишите решение здесь..." style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line); margin-bottom:1rem;"></textarea>
+                        <div class="form-group">
+                            <label>Прикрепить файлы (можно несколько: фото, PDF, до 50 МБ)</label>
+                            <div class="multi-file-zone" onclick="document.getElementById('dynFileInput').click()">
+                                <div style="font-size:2rem;">📎</div>
+                                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 5 файлов, до 50 МБ каждый)</div>
+                            </div>
+                            <input type="file" id="dynFileInput" accept="image/*,application/pdf" multiple style="display:none" onchange="handleMultipleFilesSelect(this)">
+                            <div id="dynFilesPreview" class="files-list" style="margin-top:0.8rem; display:none;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+                        <button class="btn bg" style="flex:1" id="dynSubmitBtn">Отправить</button>
+                        <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove()">Отмена</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const oldModal = document.getElementById("dynamicSubmitModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+    
+    document.getElementById("dynSubmitBtn").onclick = async function() {
+        const solution = document.getElementById("dynSolution").value.trim();
+        if (!solution && currentFiles.length === 0) { 
+            showToast("Напишите решение или прикрепите файлы", "error"); 
+            return; 
+        }
+        
+        showToast("Загрузка файлов в облако...", "info");
+        
+        try {
+            let uploadedFiles = [];
+            if (currentFiles.length > 0) {
+                const uploadButton = document.getElementById("dynSubmitBtn");
+                uploadButton.disabled = true;
+                uploadButton.textContent = "⏳ Загрузка...";
+                uploadedFiles = await uploadMultipleFiles(currentFiles, "homeworks");
+            }
+            
+            await db.collection("homeworks").doc(currentHomework.id).update({
+                status: "submitted",
+                solution: solution,
+                files: uploadedFiles,
+                submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                userName: userData.name,
+                userEmail: currentUser.email
+            });
+            
+            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+            userData.homeworkSubmissions.push({ id: currentHomework.id, solution: solution, files: uploadedFiles });
+            await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+            
+            showToast("✅ Задание отправлено!", "success");
+            document.getElementById("dynamicSubmitModal").remove();
+            document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+            loadHomeworkCourses();
+        } catch(e) { 
+            console.error(e);
+            showToast("Ошибка: " + e.message, "error"); 
+        }
+    };
+}
+
+async function viewSubmittedHomework(hwId, courseId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    const sub = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
+    
+    let filesHtml = '';
+    if (sub && sub.files && sub.files.length) {
+        filesHtml = `
+            <div style="margin-top: 1rem;">
+                <strong>📎 Прикрепленные файлы (${sub.files.length}):</strong>
+                <div class="files-list" style="margin-top: 0.5rem;">
+                    ${sub.files.map(file => `
+                        <div class="file-item" style="cursor:pointer;" onclick="window.open('${file.url}')">
+                            ${file.type === 'image' ? `<img src="${file.url}">` : '📄'}
+                            <span>${escapeHtml(file.name)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    const modalHtml = `
+        <div id="submittedHomeworkModal" class="modal-overlay active" style="display: flex; z-index:4000; background: var(--bg);">
+            <div style="width:100%; height:100%; overflow-y:auto; padding:2rem;">
+                <div style="max-width:800px; margin:0 auto;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding-bottom:1rem; border-bottom:2px solid var(--gold);">
+                        <h2 style="font-family:var(--fs); font-size:1.8rem;">📖 ${escapeHtml(hw.title)}</h2>
+                        <button class="modal-close" onclick="document.getElementById('submittedHomeworkModal').remove()" style="font-size:2rem; background:none; border:none; cursor:pointer;">&times;</button>
+                    </div>
+                    <div style="background:var(--card); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
+                        <h3 style="margin-bottom:1rem; color:var(--gold);">📋 Условие задачи</h3>
+                        <div style="line-height:1.8;">${hw.description || "Нет описания"}</div>
+                    </div>
+                    <div style="background:var(--card); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
+                        <h3 style="margin-bottom:1rem; color:var(--gold);">✍️ Ваше решение</h3>
+                        <div style="line-height:1.8;">${sub ? (sub.solution || "Нет текстового решения") : "Решение не найдено"}</div>
+                        ${filesHtml}
+                    </div>
+                    ${hw.grade ? `<div style="background:var(--green2); border-radius:16px; padding:1.5rem; margin-top:1rem;"><strong>⭐ Оценка:</strong> ${hw.grade}/10<br><strong>💬 Комментарий:</strong> ${hw.feedback || "—"}</div>` : ""}
+                </div>
+            </div>
+        </div>
+    `;
+    const oldModal = document.getElementById("submittedHomeworkModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+// Остальные функции (авторизация, курсы и т.д.) остаются без изменений
+// [ЗДЕСЬ ВСТАВЬТЕ ВСЕ ВАШИ ОСТАЛЬНЫЕ ФУНКЦИИ, КОТОРЫЕ БЫЛИ РАНЕЕ]
+
+function init() {
+    const savedTheme = localStorage.getItem("lp_theme");
+    if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
+    renderCoursesGrid();
+    showLoader();
+    setTimeout(() => initAnimations(), 100);
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
+            const doc = await db.collection("users").doc(user.uid).get();
+            userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+            if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
+            currentUser = user;
+            updateUIAfterLogin();
+        } else { currentUser = null; userData = null; document.getElementById("homePage").style.display = "block"; document.getElementById("dashboard").classList.remove("active"); }
+    });
+}
+
+init();
 
 // ========== АВТОРИЗАЦИЯ ==========
 async function adminLogin() {
