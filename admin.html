@@ -1021,6 +1021,7 @@ function updateLessonCourses() {
     if (available.length === 0) courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
+// ========== ДОБАВЛЕНИЕ КОНСПЕКТА (С STORAGE) ==========
 async function createLesson() {
     const title = document.getElementById("lessonTitle").value.trim();
     const description = document.getElementById("lessonDescription").value.trim();
@@ -1028,35 +1029,70 @@ async function createLesson() {
     const courseId = document.getElementById("lessonCourse").value;
     const content = document.getElementById("lessonContent").value;
     
-    if (!title || !subject || !courseId) { showToast("Заполните название, предмет и выберите курс!", "error"); return; }
+    if (!title || !subject || !courseId) { 
+        showToast("Заполните название, предмет и выберите курс!", "error"); 
+        return;
+    }
     
     showToast("Создание конспекта...", "info");
     
-    let uploadedFiles = [];
-    if (currentLessonFiles.length > 0) {
-        uploadedFiles = await uploadMultipleFiles(currentLessonFiles, "lessons");
+    try {
+        let uploadedFiles = [];
+        
+        // Загружаем файлы в Storage если они есть
+        if (currentLessonFiles.length > 0) {
+            showToast(`Загрузка ${currentLessonFiles.length} файлов...`, "info");
+            
+            for (const fileData of currentLessonFiles) {
+                try {
+                    const fileName = `${Date.now()}_${fileData.file.name}`;
+                    // Используем admin как ID для папки
+                    const fileRef = storage.ref(`lessons/${fileName}`);
+                    const snapshot = await fileRef.put(fileData.file);
+                    const url = await snapshot.ref.getDownloadURL();
+                    uploadedFiles.push({
+                        name: fileData.file.name,
+                        url: url,
+                        type: fileData.file.type
+                    });
+                    showToast(`Загружен: ${fileData.file.name}`, "success");
+                } catch (err) {
+                    console.error("Ошибка загрузки файла:", err);
+                    showToast(`Ошибка загрузки ${fileData.file.name}: ${err.message}`, "error");
+                }
+            }
+        }
+        
+        // Сохраняем конспект в Firestore
+        await db.collection("lessons").add({
+            title: title,
+            description: description,
+            subject: subject,
+            courseId: courseId,
+            content: content,
+            files: uploadedFiles,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast("Конспект создан!", "success");
+        
+        // Очистка формы
+        document.getElementById("lessonTitle").value = "";
+        document.getElementById("lessonDescription").value = "";
+        document.getElementById("lessonSubject").value = "";
+        document.getElementById("lessonCourse").innerHTML = "";
+        document.getElementById("lessonContent").value = "";
+        document.getElementById("lessonFileInput").value = "";
+        currentLessonFiles = [];
+        renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
+        
+        loadLessons();
+        loadDashboard();
+        
+    } catch (error) {
+        console.error("Ошибка создания конспекта:", error);
+        showToast("Ошибка: " + error.message, "error");
     }
-    
-    await db.collection("lessons").add({
-        title, description, subject, courseId, content,
-        files: uploadedFiles,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    showToast("Конспект создан!", "success");
-    
-    // Очистка формы
-    document.getElementById("lessonTitle").value = "";
-    document.getElementById("lessonDescription").value = "";
-    document.getElementById("lessonSubject").value = "";
-    document.getElementById("lessonCourse").innerHTML = "";
-    document.getElementById("lessonContent").value = "";
-    document.getElementById("lessonFileInput").value = "";
-    currentLessonFiles = [];
-    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
-    
-    loadLessons();
-    loadDashboard();
 }
 
 // ========== ДОМАШНИЕ ЗАДАНИЯ (АДМИН) ==========
@@ -1140,36 +1176,70 @@ async function createHomework() {
     const target = document.getElementById("hwTarget").value.trim() || "all";
     const dueDate = document.getElementById("hwDueDate").value;
     
-    if (!title || !subject || !courseId) { showToast("Заполните заголовок, предмет и курс", "error"); return; }
-    
-    let uploadedFiles = [];
-    if (currentHomeworkFiles.length > 0) {
-        uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
+    if (!title || !subject || !courseId) { 
+        showToast("Заполните заголовок, предмет и курс", "error"); 
+        return;
     }
     
-    await db.collection("homeworks").add({
-        title, description, subject, courseId,
-        userEmail: target,
-        userName: target === "all" ? "Все ученики" : target,
-        dueDate,
-        files: uploadedFiles,
-        status: "pending",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    showToast("Задание создано!", "success");
+    showToast("Создание задания...", "info");
     
-    // Очистка формы
-    document.getElementById("hwTitle").value = "";
-    document.getElementById("hwDescription").value = "";
-    document.getElementById("hwSubject").value = "";
-    document.getElementById("hwCourse").innerHTML = "";
-    document.getElementById("hwTarget").value = "";
-    document.getElementById("hwDueDate").value = "";
-    document.getElementById("hwFileInput").value = "";
-    currentHomeworkFiles = [];
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-    
-    loadDashboard();
+    try {
+        let uploadedFiles = [];
+        
+        if (currentHomeworkFiles.length > 0) {
+            showToast(`Загрузка ${currentHomeworkFiles.length} файлов...`, "info");
+            
+            for (const fileData of currentHomeworkFiles) {
+                try {
+                    const fileName = `${Date.now()}_${fileData.file.name}`;
+                    const fileRef = storage.ref(`homeworks/${fileName}`);
+                    const snapshot = await fileRef.put(fileData.file);
+                    const url = await snapshot.ref.getDownloadURL();
+                    uploadedFiles.push({
+                        name: fileData.file.name,
+                        url: url,
+                        type: fileData.file.type
+                    });
+                    showToast(`Загружен: ${fileData.file.name}`, "success");
+                } catch (err) {
+                    console.error("Ошибка загрузки файла:", err);
+                    showToast(`Ошибка загрузки ${fileData.file.name}: ${err.message}`, "error");
+                }
+            }
+        }
+        
+        await db.collection("homeworks").add({
+            title: title,
+            description: description,
+            subject: subject,
+            courseId: courseId,
+            userEmail: target,
+            userName: target === "all" ? "Все ученики" : target,
+            dueDate: dueDate,
+            files: uploadedFiles,
+            status: "pending",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast("Задание создано!", "success");
+        
+        // Очистка формы
+        document.getElementById("hwTitle").value = "";
+        document.getElementById("hwDescription").value = "";
+        document.getElementById("hwSubject").value = "";
+        document.getElementById("hwCourse").innerHTML = "";
+        document.getElementById("hwTarget").value = "";
+        document.getElementById("hwDueDate").value = "";
+        document.getElementById("hwFileInput").value = "";
+        currentHomeworkFiles = [];
+        renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
+        
+        loadDashboard();
+        
+    } catch (error) {
+        console.error("Ошибка создания задания:", error);
+        showToast("Ошибка: " + error.message, "error");
+    }
 }
 
 // ========== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ПОСЛЕ ВХОДА ==========
