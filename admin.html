@@ -188,6 +188,20 @@ body {
 
 .table tr:hover td { background: var(--bg2); }
 
+.progress-bar {
+    width: 100px;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+}
+
 .form-group {
     margin-bottom: 0.8rem;
 }
@@ -207,6 +221,11 @@ body {
     border-radius: 6px;
     color: var(--text);
     font-size: 0.9rem;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--gold);
 }
 
 .homework-card, .lesson-card {
@@ -233,6 +252,13 @@ body {
     border-radius: 6px;
     margin: 0.5rem 0;
     font-size: 0.85rem;
+}
+
+.homework-card img, .lesson-card img {
+    max-width: 150px;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    cursor: pointer;
 }
 
 .badge {
@@ -315,9 +341,12 @@ body {
 
 .flex { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .justify-between { display: flex; justify-content: space-between; align-items: center; }
+.mt-2 { margin-top: 0.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }
 .w-100 { width: 100%; }
+.cursor-pointer { cursor: pointer; }
 
-/* Стили для файлов */
+/* Стили для нескольких файлов */
 .files-list {
     margin-top: 0.5rem;
     display: flex;
@@ -452,15 +481,15 @@ body {
                             <option value="physics">Физика</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Курс</label><select id="lessonCourse"></select></div>
-                    <div class="form-group"><label>Содержание конспекта</label>
-                        <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта..."></textarea>
+                    <div class="form-group"><label>Курс (ВАЖНО: выберите курс)</label><select id="lessonCourse"></select></div>
+                    <div class="form-group"><label>Содержание конспекта (текст, HTML)</label>
+                        <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги для форматирования..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Прикрепить файлы (до 50 МБ, до 10 файлов)</label>
+                        <label>Прикрепить файлы (можно несколько, до 50 МБ каждый)</label>
                         <div class="multi-file-zone" onclick="document.getElementById('lessonFileInput').click()">
                             <div style="font-size: 2rem;">📎</div>
-                            <div>Нажмите для выбора файлов</div>
+                            <div style="font-size: 0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
                         <input type="file" id="lessonFileInput" accept="image/*,application/pdf" multiple style="display: none;">
                         <div id="lessonFilePreview" class="files-list"></div>
@@ -482,13 +511,13 @@ body {
                         </select>
                     </div>
                     <div class="form-group"><label>Курс</label><select id="hwCourse"></select></div>
-                    <div class="form-group"><label>Кому</label><input type="text" id="hwTarget" placeholder="all - для всех, или email@example.com"></div>
+                    <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all - для всех, или email@example.com"></div>
                     <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
                     <div class="form-group">
-                        <label>Файлы к заданию</label>
+                        <label>Файлы к заданию (можно несколько, до 50 МБ каждый)</label>
                         <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
                             <div style="font-size: 2rem;">📎</div>
-                            <div>Нажмите для выбора файлов</div>
+                            <div style="font-size: 0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
                         <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display: none;">
                         <div id="hwFilePreview" class="files-list"></div>
@@ -509,13 +538,16 @@ body {
 
 <div id="gradeModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3>Проверка домашнего задания</h3><button class="modal-close" onclick="closeGradeModal()">&times;</button></div>
+        <div class="modal-header">
+            <h3>Проверка домашнего задания</h3>
+            <button class="modal-close" onclick="closeGradeModal()">&times;</button>
+        </div>
         <div id="gradeModalContent"></div>
         <div class="form-group"><label>Оценка (1-10)</label><input type="number" id="gradeValue" min="1" max="10" placeholder="8"></div>
-        <div class="form-group"><label>Комментарий</label><textarea id="gradeFeedback" rows="3"></textarea></div>
+        <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
         <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
             <button class="btn btn-success" onclick="submitGrade('graded')">✓ Принять</button>
-            <button class="btn btn-danger" onclick="submitGrade('returned')">↺ Вернуть</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">↺ Вернуть на доработку</button>
             <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
         </div>
     </div>
@@ -523,19 +555,35 @@ body {
 
 <div id="viewLessonModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3 id="viewLessonTitle"></h3><button class="modal-close" onclick="closeViewLessonModal()">&times;</button></div>
+        <div class="modal-header">
+            <h3 id="viewLessonTitle"></h3>
+            <button class="modal-close" onclick="closeViewLessonModal()">&times;</button>
+        </div>
         <div id="viewLessonContent"></div>
     </div>
 </div>
 
 <div id="editLessonModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header"><h3>Редактировать конспект</h3><button class="modal-close" onclick="closeEditLessonModal()">&times;</button></div>
+        <div class="modal-header">
+            <h3>Редактировать конспект</h3>
+            <button class="modal-close" onclick="closeEditLessonModal()">&times;</button>
+        </div>
         <div class="form-group"><label>Название</label><input type="text" id="editLessonTitle"></div>
         <div class="form-group"><label>Описание</label><textarea id="editLessonDescription" rows="2"></textarea></div>
-        <div class="form-group"><label>Предмет</label><select id="editLessonSubject" onchange="updateEditLessonCourses()"><option value="math">Математика</option><option value="physics">Физика</option></select></div>
+        <div class="form-group"><label>Предмет</label>
+            <select id="editLessonSubject" onchange="updateEditLessonCourses()">
+                <option value="math">Математика</option>
+                <option value="physics">Физика</option>
+            </select>
+        </div>
         <div class="form-group"><label>Курс</label><select id="editLessonCourse"></select></div>
         <div class="form-group"><label>Содержание</label><textarea id="editLessonContent" rows="6"></textarea></div>
+        <div class="form-group"><label>Файл (изображение/PDF)</label><input type="file" id="editLessonFile" accept="image/*,application/pdf"></div>
+        <div id="editLessonFilePreview" style="margin-top: 0.5rem; display: none;">
+            <img id="editPreviewImg" style="max-width: 100px; border-radius: 6px;">
+            <span id="editFileName"></span>
+        </div>
         <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
             <button class="btn btn-primary" onclick="saveEditedLesson()">Сохранить</button>
             <button class="btn btn-secondary" onclick="closeEditLessonModal()">Отмена</button>
@@ -547,6 +595,7 @@ body {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
 <script>
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
@@ -567,15 +616,12 @@ const COURSES = [
     { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
 
-let currentUser = null;
-let userData = null;
 let currentGradingHw = null;
 let currentEditLessonId = null;
-
-// Массивы для файлов
-let currentLessonFiles = [];   // { name, file, type }
+let currentLessonFiles = [];
 let currentHomeworkFiles = [];
 
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -595,45 +641,91 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// ========== STORAGE ФУНКЦИИ ==========
+// Сжатие изображений (увеличен лимит до 50 МБ)
+function compressImage(file, callback) {
+    if (!file.type.startsWith('image/')) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast("Файл слишком большой (максимум 50 МБ)", "error");
+            callback(null);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => callback(e.target.result);
+        reader.onerror = () => callback(null);
+        reader.readAsDataURL(file);
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 800;
+            if (width > height && width > maxSize) {
+                height = height * maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = width * maxSize / height;
+                height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            let quality = 0.7;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (dataUrl.length > 800 * 1024 && quality > 0.3) {
+                quality -= 0.1;
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            callback(dataUrl);
+        };
+        img.onerror = () => callback(null);
+    };
+    reader.onerror = () => callback(null);
+}
+
+// ========== STORAGE ФУНКЦИИ ДЛЯ НЕСКОЛЬКИХ ФАЙЛОВ ==========
 async function uploadFileToStorage(file, folder) {
-    if (!currentUser) throw new Error("Не авторизован");
     const fileName = `${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(`${folder}/${currentUser.uid}/${fileName}`);
+    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
     const snapshot = await fileRef.put(file);
-    const downloadURL = await snapshot.ref.getDownloadURL();
-    return { name: file.name, url: downloadURL, type: file.type };
+    const url = await snapshot.ref.getDownloadURL();
+    return { name: file.name, url: url, type: file.type };
 }
 
 async function uploadMultipleFiles(files, folder) {
     const results = [];
-    for (const fileData of files) {
+    for (const f of files) {
         try {
-            const result = await uploadFileToStorage(fileData.file, folder);
+            const result = await uploadFileToStorage(f.file, folder);
             results.push(result);
-            showToast(`Загружен: ${fileData.file.name}`, "success");
-        } catch (e) {
-            showToast(`Ошибка: ${fileData.file.name}`, "error");
+            showToast(`Загружен: ${f.file.name}`, "success");
+        } catch(e) {
+            showToast(`Ошибка: ${f.file.name}`, "error");
         }
     }
     return results;
 }
 
-// Функция для отображения списка файлов (только preview, без загрузки)
-function renderFilePreview(containerId, filesArray, removeFunctionName) {
+function renderFilePreview(containerId, filesArray, removeFn) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
     if (filesArray.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        container.innerHTML = '';
+        container.style.display = 'none';
         return;
     }
-    
+    container.style.display = 'flex';
     container.innerHTML = filesArray.map((file, idx) => `
         <div class="file-item">
             ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="window.${removeFunctionName}(${idx})">&times;</span>
+            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
         </div>
     `).join('');
 }
@@ -645,7 +737,6 @@ async function handleLessonFilesSelect(input) {
         showToast("Можно прикрепить не более 10 файлов", "error");
         return;
     }
-    
     for (const file of files) {
         if (file.size > 50 * 1024 * 1024) {
             showToast(`Файл ${file.name} > 50 МБ`, "error");
@@ -655,9 +746,8 @@ async function handleLessonFilesSelect(input) {
             file: file,
             type: file.type.startsWith('image/') ? 'image' : 'pdf'
         });
-        showToast(`Файл ${file.name} добавлен`, "success");
+        showToast(`Добавлен: ${file.name}`, "success");
     }
-    
     renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
     input.value = '';
 }
@@ -674,7 +764,6 @@ async function handleHomeworkFilesSelect(input) {
         showToast("Можно прикрепить не более 10 файлов", "error");
         return;
     }
-    
     for (const file of files) {
         if (file.size > 50 * 1024 * 1024) {
             showToast(`Файл ${file.name} > 50 МБ`, "error");
@@ -684,9 +773,8 @@ async function handleHomeworkFilesSelect(input) {
             file: file,
             type: file.type.startsWith('image/') ? 'image' : 'pdf'
         });
-        showToast(`Файл ${file.name} добавлен`, "success");
+        showToast(`Добавлен: ${file.name}`, "success");
     }
-    
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
     input.value = '';
 }
@@ -696,7 +784,7 @@ window.removeHomeworkFile = function(idx) {
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
 };
 
-// Привязываем обработчики
+// Привязываем обработчики к элементам
 document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
 document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
 
@@ -706,26 +794,42 @@ async function adminLogin() {
     const password = document.getElementById("adminPassword").value;
     
     if (email !== "kb.slash@mail.ru") {
-        showToast("Доступ запрещён", "error");
+        showToast("Доступ запрещён. Только для администратора.", "error");
         return;
     }
     
+    if (!password) {
+        showToast("Введите пароль", "error");
+        return;
+    }
+    
+    showToast("Выполняется вход...", "info");
+    
     try {
         await auth.signInWithEmailAndPassword(email, password);
-        showToast("Добро пожаловать!", "success");
+        showToast("Добро пожаловать в админ-панель!", "success");
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
         loadDashboard();
         initAdminPanel();
     } catch (error) {
         if (error.code === 'auth/user-not-found') {
-            await auth.createUserWithEmailAndPassword(email, password);
-            showToast("Администратор создан!", "success");
-            document.getElementById("loginContainer").style.display = "none";
-            document.getElementById("adminPanel").style.display = "block";
-            loadDashboard();
-            initAdminPanel();
+            showToast("Создание администратора...", "info");
+            try {
+                await auth.createUserWithEmailAndPassword(email, password);
+                showToast("Администратор создан! Вход выполнен.", "success");
+                document.getElementById("loginContainer").style.display = "none";
+                document.getElementById("adminPanel").style.display = "block";
+                loadDashboard();
+                initAdminPanel();
+            } catch (createError) {
+                console.error("Ошибка создания:", createError);
+                showToast("Ошибка создания администратора: " + createError.message, "error");
+            }
+        } else if (error.code === 'auth/wrong-password') {
+            showToast("Неверный пароль", "error");
         } else {
+            console.error("Ошибка входа:", error);
             showToast("Ошибка: " + error.message, "error");
         }
     }
@@ -754,14 +858,14 @@ async function loadDashboard() {
         document.getElementById("statCourses").textContent = totalEnrollments;
         document.getElementById("statHomeworkPending").textContent = pending;
         document.getElementById("statLessons").textContent = lessonsSnap.size;
-        
         const pendingHw = [];
         homeworksSnap.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") pendingHw.push({ id: doc.id, ...hw }); });
         const recentContainer = document.getElementById("recentHomeworkList");
-        if (pendingHw.length === 0) recentContainer.innerHTML = "<div>Нет ДЗ на проверке</div>";
-        else recentContainer.innerHTML = pendingHw.slice(0, 5).map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div></div>`).join("");
+        if (pendingHw.length === 0) recentContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
+        else recentContainer.innerHTML = pendingHw.slice(0, 5).map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div></div>`).join("");
     } catch (err) {
         console.error(err);
+        showToast("Ошибка загрузки дашборда", "error");
     }
 }
 
@@ -772,7 +876,11 @@ async function loadStudents() {
         const users = [];
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
         const container = document.getElementById("studentsList");
-        if (users.length === 0) { container.innerHTML = "<div>Учеников пока нет</div>"; return; }
+        if (!container) return;
+        if (users.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Учеников пока нет</div>";
+            return;
+        }
         let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>ДЗ сдано</th></tr></thead><tbody>';
         for (const user of users) {
             const name = user.name || (user.email ? user.email.split('@')[0] : 'Без имени');
@@ -780,12 +888,19 @@ async function loadStudents() {
             const grade = user.grade || '—';
             const courses = (user.enrolledCourses || []).join(', ') || '—';
             const submissions = (user.homeworkSubmissions || []).length;
-            html += `<tr><td><strong>${escapeHtml(name)}</strong></td><td>${escapeHtml(email)}</td><td>${escapeHtml(grade)}</td><td>${escapeHtml(courses)}</td><td>${submissions}</td></tr>`;
+            html += `<tr>
+                <td><strong>${escapeHtml(name)}</strong></td>
+                <td style="color: var(--text3); font-size: 0.8rem;">${escapeHtml(email)}</td>
+                <td><span class="badge badge-pending">${escapeHtml(grade)}</span></td>
+                <td style="font-size: 0.8rem;">${escapeHtml(courses)}</td>
+                <td>${submissions}</td>
+            </tr>`;
         }
-        html += '</tbody></table>';
+        html += '</tbody></tr>';
         container.innerHTML = html;
     } catch (err) {
         console.error(err);
+        document.getElementById("studentsList").innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--red)'>Ошибка: " + err.message + "</div>";
     }
 }
 
@@ -797,11 +912,11 @@ async function loadLessons() {
         snapshot.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
         lessons.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const container = document.getElementById("allLessonsList");
-        if (lessons.length === 0) { container.innerHTML = "<div>Нет конспектов</div>"; return; }
+        if (lessons.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных конспектов</div>"; return; }
         container.innerHTML = lessons.map(lesson => `
             <div class="lesson-card">
                 <div class="justify-between">
-                    <div><span class="title">${escapeHtml(lesson.title)}</span><div class="meta">${escapeHtml(lesson.courseId || "Без курса")}</div></div>
+                    <div><span class="title">${escapeHtml(lesson.title)}</span><div class="meta">${escapeHtml(lesson.courseId || "Без курса")} · ${escapeHtml(lesson.description ? lesson.description.substring(0, 100) : "Нет описания")}</div></div>
                     <div class="flex">
                         <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
                         <button class="btn btn-secondary" onclick="editLesson('${lesson.id}')">✏ Ред.</button>
@@ -809,10 +924,12 @@ async function loadLessons() {
                     </div>
                 </div>
                 <div class="content">${escapeHtml(lesson.content ? lesson.content.substring(0, 150) : "Нет содержания")}...</div>
+                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (lesson.fileData ? (lesson.fileType === "application/pdf" ? `<div>📄 PDF файл</div>` : `<img src="${lesson.fileData}" onclick="window.open(this.src)">`) : "")}
             </div>
         `).join("");
     } catch (err) {
         console.error(err);
+        showToast("Ошибка загрузки конспектов", "error");
     }
 }
 
@@ -820,9 +937,12 @@ async function viewLesson(lessonId) {
     const doc = await db.collection("lessons").doc(lessonId).get();
     const lesson = doc.data();
     document.getElementById("viewLessonTitle").textContent = lesson.title;
-    let content = `<div>${lesson.content || "Нет содержания"}</div>`;
+    let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.files && lesson.files.length) {
-        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+        content += `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    } else if (lesson.fileData) {
+        if (lesson.fileType === "application/pdf") content += `<iframe src="${lesson.fileData}" style="width:100%; height:500px; margin-top:1rem; border:none;"></iframe>`;
+        else if (lesson.fileType && lesson.fileType.startsWith("image/")) content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -847,6 +967,15 @@ async function editLesson(id) {
     updateEditLessonCourses();
     document.getElementById("editLessonCourse").value = lesson.courseId || "";
     document.getElementById("editLessonContent").value = lesson.content || "";
+    document.getElementById("editLessonFile").value = "";
+    const previewDiv = document.getElementById("editLessonFilePreview");
+    if (lesson.fileData) {
+        previewDiv.style.display = "flex";
+        document.getElementById("editPreviewImg").src = lesson.fileData;
+        document.getElementById("editFileName").textContent = "текущий файл";
+    } else {
+        previewDiv.style.display = "none";
+    }
     document.getElementById("editLessonModal").classList.add("active");
 }
 function closeEditLessonModal() { document.getElementById("editLessonModal").classList.remove("active"); currentEditLessonId = null; }
@@ -862,8 +991,21 @@ async function saveEditedLesson() {
     const subject = document.getElementById("editLessonSubject").value;
     const courseId = document.getElementById("editLessonCourse").value;
     const content = document.getElementById("editLessonContent").value;
-    if (!title || !subject || !courseId) { showToast("Заполните все поля", "error"); return; }
-    await db.collection("lessons").doc(currentEditLessonId).update({ title, description, subject, courseId, content, updatedAt: new Date() });
+    const file = document.getElementById("editLessonFile").files[0];
+    if (!title || !subject || !courseId) { showToast("Заполните название, предмет и курс", "error"); return; }
+    let fileData = null, fileType = null;
+    if (file) {
+        await new Promise((resolve) => {
+            compressImage(file, (dataUrl) => {
+                fileData = dataUrl;
+                fileType = file.type;
+                resolve();
+            });
+        });
+    }
+    const updateData = { title, description, subject, courseId, content, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    if (fileData) { updateData.fileData = fileData; updateData.fileType = fileType; }
+    await db.collection("lessons").doc(currentEditLessonId).update(updateData);
     showToast("Конспект обновлён", "success");
     closeEditLessonModal();
     loadLessons();
@@ -876,6 +1018,7 @@ function updateLessonCourses() {
     const courseSelect = document.getElementById("lessonCourse");
     const available = COURSES.filter(c => c.subject === subject);
     courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+    if (available.length === 0) courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
 async function createLesson() {
@@ -885,18 +1028,12 @@ async function createLesson() {
     const courseId = document.getElementById("lessonCourse").value;
     const content = document.getElementById("lessonContent").value;
     
-    if (!title || !subject || !courseId) {
-        showToast("Заполните название, предмет и курс!", "error");
-        return;
-    }
+    if (!title || !subject || !courseId) { showToast("Заполните название, предмет и выберите курс!", "error"); return; }
     
     showToast("Создание конспекта...", "info");
     
     let uploadedFiles = [];
-    
-    // Загружаем файлы в Storage если есть
     if (currentLessonFiles.length > 0) {
-        showToast("Загрузка файлов...", "info");
         uploadedFiles = await uploadMultipleFiles(currentLessonFiles, "lessons");
     }
     
@@ -929,10 +1066,11 @@ async function loadAllHomework() {
         const homeworks = [];
         snapshot.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") homeworks.push({ id: doc.id, ...hw }); });
         const container = document.getElementById("pendingHomeworkList");
-        if (homeworks.length === 0) { container.innerHTML = "<div>Нет ДЗ на проверке</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div><div class="solution">${escapeHtml(hw.solution ? hw.solution.substring(0,200) : "Нет решения")}</div></div>`).join("");
+        if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>"; return; }
+        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div><div class="solution">${escapeHtml(hw.solution ? hw.solution.substring(0,200) : "Нет текстового решения")}</div>${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : "")}</div>`).join("");
     } catch (err) {
         console.error(err);
+        showToast("Ошибка загрузки ДЗ", "error");
     }
 }
 
@@ -943,10 +1081,11 @@ async function loadAllHomeworkHistory() {
         snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         const container = document.getElementById("allHomeworkList");
-        if (homeworks.length === 0) { container.innerHTML = "<div>Нет заданий</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · Статус: ${hw.status}</div></div><div class="flex">${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}<button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button></div></div>${hw.feedback ? `<div class="solution"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}</div>`).join("");
+        if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных заданий</div>"; return; }
+        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div></div><div class="flex">${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}<button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button></div></div><div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : "")}${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}</div>`).join("");
     } catch (err) {
         console.error(err);
+        showToast("Ошибка загрузки истории ДЗ", "error");
     }
 }
 
@@ -955,9 +1094,11 @@ async function openGradeModal(hwId) {
     currentGradingHw = { id: hwId, ...doc.data() };
     let filesHtml = "";
     if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+        filesHtml = `<div class="files-list" style="margin-top:0.5rem;">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    } else if (currentGradingHw.fileData) {
+        filesHtml = `<img src="${currentGradingHw.fileData}" style="max-width: 200px;" onclick="window.open(this.src)">`;
     }
-    document.getElementById("gradeModalContent").innerHTML = `<div><strong>${escapeHtml(currentGradingHw.title)}</strong></div><div>Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div><div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет решения")}</div>${filesHtml}`;
+    document.getElementById("gradeModalContent").innerHTML = `<div><strong>${escapeHtml(currentGradingHw.title)}</strong></div><div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div><div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>${filesHtml}`;
     document.getElementById("gradeValue").value = "";
     document.getElementById("gradeFeedback").value = "";
     document.getElementById("gradeModal").classList.add("active");
@@ -967,10 +1108,10 @@ async function submitGrade(action) {
     if (!currentGradingHw) return;
     const grade = document.getElementById("gradeValue").value;
     const feedback = document.getElementById("gradeFeedback").value;
-    const updateData = { status: action === "graded" ? "graded" : "returned", feedback: feedback || "", gradedAt: new Date() };
+    const updateData = { status: action === "graded" ? "graded" : "returned", feedback: feedback || "", gradedAt: firebase.firestore.FieldValue.serverTimestamp() };
     if (action === "graded" && grade && grade >= 1 && grade <= 10) updateData.grade = parseInt(grade);
     await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
-    showToast(action === "graded" ? "Задание проверено!" : "Возвращено", "success");
+    showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
     closeGradeModal();
     loadAllHomework();
     loadAllHomeworkHistory();
@@ -984,7 +1125,7 @@ async function deleteHomework(id) {
     loadDashboard();
 }
 
-// ========== ДОБАВЛЕНИЕ ДЗ ==========
+// ========== ДОБАВЛЕНИЕ ДЗ (АДМИН) ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -998,11 +1139,11 @@ async function createHomework() {
     const courseId = document.getElementById("hwCourse").value;
     const target = document.getElementById("hwTarget").value.trim() || "all";
     const dueDate = document.getElementById("hwDueDate").value;
+    
     if (!title || !subject || !courseId) { showToast("Заполните заголовок, предмет и курс", "error"); return; }
     
     let uploadedFiles = [];
     if (currentHomeworkFiles.length > 0) {
-        showToast("Загрузка файлов...", "info");
         uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
     }
     
@@ -1017,6 +1158,7 @@ async function createHomework() {
     });
     showToast("Задание создано!", "success");
     
+    // Очистка формы
     document.getElementById("hwTitle").value = "";
     document.getElementById("hwDescription").value = "";
     document.getElementById("hwSubject").value = "";
@@ -1030,7 +1172,7 @@ async function createHomework() {
     loadDashboard();
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ========== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ПОСЛЕ ВХОДА ==========
 function initAdminPanel() {
     const lessonSubject = document.getElementById("lessonSubject");
     if (lessonSubject) {
