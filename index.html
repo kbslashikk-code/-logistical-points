@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=yes">
 <title>Logistical Points - Образовательная платформа</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
-/* ========== ВСЕ ВАШИ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ========== */
+/* ========== ОСНОВНЫЕ СТИЛИ ========== */
 * {
     margin: 0;
     padding: 0;
@@ -40,7 +40,6 @@
     --text3: #9a8a6a;
     --f: 'Segoe UI', Arial, sans-serif;
     --fs: 'Playfair Display', Georgia, serif;
-    --fm: 'Consolas', monospace;
 }
 
 [data-theme="dark"] {
@@ -78,6 +77,84 @@ body {
     overflow-x: hidden;
 }
 
+/* ========== АДАПТИВНОЕ МЕНЮ ========== */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--text);
+    padding: 0.5rem;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        top: 0;
+        bottom: 0;
+        width: 280px !important;
+        z-index: 999;
+        transition: left 0.3s ease;
+        background: var(--bg2) !important;
+        overflow-y: auto;
+    }
+    
+    .sidebar.open {
+        left: 0 !important;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        padding: 1rem !important;
+    }
+    
+    .dashboard-layout {
+        flex-direction: column;
+    }
+    
+    .nav-links {
+        display: none !important;
+    }
+    
+    .course-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .steps {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .hero-stats {
+        gap: 1rem !important;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ========== ОСТАЛЬНЫЕ СТИЛИ ========== */
 .loader-screen {
     position: fixed;
     top: 0;
@@ -578,7 +655,7 @@ footer {
 }
 
 .sidebar {
-    width: 260px;
+    width: 280px;
     background: var(--bg2);
     border-right: 1px solid var(--line);
     padding: 1.5rem;
@@ -592,33 +669,34 @@ footer {
 }
 
 .user-avatar {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     background: var(--gold);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     color: white;
     margin: 0 auto 0.5rem;
 }
 
-.user-name { font-weight: 700; }
-.user-grade { font-size: 0.7rem; color: var(--text3); }
+.user-name { font-weight: 700; font-size: 1.1rem; }
+.user-grade { font-size: 0.8rem; color: var(--text3); }
 
 .sidebar-menu {
     list-style: none;
 }
 
 .sidebar-menu li {
-    padding: 0.7rem;
+    padding: 0.8rem;
     border-radius: 10px;
     cursor: pointer;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.3rem;
     color: var(--text2);
     font-weight: 700;
+    transition: all 0.2s;
 }
 
 .sidebar-menu li:hover { background: var(--card); color: var(--text); }
@@ -686,8 +764,8 @@ footer {
 }
 
 .lesson-status {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     margin-right: 1rem;
 }
@@ -752,18 +830,70 @@ footer {
     z-index: 100;
 }
 
+/* Стили для нескольких файлов */
+.files-list {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.file-item {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--line);
+}
+
+.file-item img {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.file-item .remove-file {
+    color: var(--red);
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 0.3rem;
+}
+
+.multi-file-zone {
+    border: 2px dashed var(--line);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 0.5rem;
+}
+
+.multi-file-zone:hover {
+    border-color: var(--gold);
+    background: var(--gold3);
+}
+
 @media (max-width: 768px) {
-    .nav-links { display: none; }
-    .sidebar { display: none; }
-    .main-content { margin-left: 0; }
-    .course-grid { grid-template-columns: 1fr; }
-    .hero-stats { gap: 1.5rem; }
+    .files-list {
+        gap: 0.3rem;
+    }
+    .file-item {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
 }
 </style>
 </head>
 <body>
 
 <div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
 <div class="loader-screen" id="loaderScreen">
     <div class="loader-content">
@@ -802,31 +932,6 @@ footer {
         <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
         <div class="form-group"><label>Email</label><input type="email" id="resetEmail" placeholder="your@email.com"></div>
         <button class="btn bg" style="width:100%" onclick="sendResetPassword()">Отправить ссылку</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="hwSubmitModal">
-    <div class="modal" style="max-width: 560px">
-        <div class="modal-header"><h3>Сдать домашнее задание</h3><button class="modal-close" onclick="closeHWModal()">&times;</button></div>
-        <div class="form-group"><label>Задание</label><input type="text" id="hwSubmitTitle" readonly></div>
-        <div class="form-group"><label>Описание</label><div id="hwSubmitDesc" style="background:var(--bg2);padding:0.7rem;border-radius:8px;font-size:0.9rem"></div></div>
-        <div class="form-group"><label>Ваше решение</label><textarea id="hwSubmitSolution" placeholder="Напишите решение здесь..." rows="4"></textarea></div>
-        <div class="form-group">
-            <label>Прикрепить фото</label>
-            <div class="file-zone" onclick="document.getElementById('hwFileInput').click()">
-                <div style="font-size: 2rem">📷</div>
-                <div style="font-size: 0.8rem">Нажмите или перетащите фото</div>
-            </div>
-            <input type="file" id="hwFileInput" accept="image/*" style="display: none" onchange="handleFileSelect(this)">
-            <div id="filePreview" class="file-preview" style="display: none">
-                <img id="previewImg"><span id="fileName"></span>
-                <button class="btn bo bsm" onclick="clearFile()">Удалить</button>
-            </div>
-        </div>
-        <div style="display: flex; gap: 0.8rem">
-            <button class="btn bg" style="flex:1" id="submitHomeworkBtn">Отправить</button>
-            <button class="btn bo" onclick="closeHWModal()">Отмена</button>
-        </div>
     </div>
 </div>
 
@@ -897,34 +1002,33 @@ footer {
 
     <div style="height:1px;background:var(--line)"></div>
 
-<!-- Преподаватель -->
-<section id="teacher" class="section">
-    <div style="display:flex;flex-wrap:wrap;gap:3rem;align-items:flex-start">
-        <div style="flex:1;min-width:280px" class="fade-left">
-            <div style="background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line)">
-                <div style="display:flex;align-items:center;justify-content:center;padding:1rem;">
-                    <img src="IMG_4007.PNG" style="width:100%;max-width:280px;height:auto;border-radius:15px;display:block;margin:0 auto;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
+    <section id="teacher" class="section">
+        <div style="display:flex;flex-wrap:wrap;gap:3rem;align-items:flex-start">
+            <div style="flex:1;min-width:280px" class="fade-left">
+                <div style="background:var(--card);border-radius:20px;overflow:hidden;border:1px solid var(--line)">
+                    <div style="display:flex;align-items:center;justify-content:center;padding:1rem;">
+                        <img src="IMG_4007.PNG" style="width:100%;max-width:280px;height:auto;border-radius:15px;display:block;margin:0 auto;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
+                    </div>
+                    <div style="padding:1.2rem;text-align:center">
+                        <div style="font-weight:700">Егоров Степан Евгеньевич</div>
+                        <div style="font-size:0.7rem;color:var(--gold)">СПбГЭТУ «ЛЭТИ»</div>
+                    </div>
                 </div>
-                <div style="padding:1.2rem;text-align:center">
-                    <div style="font-weight:700">Егоров Степан Евгеньевич</div>
-                    <div style="font-size:0.7rem;color:var(--gold)">СПбГЭТУ «ЛЭТИ»</div>
+            </div>
+            <div style="flex:2" class="fade-right">
+                <div class="section-badge">👨‍🏫 Преподаватель</div>
+                <h2 class="section-title">Ваш <em>наставник</em></h2>
+                <p style="color:var(--text2);line-height:1.8">Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
+                <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями. Помогаю ученикам достигать высоких результатов на олимпиадах и экзаменах.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem">
+                    <span style="background:var(--gold3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🏆 Олимпиадная математика</span>
+                    <span style="background:var(--blue3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">⚡ Физика</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">📝 ЕГЭ / ОГЭ</span>
+                    <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🎓 1-11 класс</span>
                 </div>
             </div>
         </div>
-        <div style="flex:2" class="fade-right">
-            <div class="section-badge">👨‍🏫 Преподаватель</div>
-            <h2 class="section-title">Ваш <em>наставник</em></h2>
-            <p style="color:var(--text2);line-height:1.8">Меня зовут <strong>Егоров Степан Евгеньевич</strong>. Обучаюсь в <strong>Санкт-Петербургском государственном электротехническом университете «ЛЭТИ»</strong>.</p>
-            <p style="color:var(--text2);margin-top:1rem;line-height:1.8">Каждую работу проверяю лично с подробными комментариями. Помогаю ученикам достигать высоких результатов на олимпиадах и экзаменах.</p>
-            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem">
-                <span style="background:var(--gold3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🏆 Олимпиадная математика</span>
-                <span style="background:var(--blue3);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">⚡ Физика</span>
-                <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">📝 ЕГЭ / ОГЭ</span>
-                <span style="background:var(--card2);padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem">🎓 1-11 класс</span>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
     <footer>
         <div>Logistical <em style="color:var(--gold)">Points</em></div>
@@ -936,17 +1040,18 @@ footer {
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="showHome()">Logistical <em>Points</em></div>
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
             <div class="nav-buttons"><button class="btn brs" onclick="handleLogout()">Выйти</button></div>
         </div>
     </nav>
     <div class="dashboard-layout">
-        <div class="sidebar">
+        <div class="sidebar" id="mobileSidebar">
             <div class="sidebar-user"><div class="user-avatar" id="userAvatar">У</div><div class="user-name" id="userName"></div><div class="user-grade" id="userGrade"></div></div>
             <ul class="sidebar-menu">
-                <li data-pane="overview" class="active" onclick="switchPane('overview', this)">📊 Обзор</li>
-                <li data-pane="courses" onclick="switchPane('courses', this)">📚 Мои курсы</li>
-                <li data-pane="homework" onclick="switchPane('homework', this); loadHomeworkCourses()">📝 Домашние задания</li>
-                <li data-pane="progress" onclick="switchPane('progress', this)">📈 Прогресс</li>
+                <li data-pane="overview" class="active" onclick="switchPane('overview', this); closeMobileSidebar()">📊 Обзор</li>
+                <li data-pane="courses" onclick="switchPane('courses', this); closeMobileSidebar()">📚 Мои курсы</li>
+                <li data-pane="homework" onclick="switchPane('homework', this); loadHomeworkCourses(); closeMobileSidebar()">📝 Домашние задания</li>
+                <li data-pane="progress" onclick="switchPane('progress', this); closeMobileSidebar()">📈 Прогресс</li>
             </ul>
         </div>
         <div class="main-content">
@@ -972,6 +1077,7 @@ footer {
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -980,19 +1086,11 @@ const firebaseConfig = {
     projectId: "logistical-points",
     storageBucket: "logistical-points.firebasestorage.app"
 };
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const COURSES = [
     { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
@@ -1004,10 +1102,159 @@ const COURSES = [
 let currentUser = null;
 let userData = null;
 let currentHomework = null;
-let currentFileData = null;
 let currentLessonData = null;
+let currentFiles = []; // Массив для нескольких файлов
+let currentSubmitFiles = []; // Для отправки ДЗ
 window.currentLessonsModal = null;
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function showToast(msg, type) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ========== МОБИЛЬНОЕ МЕНЮ ==========
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById("mobileSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("active");
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.getElementById("mobileSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    sidebar.classList.remove("open");
+    overlay.classList.remove("active");
+}
+
+// ========== СЖАТИЕ ИЗОБРАЖЕНИЙ (ДО 50 МБ) ==========
+function compressImage(file, callback) {
+    if (!file.type.startsWith('image/')) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast("Файл слишком большой (максимум 50 МБ)", "error");
+            callback(null);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => callback(e.target.result);
+        reader.onerror = () => callback(null);
+        reader.readAsDataURL(file);
+        return;
+    }
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSize = 1200;
+            if (width > height && width > maxSize) {
+                height = height * maxSize / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = width * maxSize / height;
+                height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            let quality = 0.8;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (dataUrl.length > 3 * 1024 * 1024 && quality > 0.3) {
+                quality -= 0.1;
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            callback(dataUrl);
+        };
+        img.onerror = () => callback(null);
+    };
+    reader.onerror = () => callback(null);
+}
+
+// ========== ФУНКЦИИ ДЛЯ НЕСКОЛЬКИХ ФАЙЛОВ ==========
+async function uploadStudentFilesToStorage(files, homeworkId) {
+    const uploadedFiles = [];
+    for (const fileData of files) {
+        try {
+            const fileName = `${Date.now()}_${fileData.file.name}`;
+            const fileRef = storage.ref(`homeworks_submissions/${currentUser.uid}/${homeworkId}/${fileName}`);
+            const snapshot = await fileRef.put(fileData.file);
+            const url = await snapshot.ref.getDownloadURL();
+            uploadedFiles.push({
+                name: fileData.file.name,
+                url: url,
+                type: fileData.file.type
+            });
+        } catch (e) {
+            console.error("Ошибка загрузки файла:", e);
+        }
+    }
+    return uploadedFiles;
+}
+
+function renderStudentFilePreview(containerId, filesArray, removeFn) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (filesArray.length === 0) {
+        container.innerHTML = '';
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = filesArray.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+window.removeStudentFile = function(idx) {
+    currentSubmitFiles.splice(idx, 1);
+    renderStudentFilePreview('studentFilesPreview', currentSubmitFiles, 'removeStudentFile');
+};
+
+async function handleStudentFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentSubmitFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentSubmitFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderStudentFilePreview('studentFilesPreview', currentSubmitFiles, 'removeStudentFile');
+    input.value = '';
+}
+
+// ========== ЗАГРУЗКА КОНСПЕКТОВ С ФАЙЛАМИ ДЛЯ УЧЕНИКА ==========
 function showLoader() {
     const loader = document.getElementById("loaderScreen");
     const progressBar = document.getElementById("loaderProgressBar");
@@ -1203,9 +1450,9 @@ async function openCourseLessons(courseId) {
                                         <div style="flex: 1;">
                                             <div style="display: flex; align-items: center; gap: 0.8rem;">
                                                 <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 12px; height: 12px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                                                <div style="font-weight: 700; font-size: 1.1rem;">${lessonTitle}</div>
+                                                <div style="font-weight: 700; font-size: 1.1rem;">${escapeHtml(lessonTitle)}</div>
                                             </div>
-                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lessonDesc}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${escapeHtml(lessonDesc)}</div>
                                         </div>
                                         <div>
                                             ${!isCompleted ? '<span style="font-size: 0.7rem; color: var(--gold);">📖 Не прочитано</span>' : '<span style="font-size: 0.7rem; color: var(--green);">✓ Прочитано</span>'}
@@ -1231,20 +1478,29 @@ async function viewLesson(lessonId, courseId, title) {
     const lesson = doc.data();
     currentLessonData = { id: lessonId, courseId: courseId, title: title };
     
+    let filesHtml = '';
+    if (lesson.files && lesson.files.length) {
+        filesHtml = `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    } else if (lesson.fileData) {
+        if (lesson.fileType === "application/pdf") {
+            filesHtml = `<iframe src="${lesson.fileData}" style="width:100%; height:500px; border:none; margin-top:1rem; border-radius:8px;"></iframe>`;
+        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
+            filesHtml = `<img src="${lesson.fileData}" style="max-width:100%; border-radius:8px; margin-top:1rem; cursor:pointer;" onclick="window.open(this.src)">`;
+        }
+    }
+    
     const modalHtml = `
         <div id="lessonDetailModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
             <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${title}</h2>
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${escapeHtml(title)}</h2>
                         <button class="modal-close" onclick="document.getElementById('lessonDetailModal').remove();" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
                     </div>
                     
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
                         <div style="line-height: 1.8; color: var(--text2);">${lesson.content || "Нет содержания"}</div>
-                        ${lesson.fileData ? (lesson.fileType === "application/pdf" ? 
-                            `<iframe src="${lesson.fileData}" style="width: 100%; height: 500px; border: none; margin-top: 1rem; border-radius: 8px;"></iframe>` : 
-                            `<img src="${lesson.fileData}" style="max-width: 100%; border-radius: 8px; margin-top: 1rem; cursor: pointer;" onclick="window.open(this.src)">`) : ""}
+                        ${filesHtml}
                     </div>
                     
                     <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
@@ -1334,37 +1590,8 @@ async function renderProgress() {
         </div>`;
     }
 }
-// Сжатие изображения перед отправкой
-function compressImage(file, callback) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxSize = 800;
-            if (width > height && width > maxSize) {
-                height = height * maxSize / width;
-                width = maxSize;
-            } else if (height > maxSize) {
-                width = width * maxSize / height;
-                height = maxSize;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-            callback(dataUrl);
-        };
-    };
-}
 
-// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ============
-
+// ============ ДОМАШНИЕ ЗАДАНИЯ С НЕСКОЛЬКИМИ ФАЙЛАМИ ============
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
@@ -1384,7 +1611,6 @@ async function loadHomeworkByCourse(courseId) {
         return;
     }
     
-    // Проверка авторизации
     if (!currentUser || !currentUser.email) {
         showToast("Ошибка авторизации", "error");
         return;
@@ -1397,7 +1623,6 @@ async function loadHomeworkByCourse(courseId) {
         const homeworks = [];
         snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
         
-        // Фильтруем: только "all" или текущий ученик
         const filtered = homeworks.filter(hw => hw.userEmail === "all" || hw.userEmail === currentUser.email);
         const submissions = userData?.homeworkSubmissions || [];
         
@@ -1406,7 +1631,6 @@ async function loadHomeworkByCourse(courseId) {
             return;
         }
         
-        // Строим модальное окно
         const modalHtml = `
             <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
                 <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
@@ -1421,8 +1645,8 @@ async function loadHomeworkByCourse(courseId) {
                                 const statusText = submitted ? "✅ Сдано" : "⏳ Ожидает";
                                 const statusColor = submitted ? "var(--green)" : "var(--gold)";
                                 const actionBtn = submitted ? 
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}', '${courseId}')">Просмотреть</button>` :
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}')">📤 Сдать</button>`;
+                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}')">Просмотреть</button>` :
+                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}', '${hw.courseId}')">📤 Сдать</button>`;
                                 return `
                                     <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                                         <div>
@@ -1452,16 +1676,24 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// Функция для просмотра уже сданного задания
-async function viewSubmittedHomework(hwId, courseId) {
+async function viewSubmittedHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
+    const sub = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
+    
+    let filesHtml = '';
+    if (sub && sub.files && sub.files.length) {
+        filesHtml = `<div class="files-list" style="margin-top:1rem;">${sub.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    } else if (sub && sub.fileData) {
+        filesHtml = `<img src="${sub.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
+    }
+    
     const modalHtml = `
         <div id="submittedHomeworkModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
             <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${hw.title}</h2>
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📖 ${escapeHtml(hw.title)}</h2>
                         <button class="modal-close" onclick="document.getElementById('submittedHomeworkModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
@@ -1471,10 +1703,8 @@ async function viewSubmittedHomework(hwId, courseId) {
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
-                        ${(() => {
-                            const sub = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
-                            return sub ? `<div style="line-height: 1.8;">${sub.solution || "Нет текстового решения"}</div>${sub.fileData ? `<img src="${sub.fileData}" style="max-width: 100%; margin-top: 1rem; border-radius: 8px;">` : ""}` : "<div>Решение не найдено</div>";
-                        })()}
+                        <div style="line-height: 1.8;">${sub ? (sub.solution || "Нет текстового решения") : "Решение не найдено"}</div>
+                        ${filesHtml}
                     </div>
                     ${hw.grade ? `<div style="background: var(--green2); border-radius: 16px; padding: 1.5rem; margin-top: 1rem;"><strong>⭐ Оценка:</strong> ${hw.grade}/10<br><strong>💬 Комментарий:</strong> ${hw.feedback || "—"}</div>` : ""}
                 </div>
@@ -1486,39 +1716,32 @@ async function viewSubmittedHomework(hwId, courseId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// Функция открытия окна отправки (использует существующее модальное окно hwSubmitModal)
-async function openHomeworkSubmit(hwId, courseId) {
-    const doc = await db.collection("homeworks").doc(hwId).get();
-    const hw = doc.data();
+async function openHomeworkSubmit(hwId, title, description, courseId) {
+    currentSubmitFiles = [];
+    
     const modalHtml = `
         <div id="dynamicSubmitModal" class="modal-overlay active" style="display: flex; z-index: 10000; background: var(--bg);">
             <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📤 Сдать задание: ${hw.title}</h2>
+                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">📤 Сдать задание: ${escapeHtml(title)}</h2>
                         <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">📋 Условие задачи</h3>
-                        <div style="line-height: 1.8;">${hw.description || "Нет описания"}</div>
-                        ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100%; margin-top: 1rem; border-radius: 8px;">` : ""}
-                        <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text3);">📅 Срок сдачи: ${hw.dueDate || "не указан"}</div>
+                        <div style="line-height: 1.8;">${escapeHtml(description)}</div>
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">✍️ Ваше решение</h3>
                         <textarea id="dynSolution" rows="6" placeholder="Напишите решение здесь..." style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line); margin-bottom:1rem;"></textarea>
                         <div class="form-group">
-                            <label>Прикрепить фото</label>
-                            <div class="file-zone" style="border:2px dashed var(--line); border-radius:10px; padding:1rem; text-align:center; cursor:pointer;" onclick="document.getElementById('dynFileInput').click()">
-                                <div style="font-size:2rem;">📷</div>
-                                <div style="font-size:0.8rem;">Нажмите или перетащите фото</div>
+                            <label>Прикрепить файлы (можно несколько: фото, PDF, до 50 МБ)</label>
+                            <div class="multi-file-zone" onclick="document.getElementById('dynFileInput').click()">
+                                <div style="font-size:2rem;">📎</div>
+                                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов, до 50 МБ)</div>
                             </div>
-                            <input type="file" id="dynFileInput" accept="image/*" style="display:none" onchange="handleDynamicFileSelect(this)">
-                            <div id="dynFilePreview" style="display:none; margin-top:0.8rem; padding:0.5rem; background:var(--bg2); border-radius:8px; display:flex; align-items:center; gap:0.8rem;">
-                                <img id="dynPreviewImg" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
-                                <span id="dynFileName"></span>
-                                <button class="btn bo bsm" style="margin-left:auto;" onclick="clearDynamicFile()">Удалить</button>
-                            </div>
+                            <input type="file" id="dynFileInput" accept="image/*,application/pdf" multiple style="display:none" onchange="handleStudentFilesSelect(this)">
+                            <div id="studentFilesPreview" class="files-list" style="margin-top:0.8rem;"></div>
                         </div>
                     </div>
                     <div style="display:flex; gap:0.8rem; margin-top:1rem;">
@@ -1529,69 +1752,51 @@ async function openHomeworkSubmit(hwId, courseId) {
             </div>
         </div>
     `;
+    
     const oldModal = document.getElementById("dynamicSubmitModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
-    window.dynamicFileData = null;
-    window.handleDynamicFileSelect = function(input) {
-        const file = input.files[0];
-        if (file && file.type.startsWith("image/")) {
-            // Сжатие, если файл больше 500 КБ
-            if (file.size > 500 * 1024) {
-                compressImage(file, function(compressedDataUrl) {
-                    window.dynamicFileData = compressedDataUrl;
-                    document.getElementById("dynPreviewImg").src = compressedDataUrl;
-                    document.getElementById("dynFileName").textContent = file.name;
-                    document.getElementById("dynFilePreview").style.display = "flex";
-                    alert("Фото сжато и готово к отправке");
-                });
-            } else {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    window.dynamicFileData = e.target.result;
-                    document.getElementById("dynPreviewImg").src = window.dynamicFileData;
-                    document.getElementById("dynFileName").textContent = file.name;
-                    document.getElementById("dynFilePreview").style.display = "flex";
-                };
-                reader.readAsDataURL(file);
-            }
-        } else {
-            alert("Выберите изображение");
-        }
-    };
-    window.clearDynamicFile = function() {
-        window.dynamicFileData = null;
-        document.getElementById("dynFilePreview").style.display = "none";
-        document.getElementById("dynFileInput").value = "";
-    };
+    
     document.getElementById("dynSubmitBtn").onclick = async function() {
         const solution = document.getElementById("dynSolution").value.trim();
-        const fileData = window.dynamicFileData;
-        if (!solution && !fileData) { alert("Напишите решение или прикрепите фото"); return; }
+        if (!solution && currentSubmitFiles.length === 0) { 
+            showToast("Напишите решение или прикрепите файлы", "error"); 
+            return; 
+        }
+        
+        showToast("Загрузка файлов...", "info");
+        
         try {
+            let uploadedFiles = [];
+            if (currentSubmitFiles.length > 0) {
+                const uploadBtn = document.getElementById("dynSubmitBtn");
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = "⏳ Загрузка...";
+                uploadedFiles = await uploadStudentFilesToStorage(currentSubmitFiles, hwId);
+            }
+            
             await db.collection("homeworks").doc(hwId).update({
                 status: "submitted",
                 solution: solution,
-                fileData: fileData || null,
+                files: uploadedFiles,
                 submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 userName: userData.name,
                 userEmail: currentUser.email
             });
+            
             if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            userData.homeworkSubmissions.push({ id: hwId, solution: solution, fileData: fileData });
+            userData.homeworkSubmissions.push({ id: hwId, solution: solution, files: uploadedFiles });
             await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
-            alert("✅ Задание отправлено!");
+            
+            showToast("✅ Задание отправлено!", "success");
             document.getElementById("dynamicSubmitModal").remove();
             document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
             loadHomeworkCourses();
-        } catch(e) { alert("Ошибка: " + e.message); }
+        } catch(e) { 
+            console.error(e);
+            showToast("Ошибка: " + e.message, "error"); 
+        }
     };
-}
-
-function closeHWModal() { 
-    document.getElementById("hwSubmitModal").classList.remove("active"); 
-    currentHomework = null; 
-    clearFile(); 
 }
 
 function switchPane(paneId, el) {
@@ -1599,15 +1804,6 @@ function switchPane(paneId, el) {
     document.getElementById(`${paneId}Pane`).classList.add("active");
     document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
     if (el) el.classList.add("active");
-}
-
-function showToast(message, type) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
 }
 
 function showHome() {
@@ -1632,14 +1828,6 @@ function toggleTheme() {
         document.getElementById("themeBtn").textContent = "☀️";
     }
 }
-
-// Обработчик на кнопку отправки
-document.addEventListener('DOMContentLoaded', function() {
-    const submitBtn = document.getElementById("submitHomeworkBtn");
-    if (submitBtn) {
-        submitBtn.onclick = submitHomeworkAnswer;
-    }
-});
 
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
