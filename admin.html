@@ -486,12 +486,12 @@ body {
                         <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги для форматирования..."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Прикрепить файлы (можно несколько, до 50 МБ каждый)</label>
+                        <label>Прикрепить файлы (можно несколько, до 50 МБ)</label>
                         <div class="multi-file-zone" onclick="document.getElementById('lessonFileInput').click()">
-                            <div style="font-size: 2rem;">📎</div>
-                            <div style="font-size: 0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
+                            <div style="font-size:2rem;">📎</div>
+                            <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
-                        <input type="file" id="lessonFileInput" accept="image/*,application/pdf" multiple style="display: none;">
+                        <input type="file" id="lessonFileInput" accept="image/*,application/pdf" multiple style="display:none">
                         <div id="lessonFilePreview" class="files-list"></div>
                     </div>
                     <button class="btn btn-primary w-100" onclick="createLesson()">➕ Создать конспект</button>
@@ -514,12 +514,12 @@ body {
                     <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all - для всех, или email@example.com"></div>
                     <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
                     <div class="form-group">
-                        <label>Файлы к заданию (можно несколько, до 50 МБ каждый)</label>
+                        <label>Файлы к заданию (можно несколько, до 50 МБ)</label>
                         <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
-                            <div style="font-size: 2rem;">📎</div>
-                            <div style="font-size: 0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
+                            <div style="font-size:2rem;">📎</div>
+                            <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
-                        <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display: none;">
+                        <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display:none">
                         <div id="hwFilePreview" class="files-list"></div>
                     </div>
                     <button class="btn btn-primary w-100" onclick="createHomework()">➕ Создать задание</button>
@@ -616,12 +616,21 @@ const COURSES = [
     { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
 
+// ========== ДОПУСТИМЫЕ АДМИНЫ ==========
+const ADMINS = {
+    'kb.slash@mail.ru': { role: 'full', name: 'Главный администратор' },
+    'perederin_dima@mail.ru': { role: 'physics', name: 'Администратор физики' }
+};
+
+let currentUser = null;
+let userData = null;
 let currentGradingHw = null;
 let currentEditLessonId = null;
 let currentLessonFiles = [];
 let currentHomeworkFiles = [];
+let currentAdminEmail = null;
+let currentAdminRole = 'full';
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -641,55 +650,22 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Сжатие изображений (увеличен лимит до 50 МБ)
-function compressImage(file, callback) {
-    if (!file.type.startsWith('image/')) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast("Файл слишком большой (максимум 50 МБ)", "error");
-            callback(null);
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = e => callback(e.target.result);
-        reader.onerror = () => callback(null);
-        reader.readAsDataURL(file);
-        return;
+// ========== ПРОВЕРКА ДОСТУПА ==========
+function isFullAdmin() { return currentAdminRole === 'full'; }
+function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
+function canAccessPhysics() { return isFullAdmin() || isPhysicsAdmin(); }
+function canAccessMath() { return isFullAdmin(); }
+function canEditContent() { return true; } // Оба админа могут редактировать
+
+function filterBySubject(data) {
+    if (isFullAdmin()) return data;
+    if (isPhysicsAdmin()) {
+        return data.filter(item => item.subject === 'physics');
     }
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxSize = 800;
-            if (width > height && width > maxSize) {
-                height = height * maxSize / width;
-                width = maxSize;
-            } else if (height > maxSize) {
-                width = width * maxSize / height;
-                height = maxSize;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            let quality = 0.7;
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            while (dataUrl.length > 800 * 1024 && quality > 0.3) {
-                quality -= 0.1;
-                dataUrl = canvas.toDataURL('image/jpeg', quality);
-            }
-            callback(dataUrl);
-        };
-        img.onerror = () => callback(null);
-    };
-    reader.onerror = () => callback(null);
+    return [];
 }
 
-// ========== STORAGE ФУНКЦИИ ДЛЯ НЕСКОЛЬКИХ ФАЙЛОВ ==========
+// ========== STORAGE ФУНКЦИИ ==========
 async function uploadFileToStorage(file, folder) {
     const fileName = `${Date.now()}_${file.name}`;
     const fileRef = storage.ref(`${folder}/admin/${fileName}`);
@@ -716,8 +692,7 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     const container = document.getElementById(containerId);
     if (!container) return;
     if (filesArray.length === 0) {
-        container.innerHTML = '';
-        container.style.display = 'none';
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
         return;
     }
     container.style.display = 'flex';
@@ -730,7 +705,6 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     `).join('');
 }
 
-// Обработчики для файлов конспектов
 async function handleLessonFilesSelect(input) {
     const files = Array.from(input.files);
     if (currentLessonFiles.length + files.length > 10) {
@@ -751,13 +725,11 @@ async function handleLessonFilesSelect(input) {
     renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
     input.value = '';
 }
-
 window.removeLessonFile = function(idx) {
     currentLessonFiles.splice(idx, 1);
     renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
 };
 
-// Обработчики для файлов ДЗ
 async function handleHomeworkFilesSelect(input) {
     const files = Array.from(input.files);
     if (currentHomeworkFiles.length + files.length > 10) {
@@ -778,23 +750,21 @@ async function handleHomeworkFilesSelect(input) {
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
     input.value = '';
 }
-
 window.removeHomeworkFile = function(idx) {
     currentHomeworkFiles.splice(idx, 1);
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
 };
 
-// Привязываем обработчики к элементам
 document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
 document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
 
 // ========== АВТОРИЗАЦИЯ ==========
 async function adminLogin() {
-    const email = document.getElementById("adminEmail").value.trim();
+    const email = document.getElementById("adminEmail").value.trim().toLowerCase();
     const password = document.getElementById("adminPassword").value;
     
-    if (email !== "kb.slash@mail.ru") {
-        showToast("Доступ запрещён. Только для администратора.", "error");
+    if (!ADMINS[email]) {
+        showToast("Доступ запрещён. Неверный email.", "error");
         return;
     }
     
@@ -807,9 +777,12 @@ async function adminLogin() {
     
     try {
         await auth.signInWithEmailAndPassword(email, password);
-        showToast("Добро пожаловать в админ-панель!", "success");
+        currentAdminEmail = email;
+        currentAdminRole = ADMINS[email].role;
+        showToast(`Добро пожаловать, ${ADMINS[email].name}!`, "success");
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        updateAdminUI();
         loadDashboard();
         initAdminPanel();
     } catch (error) {
@@ -817,21 +790,32 @@ async function adminLogin() {
             showToast("Создание администратора...", "info");
             try {
                 await auth.createUserWithEmailAndPassword(email, password);
-                showToast("Администратор создан! Вход выполнен.", "success");
+                currentAdminEmail = email;
+                currentAdminRole = ADMINS[email].role;
+                showToast(`Администратор ${ADMINS[email].name} создан!`, "success");
                 document.getElementById("loginContainer").style.display = "none";
                 document.getElementById("adminPanel").style.display = "block";
+                updateAdminUI();
                 loadDashboard();
                 initAdminPanel();
             } catch (createError) {
-                console.error("Ошибка создания:", createError);
-                showToast("Ошибка создания администратора: " + createError.message, "error");
+                showToast("Ошибка создания: " + createError.message, "error");
             }
         } else if (error.code === 'auth/wrong-password') {
             showToast("Неверный пароль", "error");
         } else {
-            console.error("Ошибка входа:", error);
             showToast("Ошибка: " + error.message, "error");
         }
+    }
+}
+
+function updateAdminUI() {
+    const sidebarTitle = document.querySelector('.sidebar h3');
+    if (sidebarTitle) {
+        let roleText = '';
+        if (isFullAdmin()) roleText = ' (Полный доступ)';
+        else if (isPhysicsAdmin()) roleText = ' (Физика - полный доступ)';
+        sidebarTitle.textContent = `📊 Logistical Points${roleText}`;
     }
 }
 
@@ -848,21 +832,73 @@ async function loadDashboard() {
         const usersSnap = await db.collection("users").get();
         const users = [];
         usersSnap.forEach(doc => users.push(doc.data()));
+        
         let totalEnrollments = 0;
-        users.forEach(u => totalEnrollments += (u.enrolledCourses || []).length);
+        let physicsEnrollments = 0;
+        users.forEach(u => {
+            const courses = u.enrolledCourses || [];
+            totalEnrollments += courses.length;
+            if (courses.includes('physics')) physicsEnrollments++;
+        });
+        
         const homeworksSnap = await db.collection("homeworks").get();
         let pending = 0;
-        homeworksSnap.forEach(doc => { if (doc.data().status === "submitted") pending++; });
+        let physicsPending = 0;
+        homeworksSnap.forEach(doc => {
+            const hw = doc.data();
+            if (hw.status === "submitted") {
+                pending++;
+                if (hw.subject === 'physics') physicsPending++;
+            }
+        });
+        
         const lessonsSnap = await db.collection("lessons").get();
-        document.getElementById("statStudents").textContent = users.length;
-        document.getElementById("statCourses").textContent = totalEnrollments;
-        document.getElementById("statHomeworkPending").textContent = pending;
-        document.getElementById("statLessons").textContent = lessonsSnap.size;
+        let totalLessons = 0;
+        let physicsLessons = 0;
+        lessonsSnap.forEach(doc => {
+            const lesson = doc.data();
+            totalLessons++;
+            if (lesson.subject === 'physics') physicsLessons++;
+        });
+        
+        if (isFullAdmin()) {
+            document.getElementById("statStudents").textContent = users.length;
+            document.getElementById("statCourses").textContent = totalEnrollments;
+            document.getElementById("statHomeworkPending").textContent = pending;
+            document.getElementById("statLessons").textContent = totalLessons;
+        } else {
+            document.getElementById("statStudents").textContent = users.filter(u => (u.enrolledCourses || []).includes('physics')).length;
+            document.getElementById("statCourses").textContent = physicsEnrollments;
+            document.getElementById("statHomeworkPending").textContent = physicsPending;
+            document.getElementById("statLessons").textContent = physicsLessons;
+        }
+        
         const pendingHw = [];
-        homeworksSnap.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") pendingHw.push({ id: doc.id, ...hw }); });
+        homeworksSnap.forEach(doc => {
+            const hw = doc.data();
+            if (hw.status === "submitted") {
+                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics')) {
+                    pendingHw.push({ id: doc.id, ...hw });
+                }
+            }
+        });
+        
         const recentContainer = document.getElementById("recentHomeworkList");
-        if (pendingHw.length === 0) recentContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
-        else recentContainer.innerHTML = pendingHw.slice(0, 5).map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div></div>`).join("");
+        if (pendingHw.length === 0) {
+            recentContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
+        } else {
+            recentContainer.innerHTML = pendingHw.slice(0, 5).map(hw => `
+                <div class="homework-card">
+                    <div class="justify-between">
+                        <div>
+                            <span class="title">${escapeHtml(hw.title)}</span>
+                            <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
+                    </div>
+                </div>
+            `).join("");
+        }
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки дашборда", "error");
@@ -877,12 +913,19 @@ async function loadStudents() {
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
         const container = document.getElementById("studentsList");
         if (!container) return;
-        if (users.length === 0) {
+        
+        let filteredUsers = users;
+        if (isPhysicsAdmin()) {
+            filteredUsers = users.filter(u => (u.enrolledCourses || []).includes('physics'));
+        }
+        
+        if (filteredUsers.length === 0) {
             container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Учеников пока нет</div>";
             return;
         }
+        
         let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>ДЗ сдано</th></tr></thead><tbody>';
-        for (const user of users) {
+        for (const user of filteredUsers) {
             const name = user.name || (user.email ? user.email.split('@')[0] : 'Без имени');
             const email = user.email || '—';
             const grade = user.grade || '—';
@@ -896,7 +939,7 @@ async function loadStudents() {
                 <td>${submissions}</td>
             </tr>`;
         }
-        html += '</tbody></tr>';
+        html += '</tbody></table>';
         container.innerHTML = html;
     } catch (err) {
         console.error(err);
@@ -911,20 +954,34 @@ async function loadLessons() {
         const lessons = [];
         snapshot.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
         lessons.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
         const container = document.getElementById("allLessonsList");
-        if (lessons.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных конспектов</div>"; return; }
-        container.innerHTML = lessons.map(lesson => `
+        
+        let filteredLessons = lessons;
+        if (isPhysicsAdmin()) {
+            filteredLessons = lessons.filter(l => l.subject === 'physics');
+        }
+        
+        if (filteredLessons.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных конспектов</div>";
+            return;
+        }
+        
+        container.innerHTML = filteredLessons.map(lesson => `
             <div class="lesson-card">
                 <div class="justify-between">
-                    <div><span class="title">${escapeHtml(lesson.title)}</span><div class="meta">${escapeHtml(lesson.courseId || "Без курса")} · ${escapeHtml(lesson.description ? lesson.description.substring(0, 100) : "Нет описания")}</div></div>
+                    <div>
+                        <span class="title">${escapeHtml(lesson.title)}</span>
+                        <div class="meta">${escapeHtml(lesson.courseId || "Без курса")} · ${escapeHtml(lesson.description ? lesson.description.substring(0, 100) : "Нет описания")}</div>
+                    </div>
                     <div class="flex">
                         <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
                         <button class="btn btn-secondary" onclick="editLesson('${lesson.id}')">✏ Ред.</button>
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
-                <div class="content">${escapeHtml(lesson.content ? lesson.content.substring(0, 150) : "Нет содержания")}...</div>
-                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (lesson.fileData ? (lesson.fileType === "application/pdf" ? `<div>📄 PDF файл</div>` : `<img src="${lesson.fileData}" onclick="window.open(this.src)">`) : "")}
+                <div class="content">${escapeHtml((lesson.content || "").substring(0, 150))}...</div>
+                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -941,8 +998,11 @@ async function viewLesson(lessonId) {
     if (lesson.files && lesson.files.length) {
         content += `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     } else if (lesson.fileData) {
-        if (lesson.fileType === "application/pdf") content += `<iframe src="${lesson.fileData}" style="width:100%; height:500px; margin-top:1rem; border:none;"></iframe>`;
-        else if (lesson.fileType && lesson.fileType.startsWith("image/")) content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
+        if (lesson.fileType === "application/pdf") {
+            content += `<div style="margin-top:1rem;"><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">📄 Открыть PDF</button></div>`;
+        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
+            content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px; cursor:pointer;" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">`;
+        }
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -950,6 +1010,13 @@ async function viewLesson(lessonId) {
 function closeViewLessonModal() { document.getElementById("viewLessonModal").classList.remove("active"); }
 
 async function deleteLesson(id) {
+    // Проверяем, что конспект принадлежит физике для админа физики
+    const doc = await db.collection("lessons").doc(id).get();
+    const lesson = doc.data();
+    if (isPhysicsAdmin() && lesson.subject !== 'physics') {
+        showToast("У вас нет прав на удаление этого конспекта", "error");
+        return;
+    }
     if (!confirm("Удалить конспект?")) return;
     await db.collection("lessons").doc(id).delete();
     showToast("Конспект удален", "success");
@@ -958,8 +1025,13 @@ async function deleteLesson(id) {
 }
 
 async function editLesson(id) {
+    // Проверяем, что конспект принадлежит физике для админа физики
     const doc = await db.collection("lessons").doc(id).get();
     const lesson = doc.data();
+    if (isPhysicsAdmin() && lesson.subject !== 'physics') {
+        showToast("У вас нет прав на редактирование этого конспекта", "error");
+        return;
+    }
     currentEditLessonId = id;
     document.getElementById("editLessonTitle").value = lesson.title || "";
     document.getElementById("editLessonDescription").value = lesson.description || "";
@@ -996,11 +1068,13 @@ async function saveEditedLesson() {
     let fileData = null, fileType = null;
     if (file) {
         await new Promise((resolve) => {
-            compressImage(file, (dataUrl) => {
-                fileData = dataUrl;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fileData = e.target.result;
                 fileType = file.type;
                 resolve();
-            });
+            };
+            reader.readAsDataURL(file);
         });
     }
     const updateData = { title, description, subject, courseId, content, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
@@ -1012,7 +1086,7 @@ async function saveEditedLesson() {
     loadDashboard();
 }
 
-// ========== ДОБАВЛЕНИЕ КОНСПЕКТА (С STORAGE) ==========
+// ========== ДОБАВЛЕНИЕ КОНСПЕКТА ==========
 function updateLessonCourses() {
     const subject = document.getElementById("lessonSubject").value;
     const courseSelect = document.getElementById("lessonCourse");
@@ -1021,16 +1095,20 @@ function updateLessonCourses() {
     if (available.length === 0) courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
-// ========== ДОБАВЛЕНИЕ КОНСПЕКТА (С STORAGE) ==========
 async function createLesson() {
+    const subject = document.getElementById("lessonSubject").value;
+    if (isPhysicsAdmin() && subject !== 'physics') {
+        showToast("У вас есть доступ только к физике!", "error");
+        return;
+    }
+    
     const title = document.getElementById("lessonTitle").value.trim();
     const description = document.getElementById("lessonDescription").value.trim();
-    const subject = document.getElementById("lessonSubject").value;
     const courseId = document.getElementById("lessonCourse").value;
     const content = document.getElementById("lessonContent").value;
     
-    if (!title || !subject || !courseId) { 
-        showToast("Заполните название, предмет и выберите курс!", "error"); 
+    if (!title || !subject || !courseId) {
+        showToast("Заполните название, предмет и выберите курс!", "error");
         return;
     }
     
@@ -1038,45 +1116,18 @@ async function createLesson() {
     
     try {
         let uploadedFiles = [];
-        
-        // Загружаем файлы в Storage если они есть
         if (currentLessonFiles.length > 0) {
-            showToast(`Загрузка ${currentLessonFiles.length} файлов...`, "info");
-            
-            for (const fileData of currentLessonFiles) {
-                try {
-                    const fileName = `${Date.now()}_${fileData.file.name}`;
-                    // Используем admin как ID для папки
-                    const fileRef = storage.ref(`lessons/${fileName}`);
-                    const snapshot = await fileRef.put(fileData.file);
-                    const url = await snapshot.ref.getDownloadURL();
-                    uploadedFiles.push({
-                        name: fileData.file.name,
-                        url: url,
-                        type: fileData.file.type
-                    });
-                    showToast(`Загружен: ${fileData.file.name}`, "success");
-                } catch (err) {
-                    console.error("Ошибка загрузки файла:", err);
-                    showToast(`Ошибка загрузки ${fileData.file.name}: ${err.message}`, "error");
-                }
-            }
+            uploadedFiles = await uploadMultipleFiles(currentLessonFiles, "lessons");
         }
         
-        // Сохраняем конспект в Firestore
         await db.collection("lessons").add({
-            title: title,
-            description: description,
-            subject: subject,
-            courseId: courseId,
-            content: content,
+            title, description, subject, courseId, content,
             files: uploadedFiles,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         showToast("Конспект создан!", "success");
         
-        // Очистка формы
         document.getElementById("lessonTitle").value = "";
         document.getElementById("lessonDescription").value = "";
         document.getElementById("lessonSubject").value = "";
@@ -1088,22 +1139,45 @@ async function createLesson() {
         
         loadLessons();
         loadDashboard();
-        
     } catch (error) {
-        console.error("Ошибка создания конспекта:", error);
+        console.error(error);
         showToast("Ошибка: " + error.message, "error");
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ (АДМИН) ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 async function loadAllHomework() {
     try {
         const snapshot = await db.collection("homeworks").get();
         const homeworks = [];
-        snapshot.forEach(doc => { const hw = doc.data(); if (hw.status === "submitted") homeworks.push({ id: doc.id, ...hw }); });
+        snapshot.forEach(doc => {
+            const hw = doc.data();
+            if (hw.status === "submitted") {
+                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics')) {
+                    homeworks.push({ id: doc.id, ...hw });
+                }
+            }
+        });
+        
         const container = document.getElementById("pendingHomeworkList");
-        if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div></div><button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button></div><div class="solution">${escapeHtml(hw.solution ? hw.solution.substring(0,200) : "Нет текстового решения")}</div>${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : "")}</div>`).join("");
+        if (homeworks.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
+            return;
+        }
+        
+        container.innerHTML = homeworks.map(hw => `
+            <div class="homework-card">
+                <div class="justify-between">
+                    <div>
+                        <span class="title">${escapeHtml(hw.title)}</span>
+                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
+                </div>
+                <div class="solution">${escapeHtml((hw.solution || "Нет текстового решения").substring(0, 200))}</div>
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+            </div>
+        `).join("");
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки ДЗ", "error");
@@ -1114,11 +1188,38 @@ async function loadAllHomeworkHistory() {
     try {
         const snapshot = await db.collection("homeworks").get();
         const homeworks = [];
-        snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+        snapshot.forEach(doc => {
+            const hw = doc.data();
+            if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics')) {
+                homeworks.push({ id: doc.id, ...hw });
+            }
+        });
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
         const container = document.getElementById("allHomeworkList");
-        if (homeworks.length === 0) { container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных заданий</div>"; return; }
-        container.innerHTML = homeworks.map(hw => `<div class="homework-card"><div class="justify-between"><div><span class="title">${escapeHtml(hw.title)}</span><div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div></div><div class="flex">${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}<button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button></div></div><div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : (hw.fileData ? `<img src="${hw.fileData}" onclick="window.open(this.src)">` : "")}${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}</div>`).join("");
+        if (homeworks.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет созданных заданий</div>";
+            return;
+        }
+        
+        container.innerHTML = homeworks.map(hw => `
+            <div class="homework-card">
+                <div class="justify-between">
+                    <div>
+                        <span class="title">${escapeHtml(hw.title)}</span>
+                        <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div>
+                    </div>
+                    <div class="flex">
+                        ${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
+                        <button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button>
+                    </div>
+                </div>
+                <div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>
+                ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ""}
+                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}
+            </div>
+        `).join("");
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки истории ДЗ", "error");
@@ -1128,23 +1229,35 @@ async function loadAllHomeworkHistory() {
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
+    
     let filesHtml = "";
     if (currentGradingHw.files && currentGradingHw.files.length) {
         filesHtml = `<div class="files-list" style="margin-top:0.5rem;">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     } else if (currentGradingHw.fileData) {
-        filesHtml = `<img src="${currentGradingHw.fileData}" style="max-width: 200px;" onclick="window.open(this.src)">`;
+        filesHtml = `<button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openFileInBrowser('${currentGradingHw.fileData}', '${currentGradingHw.fileType || 'image/jpeg'}', 'Файл решения')">📎 Открыть файл ученика</button>`;
     }
-    document.getElementById("gradeModalContent").innerHTML = `<div><strong>${escapeHtml(currentGradingHw.title)}</strong></div><div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div><div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>${filesHtml}`;
+    
+    document.getElementById("gradeModalContent").innerHTML = `
+        <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
+        <div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
+        <div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>
+        ${filesHtml}
+    `;
     document.getElementById("gradeValue").value = "";
     document.getElementById("gradeFeedback").value = "";
     document.getElementById("gradeModal").classList.add("active");
 }
 function closeGradeModal() { document.getElementById("gradeModal").classList.remove("active"); currentGradingHw = null; }
+
 async function submitGrade(action) {
     if (!currentGradingHw) return;
     const grade = document.getElementById("gradeValue").value;
     const feedback = document.getElementById("gradeFeedback").value;
-    const updateData = { status: action === "graded" ? "graded" : "returned", feedback: feedback || "", gradedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    const updateData = {
+        status: action === "graded" ? "graded" : "returned",
+        feedback: feedback || "",
+        gradedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
     if (action === "graded" && grade && grade >= 1 && grade <= 10) updateData.grade = parseInt(grade);
     await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
     showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
@@ -1153,7 +1266,15 @@ async function submitGrade(action) {
     loadAllHomeworkHistory();
     loadDashboard();
 }
+
 async function deleteHomework(id) {
+    // Проверяем, что ДЗ принадлежит физике для админа физики
+    const doc = await db.collection("homeworks").doc(id).get();
+    const hw = doc.data();
+    if (isPhysicsAdmin() && hw.subject !== 'physics') {
+        showToast("У вас нет прав на удаление этого задания", "error");
+        return;
+    }
     if (!confirm("Удалить задание?")) return;
     await db.collection("homeworks").doc(id).delete();
     showToast("Задание удалено", "success");
@@ -1161,23 +1282,30 @@ async function deleteHomework(id) {
     loadDashboard();
 }
 
-// ========== ДОБАВЛЕНИЕ ДЗ (АДМИН) ==========
+// ========== ДОБАВЛЕНИЕ ДЗ ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
     const available = COURSES.filter(c => c.subject === subject);
     courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
 }
+
 async function createHomework() {
+    const subject = document.getElementById("hwSubject").value;
+    
+    if (isPhysicsAdmin() && subject !== 'physics') {
+        showToast("У вас есть доступ только к физике!", "error");
+        return;
+    }
+    
     const title = document.getElementById("hwTitle").value.trim();
     const description = document.getElementById("hwDescription").value.trim();
-    const subject = document.getElementById("hwSubject").value;
     const courseId = document.getElementById("hwCourse").value;
     const target = document.getElementById("hwTarget").value.trim() || "all";
     const dueDate = document.getElementById("hwDueDate").value;
     
-    if (!title || !subject || !courseId) { 
-        showToast("Заполните заголовок, предмет и курс", "error"); 
+    if (!title || !subject || !courseId) {
+        showToast("Заполните заголовок, предмет и курс", "error");
         return;
     }
     
@@ -1185,37 +1313,15 @@ async function createHomework() {
     
     try {
         let uploadedFiles = [];
-        
         if (currentHomeworkFiles.length > 0) {
-            showToast(`Загрузка ${currentHomeworkFiles.length} файлов...`, "info");
-            
-            for (const fileData of currentHomeworkFiles) {
-                try {
-                    const fileName = `${Date.now()}_${fileData.file.name}`;
-                    const fileRef = storage.ref(`homeworks/${fileName}`);
-                    const snapshot = await fileRef.put(fileData.file);
-                    const url = await snapshot.ref.getDownloadURL();
-                    uploadedFiles.push({
-                        name: fileData.file.name,
-                        url: url,
-                        type: fileData.file.type
-                    });
-                    showToast(`Загружен: ${fileData.file.name}`, "success");
-                } catch (err) {
-                    console.error("Ошибка загрузки файла:", err);
-                    showToast(`Ошибка загрузки ${fileData.file.name}: ${err.message}`, "error");
-                }
-            }
+            uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
         }
         
         await db.collection("homeworks").add({
-            title: title,
-            description: description,
-            subject: subject,
-            courseId: courseId,
+            title, description, subject, courseId,
             userEmail: target,
             userName: target === "all" ? "Все ученики" : target,
-            dueDate: dueDate,
+            dueDate,
             files: uploadedFiles,
             status: "pending",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1223,7 +1329,6 @@ async function createHomework() {
         
         showToast("Задание создано!", "success");
         
-        // Очистка формы
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwDescription").value = "";
         document.getElementById("hwSubject").value = "";
@@ -1235,32 +1340,57 @@ async function createHomework() {
         renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
         
         loadDashboard();
-        
     } catch (error) {
-        console.error("Ошибка создания задания:", error);
+        console.error(error);
         showToast("Ошибка: " + error.message, "error");
     }
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ПОСЛЕ ВХОДА ==========
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 function initAdminPanel() {
     const lessonSubject = document.getElementById("lessonSubject");
     if (lessonSubject) {
         lessonSubject.value = "math";
         updateLessonCourses();
     }
+    
+    if (isPhysicsAdmin()) {
+        const subjectSelect = document.getElementById("lessonSubject");
+        if (subjectSelect) {
+            subjectSelect.value = "physics";
+            updateLessonCourses();
+            Array.from(subjectSelect.options).forEach(opt => {
+                if (opt.value === 'math') opt.style.display = 'none';
+            });
+        }
+        
+        const hwSubjectSelect = document.getElementById("hwSubject");
+        if (hwSubjectSelect) {
+            hwSubjectSelect.value = "physics";
+            updateCourses();
+            Array.from(hwSubjectSelect.options).forEach(opt => {
+                if (opt.value === 'math') opt.style.display = 'none';
+            });
+        }
+    }
+    
     renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
 }
 
 // ========== АВТОРИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
 auth.onAuthStateChanged(async (user) => {
-    if (user && user.email === "kb.slash@mail.ru") {
+    if (user && user.email && ADMINS[user.email.toLowerCase()]) {
+        currentAdminEmail = user.email.toLowerCase();
+        currentAdminRole = ADMINS[currentAdminEmail].role;
+        currentUser = user;
+        
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("adminPanel").style.display = "block";
+        updateAdminUI();
         loadDashboard();
         initAdminPanel();
-    } else if (user && user.email !== "kb.slash@mail.ru") {
+    } else if (user && user.email && !ADMINS[user.email.toLowerCase()]) {
         await auth.signOut();
         location.reload();
     } else {
