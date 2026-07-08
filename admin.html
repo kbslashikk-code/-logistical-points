@@ -228,19 +228,19 @@ body {
     border-color: var(--gold);
 }
 
-.homework-card, .lesson-card {
+.homework-card, .lesson-card, .schedule-card {
     background: var(--bg2);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
 }
 
-.homework-card .title, .lesson-card .title {
+.homework-card .title, .lesson-card .title, .schedule-card .title {
     font-weight: 600;
     margin-bottom: 0.3rem;
 }
 
-.homework-card .meta, .lesson-card .meta {
+.homework-card .meta, .lesson-card .meta, .schedule-card .meta {
     font-size: 0.75rem;
     color: var(--text3);
     margin-bottom: 0.5rem;
@@ -345,6 +345,8 @@ body {
 .mb-2 { margin-bottom: 0.5rem; }
 .w-100 { width: 100%; }
 .cursor-pointer { cursor: pointer; }
+.mt-1 { margin-top: 0.5rem; }
+.mb-1 { margin-bottom: 0.5rem; }
 
 /* Стили для нескольких файлов */
 .files-list {
@@ -389,6 +391,69 @@ body {
     border-color: var(--gold);
     background: var(--gold3);
 }
+
+/* Стили для расписания */
+.schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.schedule-day {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 0.8rem;
+    min-height: 120px;
+}
+
+.schedule-day-header {
+    font-weight: 600;
+    color: var(--gold);
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.schedule-lesson {
+    background: var(--card);
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.7rem;
+    border-left: 2px solid var(--gold);
+    cursor: pointer;
+}
+
+.schedule-lesson:hover {
+    background: var(--card2);
+}
+
+.schedule-lesson .time {
+    color: var(--text3);
+    font-size: 0.6rem;
+}
+
+.schedule-lesson .name {
+    color: var(--text);
+    font-weight: 500;
+}
+
+.schedule-lesson .course {
+    color: var(--text2);
+    font-size: 0.6rem;
+}
+
+@media (max-width: 768px) {
+    .schedule-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    .sidebar { width: 100%; position: relative; height: auto; }
+    .main-content { margin-left: 0; }
+    .admin-container { flex-direction: column; }
+}
 </style>
 </head>
 <body>
@@ -397,7 +462,7 @@ body {
 
 <div id="loginContainer" class="login-container">
     <div class="login-card">
-        <h2>🔐 Logistical Points</h2>
+        <h2>Logistical Points</h2>
         <h2 style="font-size: 1rem; margin-top: -0.5rem; margin-bottom: 1rem;">Админ панель</h2>
         <input type="email" id="adminEmail" placeholder="Email" value="kb.slash@mail.ru">
         <input type="password" id="adminPassword" placeholder="Пароль">
@@ -408,21 +473,22 @@ body {
 <div id="adminPanel" style="display: none;">
     <div class="admin-container">
         <div class="sidebar">
-            <h3>📊 Logistical Points</h3>
+            <h3>Logistical Points</h3>
             <ul class="sidebar-menu">
-                <li data-tab="dashboard" class="active" onclick="switchTab('dashboard')">📈 Дашборд</li>
-                <li data-tab="students" onclick="switchTab('students'); loadStudents()">👥 Ученики</li>
-                <li data-tab="lessons" onclick="switchTab('lessons'); loadLessons()">📖 Конспекты</li>
-                <li data-tab="homework" onclick="switchTab('homework'); loadAllHomework()">📝 ДЗ на проверку</li>
-                <li data-tab="addLesson" onclick="switchTab('addLesson')">➕ Добавить конспект</li>
-                <li data-tab="addHomework" onclick="switchTab('addHomework')">➕ Добавить ДЗ</li>
-                <li data-tab="allHomework" onclick="switchTab('allHomework'); loadAllHomeworkHistory()">📋 Все ДЗ</li>
+                <li data-tab="dashboard" class="active" onclick="switchTab('dashboard')">Дашборд</li>
+                <li data-tab="students" onclick="switchTab('students'); loadStudents()">Ученики</li>
+                <li data-tab="lessons" onclick="switchTab('lessons'); loadLessons()">Конспекты</li>
+                <li data-tab="homework" onclick="switchTab('homework'); loadAllHomework()">ДЗ на проверку</li>
+                <li data-tab="schedule" onclick="switchTab('schedule'); loadSchedule()">Расписание</li>
+                <li data-tab="addLesson" onclick="switchTab('addLesson')">Добавить конспект</li>
+                <li data-tab="addHomework" onclick="switchTab('addHomework')">Добавить ДЗ</li>
+                <li data-tab="allHomework" onclick="switchTab('allHomework'); loadAllHomeworkHistory()">Все ДЗ</li>
             </ul>
         </div>
         <div class="main-content">
             <div id="dashboardTab" class="tab-content active">
                 <div class="card">
-                    <h3>📊 Статистика</h3>
+                    <h3>Статистика</h3>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem;">
                         <div style="text-align: center; padding: 1rem; background: var(--bg2); border-radius: 8px;">
                             <div style="font-size: 2rem; font-weight: 700; color: var(--gold)" id="statStudents">0</div>
@@ -443,35 +509,47 @@ body {
                     </div>
                 </div>
                 <div class="card">
-                    <h3>📝 Последние ДЗ на проверке</h3>
+                    <h3>Последние ДЗ на проверке</h3>
                     <div id="recentHomeworkList"></div>
                 </div>
             </div>
 
             <div id="studentsTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>👥 Список учеников и их прогресс</h3></div>
+                    <div class="card-header"><h3>Список учеников и их прогресс</h3></div>
                     <div id="studentsList"></div>
                 </div>
             </div>
 
             <div id="lessonsTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>📖 Все конспекты</h3></div>
+                    <div class="card-header"><h3>Все конспекты</h3></div>
                     <div id="allLessonsList"></div>
                 </div>
             </div>
 
             <div id="homeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>📝 Домашние задания на проверку</h3></div>
+                    <div class="card-header"><h3>Домашние задания на проверку</h3></div>
                     <div id="pendingHomeworkList"></div>
+                </div>
+            </div>
+
+            <div id="scheduleTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Расписание занятий по дням недели</h3>
+                        <button class="btn btn-primary" onclick="openAddScheduleModal()">Добавить занятие</button>
+                    </div>
+                    <div id="scheduleList">
+                        <div style="padding: 1rem; text-align: center; color: var(--text3);">Загрузка расписания...</div>
+                    </div>
                 </div>
             </div>
 
             <div id="addLessonTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <h3>➕ Добавить конспект</h3>
+                    <h3>Добавить конспект</h3>
                     <div class="form-group"><label>Название конспекта</label><input type="text" id="lessonTitle" placeholder="Например: Урок 1: Введение в алгебру"></div>
                     <div class="form-group"><label>Описание</label><textarea id="lessonDescription" rows="3" placeholder="Краткое описание конспекта..."></textarea></div>
                     <div class="form-group"><label>Предмет</label>
@@ -494,13 +572,13 @@ body {
                         <input type="file" id="lessonFileInput" accept="image/*,application/pdf" multiple style="display:none">
                         <div id="lessonFilePreview" class="files-list"></div>
                     </div>
-                    <button class="btn btn-primary w-100" onclick="createLesson()">➕ Создать конспект</button>
+                    <button class="btn btn-primary w-100" onclick="createLesson()">Создать конспект</button>
                 </div>
             </div>
 
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <h3>➕ Добавить домашнее задание</h3>
+                    <h3>Добавить домашнее задание</h3>
                     <div class="form-group"><label>Заголовок</label><input type="text" id="hwTitle" placeholder="Например: Алгебра - Квадратные уравнения"></div>
                     <div class="form-group"><label>Описание / условие</label><textarea id="hwDescription" rows="4" placeholder="Текст задачи..."></textarea></div>
                     <div class="form-group"><label>Предмет</label>
@@ -522,13 +600,13 @@ body {
                         <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display:none">
                         <div id="hwFilePreview" class="files-list"></div>
                     </div>
-                    <button class="btn btn-primary w-100" onclick="createHomework()">➕ Создать задание</button>
+                    <button class="btn btn-primary w-100" onclick="createHomework()">Создать задание</button>
                 </div>
             </div>
 
             <div id="allHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>📋 История всех домашних заданий</h3></div>
+                    <div class="card-header"><h3>История всех домашних заданий</h3></div>
                     <div id="allHomeworkList"></div>
                 </div>
             </div>
@@ -546,8 +624,8 @@ body {
         <div class="form-group"><label>Оценка (1-10)</label><input type="number" id="gradeValue" min="1" max="10" placeholder="8"></div>
         <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
         <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
-            <button class="btn btn-success" onclick="submitGrade('graded')">✓ Принять</button>
-            <button class="btn btn-danger" onclick="submitGrade('returned')">↺ Вернуть на доработку</button>
+            <button class="btn btn-success" onclick="submitGrade('graded')">Принять</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">Вернуть на доработку</button>
             <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
         </div>
     </div>
@@ -591,6 +669,41 @@ body {
     </div>
 </div>
 
+<div id="addScheduleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Добавить занятие в расписание</h3>
+            <button class="modal-close" onclick="closeAddScheduleModal()">&times;</button>
+        </div>
+        <div class="form-group"><label>День недели</label>
+            <select id="scheduleDay">
+                <option value="monday">Понедельник</option>
+                <option value="tuesday">Вторник</option>
+                <option value="wednesday">Среда</option>
+                <option value="thursday">Четверг</option>
+                <option value="friday">Пятница</option>
+                <option value="saturday">Суббота</option>
+                <option value="sunday">Воскресенье</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Время начала</label><input type="time" id="scheduleTime"></div>
+        <div class="form-group"><label>Название урока</label><input type="text" id="scheduleName" placeholder="Например: Алгебра 7 класс"></div>
+        <div class="form-group"><label>Курс (к какому курсу относится)</label>
+            <select id="scheduleCourse">
+                <option value="algebra">Алгебра</option>
+                <option value="geometry">Геометрия</option>
+                <option value="physics">Физика</option>
+                <option value="olymp">Олимпиадная математика</option>
+            </select>
+        </div>
+        <div class="form-group"><label>Ссылка на занятие (Zoom/Google Meet)</label><input type="text" id="scheduleLink" placeholder="https://zoom.us/j/..."></div>
+        <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
+            <button class="btn btn-primary" onclick="addScheduleItem()">Добавить</button>
+            <button class="btn btn-secondary" onclick="closeAddScheduleModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -615,6 +728,16 @@ const COURSES = [
     { id: "physics", name: "Физика", subject: "physics" },
     { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
+
+const DAYS = {
+    monday: 'Понедельник',
+    tuesday: 'Вторник',
+    wednesday: 'Среда',
+    thursday: 'Четверг',
+    friday: 'Пятница',
+    saturday: 'Суббота',
+    sunday: 'Воскресенье'
+};
 
 // ========== ДОПУСТИМЫЕ АДМИНЫ ==========
 const ADMINS = {
@@ -655,7 +778,7 @@ function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function canAccessPhysics() { return isFullAdmin() || isPhysicsAdmin(); }
 function canAccessMath() { return isFullAdmin(); }
-function canEditContent() { return true; } // Оба админа могут редактировать
+function canEditContent() { return true; }
 
 function filterBySubject(data) {
     if (isFullAdmin()) return data;
@@ -814,8 +937,8 @@ function updateAdminUI() {
     if (sidebarTitle) {
         let roleText = '';
         if (isFullAdmin()) roleText = ' (Полный доступ)';
-        else if (isPhysicsAdmin()) roleText = ' (Физика - полный доступ)';
-        sidebarTitle.textContent = `📊 Logistical Points${roleText}`;
+        else if (isPhysicsAdmin()) roleText = ' (Физика)';
+        sidebarTitle.textContent = `Logistical Points${roleText}`;
     }
 }
 
@@ -976,7 +1099,7 @@ async function loadLessons() {
                     </div>
                     <div class="flex">
                         <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
-                        <button class="btn btn-secondary" onclick="editLesson('${lesson.id}')">✏ Ред.</button>
+                        <button class="btn btn-secondary" onclick="editLesson('${lesson.id}')">Ред.</button>
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
@@ -999,7 +1122,7 @@ async function viewLesson(lessonId) {
         content += `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     } else if (lesson.fileData) {
         if (lesson.fileType === "application/pdf") {
-            content += `<div style="margin-top:1rem;"><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">📄 Открыть PDF</button></div>`;
+            content += `<div style="margin-top:1rem;"><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">Открыть PDF</button></div>`;
         } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
             content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px; cursor:pointer;" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">`;
         }
@@ -1010,7 +1133,6 @@ async function viewLesson(lessonId) {
 function closeViewLessonModal() { document.getElementById("viewLessonModal").classList.remove("active"); }
 
 async function deleteLesson(id) {
-    // Проверяем, что конспект принадлежит физике для админа физики
     const doc = await db.collection("lessons").doc(id).get();
     const lesson = doc.data();
     if (isPhysicsAdmin() && lesson.subject !== 'physics') {
@@ -1025,7 +1147,6 @@ async function deleteLesson(id) {
 }
 
 async function editLesson(id) {
-    // Проверяем, что конспект принадлежит физике для админа физики
     const doc = await db.collection("lessons").doc(id).get();
     const lesson = doc.data();
     if (isPhysicsAdmin() && lesson.subject !== 'physics') {
@@ -1217,7 +1338,7 @@ async function loadAllHomeworkHistory() {
                 <div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>
                 ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}
                 ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ""}
-                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>💬 Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}
+                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}
             </div>
         `).join("");
     } catch (err) {
@@ -1234,7 +1355,7 @@ async function openGradeModal(hwId) {
     if (currentGradingHw.files && currentGradingHw.files.length) {
         filesHtml = `<div class="files-list" style="margin-top:0.5rem;">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     } else if (currentGradingHw.fileData) {
-        filesHtml = `<button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openFileInBrowser('${currentGradingHw.fileData}', '${currentGradingHw.fileType || 'image/jpeg'}', 'Файл решения')">📎 Открыть файл ученика</button>`;
+        filesHtml = `<button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openFileInBrowser('${currentGradingHw.fileData}', '${currentGradingHw.fileType || 'image/jpeg'}', 'Файл решения')">Открыть файл ученика</button>`;
     }
     
     document.getElementById("gradeModalContent").innerHTML = `
@@ -1268,7 +1389,6 @@ async function submitGrade(action) {
 }
 
 async function deleteHomework(id) {
-    // Проверяем, что ДЗ принадлежит физике для админа физики
     const doc = await db.collection("homeworks").doc(id).get();
     const hw = doc.data();
     if (isPhysicsAdmin() && hw.subject !== 'physics') {
@@ -1340,6 +1460,127 @@ async function createHomework() {
         renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
         
         loadDashboard();
+    } catch (error) {
+        console.error(error);
+        showToast("Ошибка: " + error.message, "error");
+    }
+}
+
+// ========== УПРАВЛЕНИЕ РАСПИСАНИЕМ ==========
+function openAddScheduleModal() {
+    document.getElementById("addScheduleModal").classList.add("active");
+}
+
+function closeAddScheduleModal() {
+    document.getElementById("addScheduleModal").classList.remove("active");
+}
+
+async function addScheduleItem() {
+    const day = document.getElementById("scheduleDay").value;
+    const time = document.getElementById("scheduleTime").value;
+    const name = document.getElementById("scheduleName").value.trim();
+    const courseId = document.getElementById("scheduleCourse").value;
+    const link = document.getElementById("scheduleLink").value.trim();
+    
+    if (!time || !name || !courseId) {
+        showToast("Заполните все поля", "error");
+        return;
+    }
+    
+    try {
+        await db.collection("schedule").add({
+            day: day,
+            time: time,
+            name: name,
+            courseId: courseId,
+            link: link || "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast("Занятие добавлено в расписание!", "success");
+        closeAddScheduleModal();
+        
+        document.getElementById("scheduleTime").value = "";
+        document.getElementById("scheduleName").value = "";
+        document.getElementById("scheduleLink").value = "";
+        
+        loadSchedule();
+    } catch (error) {
+        console.error(error);
+        showToast("Ошибка: " + error.message, "error");
+    }
+}
+
+async function loadSchedule() {
+    try {
+        const snapshot = await db.collection("schedule").get();
+        const scheduleItems = [];
+        snapshot.forEach(doc => {
+            scheduleItems.push({ id: doc.id, ...doc.data() });
+        });
+        
+        const container = document.getElementById("scheduleList");
+        
+        if (scheduleItems.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Расписание пока не заполнено</div>";
+            return;
+        }
+        
+        // Группируем по дням
+        const grouped = {};
+        for (const item of scheduleItems) {
+            if (!grouped[item.day]) {
+                grouped[item.day] = [];
+            }
+            grouped[item.day].push(item);
+        }
+        
+        let html = '<div class="schedule-grid">';
+        const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        
+        for (const dayKey of dayOrder) {
+            const dayName = DAYS[dayKey] || dayKey;
+            const items = grouped[dayKey] || [];
+            
+            html += `<div class="schedule-day">
+                <div class="schedule-day-header">${dayName}</div>`;
+            
+            if (items.length === 0) {
+                html += `<div style="text-align: center; color: var(--text3); font-size: 0.7rem; padding: 0.5rem 0;">Нет занятий</div>`;
+            } else {
+                // Сортируем по времени
+                items.sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
+                for (const item of items) {
+                    const course = COURSES.find(c => c.id === item.courseId);
+                    html += `<div class="schedule-lesson">
+                        <div class="time">${escapeHtml(item.time || '')}</div>
+                        <div class="name">${escapeHtml(item.name)}</div>
+                        <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
+                        ${item.link ? `<div style="margin-top: 0.2rem;"><a href="${escapeHtml(item.link)}" target="_blank" style="color: var(--blue2); font-size: 0.6rem; text-decoration: none;">Ссылка</a></div>` : ''}
+                        <div style="margin-top: 0.2rem;">
+                            <button class="btn btn-danger" style="padding: 0.1rem 0.3rem; font-size: 0.6rem;" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
+                        </div>
+                    </div>`;
+                }
+            }
+            
+            html += `</div>`;
+        }
+        
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (err) {
+        console.error(err);
+        showToast("Ошибка загрузки расписания", "error");
+    }
+}
+
+async function deleteScheduleItem(id) {
+    if (!confirm("Удалить это занятие из расписания?")) return;
+    try {
+        await db.collection("schedule").doc(id).delete();
+        showToast("Занятие удалено", "success");
+        loadSchedule();
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
