@@ -1264,6 +1264,7 @@ let currentUser = null;
 let userData = null;
 let currentLessonData = null;
 let currentSubmitFiles = [];
+let currentHomeworkData = null; // Добавляем переменную для хранения данных ДЗ
 window.currentLessonsModal = null;
 
 function showLoader() {
@@ -1734,7 +1735,6 @@ async function uploadStudentFiles(files, homeworkId) {
         try {
             const result = await uploadStudentFileToStorage(f.file, homeworkId);
             results.push(result);
-            showToast(`Загружен: ${f.file.name}`, "success");
         } catch(e) {
             showToast(`Ошибка: ${f.file.name}`, "error");
         }
@@ -1816,7 +1816,10 @@ async function loadHomeworkByCourse(courseId) {
     try {
         const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
         const homeworks = [];
-        snapshot.forEach(doc => homeworks.push({ id: doc.id, ...doc.data() }));
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            homeworks.push({ id: doc.id, ...data });
+        });
         
         const filtered = homeworks.filter(hw => {
             if (!hw.userEmail) return false;
@@ -1851,13 +1854,18 @@ async function loadHomeworkByCourse(courseId) {
                                 const statusColor = submitted ? "var(--green)" : "var(--gold)";
                                 const actionBtn = submitted ? 
                                     `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}')">Просмотреть</button>` :
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}')">Сдать</button>`;
+                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}', '${escapeHtml(hw.courseId)}')">Сдать</button>`;
                                 
                                 let filesInfo = '';
                                 if (hw.files && hw.files.length > 0) {
                                     filesInfo = `<div style="font-size: 0.7rem; color: var(--gold); margin-top: 0.2rem;">${hw.files.length} файлов</div>`;
                                 } else if (hw.imageData) {
                                     filesInfo = `<div style="font-size: 0.7rem; color: var(--gold); margin-top: 0.2rem;">Есть изображение</div>`;
+                                }
+                                
+                                let filesHtml = '';
+                                if (hw.files && hw.files.length > 0) {
+                                    filesHtml = `<div class="files-list" style="margin-top: 0.5rem;">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
                                 }
                                 
                                 return `
@@ -1870,6 +1878,7 @@ async function loadHomeworkByCourse(courseId) {
                                                 <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.5rem; background: var(--bg); padding: 0.5rem; border-radius: 8px;">
                                                     ${escapeHtml(hw.description ? hw.description.substring(0, 150) : "Нет описания")}${hw.description && hw.description.length > 150 ? "..." : ""}
                                                 </div>
+                                                ${filesHtml}
                                             </div>
                                             <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
                                                 <span style="font-size: 0.8rem; color: ${statusColor};">${statusText}</span>
@@ -1933,8 +1942,31 @@ async function viewSubmittedHomework(hwId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-async function openHomeworkSubmit(hwId, title, description) {
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ - теперь принимает все нужные параметры
+async function openHomeworkSubmit(hwId, title, description, courseId) {
     currentSubmitFiles = [];
+    
+    // Сохраняем данные ДЗ для использования в модальном окне
+    currentHomeworkData = { hwId, title, description, courseId };
+    
+    // Получаем полные данные ДЗ, чтобы показать файлы
+    let hwFiles = [];
+    try {
+        const doc = await db.collection("homeworks").doc(hwId).get();
+        if (doc.exists) {
+            const data = doc.data();
+            if (data.files && data.files.length > 0) {
+                hwFiles = data.files;
+            }
+        }
+    } catch(e) {
+        console.error("Ошибка загрузки файлов ДЗ:", e);
+    }
+    
+    let filesHtml = '';
+    if (hwFiles.length > 0) {
+        filesHtml = `<div class="files-list" style="margin-top: 0.5rem;">${hwFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type && f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    }
     
     const modalHtml = `
         <div id="dynamicSubmitModal" class="modal-overlay active" style="display: flex; z-index: 10000; background: var(--bg);">
@@ -1942,12 +1974,12 @@ async function openHomeworkSubmit(hwId, title, description) {
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
                         <h2 style="font-family: var(--fs); font-size: 1.8rem;">Сдать задание: ${escapeHtml(title)}</h2>
-                        <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
+                        <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove(); currentHomeworkData = null;" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Условие задачи</h3>
                         <div style="line-height: 1.8;">${escapeHtml(description)}</div>
-                        ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                        ${filesHtml}
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Ваше решение</h3>
@@ -1964,7 +1996,7 @@ async function openHomeworkSubmit(hwId, title, description) {
                     </div>
                     <div style="display:flex; gap:0.8rem; margin-top:1rem;">
                         <button class="btn bg" style="flex:1" id="dynSubmitBtn">Отправить</button>
-                        <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove()">Отмена</button>
+                        <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove(); currentHomeworkData = null;">Отмена</button>
                     </div>
                 </div>
             </div>
@@ -1994,7 +2026,7 @@ async function openHomeworkSubmit(hwId, title, description) {
         try {
             let uploadedFiles = [];
             if (currentSubmitFiles.length > 0) {
-                uploadedFiles = await uploadStudentFiles(currentSubmitFiles, hwId);
+                uploadedFiles = await uploadStudentFiles(currentSubmitFiles, currentHomeworkData.hwId);
             }
             
             const updateData = {
@@ -2006,25 +2038,31 @@ async function openHomeworkSubmit(hwId, title, description) {
                 userEmail: currentUser.email
             };
             
-            // Если есть текстовое решение, добавляем его
-            if (solution) {
-                updateData.solution = solution;
-            }
+            // Обновляем документ ДЗ
+            await db.collection("homeworks").doc(currentHomeworkData.hwId).update(updateData);
             
-            await db.collection("homeworks").doc(hwId).update(updateData);
-            
+            // Обновляем данные пользователя
             if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            userData.homeworkSubmissions.push({ 
-                id: hwId, 
+            const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentHomeworkData.hwId);
+            const submissionData = { 
+                id: currentHomeworkData.hwId, 
                 solution: solution, 
                 files: uploadedFiles 
-            });
+            };
+            
+            if (existingIndex !== -1) {
+                userData.homeworkSubmissions[existingIndex] = submissionData;
+            } else {
+                userData.homeworkSubmissions.push(submissionData);
+            }
+            
             await db.collection("users").doc(currentUser.uid).update({ 
                 homeworkSubmissions: userData.homeworkSubmissions 
             });
             
             showToast("Задание отправлено!", "success");
             document.getElementById("dynamicSubmitModal").remove();
+            currentHomeworkData = null;
             document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
             loadHomeworkCourses();
         } catch(e) { 
