@@ -188,6 +188,20 @@ body {
 
 .table tr:hover td { background: var(--bg2); }
 
+.progress-bar {
+    width: 100px;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+}
+
 .form-group {
     margin-bottom: 0.8rem;
 }
@@ -230,6 +244,21 @@ body {
     font-size: 0.75rem;
     color: var(--text3);
     margin-bottom: 0.5rem;
+}
+
+.homework-card .solution, .lesson-card .content {
+    background: var(--card);
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.homework-card img, .lesson-card img {
+    max-width: 150px;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    cursor: pointer;
 }
 
 .badge {
@@ -363,7 +392,6 @@ body {
     background: var(--gold3);
 }
 
-/* Стили для расписания */
 .schedule-list {
     display: flex;
     flex-direction: column;
@@ -381,54 +409,17 @@ body {
     border-left: 3px solid var(--gold);
 }
 
-.schedule-item .info {
-    flex: 1;
-}
-
-.schedule-item .date {
-    font-size: 0.8rem;
-    color: var(--gold);
-    font-weight: 600;
-}
-
-.schedule-item .time {
-    font-size: 0.75rem;
-    color: var(--text3);
-}
-
-.schedule-item .name {
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.schedule-item .course {
-    font-size: 0.7rem;
-    color: var(--text2);
-}
-
-.schedule-item .link a {
-    color: var(--blue2);
-    text-decoration: none;
-    font-size: 0.7rem;
-}
-
-.schedule-item .actions {
-    display: flex;
-    gap: 0.3rem;
-}
-
-.schedule-empty {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text3);
-}
+.schedule-item .info { flex: 1; }
+.schedule-item .date { font-size: 0.8rem; color: var(--gold); font-weight: 600; }
+.schedule-item .time { font-size: 0.75rem; color: var(--text3); }
+.schedule-item .name { font-weight: 600; font-size: 0.95rem; }
+.schedule-item .course { font-size: 0.7rem; color: var(--text2); }
+.schedule-item .link a { color: var(--blue2); text-decoration: none; font-size: 0.7rem; }
+.schedule-item .actions { display: flex; gap: 0.3rem; }
+.schedule-empty { padding: 2rem; text-align: center; color: var(--text3); }
 
 @media (max-width: 768px) {
-    .schedule-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
+    .schedule-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .sidebar { width: 100%; position: relative; height: auto; }
     .main-content { margin-left: 0; }
     .admin-container { flex-direction: column; }
@@ -711,6 +702,7 @@ const COURSES = [
     { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
 
+const DAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
 // ========== ДОПУСТИМЫЕ АДМИНЫ ==========
@@ -720,7 +712,6 @@ const ADMINS = {
 };
 
 let currentUser = null;
-let userData = null;
 let currentGradingHw = null;
 let currentEditLessonId = null;
 let currentLessonFiles = [];
@@ -747,21 +738,10 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length !== 3) return dateStr;
-    const day = parseInt(parts[2]);
-    const month = parseInt(parts[1]) - 1;
-    const year = parseInt(parts[0]);
-    return `${day} ${MONTHS[month]} ${year}`;
-}
-
-// ========== ПРОВЕРКА ДОСТУПА ==========
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 
-// ========== STORAGE ФУНКЦИИ ==========
+// ========== STORAGE ФУНКЦИИ (ИСПРАВЛЕННЫЕ) ==========
 async function uploadFileToStorage(file, folder) {
     const fileName = `${Date.now()}_${file.name}`;
     const fileRef = storage.ref(`${folder}/admin/${fileName}`);
@@ -1075,6 +1055,7 @@ async function loadLessons() {
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
+                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1230,7 +1211,7 @@ async function createLesson() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ==========
 async function loadAllHomework() {
     try {
         const snapshot = await db.collection("homeworks").get();
@@ -1255,11 +1236,12 @@ async function loadAllHomework() {
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)}</div>
+                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
                     </div>
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
                 <div class="solution">${escapeHtml((hw.solution || "Нет текстового решения").substring(0, 200))}</div>
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1299,6 +1281,9 @@ async function loadAllHomeworkHistory() {
                     </div>
                 </div>
                 <div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ''}
+                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1311,9 +1296,15 @@ async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
     
+    let filesHtml = '';
+    if (currentGradingHw.files && currentGradingHw.files.length) {
+        filesHtml = `<div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+    }
+    
     document.getElementById("gradeModalContent").innerHTML = `
         <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
         <div class="meta">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
+        ${currentGradingHw.files && currentGradingHw.files.length ? `<div><strong>Файлы к заданию:</strong>${filesHtml}</div>` : ''}
         <div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>
     `;
     document.getElementById("gradeValue").value = "";
@@ -1354,7 +1345,7 @@ async function deleteHomework(id) {
     loadDashboard();
 }
 
-// ========== ДОБАВЛЕНИЕ ДЗ ==========
+// ========== ДОБАВЛЕНИЕ ДЗ (ИСПРАВЛЕННОЕ) ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -1381,26 +1372,39 @@ async function createHomework() {
         return;
     }
     
+    const btn = document.querySelector('#addHomeworkTab .btn-primary');
+    const originalText = btn.textContent;
+    btn.textContent = "Загрузка файлов...";
+    btn.disabled = true;
+    
     showToast("Создание задания...", "info");
     
     try {
+        // Загружаем файлы в Storage
         let uploadedFiles = [];
         if (currentHomeworkFiles.length > 0) {
+            showToast(`Загрузка ${currentHomeworkFiles.length} файлов...`, "info");
             uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
+            showToast(`Загружено ${uploadedFiles.length} файлов`, "success");
         }
         
+        // Сохраняем в Firestore с ссылками на файлы
         await db.collection("homeworks").add({
-            title, description, subject, courseId,
+            title: title,
+            description: description,
+            subject: subject,
+            courseId: courseId,
             userEmail: target,
             userName: target === "all" ? "Все ученики" : target,
-            dueDate,
-            files: uploadedFiles,
+            dueDate: dueDate,
+            files: uploadedFiles, // <-- ВАЖНО: сохраняем массив с URL
             status: "pending",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         showToast("Задание создано!", "success");
         
+        // Очищаем форму
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwDescription").value = "";
         document.getElementById("hwSubject").value = "";
@@ -1412,13 +1416,17 @@ async function createHomework() {
         renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
         
         loadDashboard();
+        loadAllHomeworkHistory();
     } catch (error) {
-        console.error(error);
+        console.error("Ошибка:", error);
         showToast("Ошибка: " + error.message, "error");
+    } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
     }
 }
 
-// ========== УПРАВЛЕНИЕ РАСПИСАНИЕМ (С ДАТАМИ) ==========
+// ========== УПРАВЛЕНИЕ РАСПИСАНИЕМ ==========
 function openAddScheduleModal() {
     document.getElementById("addScheduleModal").classList.add("active");
 }
@@ -1466,11 +1474,7 @@ async function addScheduleItem() {
         loadSchedule();
     } catch (error) {
         console.error("Ошибка добавления:", error);
-        if (error.code === 'permission-denied') {
-            showToast("Ошибка доступа. Проверьте правила Firestore.", "error");
-        } else {
-            showToast("Ошибка: " + error.message, "error");
-        }
+        showToast("Ошибка: " + error.message, "error");
     }
 }
 
@@ -1489,7 +1493,6 @@ async function loadSchedule() {
             return;
         }
         
-        // Сортируем по дате и времени
         scheduleItems.sort((a, b) => {
             if (a.date !== b.date) return a.date.localeCompare(b.date);
             return (a.time || '00:00').localeCompare(b.time || '00:00');
@@ -1498,12 +1501,13 @@ async function loadSchedule() {
         let html = '<div class="schedule-list">';
         for (const item of scheduleItems) {
             const course = COURSES.find(c => c.id === item.courseId);
-            const formattedDate = formatDate(item.date);
+            const dateObj = new Date(item.date + 'T00:00:00');
+            const formattedDate = `${dateObj.getDate()} ${MONTHS[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
             
             html += `
                 <div class="schedule-item">
                     <div class="info">
-                        <div class="date">${escapeHtml(formattedDate)}</div>
+                        <div class="date">${formattedDate}</div>
                         <div class="name">${escapeHtml(item.name)}</div>
                         <div class="time">${escapeHtml(item.time || '')}</div>
                         <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
