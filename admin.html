@@ -188,20 +188,6 @@ body {
 
 .table tr:hover td { background: var(--bg2); }
 
-.progress-bar {
-    width: 100px;
-    height: 6px;
-    background: var(--line);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--gold);
-    border-radius: 3px;
-}
-
 .form-group {
     margin-bottom: 0.8rem;
 }
@@ -244,21 +230,6 @@ body {
     font-size: 0.75rem;
     color: var(--text3);
     margin-bottom: 0.5rem;
-}
-
-.homework-card .solution, .lesson-card .content {
-    background: var(--card);
-    padding: 0.5rem;
-    border-radius: 6px;
-    margin: 0.5rem 0;
-    font-size: 0.85rem;
-}
-
-.homework-card img, .lesson-card img {
-    max-width: 150px;
-    border-radius: 6px;
-    margin-top: 0.5rem;
-    cursor: pointer;
 }
 
 .badge {
@@ -393,62 +364,70 @@ body {
 }
 
 /* Стили для расписания */
-.schedule-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+.schedule-list {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
     margin-top: 1rem;
 }
 
-.schedule-day {
+.schedule-item {
     background: var(--bg2);
     border-radius: 8px;
-    padding: 0.8rem;
-    min-height: 120px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid var(--gold);
 }
 
-.schedule-day-header {
-    font-weight: 600;
-    color: var(--gold);
-    text-align: center;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 0.5rem;
+.schedule-item .info {
+    flex: 1;
+}
+
+.schedule-item .date {
     font-size: 0.8rem;
+    color: var(--gold);
+    font-weight: 600;
 }
 
-.schedule-lesson {
-    background: var(--card);
-    border-radius: 4px;
-    padding: 0.3rem 0.5rem;
-    margin-bottom: 0.3rem;
-    font-size: 0.7rem;
-    border-left: 2px solid var(--gold);
-    cursor: pointer;
-}
-
-.schedule-lesson:hover {
-    background: var(--card2);
-}
-
-.schedule-lesson .time {
+.schedule-item .time {
+    font-size: 0.75rem;
     color: var(--text3);
-    font-size: 0.6rem;
 }
 
-.schedule-lesson .name {
-    color: var(--text);
-    font-weight: 500;
+.schedule-item .name {
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
-.schedule-lesson .course {
+.schedule-item .course {
+    font-size: 0.7rem;
     color: var(--text2);
-    font-size: 0.6rem;
+}
+
+.schedule-item .link a {
+    color: var(--blue2);
+    text-decoration: none;
+    font-size: 0.7rem;
+}
+
+.schedule-item .actions {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.schedule-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text3);
 }
 
 @media (max-width: 768px) {
-    .schedule-grid {
-        grid-template-columns: repeat(1, 1fr);
+    .schedule-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
     .sidebar { width: 100%; position: relative; height: auto; }
     .main-content { margin-left: 0; }
@@ -538,11 +517,11 @@ body {
             <div id="scheduleTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Расписание занятий по дням недели</h3>
+                        <h3>Расписание занятий</h3>
                         <button class="btn btn-primary" onclick="openAddScheduleModal()">Добавить занятие</button>
                     </div>
                     <div id="scheduleList">
-                        <div style="padding: 1rem; text-align: center; color: var(--text3);">Загрузка расписания...</div>
+                        <div class="schedule-empty">Загрузка расписания...</div>
                     </div>
                 </div>
             </div>
@@ -559,9 +538,9 @@ body {
                             <option value="physics">Физика</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Курс (ВАЖНО: выберите курс)</label><select id="lessonCourse"></select></div>
-                    <div class="form-group"><label>Содержание конспекта (текст, HTML)</label>
-                        <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги для форматирования..."></textarea>
+                    <div class="form-group"><label>Курс</label><select id="lessonCourse"></select></div>
+                    <div class="form-group"><label>Содержание конспекта</label>
+                        <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги..."></textarea>
                     </div>
                     <div class="form-group">
                         <label>Прикрепить файлы (можно несколько, до 50 МБ)</label>
@@ -675,20 +654,20 @@ body {
             <h3>Добавить занятие в расписание</h3>
             <button class="modal-close" onclick="closeAddScheduleModal()">&times;</button>
         </div>
-        <div class="form-group"><label>День недели</label>
-            <select id="scheduleDay">
-                <option value="monday">Понедельник</option>
-                <option value="tuesday">Вторник</option>
-                <option value="wednesday">Среда</option>
-                <option value="thursday">Четверг</option>
-                <option value="friday">Пятница</option>
-                <option value="saturday">Суббота</option>
-                <option value="sunday">Воскресенье</option>
-            </select>
+        <div class="form-group">
+            <label>Дата занятия</label>
+            <input type="date" id="scheduleDate">
         </div>
-        <div class="form-group"><label>Время начала</label><input type="time" id="scheduleTime"></div>
-        <div class="form-group"><label>Название урока</label><input type="text" id="scheduleName" placeholder="Например: Алгебра 7 класс"></div>
-        <div class="form-group"><label>Курс (к какому курсу относится)</label>
+        <div class="form-group">
+            <label>Время начала</label>
+            <input type="time" id="scheduleTime">
+        </div>
+        <div class="form-group">
+            <label>Название урока</label>
+            <input type="text" id="scheduleName" placeholder="Например: Алгебра 7 класс">
+        </div>
+        <div class="form-group">
+            <label>Курс</label>
             <select id="scheduleCourse">
                 <option value="algebra">Алгебра</option>
                 <option value="geometry">Геометрия</option>
@@ -696,7 +675,10 @@ body {
                 <option value="olymp">Олимпиадная математика</option>
             </select>
         </div>
-        <div class="form-group"><label>Ссылка на занятие (Zoom/Google Meet)</label><input type="text" id="scheduleLink" placeholder="https://zoom.us/j/..."></div>
+        <div class="form-group">
+            <label>Ссылка на занятие (Zoom/Google Meet)</label>
+            <input type="text" id="scheduleLink" placeholder="https://zoom.us/j/...">
+        </div>
         <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
             <button class="btn btn-primary" onclick="addScheduleItem()">Добавить</button>
             <button class="btn btn-secondary" onclick="closeAddScheduleModal()">Отмена</button>
@@ -729,15 +711,7 @@ const COURSES = [
     { id: "olymp", name: "Олимпиадная математика", subject: "math" }
 ];
 
-const DAYS = {
-    monday: 'Понедельник',
-    tuesday: 'Вторник',
-    wednesday: 'Среда',
-    thursday: 'Четверг',
-    friday: 'Пятница',
-    saturday: 'Суббота',
-    sunday: 'Воскресенье'
-};
+const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
 // ========== ДОПУСТИМЫЕ АДМИНЫ ==========
 const ADMINS = {
@@ -773,20 +747,19 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const day = parseInt(parts[2]);
+    const month = parseInt(parts[1]) - 1;
+    const year = parseInt(parts[0]);
+    return `${day} ${MONTHS[month]} ${year}`;
+}
+
 // ========== ПРОВЕРКА ДОСТУПА ==========
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
-function canAccessPhysics() { return isFullAdmin() || isPhysicsAdmin(); }
-function canAccessMath() { return isFullAdmin(); }
-function canEditContent() { return true; }
-
-function filterBySubject(data) {
-    if (isFullAdmin()) return data;
-    if (isPhysicsAdmin()) {
-        return data.filter(item => item.subject === 'physics');
-    }
-    return [];
-}
 
 // ========== STORAGE ФУНКЦИИ ==========
 async function uploadFileToStorage(file, folder) {
@@ -803,7 +776,6 @@ async function uploadMultipleFiles(files, folder) {
         try {
             const result = await uploadFileToStorage(f.file, folder);
             results.push(result);
-            showToast(`Загружен: ${f.file.name}`, "success");
         } catch(e) {
             showToast(`Ошибка: ${f.file.name}`, "error");
         }
@@ -1095,7 +1067,7 @@ async function loadLessons() {
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(lesson.title)}</span>
-                        <div class="meta">${escapeHtml(lesson.courseId || "Без курса")} · ${escapeHtml(lesson.description ? lesson.description.substring(0, 100) : "Нет описания")}</div>
+                        <div class="meta">${escapeHtml(lesson.courseId || "Без курса")}</div>
                     </div>
                     <div class="flex">
                         <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
@@ -1103,8 +1075,6 @@ async function loadLessons() {
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
-                <div class="content">${escapeHtml((lesson.content || "").substring(0, 150))}...</div>
-                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1119,13 +1089,7 @@ async function viewLesson(lessonId) {
     document.getElementById("viewLessonTitle").textContent = lesson.title;
     let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.files && lesson.files.length) {
-        content += `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    } else if (lesson.fileData) {
-        if (lesson.fileType === "application/pdf") {
-            content += `<div style="margin-top:1rem;"><button class="btn btn-primary" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">Открыть PDF</button></div>`;
-        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
-            content += `<img src="${lesson.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px; cursor:pointer;" onclick="openFileInBrowser('${lesson.fileData}', '${lesson.fileType}', '${escapeHtml(lesson.title)}')">`;
-        }
+        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -1291,12 +1255,11 @@ async function loadAllHomework() {
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} · Срок: ${escapeHtml(hw.dueDate || "не указан")}</div>
+                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)}</div>
                     </div>
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
                 <div class="solution">${escapeHtml((hw.solution || "Нет текстового решения").substring(0, 200))}</div>
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1328,7 +1291,7 @@ async function loadAllHomeworkHistory() {
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div>
+                        <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · Статус: ${hw.status}</div>
                     </div>
                     <div class="flex">
                         ${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
@@ -1336,9 +1299,6 @@ async function loadAllHomeworkHistory() {
                     </div>
                 </div>
                 <div class="solution"><strong>Условие:</strong> ${escapeHtml(hw.description || "Нет описания")}</div>
-                ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ""}
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ""}
-                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ""}
             </div>
         `).join("");
     } catch (err) {
@@ -1351,18 +1311,10 @@ async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
     
-    let filesHtml = "";
-    if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div class="files-list" style="margin-top:0.5rem;">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    } else if (currentGradingHw.fileData) {
-        filesHtml = `<button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="openFileInBrowser('${currentGradingHw.fileData}', '${currentGradingHw.fileType || 'image/jpeg'}', 'Файл решения')">Открыть файл ученика</button>`;
-    }
-    
     document.getElementById("gradeModalContent").innerHTML = `
         <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
-        <div class="meta" style="margin-bottom: 0.5rem;">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
+        <div class="meta">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
         <div class="solution"><strong>Решение:</strong> ${escapeHtml(currentGradingHw.solution || "Нет текстового решения")}</div>
-        ${filesHtml}
     `;
     document.getElementById("gradeValue").value = "";
     document.getElementById("gradeFeedback").value = "";
@@ -1466,7 +1418,7 @@ async function createHomework() {
     }
 }
 
-// ========== УПРАВЛЕНИЕ РАСПИСАНИЕМ ==========
+// ========== УПРАВЛЕНИЕ РАСПИСАНИЕМ (С ДАТАМИ) ==========
 function openAddScheduleModal() {
     document.getElementById("addScheduleModal").classList.add("active");
 }
@@ -1476,38 +1428,49 @@ function closeAddScheduleModal() {
 }
 
 async function addScheduleItem() {
-    const day = document.getElementById("scheduleDay").value;
+    const date = document.getElementById("scheduleDate").value;
     const time = document.getElementById("scheduleTime").value;
     const name = document.getElementById("scheduleName").value.trim();
     const courseId = document.getElementById("scheduleCourse").value;
     const link = document.getElementById("scheduleLink").value.trim();
     
-    if (!time || !name || !courseId) {
+    if (!date || !time || !name || !courseId) {
         showToast("Заполните все поля", "error");
+        return;
+    }
+    
+    if (!currentUser) {
+        showToast("Вы не авторизованы", "error");
         return;
     }
     
     try {
         await db.collection("schedule").add({
-            day: day,
+            date: date,
             time: time,
             name: name,
             courseId: courseId,
             link: link || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: currentUser.email
         });
         
         showToast("Занятие добавлено в расписание!", "success");
         closeAddScheduleModal();
         
+        document.getElementById("scheduleDate").value = "";
         document.getElementById("scheduleTime").value = "";
         document.getElementById("scheduleName").value = "";
         document.getElementById("scheduleLink").value = "";
         
         loadSchedule();
     } catch (error) {
-        console.error(error);
-        showToast("Ошибка: " + error.message, "error");
+        console.error("Ошибка добавления:", error);
+        if (error.code === 'permission-denied') {
+            showToast("Ошибка доступа. Проверьте правила Firestore.", "error");
+        } else {
+            showToast("Ошибка: " + error.message, "error");
+        }
     }
 }
 
@@ -1522,51 +1485,36 @@ async function loadSchedule() {
         const container = document.getElementById("scheduleList");
         
         if (scheduleItems.length === 0) {
-            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Расписание пока не заполнено</div>";
+            container.innerHTML = '<div class="schedule-empty">Расписание пока не заполнено</div>';
             return;
         }
         
-        // Группируем по дням
-        const grouped = {};
+        // Сортируем по дате и времени
+        scheduleItems.sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            return (a.time || '00:00').localeCompare(b.time || '00:00');
+        });
+        
+        let html = '<div class="schedule-list">';
         for (const item of scheduleItems) {
-            if (!grouped[item.day]) {
-                grouped[item.day] = [];
-            }
-            grouped[item.day].push(item);
-        }
-        
-        let html = '<div class="schedule-grid">';
-        const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-        
-        for (const dayKey of dayOrder) {
-            const dayName = DAYS[dayKey] || dayKey;
-            const items = grouped[dayKey] || [];
+            const course = COURSES.find(c => c.id === item.courseId);
+            const formattedDate = formatDate(item.date);
             
-            html += `<div class="schedule-day">
-                <div class="schedule-day-header">${dayName}</div>`;
-            
-            if (items.length === 0) {
-                html += `<div style="text-align: center; color: var(--text3); font-size: 0.7rem; padding: 0.5rem 0;">Нет занятий</div>`;
-            } else {
-                // Сортируем по времени
-                items.sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
-                for (const item of items) {
-                    const course = COURSES.find(c => c.id === item.courseId);
-                    html += `<div class="schedule-lesson">
-                        <div class="time">${escapeHtml(item.time || '')}</div>
+            html += `
+                <div class="schedule-item">
+                    <div class="info">
+                        <div class="date">${escapeHtml(formattedDate)}</div>
                         <div class="name">${escapeHtml(item.name)}</div>
+                        <div class="time">${escapeHtml(item.time || '')}</div>
                         <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                        ${item.link ? `<div style="margin-top: 0.2rem;"><a href="${escapeHtml(item.link)}" target="_blank" style="color: var(--blue2); font-size: 0.6rem; text-decoration: none;">Ссылка</a></div>` : ''}
-                        <div style="margin-top: 0.2rem;">
-                            <button class="btn btn-danger" style="padding: 0.1rem 0.3rem; font-size: 0.6rem;" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
-                        </div>
-                    </div>`;
-                }
-            }
-            
-            html += `</div>`;
+                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">Ссылка на занятие</a></div>` : ''}
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
+                    </div>
+                </div>
+            `;
         }
-        
         html += '</div>';
         container.innerHTML = html;
     } catch (err) {
@@ -1600,18 +1548,12 @@ function initAdminPanel() {
         if (subjectSelect) {
             subjectSelect.value = "physics";
             updateLessonCourses();
-            Array.from(subjectSelect.options).forEach(opt => {
-                if (opt.value === 'math') opt.style.display = 'none';
-            });
         }
         
         const hwSubjectSelect = document.getElementById("hwSubject");
         if (hwSubjectSelect) {
             hwSubjectSelect.value = "physics";
             updateCourses();
-            Array.from(hwSubjectSelect.options).forEach(opt => {
-                if (opt.value === 'math') opt.style.display = 'none';
-            });
         }
     }
     
