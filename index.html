@@ -6,7 +6,7 @@
     <title>Logistical Points - Образовательная платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
     <style>
-        /* ========== ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ========== */
+        /* ========== ВСЕ СТИЛИ ========== */
         * {
             margin: 0;
             padding: 0;
@@ -650,10 +650,6 @@
         .dashboard-pane { display: none; }
         .dashboard-pane.active { display: block; }
 
-        .lessons-container {
-            margin-top: 1rem;
-        }
-
         .lesson-item {
             display: flex;
             align-items: center;
@@ -694,23 +690,6 @@
 
         .lesson-status.completed { background: var(--green); }
         .lesson-status.pending { background: var(--gold); }
-
-        .lesson-content-view {
-            line-height: 1.8;
-        }
-
-        .lesson-content-view img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-
-        .lesson-content-view iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 8px;
-        }
 
         .toast-container {
             position: fixed;
@@ -951,6 +930,84 @@
             font-weight: 600;
         }
 
+        /* Стили для расписания ученика */
+        .schedule-day-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--line);
+        }
+
+        .schedule-day-card.today {
+            border-color: var(--gold);
+        }
+
+        .schedule-day-card .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .schedule-day-card .day-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .schedule-day-card .day-name.today {
+            color: var(--gold);
+        }
+
+        .schedule-day-card .lesson-item-schedule {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg2);
+            padding: 0.7rem 1rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .schedule-day-card .lesson-item-schedule .time {
+            min-width: 60px;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .schedule-day-card .lesson-item-schedule .lesson-name {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .schedule-day-card .lesson-item-schedule .course-name {
+            font-size: 0.75rem;
+            color: var(--text2);
+        }
+
+        .schedule-day-card .lesson-item-schedule .join-link {
+            background: var(--blue3);
+            color: var(--blue2);
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .schedule-empty {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text3);
+            background: var(--card2);
+            border-radius: 16px;
+            border: 1px solid var(--line);
+        }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .sidebar { display: none; }
@@ -960,6 +1017,13 @@
             .files-list { gap: 0.3rem; }
             .file-item { font-size: 0.65rem; padding: 0.2rem 0.4rem; }
             .teachers-grid { grid-template-columns: 1fr; }
+            .schedule-day-card .lesson-item-schedule {
+                flex-wrap: wrap;
+                gap: 0.3rem;
+            }
+            .schedule-day-card .lesson-item-schedule .time {
+                min-width: auto;
+            }
         }
     </style>
 </head>
@@ -1082,16 +1146,15 @@
             <p class="section-subtitle" style="margin:0 auto">Опытные преподаватели, которые помогут вам достичь высоких результатов</p>
         </div>
         <div class="teachers-grid">
-            <!-- Карточка преподавателя -->
             <div class="teacher-card scale-in">
                 <div class="teacher-photo">
                     <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
                 </div>
                 <div class="teacher-body">
                     <div class="teacher-name">Егоров Степан Евгеньевич</div>
-                    <div class="teacher-role">Руководитель проекта «Logistical Points»</div>
+                    <div class="teacher-role">Руководитель проекта Logistical Points</div>
                     <div class="teacher-education">
-                        СПбГЭТУ «ЛЭТИ»<br>
+                        СПбГЭТУ ЛЭТИ<br>
                         Нанотехнологии и микросистемная техника
                     </div>
                     <div class="teacher-tags">
@@ -1132,7 +1195,7 @@
                 <li data-pane="overview" class="active" onclick="switchPane('overview', this)">Обзор</li>
                 <li data-pane="courses" onclick="switchPane('courses', this)">Мои курсы</li>
                 <li data-pane="homework" onclick="switchPane('homework', this); loadHomeworkCourses()">Домашние задания</li>
-                <li data-pane="schedule" onclick="switchPane('schedule', this)">Расписание</li>
+                <li data-pane="schedule" onclick="switchPane('schedule', this); loadStudentSchedule()">Расписание</li>
                 <li data-pane="progress" onclick="switchPane('progress', this)">Прогресс</li>
             </ul>
         </div>
@@ -1151,11 +1214,8 @@
             <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания по курсам</h2><div id="homeworkCoursesList"></div></div>
             <div id="schedulePane" class="dashboard-pane">
                 <h2>Расписание занятий</h2>
-                <p style="color:var(--text2); margin-top:0.5rem;">Здесь будет отображаться ваше расписание.</p>
-                <div style="margin-top:2rem; padding:2rem; background:var(--card2); border-radius:16px; border:1px solid var(--line); text-align:center;">
-                    <div style="font-size:3rem; margin-bottom:1rem;">📅</div>
-                    <p style="color:var(--text2);">Расписание пока не составлено</p>
-                    <p style="font-size:0.8rem; color:var(--text3); margin-top:0.5rem;">Следите за обновлениями</p>
+                <div id="scheduleContainer">
+                    <div class="schedule-empty">Загрузка расписания...</div>
                 </div>
             </div>
             <div id="progressPane" class="dashboard-pane"><h2>Прогресс по курсам</h2><div id="progressList"></div></div>
@@ -1176,6 +1236,7 @@ const firebaseConfig = {
     projectId: "logistical-points",
     storageBucket: "logistical-points.firebasestorage.app"
 };
+
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -1199,8 +1260,6 @@ const COURSES = [
 
 let currentUser = null;
 let userData = null;
-let currentHomework = null;
-let currentFileData = null;
 let currentLessonData = null;
 let currentSubmitFiles = [];
 window.currentLessonsModal = null;
@@ -1306,6 +1365,7 @@ function updateUIAfterLogin() {
     renderContinueLearning();
     renderProgress();
     updateLessonsCount();
+    loadStudentSchedule();
 }
 
 async function updateLessonsCount() {
@@ -1351,6 +1411,7 @@ function enrollCourse(courseId) {
         renderProgress();
         updateLessonsCount();
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
+        loadStudentSchedule();
     }
 }
 
@@ -1541,53 +1602,124 @@ async function renderProgress() {
     }
 }
 
-// Сжатие изображения перед отправкой (до 50 МБ)
-function compressImage(file, callback) {
-    if (!file.type.startsWith('image/')) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast("Файл слишком большой (максимум 50 МБ)", "error");
-            callback(null);
+// ========== РАСПИСАНИЕ ДЛЯ УЧЕНИКА ==========
+async function loadStudentSchedule() {
+    const container = document.getElementById("scheduleContainer");
+    if (!container) return;
+    
+    try {
+        const snapshot = await db.collection("schedule").get();
+        const scheduleItems = [];
+        snapshot.forEach(doc => {
+            scheduleItems.push({ id: doc.id, ...doc.data() });
+        });
+        
+        if (scheduleItems.length === 0) {
+            container.innerHTML = `
+                <div class="schedule-empty">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <p>Расписание пока не составлено</p>
+                    <p style="font-size: 0.8rem; color: var(--text3); margin-top: 0.5rem;">Следите за обновлениями</p>
+                </div>
+            `;
             return;
         }
-        const reader = new FileReader();
-        reader.onload = e => callback(e.target.result);
-        reader.onerror = () => callback(null);
-        reader.readAsDataURL(file);
-        return;
+        
+        // Фильтруем только занятия по курсам, на которые записан ученик
+        const enrolledCourses = userData.enrolledCourses || [];
+        let filteredItems = scheduleItems.filter(item => 
+            enrolledCourses.includes(item.courseId)
+        );
+        
+        // Если нет фильтрованных, показываем все (для тестирования)
+        if (filteredItems.length === 0) {
+            filteredItems = scheduleItems;
+        }
+        
+        // Сортируем по дате
+        filteredItems.sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            return (a.time || '00:00').localeCompare(b.time || '00:00');
+        });
+        
+        // Группируем по дате
+        const grouped = {};
+        const today = new Date().toISOString().split('T')[0];
+        
+        for (const item of filteredItems) {
+            if (!grouped[item.date]) {
+                grouped[item.date] = [];
+            }
+            grouped[item.date].push(item);
+        }
+        
+        const dateKeys = Object.keys(grouped).sort();
+        
+        if (dateKeys.length === 0) {
+            container.innerHTML = `
+                <div class="schedule-empty">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <p>Нет занятий по вашим курсам</p>
+                    <p style="font-size: 0.8rem; color: var(--text3); margin-top: 0.5rem;">Запишитесь на курсы, чтобы видеть расписание</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        for (const dateKey of dateKeys) {
+            const items = grouped[dateKey];
+            const dateObj = new Date(dateKey + 'T00:00:00');
+            const dayName = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][dateObj.getDay()];
+            const formattedDate = `${dateObj.getDate()} ${['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+            
+            const isToday = dateKey === today;
+            
+            html += `
+                <div class="schedule-day-card ${isToday ? 'today' : ''}">
+                    <div class="day-header">
+                        <div class="day-name ${isToday ? 'today' : ''}">
+                            ${isToday ? '⭐ ' : ''}${dayName}, ${formattedDate}
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text3);">
+                            ${items.length} занятий
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${items.map(item => {
+                            const course = COURSES.find(c => c.id === item.courseId);
+                            return `
+                                <div class="lesson-item-schedule">
+                                    <div class="time">${escapeHtml(item.time || '')}</div>
+                                    <div class="lesson-name">${escapeHtml(item.name)}</div>
+                                    <div class="course-name">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
+                                    ${item.link ? `
+                                        <a href="${escapeHtml(item.link)}" target="_blank" class="join-link">
+                                            Присоединиться
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    } catch (error) {
+        console.error("Ошибка загрузки расписания:", error);
+        container.innerHTML = `
+            <div class="schedule-empty">
+                <p style="color: var(--red);">Ошибка загрузки расписания</p>
+                <p style="font-size: 0.8rem; color: var(--text3);">Попробуйте обновить страницу</p>
+            </div>
+        `;
     }
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxSize = 1200;
-            if (width > height && width > maxSize) {
-                height = height * maxSize / width;
-                width = maxSize;
-            } else if (height > maxSize) {
-                width = width * maxSize / height;
-                height = maxSize;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            let quality = 0.8;
-            let dataUrl = canvas.toDataURL('image/jpeg', quality);
-            while (dataUrl.length > 3 * 1024 * 1024 && quality > 0.3) {
-                quality -= 0.1;
-                dataUrl = canvas.toDataURL('image/jpeg', quality);
-            }
-            callback(dataUrl);
-        };
-    };
 }
 
-// ============ ФУНКЦИИ ДЛЯ НЕСКОЛЬКИХ ФАЙЛОВ ПРИ СДАЧЕ ДЗ ============
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 function renderStudentFilePreview(filesArray) {
     const container = document.getElementById("studentFilesPreview");
     if (!container) return;
@@ -1651,8 +1783,6 @@ async function uploadStudentFilesToStorage(files, homeworkId) {
     }
     return uploadedFiles;
 }
-
-// ============ ДОМАШНИЕ ЗАДАНИЯ (ИСПРАВЛЕННЫЕ) ============
 
 async function loadHomeworkCourses() {
     const container = document.getElementById("homeworkCoursesList");
@@ -1888,16 +2018,15 @@ async function openHomeworkSubmit(hwId, title, description) {
     };
 }
 
-function closeHWModal() { 
-    document.getElementById("hwSubmitModal").classList.remove("active"); 
-    currentHomework = null; 
-}
-
 function switchPane(paneId, el) {
     document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
     document.getElementById(`${paneId}Pane`).classList.add("active");
     document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
     if (el) el.classList.add("active");
+    
+    if (paneId === 'schedule') {
+        loadStudentSchedule();
+    }
 }
 
 function showToast(message, type) {
