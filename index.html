@@ -1228,6 +1228,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -1250,6 +1251,7 @@ function escapeHtml(str) {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const COURSES = [
     { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
@@ -1625,24 +1627,20 @@ async function loadStudentSchedule() {
             return;
         }
         
-        // Фильтруем только занятия по курсам, на которые записан ученик
         const enrolledCourses = userData.enrolledCourses || [];
         let filteredItems = scheduleItems.filter(item => 
             enrolledCourses.includes(item.courseId)
         );
         
-        // Если нет фильтрованных, показываем все (для тестирования)
         if (filteredItems.length === 0) {
             filteredItems = scheduleItems;
         }
         
-        // Сортируем по дате
         filteredItems.sort((a, b) => {
             if (a.date !== b.date) return a.date.localeCompare(b.date);
             return (a.time || '00:00').localeCompare(b.time || '00:00');
         });
         
-        // Группируем по дате
         const grouped = {};
         const today = new Date().toISOString().split('T')[0];
         
@@ -1719,7 +1717,32 @@ async function loadStudentSchedule() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ (С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ФАЙЛОВ) ==========
+
+// Функция загрузки файла в Storage для ученика
+async function uploadStudentFileToStorage(file, homeworkId) {
+    const fileName = `${Date.now()}_${file.name}`;
+    const fileRef = storage.ref(`homeworks_submissions/${currentUser.uid}/${homeworkId}/${fileName}`);
+    const snapshot = await fileRef.put(file);
+    const url = await snapshot.ref.getDownloadURL();
+    return { name: file.name, url: url, type: file.type };
+}
+
+async function uploadStudentFiles(files, homeworkId) {
+    const results = [];
+    for (const f of files) {
+        try {
+            const result = await uploadStudentFileToStorage(f.file, homeworkId);
+            results.push(result);
+            showToast(`Загружен: ${f.file.name}`, "success");
+        } catch(e) {
+            showToast(`Ошибка: ${f.file.name}`, "error");
+        }
+    }
+    return results;
+}
+
+// Отображение превью файлов для ученика
 function renderStudentFilePreview(filesArray) {
     const container = document.getElementById("studentFilesPreview");
     if (!container) return;
@@ -1762,26 +1785,6 @@ async function handleStudentFilesSelect(input) {
     }
     renderStudentFilePreview(currentSubmitFiles);
     input.value = '';
-}
-
-async function uploadStudentFilesToStorage(files, homeworkId) {
-    const uploadedFiles = [];
-    for (const fileData of files) {
-        try {
-            const fileName = `${Date.now()}_${fileData.file.name}`;
-            const fileRef = storage.ref(`homeworks_submissions/${currentUser.uid}/${homeworkId}/${fileName}`);
-            const snapshot = await fileRef.put(fileData.file);
-            const url = await snapshot.ref.getDownloadURL();
-            uploadedFiles.push({
-                name: fileData.file.name,
-                url: url,
-                type: fileData.file.type
-            });
-        } catch (e) {
-            console.error("Ошибка загрузки файла:", e);
-        }
-    }
-    return uploadedFiles;
 }
 
 async function loadHomeworkCourses() {
@@ -1900,8 +1903,6 @@ async function viewSubmittedHomework(hwId) {
     let filesHtml = '';
     if (sub && sub.files && sub.files.length) {
         filesHtml = `<div class="files-list" style="margin-top:1rem;">${sub.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    } else if (sub && sub.fileData) {
-        filesHtml = `<img src="${sub.fileData}" style="max-width:100%; margin-top:1rem; border-radius:8px;">`;
     }
     
     const modalHtml = `
@@ -1915,8 +1916,7 @@ async function viewSubmittedHomework(hwId) {
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Условие задачи</h3>
                         <div style="line-height: 1.8;">${hw.description || "Нет описания"}</div>
-                        ${hw.imageData ? `<img src="${hw.imageData}" style="max-width: 100%; margin-top: 1rem; border-radius: 8px;">` : ""}
-                        ${hw.files && hw.files.length ? `<div class="files-list" style="margin-top:1rem;">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ""}
+                        ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Ваше решение</h3>
@@ -1947,6 +1947,7 @@ async function openHomeworkSubmit(hwId, title, description) {
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Условие задачи</h3>
                         <div style="line-height: 1.8;">${escapeHtml(description)}</div>
+                        ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
                     </div>
                     <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 1rem; color: var(--gold);">Ваше решение</h3>
@@ -1983,29 +1984,44 @@ async function openHomeworkSubmit(hwId, title, description) {
             return; 
         }
         
+        const btn = document.getElementById("dynSubmitBtn");
+        const originalText = btn.textContent;
+        btn.textContent = "Загрузка файлов...";
+        btn.disabled = true;
+        
         showToast("Загрузка файлов...", "info");
         
         try {
             let uploadedFiles = [];
             if (currentSubmitFiles.length > 0) {
-                const uploadBtn = document.getElementById("dynSubmitBtn");
-                uploadBtn.disabled = true;
-                uploadBtn.textContent = "Загрузка...";
-                uploadedFiles = await uploadStudentFilesToStorage(currentSubmitFiles, hwId);
+                uploadedFiles = await uploadStudentFiles(currentSubmitFiles, hwId);
             }
             
-            await db.collection("homeworks").doc(hwId).update({
+            const updateData = {
                 status: "submitted",
                 solution: solution,
                 files: uploadedFiles,
                 submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 userName: userData.name,
                 userEmail: currentUser.email
-            });
+            };
+            
+            // Если есть текстовое решение, добавляем его
+            if (solution) {
+                updateData.solution = solution;
+            }
+            
+            await db.collection("homeworks").doc(hwId).update(updateData);
             
             if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            userData.homeworkSubmissions.push({ id: hwId, solution: solution, files: uploadedFiles });
-            await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+            userData.homeworkSubmissions.push({ 
+                id: hwId, 
+                solution: solution, 
+                files: uploadedFiles 
+            });
+            await db.collection("users").doc(currentUser.uid).update({ 
+                homeworkSubmissions: userData.homeworkSubmissions 
+            });
             
             showToast("Задание отправлено!", "success");
             document.getElementById("dynamicSubmitModal").remove();
@@ -2014,6 +2030,9 @@ async function openHomeworkSubmit(hwId, title, description) {
         } catch(e) { 
             console.error(e);
             showToast("Ошибка: " + e.message, "error"); 
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
         }
     };
 }
