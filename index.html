@@ -774,6 +774,7 @@
             background: var(--gold3);
         }
 
+        /* Стили для карточек преподавателей */
         .teacher-card {
             background: var(--card);
             border: 1px solid var(--line);
@@ -882,6 +883,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 10;
             font-weight: 400;
+            text-align: left;
+            line-height: 1.6;
+            min-width: 200px;
+            white-space: normal;
         }
 
         .teacher-card .achievement-item:hover .tooltip {
@@ -1024,6 +1029,10 @@
             .schedule-day-card .lesson-item-schedule .time {
                 min-width: auto;
             }
+            .teacher-card .achievement-item .tooltip {
+                min-width: 160px;
+                font-size: 0.65rem;
+            }
         }
     </style>
 </head>
@@ -1146,6 +1155,7 @@
             <p class="section-subtitle" style="margin:0 auto">Опытные преподаватели, которые помогут вам достичь высоких результатов</p>
         </div>
         <div class="teachers-grid">
+            <!-- Карточка Егорова Степана -->
             <div class="teacher-card scale-in">
                 <div class="teacher-photo">
                     <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
@@ -1168,6 +1178,40 @@
                             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a48c8'/%3E%3Ctext x='12' y='65' font-size='32' fill='white' font-weight='bold'%3EГАЗ%3C/text%3E%3Ctext x='58' y='65' font-size='32' fill='%23f97316' font-weight='bold'%3EПРОМ%3C/text%3E%3C/svg%3E" alt="Газпром">
                             <span>Олимпиада Газпром</span>
                             <span class="tooltip">Призёр студенческой Олимпиады Газпром 2026</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка Клеббе Лизы -->
+            <div class="teacher-card scale-in">
+                <div class="teacher-photo">
+                    <img src="IMG_2209.PNG" alt="Клеббе Лиза" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👩‍🏫%3C/text%3E%3C/svg%3E'">
+                </div>
+                <div class="teacher-body">
+                    <div class="teacher-name">Клеббе Лиза</div>
+                    <div class="teacher-role">Преподаватель языкового курса</div>
+                    <div class="teacher-education">
+                        Подготовка к международным языковым экзаменам<br>
+                        TOEFL · IELTS
+                    </div>
+                    <div class="teacher-tags">
+                        <span class="teacher-tag">Немецкий язык</span>
+                        <span class="teacher-tag">TOEFL</span>
+                        <span class="teacher-tag">IELTS</span>
+                        <span class="teacher-tag">ВСОШ</span>
+                        <span class="teacher-tag">5-11 класс</span>
+                    </div>
+                    <div class="teacher-achievements">
+                        <div class="achievement-item">
+                            <span>🏅</span>
+                            <span>ВСОШ</span>
+                            <span class="tooltip">
+                                🏆 2022 - Призер заключительного этапа ВСОШ по немецкому<br>
+                                🏆 2023 - Призер заключительного этапа ВСОШ по немецкому<br>
+                                🏆 2024 - Победитель заключительного этапа ВСОШ по немецкому<br>
+                                🏆 2025 - Призер заключительного этапа ВСОШ по немецкому
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -1264,7 +1308,7 @@ let currentUser = null;
 let userData = null;
 let currentLessonData = null;
 let currentSubmitFiles = [];
-let currentHomeworkData = null; // Добавляем переменную для хранения данных ДЗ
+let currentHomeworkData = null;
 window.currentLessonsModal = null;
 
 function showLoader() {
@@ -1718,7 +1762,7 @@ async function loadStudentSchedule() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ (С ПРАВИЛЬНОЙ ЗАГРУЗКОЙ ФАЙЛОВ) ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 
 // Функция загрузки файла в Storage для ученика
 async function uploadStudentFileToStorage(file, homeworkId) {
@@ -1942,14 +1986,11 @@ async function viewSubmittedHomework(hwId) {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ - теперь принимает все нужные параметры
 async function openHomeworkSubmit(hwId, title, description, courseId) {
     currentSubmitFiles = [];
     
-    // Сохраняем данные ДЗ для использования в модальном окне
     currentHomeworkData = { hwId, title, description, courseId };
     
-    // Получаем полные данные ДЗ, чтобы показать файлы
     let hwFiles = [];
     try {
         const doc = await db.collection("homeworks").doc(hwId).get();
@@ -2038,10 +2079,8 @@ async function openHomeworkSubmit(hwId, title, description, courseId) {
                 userEmail: currentUser.email
             };
             
-            // Обновляем документ ДЗ
             await db.collection("homeworks").doc(currentHomeworkData.hwId).update(updateData);
             
-            // Обновляем данные пользователя
             if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
             const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentHomeworkData.hwId);
             const submissionData = { 
