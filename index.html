@@ -5,1012 +5,452 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Logistical Points - Образовательная платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
     <style>
-        /* ========== ВСЕ СТИЛИ ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #faf7f0;
-            --bg2: #f2ece0;
-            --bg3: #e8dfc8;
-            --card: #ffffff;
-            --card2: #faf6ec;
-            --card3: #f2ead8;
-            --line: #e0d5c0;
-            --line2: #ccc0a0;
-            --gold: #9a7018;
-            --gold2: #b89030;
-            --gold3: rgba(154,112,24,0.1);
-            --gold4: rgba(154,112,24,.07);
-            --blue: #1a48c8;
-            --blue2: #2a60e8;
-            --blue3: rgba(26,72,200,0.1);
-            --green: #157a38;
-            --green2: rgba(21,122,56,0.1);
-            --red: #b81a1a;
-            --red2: rgba(184,26,26,0.1);
-            --orange: #c04010;
-            --orange2: rgba(192,64,16,0.1);
-            --text: #1a1510;
-            --text2: #5a4e38;
-            --text3: #9a8a6a;
-            --f: 'Segoe UI', Arial, sans-serif;
-            --fs: 'Playfair Display', Georgia, serif;
-            --fm: 'Consolas', monospace;
+            --bg: #faf7f0; --bg2: #f2ece0; --bg3: #e8dfc8;
+            --card: #ffffff; --card2: #faf6ec; --card3: #f2ead8;
+            --line: #e0d5c0; --line2: #ccc0a0;
+            --gold: #9a7018; --gold2: #b89030; --gold3: rgba(154,112,24,0.1);
+            --blue: #1a48c8; --blue2: #2a60e8; --blue3: rgba(26,72,200,0.1);
+            --green: #157a38; --green2: rgba(21,122,56,0.1);
+            --red: #b81a1a; --red2: rgba(184,26,26,0.1);
+            --text: #1a1510; --text2: #5a4e38; --text3: #9a8a6a;
+            --f: 'Segoe UI', Arial, sans-serif; --fs: 'Playfair Display', Georgia, serif;
         }
-
         [data-theme="dark"] {
-            --bg: #0a0e17;
-            --bg2: #111827;
-            --bg3: #1a1f2e;
-            --card: #1f2937;
-            --card2: #374151;
-            --card3: #4b5563;
-            --line: #374151;
-            --line2: #4b5563;
-            --gold: #d4a54a;
-            --gold2: #e8c97a;
-            --gold3: rgba(212,165,74,0.1);
-            --gold4: rgba(212,165,74,.06);
-            --blue: #3b6ef5;
-            --blue2: #7ba3ff;
-            --blue3: rgba(59,110,245,0.1);
-            --green: #22c55e;
-            --green2: rgba(34,197,94,0.1);
-            --red: #ef4444;
-            --red2: rgba(239,68,68,0.1);
-            --orange: #f97316;
-            --orange2: rgba(249,115,22,0.1);
-            --text: #f3f4f6;
-            --text2: #9ca3af;
-            --text3: #6b7280;
+            --bg: #0a0e17; --bg2: #111827; --bg3: #1a1f2e;
+            --card: #1f2937; --card2: #374151; --card3: #4b5563;
+            --line: #374151; --line2: #4b5563;
+            --gold: #d4a54a; --gold2: #e8c97a; --gold3: rgba(212,165,74,0.1);
+            --blue: #3b6ef5; --blue2: #7ba3ff; --blue3: rgba(59,110,245,0.1);
+            --green: #22c55e; --green2: rgba(34,197,94,0.1);
+            --red: #ef4444; --red2: rgba(239,68,68,0.1);
+            --text: #f3f4f6; --text2: #9ca3af; --text3: #6b7280;
         }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--f);
-            transition: all 0.3s;
-            overflow-x: hidden;
-        }
+        body { background: var(--bg); color: var(--text); font-family: var(--f); transition: all 0.3s; overflow-x: hidden; }
 
         .loader-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-
-        .loader-screen.hide {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .loader-content {
-            text-align: center;
-        }
-
-        .loader-logo {
-            font-family: var(--fs);
-            font-size: 2.5rem;
-            font-weight: 900;
-            margin-bottom: 2rem;
-        }
-
+        .loader-screen.hide { opacity: 0; visibility: hidden; }
+        .loader-content { text-align: center; }
+        .loader-logo { font-family: var(--fs); font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; }
         .loader-logo em { color: var(--gold); font-style: italic; }
-
         .loader-spinner {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 1rem;
-            border: 3px solid var(--gold3);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 50px; height: 50px; margin: 0 auto 1rem;
+            border: 3px solid var(--gold3); border-top-color: var(--gold);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { color: var(--text2); font-size: 0.85rem; letter-spacing: 2px; }
+        .loader-progress { width: 200px; height: 2px; background: var(--gold3); margin: 1rem auto 0; border-radius: 2px; overflow: hidden; }
+        .loader-progress-bar { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s ease; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            color: var(--text2);
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-        }
-
-        .loader-progress {
-            width: 200px;
-            height: 2px;
-            background: var(--gold3);
-            margin: 1rem auto 0;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .loader-progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--gold);
-            transition: width 0.3s ease;
-        }
-
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .fade-left {
-            opacity: 0;
-            transform: translateX(-30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-left.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .fade-right {
-            opacity: 0;
-            transform: translateX(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-right.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .scale-in {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .scale-in.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .stagger-item {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-
-        .stagger-item.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
 
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.7rem 1.5rem;
-            border-radius: 10px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.95rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.7rem 1.5rem; border-radius: 10px; border: none;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;
         }
-
         .btn.bg { background: var(--gold); color: white; }
         .btn.bg:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(154,112,24,0.3); }
         .btn.bo { background: transparent; border: 2px solid var(--line); color: var(--text); }
         .btn.bo:hover { border-color: var(--gold); color: var(--gold); }
         .btn.brs { background: var(--red2); color: var(--red); }
-        .bsm { padding: 0.4rem 1rem; font-size: 0.8rem; }
-
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(var(--bg-rgb), 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--line);
-            z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: var(--fs);
-            font-size: 1.2rem;
-            font-weight: 900;
-            cursor: pointer;
-            color: var(--text);
-        }
-
-        .logo em { color: var(--gold); font-style: italic; }
-
-        .nav-links {
-            display: flex;
-            gap: 0.5rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            color: var(--text2);
-            text-decoration: none;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .nav-links a:hover {
-            background: var(--card2);
-            color: var(--text);
-        }
+        .btn.bsm { padding: 0.4rem 1rem; font-size: 0.8rem; }
+        .btn.green { background: var(--green2); color: var(--green); border: 1px solid var(--green); }
+        .btn.green:hover { background: var(--green); color: white; }
+        .btn.red { background: var(--red2); color: var(--red); border: 1px solid var(--red); }
+        .btn.red:hover { background: var(--red); color: white; }
+        .btn.secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
+        .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
 
         .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 1000; align-items: center; justify-content: center;
         }
-
         .modal-overlay.active { display: flex; }
-
         .modal {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 2rem;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid var(--line);
-            animation: modalIn 0.3s ease;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: var(--card); border-radius: 20px; padding: 2rem;
+            width: 90%; max-width: 850px; border: 1px solid var(--line);
+            animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--gold);
         }
-
         .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text2);
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text2);
         }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text3);
-            margin-bottom: 0.3rem;
-        }
-
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            background: var(--bg2);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            color: var(--text);
-            font-size: 0.95rem;
+            width: 100%; padding: 0.7rem 1rem;
+            background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
+            color: var(--text); font-size: 0.95rem;
         }
 
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+        .toast-container {
+            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000;
+        }
+        .toast {
+            padding: 0.7rem 1.2rem; border-radius: 10px; margin-top: 0.5rem;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--green); color: white; }
+        .toast.error { background: var(--red); color: white; }
+        .toast.info { background: var(--blue); color: white; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .theme-toggle {
+            position: fixed; bottom: 1.5rem; left: 1.5rem;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--card); border: 2px solid var(--line);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; z-index: 100;
         }
 
-        .tab {
-            flex: 1;
-            padding: 0.6rem;
-            background: var(--bg2);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            color: var(--text2);
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(var(--bg-rgb), 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line); z-index: 100;
         }
-
-        .tab.active { background: var(--gold); color: white; }
-        .tab-pane { display: none; }
-        .tab-pane.active { display: block; }
+        .nav-container {
+            max-width: 1200px; margin: 0 auto; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: var(--fs); font-size: 1.2rem; font-weight: 900; cursor: pointer; color: var(--text);
+        }
+        .logo em { color: var(--gold); font-style: italic; }
+        .nav-links { display: flex; gap: 0.5rem; list-style: none; }
+        .nav-links a {
+            padding: 0.5rem 1rem; border-radius: 8px; color: var(--text2);
+            text-decoration: none; cursor: pointer; font-weight: 700;
+        }
+        .nav-links a:hover { background: var(--card2); color: var(--text); }
 
         .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
             padding: 6rem 2rem 4rem;
         }
-
         .hero-badge {
-            display: inline-flex;
-            background: var(--gold3);
-            padding: 0.3rem 1.2rem;
-            border-radius: 30px;
-            color: var(--gold);
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
+            display: inline-flex; background: var(--gold3); padding: 0.3rem 1.2rem;
+            border-radius: 30px; color: var(--gold); font-size: 0.85rem; margin-bottom: 1.5rem;
         }
-
         .hero h1 {
-            font-family: var(--fs);
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 900;
-            line-height: 1;
+            font-family: var(--fs); font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900; line-height: 1;
         }
-
         .hero h1 em { color: var(--gold); font-style: italic; }
-
-        .hero p {
-            max-width: 550px;
-            margin-top: 1.5rem;
-            color: var(--text2);
-            font-size: 1.1rem;
-        }
-
+        .hero p { max-width: 550px; margin-top: 1.5rem; color: var(--text2); font-size: 1.1rem; }
         .hero-stats {
-            display: flex;
-            gap: 3rem;
-            margin-top: 4rem;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
         }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
 
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--text3);
-            letter-spacing: 1px;
-        }
-
-        .section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 5rem 2rem;
-        }
-
+        .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
         .section-badge {
-            display: inline-block;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
+            display: inline-block; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--gold); margin-bottom: 0.5rem;
         }
-
         .section-title {
-            font-family: var(--fs);
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            font-weight: 900;
-            margin-bottom: 0.5rem;
+            font-family: var(--fs); font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 900; margin-bottom: 0.5rem;
         }
-
         .section-title em { color: var(--gold); font-style: italic; }
-
-        .section-subtitle {
-            color: var(--text2);
-            margin-bottom: 2rem;
-            font-size: 1rem;
-            max-width: 600px;
-        }
+        .section-subtitle { color: var(--text2); margin-bottom: 2rem; font-size: 1rem; max-width: 600px; }
 
         .course-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
         }
-
         .course-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
+            background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+            overflow: hidden; cursor: pointer; transition: all 0.3s;
         }
-
         .course-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--gold);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
         }
-
         .course-icon {
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, var(--gold3), transparent);
+            height: 100px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; background: linear-gradient(135deg, var(--gold3), transparent);
             position: relative;
         }
-
         .course-level {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--gold);
-            color: white;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 700;
+            position: absolute; top: 0.5rem; right: 0.5rem;
+            background: var(--gold); color: white; padding: 0.2rem 0.6rem;
+            border-radius: 20px; font-size: 0.65rem; font-weight: 700;
         }
-
         .course-info { padding: 1.2rem; }
         .course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
         .course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
+        .course-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+        .topic-tag { background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; color: var(--text2); }
 
-        .course-topics {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 1rem;
-        }
-
-        .topic-tag {
-            background: var(--bg2);
-            padding: 0.2rem 0.6rem;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            color: var(--text2);
-        }
-
-        .physics-section {
-            background: linear-gradient(135deg, var(--bg), var(--blue3));
-        }
-
+        .physics-section { background: linear-gradient(135deg, var(--bg), var(--blue3)); }
         .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
         }
-
         .step {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s;
+            background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+            padding: 1.5rem; text-align: center; transition: all 0.3s;
         }
-
-        .step:hover {
-            transform: translateY(-4px);
-            border-color: var(--gold);
-        }
-
+        .step:hover { transform: translateY(-4px); border-color: var(--gold); }
         .step-number {
-            width: 45px;
-            height: 45px;
-            background: var(--gold3);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--gold);
-            margin: 0 auto 1rem;
+            width: 45px; height: 45px; background: var(--gold3); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem; color: var(--gold); margin: 0 auto 1rem;
         }
-
         .step-title { font-weight: 700; margin-bottom: 0.5rem; }
         .step-desc { font-size: 0.85rem; color: var(--text2); }
 
-        footer {
-            background: var(--bg2);
-            border-top: 1px solid var(--line);
-            padding: 2rem;
-            text-align: center;
-        }
+        footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2rem; text-align: center; }
 
         .dashboard {
-            display: none;
-            min-height: 100vh;
-            padding-top: 70px;
+            display: none; min-height: 100vh; padding-top: 70px;
         }
-
         .dashboard.active { display: block; }
-
-        .dashboard-layout {
-            display: flex;
-            min-height: calc(100vh - 70px);
-        }
-
+        .dashboard-layout { display: flex; min-height: calc(100vh - 70px); }
         .sidebar {
-            width: 260px;
-            background: var(--bg2);
-            border-right: 1px solid var(--line);
+            width: 260px; background: var(--bg2); border-right: 1px solid var(--line);
             padding: 1.5rem;
         }
-
-        .sidebar-user {
-            text-align: center;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--line);
-            margin-bottom: 1rem;
-        }
-
+        .sidebar-user { text-align: center; padding-bottom: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
         .user-avatar {
-            width: 50px;
-            height: 50px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.3rem;
-            color: white;
-            margin: 0 auto 0.5rem;
+            width: 50px; height: 50px; background: var(--gold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.3rem; color: white; margin: 0 auto 0.5rem;
         }
-
         .user-name { font-weight: 700; }
         .user-grade { font-size: 0.7rem; color: var(--text3); }
-
-        .sidebar-menu {
-            list-style: none;
-        }
-
+        .sidebar-menu { list-style: none; }
         .sidebar-menu li {
-            padding: 0.7rem;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 0.2rem;
-            color: var(--text2);
-            font-weight: 700;
+            padding: 0.7rem; border-radius: 10px; cursor: pointer;
+            margin-bottom: 0.2rem; color: var(--text2); font-weight: 700;
         }
-
         .sidebar-menu li:hover { background: var(--card); color: var(--text); }
         .sidebar-menu li.active { background: var(--gold3); color: var(--gold); }
-
-        .main-content {
-            flex: 1;
-            padding: 2rem;
-        }
+        .main-content { flex: 1; padding: 2rem; }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
         }
-
         .stat-card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 1.2rem;
-            text-align: center;
+            background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+            padding: 1.2rem; text-align: center;
         }
-
         .stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
         .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
 
         .dashboard-pane { display: none; }
         .dashboard-pane.active { display: block; }
 
-        .lesson-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: var(--card2);
-            border-radius: 12px;
-            margin-bottom: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
+        .hw-progress-bar {
+            display: flex; gap: 0.5rem; justify-content: center;
+            margin-bottom: 1.5rem; flex-wrap: wrap;
         }
-
-        .lesson-item:hover {
-            transform: translateX(4px);
-            background: var(--card3);
-        }
-
-        .lesson-info {
-            flex: 1;
-        }
-
-        .lesson-title {
-            font-weight: 700;
-            margin-bottom: 0.2rem;
-        }
-
-        .lesson-desc {
-            font-size: 0.8rem;
-            color: var(--text2);
-        }
-
-        .lesson-status {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 1rem;
-        }
-
-        .lesson-status.completed { background: var(--green); }
-        .lesson-status.pending { background: var(--gold); }
-
-        .toast-container {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 2000;
-        }
-
-        .toast {
-            padding: 0.7rem 1.2rem;
-            border-radius: 10px;
-            margin-top: 0.5rem;
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.success { background: var(--green); color: white; }
-        .toast.error { background: var(--red); color: white; }
-        .toast.info { background: var(--blue); color: white; }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .theme-toggle {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 1.5rem;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--card);
+        .hw-dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s;
             border: 2px solid var(--line);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            z-index: 100;
-        }
-
-        .files-list {
-            margin-top: 0.5rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        .file-item {
-            background: var(--bg2);
-            border-radius: 8px;
-            padding: 0.3rem 0.6rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.75rem;
-            border: 1px solid var(--line);
-        }
-        .file-item img {
-            width: 24px;
-            height: 24px;
-            object-fit: cover;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .file-item .remove-file {
-            color: var(--red);
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 0.3rem;
-        }
-        .multi-file-zone {
-            border: 2px dashed var(--line);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 0.5rem;
-        }
-        .multi-file-zone:hover {
-            border-color: var(--gold);
-            background: var(--gold3);
-        }
-
-        /* Стили для карточек преподавателей */
-        .teacher-card {
             background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.3s;
-            cursor: default;
-            max-width: 320px;
-            margin: 0 auto;
-        }
-
-        .teacher-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--gold);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-        }
-
-        .teacher-card .teacher-photo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 1rem 0.5rem;
-            background: var(--bg2);
-        }
-
-        .teacher-card .teacher-photo img {
-            width: 100%;
-            max-width: 200px;
-            height: auto;
-            border-radius: 15px;
-            display: block;
-        }
-
-        .teacher-card .teacher-body {
-            padding: 1.2rem 1.5rem 1.5rem;
-            text-align: center;
-        }
-
-        .teacher-card .teacher-name {
-            font-family: var(--fs);
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.2rem;
-        }
-
-        .teacher-card .teacher-role {
-            font-size: 0.85rem;
-            color: var(--gold);
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-        }
-
-        .teacher-card .teacher-education {
-            font-size: 0.8rem;
             color: var(--text2);
-            line-height: 1.5;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background: var(--bg2);
-            border-radius: 10px;
-        }
-
-        .teacher-card .teacher-achievements {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-top: 0.5rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid var(--line);
-        }
-
-        .teacher-card .achievement-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.7rem;
-            color: var(--text2);
-            background: var(--bg2);
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            cursor: help;
-            transition: all 0.2s;
             position: relative;
         }
+        .hw-dot:hover { transform: scale(1.1); border-color: var(--gold); }
+        .hw-dot.active { border-color: var(--gold); background: var(--gold3); color: var(--gold); transform: scale(1.1); }
+        .hw-dot.correct { background: var(--green); border-color: var(--green); color: white; }
+        .hw-dot.wrong { background: var(--red); border-color: var(--red); color: white; }
+        .hw-dot.has-answer { border-color: var(--gold); }
+        .hw-dot.submitted { cursor: default; opacity: 0.8; }
 
-        .teacher-card .achievement-item:hover {
-            background: var(--gold3);
-            color: var(--gold);
+        .hw-counter {
+            display: flex; justify-content: flex-end; align-items: center;
+            gap: 1rem; margin-bottom: 1rem;
+            font-size: 0.9rem; color: var(--text2);
         }
-
-        .teacher-card .achievement-item .tooltip {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: 0.5rem 0.8rem;
-            font-size: 0.7rem;
-            color: var(--text);
-            white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 10;
-            font-weight: 400;
-            text-align: left;
-            line-height: 1.6;
-            min-width: 200px;
-            white-space: normal;
-        }
-
-        .teacher-card .achievement-item:hover .tooltip {
-            display: block;
-        }
-
-        .teacher-card .achievement-item .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 6px solid transparent;
-            border-top-color: var(--line);
-        }
-
-        .teacher-card .achievement-item img {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            border-radius: 4px;
-        }
-
-        .teachers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-            justify-items: center;
-        }
-
-        .teacher-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            justify-content: center;
-            margin-top: 0.8rem;
-        }
-
-        .teacher-tag {
-            background: var(--gold3);
-            padding: 0.2rem 0.7rem;
-            border-radius: 15px;
-            font-size: 0.65rem;
-            color: var(--gold);
-            font-weight: 600;
-        }
-
-        /* Стили для расписания ученика */
-        .schedule-day-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            border: 1px solid var(--line);
-        }
-
-        .schedule-day-card.today {
-            border-color: var(--gold);
-        }
-
-        .schedule-day-card .day-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .schedule-day-card .day-name {
-            font-weight: 700;
+        .hw-counter .score {
+            font-weight: 700; color: var(--gold);
             font-size: 1.1rem;
         }
 
-        .schedule-day-card .day-name.today {
-            color: var(--gold);
+        .task-block {
+            display: none; animation: fadeIn 0.3s ease;
         }
+        .task-block.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        .task-content {
+            background: var(--card2); border-radius: 16px; padding: 1.5rem;
+            border: 2px solid var(--line); transition: border-color 0.3s;
+            min-height: 250px;
+        }
+        .task-content.correct { border-color: var(--green); background: var(--green2); }
+        .task-content.wrong { border-color: var(--red); background: var(--red2); }
+        .task-content.submitted { opacity: 0.95; }
+
+        .task-number { font-size: 0.85rem; color: var(--text3); margin-bottom: 0.5rem; }
+        .task-condition { font-weight: 600; font-size: 1.05rem; margin-bottom: 1rem; line-height: 1.6; }
+        .task-condition .math { font-size: 1.1rem; }
+
+        .task-answer-input {
+            width: 100%; padding: 0.6rem 1rem;
+            background: var(--bg); border: 2px solid var(--line); border-radius: 8px;
+            color: var(--text); font-size: 0.95rem; transition: border-color 0.3s;
+        }
+        .task-answer-input:focus { outline: none; border-color: var(--gold); }
+        .task-answer-input:disabled { opacity: 0.7; cursor: not-allowed; }
+        .task-answer-input.correct { border-color: var(--green); background: var(--green2); }
+        .task-answer-input.wrong { border-color: var(--red); background: var(--red2); }
+
+        .task-files { margin-top: 0.8rem; }
+        .task-files-label { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.3rem; }
+
+        .task-result { margin-top: 0.5rem; font-size: 0.9rem; font-weight: 600; }
+        .task-result.correct { color: var(--green); }
+        .task-result.wrong { color: var(--red); }
+
+        .task-solution {
+            margin-top: 0.8rem; padding: 1rem;
+            background: var(--bg); border-radius: 8px;
+            font-size: 0.95rem; color: var(--text2);
+            border-left: 4px solid var(--gold); line-height: 1.8;
+        }
+        .task-solution .math { font-size: 1rem; }
+
+        .task-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 1.5rem; gap: 1rem;
+        }
+        .task-nav .nav-btn { padding: 0.5rem 1.2rem; }
+        .task-nav .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .files-list {
+            display: flex; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .file-item {
+            background: var(--bg2); border-radius: 8px; padding: 0.3rem 0.6rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.75rem; border: 1px solid var(--line); cursor: pointer;
+        }
+        .file-item:hover { border-color: var(--gold); }
+        .file-item .remove-file { color: var(--red); cursor: pointer; font-weight: bold; margin-left: 0.3rem; }
+
+        .multi-file-zone {
+            border: 2px dashed var(--line); border-radius: 10px; padding: 1rem;
+            text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
+        }
+        .multi-file-zone:hover { border-color: var(--gold); background: var(--gold3); }
+
+        .result-summary {
+            background: var(--card); border-radius: 16px; padding: 1.5rem;
+            margin-bottom: 1.5rem; text-align: center;
+            border: 2px solid var(--gold);
+        }
+        .result-summary .score { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+        .result-summary .label { font-size: 1rem; color: var(--text2); }
+
+        .schedule-day-card {
+            background: var(--card); border-radius: 16px; padding: 1.2rem;
+            margin-bottom: 1rem; border: 1px solid var(--line);
+        }
+        .schedule-day-card.today { border-color: var(--gold); }
+        .schedule-day-card .day-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.8rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line);
+        }
+        .schedule-day-card .day-name { font-weight: 700; font-size: 1.1rem; }
+        .schedule-day-card .day-name.today { color: var(--gold); }
         .schedule-day-card .lesson-item-schedule {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: var(--bg2);
-            padding: 0.7rem 1rem;
-            border-radius: 10px;
-            border-left: 3px solid var(--gold);
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--bg2); padding: 0.7rem 1rem;
+            border-radius: 10px; border-left: 3px solid var(--gold);
             margin-bottom: 0.5rem;
         }
-
         .schedule-day-card .lesson-item-schedule .time {
-            min-width: 60px;
-            font-weight: 700;
-            color: var(--gold);
-            font-size: 0.9rem;
+            min-width: 60px; font-weight: 700; color: var(--gold); font-size: 0.9rem;
         }
-
-        .schedule-day-card .lesson-item-schedule .lesson-name {
-            font-weight: 600;
-            flex: 1;
-        }
-
-        .schedule-day-card .lesson-item-schedule .course-name {
-            font-size: 0.75rem;
-            color: var(--text2);
-        }
-
+        .schedule-day-card .lesson-item-schedule .lesson-name { font-weight: 600; flex: 1; }
+        .schedule-day-card .lesson-item-schedule .course-name { font-size: 0.75rem; color: var(--text2); }
         .schedule-day-card .lesson-item-schedule .join-link {
-            background: var(--blue3);
-            color: var(--blue2);
-            padding: 0.3rem 0.7rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: var(--blue3); color: var(--blue2);
+            padding: 0.3rem 0.7rem; border-radius: 6px;
+            text-decoration: none; font-size: 0.75rem; font-weight: 600;
+        }
+        .schedule-empty {
+            padding: 2rem; text-align: center; color: var(--text3);
+            background: var(--card2); border-radius: 16px; border: 1px solid var(--line);
         }
 
-        .schedule-empty {
-            padding: 2rem;
-            text-align: center;
-            color: var(--text3);
-            background: var(--card2);
-            border-radius: 16px;
-            border: 1px solid var(--line);
+        .teacher-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+            overflow: hidden; transition: all 0.3s; max-width: 320px; margin: 0 auto;
+        }
+        .teacher-card:hover {
+            transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .teacher-card .teacher-photo {
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem 1rem 0.5rem; background: var(--bg2);
+        }
+        .teacher-card .teacher-photo img {
+            width: 100%; max-width: 200px; height: auto; border-radius: 15px; display: block;
+        }
+        .teacher-card .teacher-body { padding: 1.2rem 1.5rem 1.5rem; text-align: center; }
+        .teacher-card .teacher-name { font-family: var(--fs); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .teacher-card .teacher-role { font-size: 0.85rem; color: var(--gold); font-weight: 600; margin-bottom: 0.8rem; }
+        .teacher-card .teacher-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.8rem; }
+        .teacher-tag {
+            background: var(--gold3); padding: 0.2rem 0.7rem; border-radius: 15px;
+            font-size: 0.65rem; color: var(--gold); font-weight: 600;
+        }
+        .teacher-card .teacher-achievements {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0.8rem; flex-wrap: wrap; margin-top: 0.5rem;
+            padding-top: 0.8rem; border-top: 1px solid var(--line);
+        }
+        .teacher-card .achievement-item {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.7rem; color: var(--text2); background: var(--bg2);
+            padding: 0.3rem 0.8rem; border-radius: 20px; cursor: help; position: relative;
+        }
+        .teacher-card .achievement-item .tooltip {
+            display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+            transform: translateX(-50%); background: var(--card); border: 1px solid var(--line);
+            border-radius: 8px; padding: 0.5rem 0.8rem; font-size: 0.7rem; color: var(--text);
+            white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10;
+            font-weight: 400; text-align: left; line-height: 1.6; min-width: 200px; white-space: normal;
+        }
+        .teacher-card .achievement-item:hover .tooltip { display: block; }
+        .teachers-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem; margin-top: 2rem; justify-items: center;
         }
 
         @media (max-width: 768px) {
@@ -1019,20 +459,11 @@
             .main-content { margin-left: 0; }
             .course-grid { grid-template-columns: 1fr; }
             .hero-stats { gap: 1.5rem; }
-            .files-list { gap: 0.3rem; }
-            .file-item { font-size: 0.65rem; padding: 0.2rem 0.4rem; }
             .teachers-grid { grid-template-columns: 1fr; }
-            .schedule-day-card .lesson-item-schedule {
-                flex-wrap: wrap;
-                gap: 0.3rem;
-            }
-            .schedule-day-card .lesson-item-schedule .time {
-                min-width: auto;
-            }
-            .teacher-card .achievement-item .tooltip {
-                min-width: 160px;
-                font-size: 0.65rem;
-            }
+            .modal { padding: 1rem; }
+            .hw-progress-bar { gap: 0.3rem; }
+            .hw-dot { width: 30px; height: 30px; font-size: 0.6rem; }
+            .task-nav { flex-wrap: wrap; justify-content: center; }
         }
     </style>
 </head>
@@ -1052,17 +483,17 @@
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
-        <div class="tabs">
-            <button class="tab active" onclick="switchAuthTab('login')">Войти</button>
-            <button class="tab" onclick="switchAuthTab('register')">Регистрация</button>
+        <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
+            <button class="tab active" onclick="switchAuthTab('login')" style="flex:1;padding:0.6rem;background:var(--bg2);border:none;border-radius:10px;cursor:pointer;font-weight:700;color:var(--text2);">Войти</button>
+            <button class="tab" onclick="switchAuthTab('register')" style="flex:1;padding:0.6rem;background:var(--bg2);border:none;border-radius:10px;cursor:pointer;font-weight:700;color:var(--text2);">Регистрация</button>
         </div>
         <div id="loginPanel" class="tab-pane active">
             <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
-            <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••"></div>
+            <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="......"></div>
             <button class="btn bg" style="width:100%" onclick="handleLogin()">Войти</button>
             <p style="text-align:center;margin-top:1rem;font-size:0.8rem"><span style="color:var(--gold);cursor:pointer" onclick="showResetPassword()">Забыли пароль?</span></p>
         </div>
-        <div id="registerPanel" class="tab-pane">
+        <div id="registerPanel" class="tab-pane" style="display:none;">
             <div class="form-group"><label>Имя</label><input type="text" id="regName" placeholder="Иван Иванов"></div>
             <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
             <div class="form-group"><label>Класс</label><select id="regGrade"><option value="">Выберите класс</option><option value="1-4">1-4 класс</option><option value="5-6">5-6 класс</option><option value="7-8">7-8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10-11 класс (ЕГЭ)</option></select></div>
@@ -1080,6 +511,46 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="hwSolveModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="hwSolveTitle">Решение домашнего задания</h3>
+            <button class="modal-close" onclick="closeHwSolveModal()">&times;</button>
+        </div>
+        <div id="hwSolveContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="hwClassicSolveModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="hwClassicSolveTitle">Домашнее задание</h3>
+            <button class="modal-close" onclick="closeHwClassicSolveModal()">&times;</button>
+        </div>
+        <div id="hwClassicSolveContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="hwResultModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Результаты проверки</h3>
+            <button class="modal-close" onclick="closeHwResultModal()">&times;</button>
+        </div>
+        <div id="hwResultContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="hwSolutionsModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="hwSolutionsTitle">Решения задач</h3>
+            <button class="modal-close" onclick="closeHwSolutionsModal()">&times;</button>
+        </div>
+        <div id="hwSolutionsContent"></div>
+    </div>
+</div>
+
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -1087,7 +558,7 @@
             <ul class="nav-links">
                 <li><a onclick="scrollToSection('math')">Математика</a></li>
                 <li><a onclick="scrollToSection('physics')">Физика</a></li>
-                <li><a onclick="scrollToSection('teachers')">Преподавательский состав</a></li>
+                <li><a onclick="scrollToSection('teachers')">Преподаватель</a></li>
             </ul>
             <div class="nav-buttons" id="navButtons">
                 <button class="btn bo" onclick="openAuthModal()">Войти</button>
@@ -1097,14 +568,14 @@
     </nav>
 
     <div class="hero">
-        <div class="hero-badge fade-up">Будущее начинается с нами</div>
-        <h1 class="fade-up" style="transition-delay:0.1s">Logistical<br><em>Points</em></h1>
-        <p class="fade-up" style="transition-delay:0.2s">Подготовка к олимпиадам и экзаменам для школьников 1-11 классов. Математика и физика с индивидуальным подходом.</p>
-        <div class="hero-buttons fade-up" style="transition-delay:0.3s; display:flex; gap:1rem; margin-top:2rem">
+        <div class="hero-badge">Будущее начинается с нами</div>
+        <h1>Logistical<br><em>Points</em></h1>
+        <p>Подготовка к олимпиадам и экзаменам для школьников 1-11 классов. Математика и физика с индивидуальным подходом.</p>
+        <div style="display:flex;gap:1rem;margin-top:2rem">
             <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
             <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
         </div>
-        <div class="hero-stats fade-up" style="transition-delay:0.4s">
+        <div class="hero-stats">
             <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
             <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
             <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
@@ -1114,18 +585,18 @@
     <div style="height:1px;background:var(--line)"></div>
 
     <section id="math" class="section">
-        <div class="section-badge fade-left">Математика</div>
-        <h2 class="section-title fade-left" style="transition-delay:0.1s">От азов до <em>олимпиад</em></h2>
-        <p class="section-subtitle fade-left" style="transition-delay:0.2s">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
+        <div class="section-badge">Математика</div>
+        <h2 class="section-title">От азов до <em>олимпиад</em></h2>
+        <p class="section-subtitle">Алгебра, геометрия, комбинаторика, подготовка к ОГЭ и ЕГЭ профиль.</p>
         <div class="course-grid" id="mathCourses"></div>
     </section>
 
     <div style="height:1px;background:var(--line)"></div>
 
     <section id="physics" class="section physics-section">
-        <div class="section-badge fade-right">Физика</div>
-        <h2 class="section-title fade-right" style="transition-delay:0.1s">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
-        <p class="section-subtitle fade-right" style="transition-delay:0.2s">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
+        <div class="section-badge">Физика</div>
+        <h2 class="section-title">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
+        <p class="section-subtitle">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
         <div class="course-grid" id="physicsCourses"></div>
     </section>
 
@@ -1138,34 +609,29 @@
             <p class="section-subtitle" style="margin:0 auto">Всего 4 шага отделяют вас от новых знаний</p>
         </div>
         <div class="steps">
-            <div class="step stagger-item"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
-            <div class="step stagger-item"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
-            <div class="step stagger-item"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
-            <div class="step stagger-item"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
+            <div class="step"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
+            <div class="step"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
+            <div class="step"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
+            <div class="step"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
         </div>
     </section>
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <!-- Преподавательский состав -->
     <section id="teachers" class="section">
         <div style="text-align:center">
-            <div class="section-badge">Преподавательский состав</div>
-            <h2 class="section-title">Наши <em>наставники</em></h2>
-            <p class="section-subtitle" style="margin:0 auto">Опытные преподаватели, которые помогут вам достичь высоких результатов</p>
+            <div class="section-badge">Преподаватель</div>
+            <h2 class="section-title">Ваш <em>наставник</em></h2>
+            <p class="section-subtitle" style="margin:0 auto">Опытный преподаватель, который поможет вам достичь высоких результатов</p>
         </div>
         <div class="teachers-grid">
-            <!-- Карточка Егорова Степана -->
-            <div class="teacher-card scale-in">
+            <div class="teacher-card">
                 <div class="teacher-photo">
-                    <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
+                    <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E%3C/text%3E%3C/svg%3E'">
                 </div>
                 <div class="teacher-body">
                     <div class="teacher-name">Егоров Степан Евгеньевич</div>
                     <div class="teacher-role">Преподаватель курса математики</div>
-                    <div class="teacher-education">
-                        Руководитель проекта Logistical Points<br>    
-                    </div>
                     <div class="teacher-tags">
                         <span class="teacher-tag">Олимпиадная математика</span>
                         <span class="teacher-tag">Физика</span>
@@ -1174,7 +640,7 @@
                     </div>
                     <div class="teacher-achievements">
                         <div class="achievement-item">
-                            <img src="IMG_1293.png" alt="Газпром">
+                            <span>🏅</span>
                             <span>Олимпиада Газпром</span>
                             <span class="tooltip">Призёр студенческой Олимпиады Газпром 2026</span>
                         </div>
@@ -1199,7 +665,11 @@
     </nav>
     <div class="dashboard-layout">
         <div class="sidebar">
-            <div class="sidebar-user"><div class="user-avatar" id="userAvatar">У</div><div class="user-name" id="userName"></div><div class="user-grade" id="userGrade"></div></div>
+            <div class="sidebar-user">
+                <div class="user-avatar" id="userAvatar">У</div>
+                <div class="user-name" id="userName"></div>
+                <div class="user-grade" id="userGrade"></div>
+            </div>
             <ul class="sidebar-menu">
                 <li data-pane="overview" class="active" onclick="switchPane('overview', this)">Обзор</li>
                 <li data-pane="courses" onclick="switchPane('courses', this)">Мои курсы</li>
@@ -1211,23 +681,33 @@
         <div class="main-content">
             <div id="overviewPane" class="dashboard-pane active">
                 <h2 style="margin-bottom:1.5rem">Добро пожаловать, <span id="welcomeName" style="color:var(--gold)"></span>!</h2>
-                <div class="stats-grid"><div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div><div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div><div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Конспектов</div></div></div>
-                <div class="admin-card"><h3>Продолжить обучение</h3><div id="continueLearning"></div></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div>
+                    <div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div>
+                    <div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Конспектов</div></div>
+                </div>
+                <div><h3>Продолжить обучение</h3><div id="continueLearning"></div></div>
             </div>
-            <div id="coursesPane" class="dashboard-pane">
+            <div id="coursesPane" class="dashboard-pane" style="display:none;">
                 <h2>Мои курсы</h2>
                 <div id="myCoursesList"></div>
                 <h2 style="margin-top:1.5rem">Доступные курсы</h2>
                 <div id="availableCoursesList"></div>
             </div>
-            <div id="homeworkPane" class="dashboard-pane"><h2>Домашние задания по курсам</h2><div id="homeworkCoursesList"></div></div>
-            <div id="schedulePane" class="dashboard-pane">
+            <div id="homeworkPane" class="dashboard-pane" style="display:none;">
+                <h2>Домашние задания по курсам</h2>
+                <div id="homeworkCoursesList"></div>
+            </div>
+            <div id="schedulePane" class="dashboard-pane" style="display:none;">
                 <h2>Расписание занятий</h2>
                 <div id="scheduleContainer">
                     <div class="schedule-empty">Загрузка расписания...</div>
                 </div>
             </div>
-            <div id="progressPane" class="dashboard-pane"><h2>Прогресс по курсам</h2><div id="progressList"></div></div>
+            <div id="progressPane" class="dashboard-pane" style="display:none;">
+                <h2>Прогресс по курсам</h2>
+                <div id="progressList"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -1247,16 +727,6 @@ const firebaseConfig = {
     storageBucket: "logistical-points.firebasestorage.app"
 };
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -1271,10 +741,32 @@ const COURSES = [
 
 let currentUser = null;
 let userData = null;
-let currentLessonData = null;
-let currentSubmitFiles = [];
-let currentHomeworkData = null;
-window.currentLessonsModal = null;
+let currentSolveHwId = null;
+let currentSolveHwData = null;
+let userAnswers = {};
+let currentTaskIndex = 0;
+let isSubmitted = false;
+let currentClassicHwId = null;
+let currentClassicSubmitFiles = [];
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function showToast(msg, type) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast " + type;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
 
 function showLoader() {
     const loader = document.getElementById("loaderScreen");
@@ -1299,10 +791,8 @@ function initAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); } });
     }, { threshold: 0.1 });
-    document.querySelectorAll(".fade-up, .fade-left, .fade-right, .scale-in, .stagger-item").forEach(el => observer.observe(el));
+    document.querySelectorAll(".fade-up").forEach(el => observer.observe(el));
 }
-
-function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: "smooth" }); }
 
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
 function closeAuthModal() { document.getElementById("authModal").classList.remove("active"); }
@@ -1318,14 +808,14 @@ function sendResetPassword() {
 }
 
 function switchAuthTab(tab) {
-    const loginPanel = document.getElementById("loginPanel"), registerPanel = document.getElementById("registerPanel"), tabs = document.querySelectorAll(".tab");
+    const loginPanel = document.getElementById("loginPanel"), registerPanel = document.getElementById("registerPanel");
     if (tab === "login") {
-        loginPanel.classList.add("active"); registerPanel.classList.remove("active");
-        tabs[0].classList.add("active"); tabs[1].classList.remove("active");
+        loginPanel.style.display = "block";
+        registerPanel.style.display = "none";
         document.getElementById("authTitle").textContent = "Вход";
     } else {
-        loginPanel.classList.remove("active"); registerPanel.classList.add("active");
-        tabs[0].classList.remove("active"); tabs[1].classList.add("active");
+        loginPanel.style.display = "none";
+        registerPanel.style.display = "block";
         document.getElementById("authTitle").textContent = "Регистрация";
     }
 }
@@ -1362,7 +852,7 @@ function handleRegister() {
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
 function updateUIAfterLogin() {
-    document.getElementById("navButtons").innerHTML = `<span style="margin-right:0.5rem">${userData.name}</span><button class="btn brs" onclick="handleLogout()">Выйти</button>`;
+    document.getElementById("navButtons").innerHTML = '<span style="margin-right:0.5rem">' + userData.name + '</span><button class="btn brs" onclick="handleLogout()">Выйти</button>';
     document.getElementById("userName").textContent = userData.name;
     document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
     document.getElementById("userAvatar").textContent = userData.name[0].toUpperCase();
@@ -1378,6 +868,7 @@ function updateUIAfterLogin() {
     renderProgress();
     updateLessonsCount();
     loadStudentSchedule();
+    loadHomeworkCourses();
 }
 
 async function updateLessonsCount() {
@@ -1399,14 +890,14 @@ function renderCoursesGrid() {
         <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
             <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
-            <div class="course-topics">${course.topics.slice(0, 3).map(t => `<span class="topic-tag">${t}</span>`).join("")}</div>
+            <div class="course-topics">${course.topics.slice(0, 3).map(t => '<span class="topic-tag">' + t + '</span>').join("")}</div>
             <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
         </div>`).join("");
     if (physicsContainer) physicsContainer.innerHTML = COURSES.filter(c => c.subject === "physics").map(course => `
         <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
             <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
-            <div class="course-topics">${course.topics.map(t => `<span class="topic-tag">${t}</span>`).join("")}</div>
+            <div class="course-topics">${course.topics.map(t => '<span class="topic-tag">' + t + '</span>').join("")}</div>
             <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
         </div>`).join("");
 }
@@ -1424,6 +915,7 @@ function enrollCourse(courseId) {
         updateLessonsCount();
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
         loadStudentSchedule();
+        loadHomeworkCourses();
     }
 }
 
@@ -1438,129 +930,6 @@ function renderMyCourses() {
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
         </div>
     `).join("");
-}
-
-async function openCourseLessons(courseId) {
-    const course = COURSES.find(c => c.id === courseId);
-    if (!course) return;
-
-    if (window.currentLessonsModal) {
-        window.currentLessonsModal.remove();
-        window.currentLessonsModal = null;
-    }
-
-    const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
-    const lessons = [];
-    lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
-
-    const modalHtml = `
-        <div id="lessonsModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">${course.name} - Конспекты (${lessons.length})</h2>
-                        <button class="modal-close" onclick="document.getElementById('lessonsModal_${courseId}').remove(); window.currentLessonsModal = null;" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
-                    </div>
-                    <div>
-                        ${lessons.length === 0 ? 
-                            '<div style="padding: 3rem; text-align: center; font-size: 1.2rem; color: var(--text3);">Конспектов пока нет. Они появятся после добавления администратором.</div>' : 
-                            lessons.map(lesson => {
-                                const isCompleted = (userData.completedLessons || []).includes(`${courseId}_${lesson.id}`);
-                                const lessonTitle = lesson.title || "Без названия";
-                                const lessonDesc = lesson.description ? lesson.description.substring(0, 100) : "Нет описания";
-                                return `
-                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; cursor: pointer;" onclick="viewLesson('${lesson.id}', '${courseId}', '${lessonTitle.replace(/'/g, "\\'")}')">
-                                        <div style="flex: 1;">
-                                            <div style="display: flex; align-items: center; gap: 0.8rem;">
-                                                <div class="lesson-status ${isCompleted ? 'completed' : 'pending'}" style="width: 12px; height: 12px; border-radius: 50%; background: ${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                                                <div style="font-weight: 700; font-size: 1.1rem;">${lessonTitle}</div>
-                                            </div>
-                                            <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.3rem; margin-left: 1.8rem;">${lessonDesc}</div>
-                                        </div>
-                                        <div>
-                                            ${!isCompleted ? '<span style="font-size: 0.7rem; color: var(--gold);">Не прочитано</span>' : '<span style="font-size: 0.7rem; color: var(--green);">Прочитано</span>'}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const oldModal = document.getElementById(`lessonsModal_${courseId}`);
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
-    window.currentLessonsModal = document.getElementById(`lessonsModal_${courseId}`);
-}
-
-async function viewLesson(lessonId, courseId, title) {
-    const doc = await db.collection("lessons").doc(lessonId).get();
-    const lesson = doc.data();
-    currentLessonData = { id: lessonId, courseId: courseId, title: title };
-    
-    let filesHtml = '';
-    if (lesson.files && lesson.files.length > 0) {
-        filesHtml = `<div class="files-list" style="margin-top:1rem;">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    } else if (lesson.fileData) {
-        if (lesson.fileType === "application/pdf") {
-            filesHtml = `<iframe src="${lesson.fileData}" style="width:100%; height:500px; border:none; margin-top:1rem; border-radius:8px;"></iframe>`;
-        } else if (lesson.fileType && lesson.fileType.startsWith("image/")) {
-            filesHtml = `<img src="${lesson.fileData}" style="max-width:100%; border-radius:8px; margin-top:1rem; cursor:pointer;" onclick="window.open(this.src)">`;
-        }
-    }
-    
-    const modalHtml = `
-        <div id="lessonDetailModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">${title}</h2>
-                        <button class="modal-close" onclick="document.getElementById('lessonDetailModal').remove();" style="font-size: 2rem; background: none; border: none; cursor: pointer; color: var(--text2);">&times;</button>
-                    </div>
-                    
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid var(--line);">
-                        <div style="line-height: 1.8; color: var(--text2);">${lesson.content || "Нет содержания"}</div>
-                        ${filesHtml}
-                    </div>
-                    
-                    <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
-                        <button class="btn bg" onclick="markLessonCompletedFromModal()">Отметить как пройденный</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    const oldModal = document.getElementById("lessonDetailModal");
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
-}
-
-async function markLessonCompletedFromModal() {
-    if (!currentLessonData) return;
-    const lessonKey = `${currentLessonData.courseId}_${currentLessonData.id}`;
-    if (!userData.completedLessons) userData.completedLessons = [];
-    if (!userData.completedLessons.includes(lessonKey)) {
-        userData.completedLessons.push(lessonKey);
-        await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
-        showToast("Конспект отмечен как пройденный!", "success");
-        
-        const detailModal = document.getElementById("lessonDetailModal");
-        if (detailModal) detailModal.remove();
-        
-        if (window.currentLessonsModal) {
-            const courseId = currentLessonData.courseId;
-            window.currentLessonsModal.remove();
-            window.currentLessonsModal = null;
-            openCourseLessons(courseId);
-        }
-        
-        renderProgress();
-        updateLessonsCount();
-    }
 }
 
 function renderAvailableCourses() {
@@ -1593,510 +962,113 @@ async function renderProgress() {
     if (!container) return;
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
     if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; return; }
-    
     container.innerHTML = "";
     for (const course of enrolled) {
         const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
         const totalLessons = lessonsSnap.size;
         const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
         const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
-        
-        container.innerHTML += `<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
-                <div><strong>${course.name}</strong></div>
-                <div style="font-size:1.2rem;font-weight:700;color:var(--gold)">${percent}%</div>
-            </div>
-            <div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">
-                <div style="width:${percent}%;height:100%;background:var(--gold);border-radius:3px"></div>
-            </div>
-            <div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ${completedCount} из ${totalLessons}</div>
-        </div>`;
+        container.innerHTML += '<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
+                '<div><strong>' + course.name + '</strong></div>' +
+                '<div style="font-size:1.2rem;font-weight:700;color:var(--gold)">' + percent + '%</div>' +
+            '</div>' +
+            '<div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">' +
+                '<div style="width:' + percent + '%;height:100%;background:var(--gold);border-radius:3px"></div>' +
+            '</div>' +
+            '<div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ' + completedCount + ' из ' + totalLessons + '</div>' +
+        '</div>';
     }
 }
 
-// ========== РАСПИСАНИЕ ДЛЯ УЧЕНИКА ==========
-async function loadStudentSchedule() {
-    const container = document.getElementById("scheduleContainer");
-    if (!container) return;
-    
-    try {
-        const snapshot = await db.collection("schedule").get();
-        const scheduleItems = [];
-        snapshot.forEach(doc => {
-            scheduleItems.push({ id: doc.id, ...doc.data() });
-        });
-        
-        if (scheduleItems.length === 0) {
-            container.innerHTML = `
-                <div class="schedule-empty">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
-                    <p>Расписание пока не составлено</p>
-                    <p style="font-size: 0.8rem; color: var(--text3); margin-top: 0.5rem;">Следите за обновлениями</p>
-                </div>
-            `;
-            return;
-        }
-        
-        const enrolledCourses = userData.enrolledCourses || [];
-        let filteredItems = scheduleItems.filter(item => 
-            enrolledCourses.includes(item.courseId)
-        );
-        
-        if (filteredItems.length === 0) {
-            filteredItems = scheduleItems;
-        }
-        
-        filteredItems.sort((a, b) => {
-            if (a.date !== b.date) return a.date.localeCompare(b.date);
-            return (a.time || '00:00').localeCompare(b.time || '00:00');
-        });
-        
-        const grouped = {};
-        const today = new Date().toISOString().split('T')[0];
-        
-        for (const item of filteredItems) {
-            if (!grouped[item.date]) {
-                grouped[item.date] = [];
-            }
-            grouped[item.date].push(item);
-        }
-        
-        const dateKeys = Object.keys(grouped).sort();
-        
-        if (dateKeys.length === 0) {
-            container.innerHTML = `
-                <div class="schedule-empty">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
-                    <p>Нет занятий по вашим курсам</p>
-                    <p style="font-size: 0.8rem; color: var(--text3); margin-top: 0.5rem;">Запишитесь на курсы, чтобы видеть расписание</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        for (const dateKey of dateKeys) {
-            const items = grouped[dateKey];
-            const dateObj = new Date(dateKey + 'T00:00:00');
-            const dayName = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][dateObj.getDay()];
-            const formattedDate = `${dateObj.getDate()} ${['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-            
-            const isToday = dateKey === today;
-            
-            html += `
-                <div class="schedule-day-card ${isToday ? 'today' : ''}">
-                    <div class="day-header">
-                        <div class="day-name ${isToday ? 'today' : ''}">
-                            ${isToday ? '⭐ ' : ''}${dayName}, ${formattedDate}
-                        </div>
-                        <div style="font-size: 0.75rem; color: var(--text3);">
-                            ${items.length} занятий
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        ${items.map(item => {
-                            const course = COURSES.find(c => c.id === item.courseId);
-                            return `
-                                <div class="lesson-item-schedule">
-                                    <div class="time">${escapeHtml(item.time || '')}</div>
-                                    <div class="lesson-name">${escapeHtml(item.name)}</div>
-                                    <div class="course-name">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                                    ${item.link ? `
-                                        <a href="${escapeHtml(item.link)}" target="_blank" class="join-link">
-                                            Присоединиться
-                                        </a>
-                                    ` : ''}
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        
-        container.innerHTML = html;
-    } catch (error) {
-        console.error("Ошибка загрузки расписания:", error);
-        container.innerHTML = `
-            <div class="schedule-empty">
-                <p style="color: var(--red);">Ошибка загрузки расписания</p>
-                <p style="font-size: 0.8rem; color: var(--text3);">Попробуйте обновить страницу</p>
-            </div>
-        `;
-    }
-}
-
-// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
-
-// Функция загрузки файла в Storage для ученика
-async function uploadStudentFileToStorage(file, homeworkId) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(`homeworks_submissions/${currentUser.uid}/${homeworkId}/${fileName}`);
-    const snapshot = await fileRef.put(file);
-    const url = await snapshot.ref.getDownloadURL();
-    return { name: file.name, url: url, type: file.type };
-}
-
-async function uploadStudentFiles(files, homeworkId) {
-    const results = [];
-    for (const f of files) {
-        try {
-            const result = await uploadStudentFileToStorage(f.file, homeworkId);
-            results.push(result);
-        } catch(e) {
-            showToast(`Ошибка: ${f.file.name}`, "error");
-        }
-    }
-    return results;
-}
-
-// Отображение превью файлов для ученика
-function renderStudentFilePreview(filesArray) {
-    const container = document.getElementById("studentFilesPreview");
-    if (!container) return;
-    if (filesArray.length === 0) {
-        container.innerHTML = '';
-        container.style.display = 'none';
-        return;
-    }
-    container.style.display = 'flex';
-    container.innerHTML = filesArray.map((file, idx) => `
-        <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
-            <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="removeStudentFile(${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-window.removeStudentFile = function(idx) {
-    currentSubmitFiles.splice(idx, 1);
-    renderStudentFilePreview(currentSubmitFiles);
-};
-
-async function handleStudentFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentSubmitFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentSubmitFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderStudentFilePreview(currentSubmitFiles);
-    input.value = '';
-}
-
-async function loadHomeworkCourses() {
-    const container = document.getElementById("homeworkCoursesList");
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>У вас нет активных курсов</p>"; return; }
-    container.innerHTML = enrolled.map(course => `
-        <div class="course-card" onclick="loadHomeworkByCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg bsm">Показать задания</button></div>
-        </div>
-    `).join("");
-}
-
-async function loadHomeworkByCourse(courseId) {
+async function openCourseLessons(courseId) {
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) {
-        showToast("Курс не найден", "error");
-        return;
-    }
-    
-    if (!currentUser || !currentUser.email) {
-        showToast("Ошибка авторизации", "error");
-        return;
-    }
-    
-    showToast(`Загрузка заданий для ${course.name}...`, "info");
-    
-    try {
-        const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
-        const homeworks = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            homeworks.push({ id: doc.id, ...data });
-        });
-        
-        const filtered = homeworks.filter(hw => {
-            if (!hw.userEmail) return false;
-            return hw.userEmail === "all" || hw.userEmail === currentUser.email;
-        });
-        
-        const submissions = userData?.homeworkSubmissions || [];
-        
-        if (filtered.length === 0) {
-            showToast("Нет заданий для этого курса", "info");
-            return;
-        }
-        
-        filtered.sort((a, b) => {
-            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
-            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
-            return dateB - dateA;
-        });
-        
-        const modalHtml = `
-            <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display: flex; z-index: 3000; background: var(--bg);">
-                <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                    <div style="max-width: 800px; margin: 0 auto;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                            <h2 style="font-family: var(--fs); font-size: 1.8rem;">${course.name} - Домашние задания</h2>
-                            <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
-                        </div>
-                        <div>
-                            ${filtered.map(hw => {
-                                const submitted = submissions.find(s => s.id === hw.id);
-                                const statusText = submitted ? "Сдано" : "Ожидает";
-                                const statusColor = submitted ? "var(--green)" : "var(--gold)";
-                                const actionBtn = submitted ? 
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); viewSubmittedHomework('${hw.id}')">Просмотреть</button>` :
-                                    `<button class="btn bg bsm" onclick="event.stopPropagation(); openHomeworkSubmit('${hw.id}', '${escapeHtml(hw.title)}', '${escapeHtml(hw.description || "")}', '${escapeHtml(hw.courseId)}')">Сдать</button>`;
-                                
-                                let filesInfo = '';
-                                if (hw.files && hw.files.length > 0) {
-                                    filesInfo = `<div style="font-size: 0.7rem; color: var(--gold); margin-top: 0.2rem;">${hw.files.length} файлов</div>`;
-                                } else if (hw.imageData) {
-                                    filesInfo = `<div style="font-size: 0.7rem; color: var(--gold); margin-top: 0.2rem;">Есть изображение</div>`;
-                                }
-                                
-                                let filesHtml = '';
-                                if (hw.files && hw.files.length > 0) {
-                                    filesHtml = `<div class="files-list" style="margin-top: 0.5rem;">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-                                }
-                                
+    if (!course) return;
+    const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
+    const lessons = [];
+    lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
+    const modalHtml = `
+        <div id="lessonsModal" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
+            <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
+                <div style="max-width:800px;margin:0 auto;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
+                        <h2 style="font-family:var(--fs);font-size:1.8rem;">${course.name} - Конспекты (${lessons.length})</h2>
+                        <button class="modal-close" onclick="document.getElementById('lessonsModal').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;color:var(--text2);">&times;</button>
+                    </div>
+                    <div>
+                        ${lessons.length === 0 ? '<div style="padding:3rem;text-align:center;font-size:1.2rem;color:var(--text3);">Конспектов пока нет.</div>' : 
+                            lessons.map(lesson => {
+                                const isCompleted = (userData.completedLessons || []).includes(courseId + '_' + lesson.id);
                                 return `
-                                    <div style="background: var(--card2); border-radius: 16px; padding: 1rem 1.5rem; margin-bottom: 1rem; border: 1px solid var(--line);">
-                                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-                                            <div style="flex: 1;">
-                                                <div style="font-weight: 700; font-size: 1.1rem;">${escapeHtml(hw.title)}</div>
-                                                <div style="font-size: 0.8rem; color: var(--text3); margin-top: 0.2rem;">Срок: ${hw.dueDate || "не указан"}</div>
-                                                ${filesInfo}
-                                                <div style="font-size: 0.8rem; color: var(--text2); margin-top: 0.5rem; background: var(--bg); padding: 0.5rem; border-radius: 8px;">
-                                                    ${escapeHtml(hw.description ? hw.description.substring(0, 150) : "Нет описания")}${hw.description && hw.description.length > 150 ? "..." : ""}
-                                                </div>
-                                                ${filesHtml}
+                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;cursor:pointer;" onclick="viewLesson('${lesson.id}','${courseId}','${escapeHtml(lesson.title)}')">
+                                        <div style="flex:1;">
+                                            <div style="display:flex;align-items:center;gap:0.8rem;">
+                                                <div style="width:12px;height:12px;border-radius:50%;background:${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
+                                                <div style="font-weight:700;font-size:1.1rem;">${escapeHtml(lesson.title)}</div>
                                             </div>
-                                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
-                                                <span style="font-size: 0.8rem; color: ${statusColor};">${statusText}</span>
-                                                ${actionBtn}
-                                            </div>
+                                            <div style="font-size:0.8rem;color:var(--text2);margin-top:0.3rem;margin-left:1.8rem;">${escapeHtml(lesson.description || "Нет описания")}</div>
                                         </div>
-                                        ${hw.grade ? `<div style="margin-top: 0.8rem; padding-top: 0.5rem; border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--green);">Оценка: ${hw.grade}/10</div>` : ""}
+                                        <div>${!isCompleted ? '<span style="font-size:0.7rem;color:var(--gold);">Не прочитано</span>' : '<span style="font-size:0.7rem;color:var(--green);">Прочитано</span>'}</div>
                                     </div>
                                 `;
-                            }).join('')}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const oldModal = document.getElementById(`homeworkModal_${courseId}`);
-        if (oldModal) oldModal.remove();
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-    } catch (err) {
-        console.error(err);
-        showToast("Ошибка загрузки заданий: " + err.message, "error");
-    }
-}
-
-async function viewSubmittedHomework(hwId) {
-    const doc = await db.collection("homeworks").doc(hwId).get();
-    const hw = doc.data();
-    const sub = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
-    
-    let filesHtml = '';
-    if (sub && sub.files && sub.files.length) {
-        filesHtml = `<div class="files-list" style="margin-top:1rem;">${sub.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    }
-    
-    const modalHtml = `
-        <div id="submittedHomeworkModal" class="modal-overlay active" style="display: flex; z-index: 4000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">${escapeHtml(hw.title)}</h2>
-                        <button class="modal-close" onclick="document.getElementById('submittedHomeworkModal').remove()" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
-                    </div>
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">Условие задачи</h3>
-                        <div style="line-height: 1.8;">${hw.description || "Нет описания"}</div>
-                        ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
-                    </div>
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">Ваше решение</h3>
-                        <div style="line-height: 1.8;">${sub ? (sub.solution || "Нет текстового решения") : "Решение не найдено"}</div>
-                        ${filesHtml}
-                    </div>
-                    ${hw.grade ? `<div style="background: var(--green2); border-radius: 16px; padding: 1.5rem; margin-top: 1rem;"><strong>Оценка:</strong> ${hw.grade}/10<br><strong>Комментарий:</strong> ${hw.feedback || "—"}</div>` : ""}
-                </div>
-            </div>
-        </div>
-    `;
-    const oldModal = document.getElementById("submittedHomeworkModal");
-    if (oldModal) oldModal.remove();
-    document.body.insertAdjacentHTML("beforeend", modalHtml);
-}
-
-async function openHomeworkSubmit(hwId, title, description, courseId) {
-    currentSubmitFiles = [];
-    
-    currentHomeworkData = { hwId, title, description, courseId };
-    
-    let hwFiles = [];
-    try {
-        const doc = await db.collection("homeworks").doc(hwId).get();
-        if (doc.exists) {
-            const data = doc.data();
-            if (data.files && data.files.length > 0) {
-                hwFiles = data.files;
-            }
-        }
-    } catch(e) {
-        console.error("Ошибка загрузки файлов ДЗ:", e);
-    }
-    
-    let filesHtml = '';
-    if (hwFiles.length > 0) {
-        filesHtml = `<div class="files-list" style="margin-top: 0.5rem;">${hwFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type && f.type.startsWith('image') ? '🖼️' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
-    }
-    
-    const modalHtml = `
-        <div id="dynamicSubmitModal" class="modal-overlay active" style="display: flex; z-index: 10000; background: var(--bg);">
-            <div style="width: 100%; height: 100%; overflow-y: auto; padding: 2rem;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid var(--gold);">
-                        <h2 style="font-family: var(--fs); font-size: 1.8rem;">Сдать задание: ${escapeHtml(title)}</h2>
-                        <button class="modal-close" onclick="document.getElementById('dynamicSubmitModal').remove(); currentHomeworkData = null;" style="font-size: 2rem; background: none; border: none; cursor: pointer;">&times;</button>
-                    </div>
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">Условие задачи</h3>
-                        <div style="line-height: 1.8;">${escapeHtml(description)}</div>
-                        ${filesHtml}
-                    </div>
-                    <div style="background: var(--card); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--gold);">Ваше решение</h3>
-                        <textarea id="dynSolution" rows="6" placeholder="Напишите решение здесь..." style="width:100%; padding:0.7rem; background:var(--bg2); border-radius:10px; border:1px solid var(--line); margin-bottom:1rem;"></textarea>
-                        <div class="form-group">
-                            <label>Прикрепить файлы (можно несколько: фото, PDF, до 50 МБ)</label>
-                            <div class="multi-file-zone" onclick="document.getElementById('dynFileInput').click()">
-                                <div style="font-size:2rem;">📎</div>
-                                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов, до 50 МБ)</div>
-                            </div>
-                            <input type="file" id="dynFileInput" accept="image/*,application/pdf" multiple style="display:none" onchange="handleStudentFilesSelect(this)">
-                            <div id="studentFilesPreview" class="files-list" style="margin-top:0.8rem;"></div>
-                        </div>
-                    </div>
-                    <div style="display:flex; gap:0.8rem; margin-top:1rem;">
-                        <button class="btn bg" style="flex:1" id="dynSubmitBtn">Отправить</button>
-                        <button class="btn bo" onclick="document.getElementById('dynamicSubmitModal').remove(); currentHomeworkData = null;">Отмена</button>
+                            }).join('')
+                        }
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
-    const oldModal = document.getElementById("dynamicSubmitModal");
+    const oldModal = document.getElementById("lessonsModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
-    
-    window.handleStudentFilesSelect = handleStudentFilesSelect;
-    
-    document.getElementById("dynSubmitBtn").onclick = async function() {
-        const solution = document.getElementById("dynSolution").value.trim();
-        if (!solution && currentSubmitFiles.length === 0) { 
-            showToast("Напишите решение или прикрепите файлы", "error"); 
-            return; 
-        }
-        
-        const btn = document.getElementById("dynSubmitBtn");
-        const originalText = btn.textContent;
-        btn.textContent = "Загрузка файлов...";
-        btn.disabled = true;
-        
-        showToast("Загрузка файлов...", "info");
-        
-        try {
-            let uploadedFiles = [];
-            if (currentSubmitFiles.length > 0) {
-                uploadedFiles = await uploadStudentFiles(currentSubmitFiles, currentHomeworkData.hwId);
-            }
-            
-            const updateData = {
-                status: "submitted",
-                solution: solution,
-                files: uploadedFiles,
-                submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                userName: userData.name,
-                userEmail: currentUser.email
-            };
-            
-            await db.collection("homeworks").doc(currentHomeworkData.hwId).update(updateData);
-            
-            if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-            const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentHomeworkData.hwId);
-            const submissionData = { 
-                id: currentHomeworkData.hwId, 
-                solution: solution, 
-                files: uploadedFiles 
-            };
-            
-            if (existingIndex !== -1) {
-                userData.homeworkSubmissions[existingIndex] = submissionData;
-            } else {
-                userData.homeworkSubmissions.push(submissionData);
-            }
-            
-            await db.collection("users").doc(currentUser.uid).update({ 
-                homeworkSubmissions: userData.homeworkSubmissions 
-            });
-            
-            showToast("Задание отправлено!", "success");
-            document.getElementById("dynamicSubmitModal").remove();
-            currentHomeworkData = null;
-            document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
-            loadHomeworkCourses();
-        } catch(e) { 
-            console.error(e);
-            showToast("Ошибка: " + e.message, "error"); 
-        } finally {
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
-    };
+}
+
+async function viewLesson(lessonId, courseId, title) {
+    const doc = await db.collection("lessons").doc(lessonId).get();
+    const lesson = doc.data();
+    const modalHtml = `
+        <div id="lessonDetailModal" class="modal-overlay active" style="display:flex;z-index:4000;background:var(--bg);">
+            <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
+                <div style="max-width:800px;margin:0 auto;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
+                        <h2 style="font-family:var(--fs);font-size:1.8rem;">${title}</h2>
+                        <button class="modal-close" onclick="document.getElementById('lessonDetailModal').remove();" style="font-size:2rem;background:none;border:none;cursor:pointer;color:var(--text2);">&times;</button>
+                    </div>
+                    <div style="background:var(--card);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;border:1px solid var(--line);">
+                        <div style="line-height:1.8;color:var(--text2);">${lesson.content || "Нет содержания"}</div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+                        <button class="btn bg" onclick="markLessonCompleted('${lessonId}','${courseId}')">Отметить как пройденный</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    const oldModal = document.getElementById("lessonDetailModal");
+    if (oldModal) oldModal.remove();
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+}
+
+async function markLessonCompleted(lessonId, courseId) {
+    const lessonKey = courseId + '_' + lessonId;
+    if (!userData.completedLessons) userData.completedLessons = [];
+    if (!userData.completedLessons.includes(lessonKey)) {
+        userData.completedLessons.push(lessonKey);
+        await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
+        showToast("Конспект отмечен как пройденный!", "success");
+        document.getElementById("lessonDetailModal").remove();
+        renderProgress();
+        updateLessonsCount();
+    }
 }
 
 function switchPane(paneId, el) {
-    document.querySelectorAll(".dashboard-pane").forEach(p => p.classList.remove("active"));
-    document.getElementById(`${paneId}Pane`).classList.add("active");
+    document.querySelectorAll(".dashboard-pane").forEach(p => p.style.display = "none");
+    document.getElementById(paneId + 'Pane').style.display = "block";
     document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
     if (el) el.classList.add("active");
-    
-    if (paneId === 'schedule') {
-        loadStudentSchedule();
-    }
-}
-
-function showToast(message, type) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    if (paneId === 'homework') loadHomeworkCourses();
+    if (paneId === 'schedule') loadStudentSchedule();
 }
 
 function showHome() {
@@ -2108,6 +1080,8 @@ function showHome() {
         document.getElementById("dashboard").classList.remove("active");
     }
 }
+
+function scrollToSection(id) { document.getElementById(id).scrollIntoView({ behavior: "smooth" }); }
 
 function toggleTheme() {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
@@ -2122,12 +1096,783 @@ function toggleTheme() {
     }
 }
 
+// ========== РАСПИСАНИЕ ==========
+async function loadStudentSchedule() {
+    const container = document.getElementById("scheduleContainer");
+    if (!container) return;
+    try {
+        const snapshot = await db.collection("schedule").get();
+        const scheduleItems = [];
+        snapshot.forEach(doc => scheduleItems.push({ id: doc.id, ...doc.data() }));
+        if (scheduleItems.length === 0) {
+            container.innerHTML = '<div class="schedule-empty"><p>Расписание пока не составлено</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Следите за обновлениями</p></div>';
+            return;
+        }
+        const enrolledCourses = userData.enrolledCourses || [];
+        let filteredItems = scheduleItems.filter(item => enrolledCourses.includes(item.courseId));
+        if (filteredItems.length === 0) filteredItems = scheduleItems;
+        filteredItems.sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            return (a.time || '00:00').localeCompare(b.time || '00:00');
+        });
+        const grouped = {};
+        const today = new Date().toISOString().split('T')[0];
+        for (const item of filteredItems) {
+            if (!grouped[item.date]) grouped[item.date] = [];
+            grouped[item.date].push(item);
+        }
+        const dateKeys = Object.keys(grouped).sort();
+        if (dateKeys.length === 0) {
+            container.innerHTML = '<div class="schedule-empty"><p>Нет занятий по вашим курсам</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Запишитесь на курсы, чтобы видеть расписание</p></div>';
+            return;
+        }
+        let html = '';
+        for (const dateKey of dateKeys) {
+            const items = grouped[dateKey];
+            const dateObj = new Date(dateKey + 'T00:00:00');
+            const dayName = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][dateObj.getDay()];
+            const formattedDate = dateObj.getDate() + ' ' + ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][dateObj.getMonth()] + ' ' + dateObj.getFullYear();
+            const isToday = dateKey === today;
+            html += `
+                <div class="schedule-day-card ${isToday ? 'today' : ''}">
+                    <div class="day-header">
+                        <div class="day-name ${isToday ? 'today' : ''}">${isToday ? '⭐ ' : ''}${dayName}, ${formattedDate}</div>
+                        <div style="font-size:0.75rem;color:var(--text3);">${items.length} занятий</div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                        ${items.map(item => {
+                            const course = COURSES.find(c => c.id === item.courseId);
+                            return `
+                                <div class="lesson-item-schedule">
+                                    <div class="time">${escapeHtml(item.time || '')}</div>
+                                    <div class="lesson-name">${escapeHtml(item.name)}</div>
+                                    <div class="course-name">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
+                                    ${item.link ? '<a href="' + escapeHtml(item.link) + '" target="_blank" class="join-link">Присоединиться</a>' : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    } catch (error) {
+        console.error("Ошибка загрузки расписания:", error);
+        container.innerHTML = '<div class="schedule-empty"><p style="color:var(--red);">Ошибка загрузки расписания</p></div>';
+    }
+}
+
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
+async function loadHomeworkCourses() {
+    const container = document.getElementById("homeworkCoursesList");
+    if (!container) return;
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>У вас нет активных курсов</p>"; return; }
+    container.innerHTML = enrolled.map(course => `
+        <div class="course-card" onclick="loadHomeworkByCourse('${course.id}')">
+            <div class="course-icon">${course.icon}</div>
+            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg bsm">Показать задания</button></div>
+        </div>
+    `).join("");
+}
+
+async function loadHomeworkByCourse(courseId) {
+    const course = COURSES.find(c => c.id === courseId);
+    if (!course) { showToast("Курс не найден", "error"); return; }
+    if (!currentUser || !currentUser.email) { showToast("Ошибка авторизации", "error"); return; }
+    showToast('Загрузка заданий для ' + course.name + '...', "info");
+    try {
+        const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
+        const homeworks = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.userEmail === "all" || data.userEmail === currentUser.email) {
+                homeworks.push({ id: doc.id, ...data });
+            }
+        });
+        const submissions = userData?.homeworkSubmissions || [];
+        if (homeworks.length === 0) {
+            showToast("Нет заданий для этого курса", "info");
+            return;
+        }
+        homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const modalHtml = `
+            <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
+                <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
+                    <div style="max-width:800px;margin:0 auto;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
+                            <h2 style="font-family:var(--fs);font-size:1.8rem;">${course.name} - Домашние задания</h2>
+                            <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;">&times;</button>
+                        </div>
+                        <div>
+                            ${homeworks.map(hw => {
+                                const submitted = submissions.find(s => s.id === hw.id);
+                                const isGraded = hw.status === 'graded' || hw.status === 'returned';
+                                const statusText = submitted ? (isGraded ? "Проверено" : "Сдано") : "Ожидает";
+                                const statusColor = submitted ? (isGraded ? "var(--green)" : "var(--gold)") : "var(--text3)";
+                                
+                                let actionBtn = '';
+                                if (submitted) {
+                                    if (isGraded) {
+                                        actionBtn = `
+                                            <button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>
+                                            <button class="btn secondary bsm" onclick="event.stopPropagation(); viewHomeworkSolutions('${hw.id}')">Решения</button>
+                                        `;
+                                    } else {
+                                        actionBtn = `<button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>`;
+                                    }
+                                } else {
+                                    actionBtn = `<button class="btn bg bsm" onclick="event.stopPropagation(); startHomework('${hw.id}')">Выполнить</button>`;
+                                }
+                                
+                                let tasksInfo = '';
+                                if (hw.tasks && hw.tasks.length > 0) {
+                                    const total = hw.tasks.length;
+                                    const secondPartCount = hw.tasks.filter(t => t.isSecondPart).length;
+                                    tasksInfo = '<div style="font-size:0.7rem;color:var(--text3);margin-top:0.2rem;">' + total + ' задач';
+                                    if (secondPartCount > 0) {
+                                        tasksInfo += ' (из них ' + secondPartCount + ' с развернутым решением)';
+                                    }
+                                    tasksInfo += '</div>';
+                                }
+                                
+                                return `
+                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);">
+                                        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+                                            <div style="flex:1;">
+                                                <div style="font-weight:700;font-size:1.1rem;">${escapeHtml(hw.title)}</div>
+                                                <div style="font-size:0.8rem;color:var(--text3);margin-top:0.2rem;">Срок: ${hw.dueDate || "не указан"}</div>
+                                                ${tasksInfo}
+                                            </div>
+                                            <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+                                                <span style="font-size:0.8rem;color:${statusColor};">${statusText}</span>
+                                                <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">${actionBtn}</div>
+                                            </div>
+                                        </div>
+                                        ${hw.grade ? '<div style="margin-top:0.8rem;padding-top:0.5rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--green);">Оценка: ' + hw.grade + '/10</div>' : ""}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        const oldModal = document.getElementById('homeworkModal_' + courseId);
+        if (oldModal) oldModal.remove();
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+    } catch (err) {
+        console.error(err);
+        showToast("Ошибка загрузки заданий: " + err.message, "error");
+    }
+}
+
+// ========== ЗАПУСК ДЗ (ОБНОВЛЕННАЯ ВЕРСИЯ) ==========
+async function startHomework(hwId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    currentSolveHwId = hwId;
+    currentSolveHwData = hw;
+    userAnswers = {};
+    currentTaskIndex = 0;
+    isSubmitted = false;
+    
+    const totalTasks = hw.tasks ? hw.tasks.length : 0;
+    
+    document.getElementById("hwSolveTitle").textContent = hw.title;
+    
+    let html = `
+        <div style="margin-bottom:1rem;color:var(--text2);">
+            <p>Курс: ${escapeHtml(hw.courseId)}</p>
+        </div>
+        
+        <div class="hw-progress-bar" id="hwProgressBar">
+            ${Array.from({ length: totalTasks }, (_, i) => `
+                <div class="hw-dot" id="hwdot_${i}" onclick="goToTask(${i})">
+                    ${i + 1}
+                </div>
+            `).join('')}
+        </div>
+        
+        <div class="hw-counter" id="hwCounter" style="display:none;">
+            <span>Правильных ответов: <span class="score" id="hwScore">0</span> из ${totalTasks}</span>
+        </div>
+        
+        <div id="hwTasksContainer">
+            ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
+                const isSecondPart = task.isSecondPart || false;
+                
+                let taskFilesHtml = '';
+                if (task.files && task.files.length > 0) {
+                    taskFilesHtml = `
+                        <div class="task-files">
+                            <div class="task-files-label">Файлы к задаче:</div>
+                            <div class="files-list">${task.files.map(f => 
+                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                            ).join('')}</div>
+                        </div>
+                    `;
+                }
+                
+                let answerHtml = '';
+                if (isSecondPart) {
+                    // Вторая часть - ученик прикрепляет файлы
+                    answerHtml = `
+                        <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
+                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
+                            <div class="form-group">
+                                <label>Ваше текстовое решение</label>
+                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..." ${isSubmitted ? 'disabled' : ''}>${userAnswers[index] ? userAnswers[index].text || '' : ''}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Прикрепить файлы с решением</label>
+                                <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${index}').click()">
+                                    <div style="font-size:1.5rem;">+</div>
+                                    <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов, до 50 МБ)</div>
+                                </div>
+                                <input type="file" id="taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskSolveFilesSelect(this, ${index})">
+                                <div id="taskFilePreview_${index}" class="files-list"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Первая часть - краткий ответ
+                    answerHtml = `
+                        <div style="margin-top:0.8rem;">
+                            <input type="text" class="task-answer-input" id="answer_${index}" 
+                                   placeholder="Введите ваш ответ..." 
+                                   value="${userAnswers[index] || ''}"
+                                   oninput="saveAnswer(${index}, this.value)"
+                                   ${isSubmitted ? 'disabled' : ''}>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
+                        <div class="task-content" id="taskcontent_${index}">
+                            <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
+                            <div class="task-condition">${task.condition || "Без условия"}</div>
+                            ${taskFilesHtml}
+                            ${answerHtml}
+                            <div class="task-result" id="result_${index}" style="display:none;"></div>
+                            <div class="task-solution" id="solution_${index}" style="display:none;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<div style="padding:2rem;text-align:center;color:var(--text3);">В этом задании нет задач</div>'}
+        </div>
+        
+        <div class="task-nav">
+            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)">← Назад</button>
+            <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
+            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд →</button>
+        </div>
+        
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;">
+            <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
+            <button class="btn bo" onclick="closeHwSolveModal()">Отмена</button>
+        </div>
+    `;
+    
+    document.getElementById("hwSolveContent").innerHTML = html;
+    document.getElementById("hwSolveModal").classList.add("active");
+    
+    updateNavButtons();
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
+}
+
+// ========== ОБРАБОТКА ФАЙЛОВ ДЛЯ ЗАДАЧ ВТОРОЙ ЧАСТИ ==========
+let taskSolveFiles = {};
+
+function handleTaskSolveFilesSelect(input, taskIndex) {
+    const files = Array.from(input.files);
+    if (!taskSolveFiles[taskIndex]) taskSolveFiles[taskIndex] = [];
+    
+    if (taskSolveFiles[taskIndex].length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast('Файл ' + file.name + ' > 50 МБ', "error");
+            continue;
+        }
+        taskSolveFiles[taskIndex].push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast('Добавлен: ' + file.name, "success");
+    }
+    renderTaskSolveFilePreview(taskIndex);
+    input.value = '';
+}
+
+function renderTaskSolveFilePreview(taskIndex) {
+    const container = document.getElementById('taskFilePreview_' + taskIndex);
+    if (!container) return;
+    const files = taskSolveFiles[taskIndex] || [];
+    if (files.length === 0) {
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет прикрепленных файлов</div>';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = files.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : 'PDF'}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="removeTaskSolveFile(${taskIndex}, ${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+function removeTaskSolveFile(taskIndex, idx) {
+    if (taskSolveFiles[taskIndex]) {
+        taskSolveFiles[taskIndex].splice(idx, 1);
+        renderTaskSolveFilePreview(taskIndex);
+    }
+}
+
+function goToTask(index) {
+    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
+    if (index < 0 || index >= totalTasks) return;
+    if (isSubmitted) return;
+    
+    document.querySelectorAll('.task-block').forEach(el => el.classList.remove('active'));
+    const target = document.getElementById('taskblock_' + index);
+    if (target) target.classList.add('active');
+    
+    currentTaskIndex = index;
+    updateNavButtons();
+    updateActiveDot(index);
+}
+
+function changeTask(direction) {
+    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
+    const newIndex = currentTaskIndex + direction;
+    if (newIndex < 0 || newIndex >= totalTasks) return;
+    goToTask(newIndex);
+}
+
+function updateNavButtons() {
+    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counter = document.getElementById('taskCounter');
+    
+    if (prevBtn) prevBtn.disabled = currentTaskIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentTaskIndex >= totalTasks - 1;
+    if (counter) counter.textContent = (currentTaskIndex + 1) + ' / ' + totalTasks;
+}
+
+function updateActiveDot(index) {
+    document.querySelectorAll('.hw-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+function saveAnswer(index, value) {
+    if (isSubmitted) return;
+    userAnswers[index] = value;
+    const dot = document.getElementById('hwdot_' + index);
+    if (dot && value.trim() !== '') {
+        dot.classList.add('has-answer');
+    } else if (dot) {
+        dot.classList.remove('has-answer');
+    }
+}
+
+// ========== ОТПРАВКА ДЗ ==========
+async function submitHomework() {
+    if (isSubmitted) return;
+    const tasks = currentSolveHwData.tasks || [];
+    
+    // Проверка заполненности
+    for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        const isSecondPart = task.isSecondPart || false;
+        
+        if (isSecondPart) {
+            // Вторая часть - проверяем текст или файлы
+            const textAnswer = document.getElementById('answer_text_' + i)?.value.trim() || '';
+            const files = taskSolveFiles[i] || [];
+            if (!textAnswer && files.length === 0) {
+                showToast('Заполните решение или прикрепите файлы для задачи ' + (i + 1), "error");
+                goToTask(i);
+                return;
+            }
+            // Сохраняем ответ
+            userAnswers[i] = { text: textAnswer, files: files };
+        } else {
+            // Первая часть - проверяем текстовый ответ
+            const answer = userAnswers[i] || '';
+            if (answer.trim() === '') {
+                showToast('Ответьте на задачу ' + (i + 1), "error");
+                goToTask(i);
+                return;
+            }
+        }
+    }
+    
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = "Отправка...";
+    btn.disabled = true;
+    
+    try {
+        let correctCount = 0;
+        const taskResults = [];
+        let allFiles = [];
+        
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            const isSecondPart = task.isSecondPart || false;
+            let userAnswer = '';
+            let uploadedFiles = [];
+            
+            if (isSecondPart) {
+                // Вторая часть
+                const answerData = userAnswers[i] || { text: '', files: [] };
+                userAnswer = answerData.text || '';
+                if (answerData.files && answerData.files.length > 0) {
+                    uploadedFiles = await uploadStudentFiles(answerData.files, currentSolveHwId + '_task_' + i);
+                }
+                // Для второй части всегда считаем правильным, если есть ответ
+                taskResults.push({ 
+                    taskIndex: i, 
+                    userAnswer: userAnswer, 
+                    files: uploadedFiles,
+                    isCorrect: true,
+                    isSecondPart: true
+                });
+                allFiles = allFiles.concat(uploadedFiles);
+            } else {
+                // Первая часть - проверка ответа
+                const correctAnswer = task.correctAnswer || '';
+                const userAnswerText = userAnswers[i] || '';
+                const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+                if (isCorrect) correctCount++;
+                taskResults.push({ 
+                    taskIndex: i, 
+                    userAnswer: userAnswerText, 
+                    isCorrect: isCorrect,
+                    isSecondPart: false
+                });
+                
+                // Обновляем отображение
+                const dot = document.getElementById('hwdot_' + i);
+                if (dot) {
+                    dot.classList.remove('active', 'has-answer');
+                    dot.classList.add(isCorrect ? 'correct' : 'wrong');
+                    dot.classList.add('submitted');
+                }
+                
+                const resultDiv = document.getElementById('result_' + i);
+                const input = document.getElementById('answer_' + i);
+                const content = document.getElementById('taskcontent_' + i);
+                
+                if (resultDiv) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'task-result ' + (isCorrect ? 'correct' : 'wrong');
+                    resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
+                }
+                if (input) {
+                    input.className = 'task-answer-input ' + (isCorrect ? 'correct' : 'wrong');
+                    input.disabled = true;
+                }
+                if (content) {
+                    content.classList.add('submitted');
+                    content.classList.add(isCorrect ? 'correct' : 'wrong');
+                }
+            }
+            
+            // Показываем решение
+            const solutionDiv = document.getElementById('solution_' + i);
+            if (solutionDiv) {
+                solutionDiv.style.display = 'block';
+                solutionDiv.innerHTML = '<strong>Решение:</strong><br>' + (task.solution || "Решение не добавлено");
+            }
+        }
+        
+        const total = tasks.length;
+        const percent = Math.round(correctCount / total * 100);
+        
+        // Обновляем счетчик
+        const counter = document.getElementById('hwCounter');
+        if (counter) {
+            counter.style.display = 'flex';
+            document.getElementById('hwScore').textContent = correctCount;
+        }
+        
+        // Сохраняем в базу
+        const submissionData = {
+            id: currentSolveHwId,
+            title: currentSolveHwData.title,
+            courseId: currentSolveHwData.courseId,
+            taskResults: taskResults,
+            correctCount: correctCount,
+            total: total,
+            percent: percent,
+            files: allFiles,
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            userName: userData.name,
+            userEmail: currentUser.email
+        };
+        
+        if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
+        const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentSolveHwId);
+        if (existingIndex !== -1) {
+            userData.homeworkSubmissions[existingIndex] = submissionData;
+        } else {
+            userData.homeworkSubmissions.push(submissionData);
+        }
+        await db.collection("users").doc(currentUser.uid).update({ homeworkSubmissions: userData.homeworkSubmissions });
+        
+        await db.collection("homeworks").doc(currentSolveHwId).update({
+            status: "submitted",
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        isSubmitted = true;
+        
+        btn.textContent = "Отправлено";
+        btn.disabled = true;
+        btn.className = "btn green";
+        
+        // Кнопка "Решения"
+        const solutionsBtn = document.createElement('button');
+        solutionsBtn.className = 'btn secondary';
+        solutionsBtn.textContent = 'Посмотреть решения';
+        solutionsBtn.onclick = function() {
+            viewHomeworkSolutions(currentSolveHwId);
+        };
+        btn.parentElement.appendChild(solutionsBtn);
+        
+        document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+        
+        showToast('Задание отправлено на проверку!', "success");
+        
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    } catch (error) {
+        console.error(error);
+        showToast("Ошибка: " + error.message, "error");
+        btn.textContent = "Отправить на проверку";
+        btn.disabled = false;
+    }
+}
+
+// ========== ЗАГРУЗКА ФАЙЛОВ В STORAGE ==========
+async function uploadStudentFileToStorage(file, homeworkId) {
+    const fileName = Date.now() + '_' + file.name;
+    const fileRef = storage.ref('homeworks_submissions/' + currentUser.uid + '/' + homeworkId + '/' + fileName);
+    const snapshot = await fileRef.put(file);
+    const url = await snapshot.ref.getDownloadURL();
+    return { name: file.name, url: url, type: file.type };
+}
+
+async function uploadStudentFiles(files, homeworkId) {
+    const results = [];
+    for (const f of files) {
+        try {
+            const result = await uploadStudentFileToStorage(f.file, homeworkId);
+            results.push(result);
+        } catch(e) {
+            showToast('Ошибка: ' + f.file.name, "error");
+        }
+    }
+    return results;
+}
+
+function closeHwSolveModal() {
+    document.getElementById("hwSolveModal").classList.remove("active");
+    currentSolveHwId = null;
+    currentSolveHwData = null;
+    userAnswers = {};
+    currentTaskIndex = 0;
+    isSubmitted = false;
+    taskSolveFiles = {};
+}
+
+// ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
+async function viewHomeworkResult(hwId) {
+    const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
+    if (!submission) { showToast("Результат не найден", "error"); return; }
+    
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    
+    let html = '';
+    
+    if (hw.tasks && hw.tasks.length > 0) {
+        // Для интерактивных ДЗ показываем результаты по задачам
+        html += `
+            <div class="result-summary">
+                <div class="score">${submission.correctCount || '—'} / ${submission.total || '—'}</div>
+                <div class="label">${submission.percent || 0}% правильных ответов</div>
+            </div>
+        `;
+        
+        hw.tasks.forEach((task, index) => {
+            const result = submission.taskResults ? submission.taskResults[index] : null;
+            const isSecondPart = task.isSecondPart || false;
+            const isCorrect = result ? result.isCorrect : false;
+            const userAnswer = result ? result.userAnswer : "";
+            
+            let taskFilesHtml = '';
+            if (task.files && task.files.length > 0) {
+                taskFilesHtml = `
+                    <div class="task-files">
+                        <div class="task-files-label">Файлы к задаче:</div>
+                        <div class="files-list">${task.files.map(f => 
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                        ).join('')}</div>
+                    </div>
+                `;
+            }
+            
+            let userFilesHtml = '';
+            if (result && result.files && result.files.length > 0) {
+                userFilesHtml = `
+                    <div class="task-files">
+                        <div class="task-files-label">Ваши файлы:</div>
+                        <div class="files-list">${result.files.map(f => 
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                        ).join('')}</div>
+                    </div>
+                `;
+            }
+            
+            let answerHtml = '';
+            if (isSecondPart) {
+                answerHtml = `
+                    <div style="margin-top:0.5rem;">
+                        <strong>Ваше решение:</strong>
+                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
+                        ${userFilesHtml}
+                    </div>
+                `;
+            } else {
+                answerHtml = `
+                    <div style="margin-top:0.5rem;">
+                        <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
+                    </div>
+                    <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
+                        ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="task-block">
+                    <div class="task-content ${isCorrect && !isSecondPart ? 'correct' : isSecondPart ? '' : 'wrong'} submitted">
+                        <div class="task-number">Задача ${index + 1}</div>
+                        <div class="task-condition">${task.condition || "Без условия"}</div>
+                        ${taskFilesHtml}
+                        ${answerHtml}
+                        <div class="task-solution">
+                            <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        html = '<div style="padding:2rem;text-align:center;color:var(--text3);">Нет данных</div>';
+    }
+    
+    html += `
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn bg" onclick="document.getElementById('hwResultModal').classList.remove('active');">Закрыть</button>
+        </div>
+    `;
+    
+    document.getElementById("hwResultContent").innerHTML = html;
+    document.getElementById("hwResultModal").classList.add("active");
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
+}
+
+function closeHwResultModal() {
+    document.getElementById("hwResultModal").classList.remove("active");
+}
+
+// ========== ПРОСМОТР РЕШЕНИЙ ==========
+async function viewHomeworkSolutions(hwId) {
+    const doc = await db.collection("homeworks").doc(hwId).get();
+    const hw = doc.data();
+    
+    document.getElementById("hwSolutionsTitle").textContent = 'Решения: ' + hw.title;
+    
+    let html = `
+        <div style="margin-bottom:1rem;color:var(--text2);">
+            <p>Правильные решения всех задач</p>
+        </div>
+    `;
+    
+    if (hw.tasks && hw.tasks.length > 0) {
+        hw.tasks.forEach((task, index) => {
+            let taskFilesHtml = '';
+            if (task.files && task.files.length > 0) {
+                taskFilesHtml = `
+                    <div class="task-files">
+                        <div class="task-files-label">Файлы к задаче:</div>
+                        <div class="files-list">${task.files.map(f => 
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                        ).join('')}</div>
+                    </div>
+                `;
+            }
+            
+            const isSecondPart = task.isSecondPart || false;
+            
+            html += `
+                <div class="task-block">
+                    <div class="task-content" style="border-color:var(--gold);">
+                        <div class="task-number">Задача ${index + 1}</div>
+                        <div class="task-condition">${task.condition || "Без условия"}</div>
+                        ${taskFilesHtml}
+                        ${!isSecondPart ? '<div style="margin-top:0.5rem;"><strong>Правильный ответ:</strong> ' + escapeHtml(task.correctAnswer || "—") + '</div>' : ''}
+                        <div class="task-solution">
+                            <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn bg" onclick="document.getElementById('hwSolutionsModal').classList.remove('active');">Закрыть</button>
+        </div>
+    `;
+    
+    document.getElementById("hwSolutionsContent").innerHTML = html;
+    document.getElementById("hwSolutionsModal").classList.add("active");
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
+}
+
+function closeHwSolutionsModal() {
+    document.getElementById("hwSolutionsModal").classList.remove("active");
+}
+
+// ========== ЗАПУСК ==========
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
     renderCoursesGrid();
     showLoader();
-    setTimeout(() => initAnimations(), 100);
+    setTimeout(initAnimations, 100);
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
