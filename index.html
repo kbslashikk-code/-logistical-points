@@ -59,9 +59,6 @@
         .loader-progress { width: 200px; height: 2px; background: var(--gold3); margin: 1rem auto 0; border-radius: 2px; overflow: hidden; }
         .loader-progress-bar { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s ease; }
 
-        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
-
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             padding: 0.7rem 1.5rem; border-radius: 10px; border: none;
@@ -163,12 +160,6 @@
         }
         .hero h1 em { color: var(--gold); font-style: italic; }
         .hero p { max-width: 550px; margin-top: 1.5rem; color: var(--text2); font-size: 1.1rem; }
-        .hero-stats {
-            display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
-        }
-        .stat-item { text-align: center; }
-        .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
 
         .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
         .section-badge {
@@ -208,26 +199,6 @@
         .course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
         .course-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
         .topic-tag { background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; color: var(--text2); }
-
-        .physics-section { background: linear-gradient(135deg, var(--bg), var(--blue3)); }
-        .steps {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem; margin-top: 2rem;
-        }
-        .step {
-            background: var(--card); border: 1px solid var(--line); border-radius: 20px;
-            padding: 1.5rem; text-align: center; transition: all 0.3s;
-        }
-        .step:hover { transform: translateY(-4px); border-color: var(--gold); }
-        .step-number {
-            width: 45px; height: 45px; background: var(--gold3); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1.2rem; color: var(--gold); margin: 0 auto 1rem;
-        }
-        .step-title { font-weight: 700; margin-bottom: 0.5rem; }
-        .step-desc { font-size: 0.85rem; color: var(--text2); }
-
-        footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2rem; text-align: center; }
 
         .dashboard {
             display: none; min-height: 100vh; padding-top: 70px;
@@ -269,35 +240,71 @@
         .dashboard-pane { display: none; }
         .dashboard-pane.active { display: block; }
 
+        /* ========== ИНТЕРАКТИВНОЕ ДЗ ========== */
         .hw-progress-bar {
             display: flex; gap: 0.5rem; justify-content: center;
             margin-bottom: 1.5rem; flex-wrap: wrap;
+            padding: 0.5rem;
+            background: var(--card2);
+            border-radius: 12px;
+            border: 1px solid var(--line);
         }
         .hw-dot {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; font-weight: 700;
+            font-size: 0.75rem; font-weight: 700;
             cursor: pointer; transition: all 0.3s;
             border: 2px solid var(--line);
             background: var(--card);
             color: var(--text2);
             position: relative;
+            user-select: none;
         }
         .hw-dot:hover { transform: scale(1.1); border-color: var(--gold); }
-        .hw-dot.active { border-color: var(--gold); background: var(--gold3); color: var(--gold); transform: scale(1.1); }
-        .hw-dot.correct { background: var(--green); border-color: var(--green); color: white; }
-        .hw-dot.wrong { background: var(--red); border-color: var(--red); color: white; }
-        .hw-dot.has-answer { border-color: var(--gold); }
-        .hw-dot.submitted { cursor: default; opacity: 0.8; }
+        .hw-dot.active { 
+            border-color: var(--gold); 
+            background: var(--gold3); 
+            color: var(--gold); 
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(154,112,24,0.3);
+        }
+        .hw-dot.correct { 
+            background: var(--green); 
+            border-color: var(--green); 
+            color: white;
+            box-shadow: 0 0 20px rgba(21,122,56,0.3);
+        }
+        .hw-dot.wrong { 
+            background: var(--red); 
+            border-color: var(--red); 
+            color: white;
+            box-shadow: 0 0 20px rgba(184,26,26,0.3);
+        }
+        .hw-dot.has-answer { border-color: var(--gold); border-width: 3px; }
+        .hw-dot.submitted { cursor: default; opacity: 0.9; }
+        .hw-dot .dot-badge {
+            position: absolute; top: -6px; right: -6px;
+            background: var(--blue2); color: white;
+            font-size: 0.5rem; padding: 1px 4px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
 
         .hw-counter {
-            display: flex; justify-content: flex-end; align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             gap: 1rem; margin-bottom: 1rem;
             font-size: 0.9rem; color: var(--text2);
+            padding: 0.5rem 1rem;
+            background: var(--card2);
+            border-radius: 10px;
+            border: 1px solid var(--line);
         }
         .hw-counter .score {
             font-weight: 700; color: var(--gold);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+        }
+        .hw-counter .score-total {
+            font-weight: 700; color: var(--text2);
         }
 
         .task-block {
@@ -316,7 +323,16 @@
         .task-content.submitted { opacity: 0.95; }
 
         .task-number { font-size: 0.85rem; color: var(--text3); margin-bottom: 0.5rem; }
-        .task-condition { font-weight: 600; font-size: 1.05rem; margin-bottom: 1rem; line-height: 1.6; }
+        .task-condition { 
+            font-weight: 600; 
+            font-size: 1.05rem; 
+            margin-bottom: 1rem; 
+            line-height: 1.8;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--gold);
+        }
         .task-condition .math { font-size: 1.1rem; }
 
         .task-answer-input {
@@ -332,9 +348,23 @@
         .task-files { margin-top: 0.8rem; }
         .task-files-label { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.3rem; }
 
-        .task-result { margin-top: 0.5rem; font-size: 0.9rem; font-weight: 600; }
-        .task-result.correct { color: var(--green); }
-        .task-result.wrong { color: var(--red); }
+        .task-result { 
+            margin-top: 0.5rem; 
+            font-size: 0.9rem; 
+            font-weight: 600;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+        }
+        .task-result.correct { 
+            color: var(--green); 
+            background: var(--green2);
+            border-left: 4px solid var(--green);
+        }
+        .task-result.wrong { 
+            color: var(--red); 
+            background: var(--red2);
+            border-left: 4px solid var(--red);
+        }
 
         .task-solution {
             margin-top: 0.8rem; padding: 1rem;
@@ -430,24 +460,6 @@
             background: var(--gold3); padding: 0.2rem 0.7rem; border-radius: 15px;
             font-size: 0.65rem; color: var(--gold); font-weight: 600;
         }
-        .teacher-card .teacher-achievements {
-            display: flex; align-items: center; justify-content: center;
-            gap: 0.8rem; flex-wrap: wrap; margin-top: 0.5rem;
-            padding-top: 0.8rem; border-top: 1px solid var(--line);
-        }
-        .teacher-card .achievement-item {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            font-size: 0.7rem; color: var(--text2); background: var(--bg2);
-            padding: 0.3rem 0.8rem; border-radius: 20px; cursor: help; position: relative;
-        }
-        .teacher-card .achievement-item .tooltip {
-            display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
-            transform: translateX(-50%); background: var(--card); border: 1px solid var(--line);
-            border-radius: 8px; padding: 0.5rem 0.8rem; font-size: 0.7rem; color: var(--text);
-            white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10;
-            font-weight: 400; text-align: left; line-height: 1.6; min-width: 200px; white-space: normal;
-        }
-        .teacher-card .achievement-item:hover .tooltip { display: block; }
         .teachers-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem; margin-top: 2rem; justify-items: center;
@@ -458,12 +470,11 @@
             .sidebar { display: none; }
             .main-content { margin-left: 0; }
             .course-grid { grid-template-columns: 1fr; }
-            .hero-stats { gap: 1.5rem; }
-            .teachers-grid { grid-template-columns: 1fr; }
             .modal { padding: 1rem; }
             .hw-progress-bar { gap: 0.3rem; }
-            .hw-dot { width: 30px; height: 30px; font-size: 0.6rem; }
+            .hw-dot { width: 34px; height: 34px; font-size: 0.65rem; }
             .task-nav { flex-wrap: wrap; justify-content: center; }
+            .hw-counter { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -521,16 +532,6 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="hwClassicSolveModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 id="hwClassicSolveTitle">Домашнее задание</h3>
-            <button class="modal-close" onclick="closeHwClassicSolveModal()">&times;</button>
-        </div>
-        <div id="hwClassicSolveContent"></div>
-    </div>
-</div>
-
 <div class="modal-overlay" id="hwResultModal">
     <div class="modal">
         <div class="modal-header">
@@ -575,11 +576,6 @@
             <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
             <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
         </div>
-        <div class="hero-stats">
-            <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
-            <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
-            <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
-        </div>
     </div>
 
     <div style="height:1px;background:var(--line)"></div>
@@ -593,27 +589,11 @@
 
     <div style="height:1px;background:var(--line)"></div>
 
-    <section id="physics" class="section physics-section">
+    <section id="physics" class="section">
         <div class="section-badge">Физика</div>
-        <h2 class="section-title">От механики до <em style="color:var(--blue)">квантового мира</em></h2>
+        <h2 class="section-title">От механики до <em>квантового мира</em></h2>
         <p class="section-subtitle">Полный курс физики для школьников 7-11 классов с разбором сложных тем и подготовкой к экзаменам.</p>
         <div class="course-grid" id="physicsCourses"></div>
-    </section>
-
-    <div style="height:1px;background:var(--line)"></div>
-
-    <section class="section">
-        <div style="text-align:center">
-            <div class="section-badge">Как это работает</div>
-            <h2 class="section-title">Простой <em>процесс</em></h2>
-            <p class="section-subtitle" style="margin:0 auto">Всего 4 шага отделяют вас от новых знаний</p>
-        </div>
-        <div class="steps">
-            <div class="step"><div class="step-number">01</div><div class="step-title">Регистрация</div><div class="step-desc">Создайте аккаунт за 1 минуту</div></div>
-            <div class="step"><div class="step-number">02</div><div class="step-title">Выберите предмет</div><div class="step-desc">Математика, физика или оба</div></div>
-            <div class="step"><div class="step-number">03</div><div class="step-title">Учитесь</div><div class="step-desc">Проходите уроки и тесты</div></div>
-            <div class="step"><div class="step-number">04</div><div class="step-title">Сдавайте ДЗ</div><div class="step-desc">Преподаватель проверит лично</div></div>
-        </div>
     </section>
 
     <div style="height:1px;background:var(--line)"></div>
@@ -626,9 +606,6 @@
         </div>
         <div class="teachers-grid">
             <div class="teacher-card">
-                <div class="teacher-photo">
-                    <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E%3C/text%3E%3C/svg%3E'">
-                </div>
                 <div class="teacher-body">
                     <div class="teacher-name">Егоров Степан Евгеньевич</div>
                     <div class="teacher-role">Преподаватель курса математики</div>
@@ -636,14 +613,6 @@
                         <span class="teacher-tag">Олимпиадная математика</span>
                         <span class="teacher-tag">Физика</span>
                         <span class="teacher-tag">ЕГЭ / ОГЭ</span>
-                        <span class="teacher-tag">7-11 класс</span>
-                    </div>
-                    <div class="teacher-achievements">
-                        <div class="achievement-item">
-                            <span>🏅</span>
-                            <span>Олимпиада Газпром</span>
-                            <span class="tooltip">Призёр студенческой Олимпиады Газпром 2026</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -652,7 +621,6 @@
 
     <footer>
         <div>Logistical <em style="color:var(--gold)">Points</em></div>
-        <div style="margin-top:0.5rem;font-size:0.7rem;color:var(--text3)">© Logistical Points</div>
     </footer>
 </div>
 
@@ -736,7 +704,7 @@ const COURSES = [
     { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
     { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
     { id: "physics", name: "Физика", icon: "⚡", level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics" },
-    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру. Разбор сложных задач.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math" }
+    { id: "olymp", name: "Олимпиадная математика", icon: "🏆", level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math" }
 ];
 
 let currentUser = null;
@@ -746,8 +714,7 @@ let currentSolveHwData = null;
 let userAnswers = {};
 let currentTaskIndex = 0;
 let isSubmitted = false;
-let currentClassicHwId = null;
-let currentClassicSubmitFiles = [];
+let taskSolveFiles = {};
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -785,13 +752,6 @@ function showLoader() {
             setTimeout(() => { loader.classList.add("hide"); setTimeout(() => loader.style.display = "none", 500); }, 300);
         }
     }, 200);
-}
-
-function initAnimations() {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll(".fade-up").forEach(el => observer.observe(el));
 }
 
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
@@ -887,14 +847,14 @@ function renderCoursesGrid() {
     const mathContainer = document.getElementById("mathCourses");
     const physicsContainer = document.getElementById("physicsCourses");
     if (mathContainer) mathContainer.innerHTML = COURSES.filter(c => c.subject === "math").map(course => `
-        <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
+        <div class="course-card" onclick="enrollCourse('${course.id}')">
             <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
             <div class="course-topics">${course.topics.slice(0, 3).map(t => '<span class="topic-tag">' + t + '</span>').join("")}</div>
             <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
         </div>`).join("");
     if (physicsContainer) physicsContainer.innerHTML = COURSES.filter(c => c.subject === "physics").map(course => `
-        <div class="course-card scale-in" onclick="enrollCourse('${course.id}')">
+        <div class="course-card" onclick="enrollCourse('${course.id}')">
             <div class="course-icon"><span>${course.icon}</span><span class="course-level">${course.level}</span></div>
             <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div>
             <div class="course-topics">${course.topics.map(t => '<span class="topic-tag">' + t + '</span>').join("")}</div>
@@ -1227,13 +1187,7 @@ async function loadHomeworkByCourse(courseId) {
                                 
                                 let tasksInfo = '';
                                 if (hw.tasks && hw.tasks.length > 0) {
-                                    const total = hw.tasks.length;
-                                    const secondPartCount = hw.tasks.filter(t => t.isSecondPart).length;
-                                    tasksInfo = '<div style="font-size:0.7rem;color:var(--text3);margin-top:0.2rem;">' + total + ' задач';
-                                    if (secondPartCount > 0) {
-                                        tasksInfo += ' (из них ' + secondPartCount + ' с развернутым решением)';
-                                    }
-                                    tasksInfo += '</div>';
+                                    tasksInfo = '<div style="font-size:0.7rem;color:var(--text3);margin-top:0.2rem;">' + hw.tasks.length + ' задач</div>';
                                 }
                                 
                                 return `
@@ -1267,7 +1221,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ (ОБНОВЛЕННАЯ ВЕРСИЯ) ==========
+// ========== ЗАПУСК ДЗ ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1276,6 +1230,7 @@ async function startHomework(hwId) {
     userAnswers = {};
     currentTaskIndex = 0;
     isSubmitted = false;
+    taskSolveFiles = {};
     
     const totalTasks = hw.tasks ? hw.tasks.length : 0;
     
@@ -1288,14 +1243,15 @@ async function startHomework(hwId) {
         
         <div class="hw-progress-bar" id="hwProgressBar">
             ${Array.from({ length: totalTasks }, (_, i) => `
-                <div class="hw-dot" id="hwdot_${i}" onclick="goToTask(${i})">
+                <div class="hw-dot" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">
                     ${i + 1}
                 </div>
             `).join('')}
         </div>
         
         <div class="hw-counter" id="hwCounter" style="display:none;">
-            <span>Правильных ответов: <span class="score" id="hwScore">0</span> из ${totalTasks}</span>
+            <span>Верных ответов: <span class="score" id="hwScore">0</span> из <span class="score-total">${totalTasks}</span></span>
+            <span style="font-size:0.8rem;color:var(--text3);">${totalTasks > 0 ? Math.round(0) : 0}%</span>
         </div>
         
         <div id="hwTasksContainer">
@@ -1316,13 +1272,12 @@ async function startHomework(hwId) {
                 
                 let answerHtml = '';
                 if (isSecondPart) {
-                    // Вторая часть - ученик прикрепляет файлы
                     answerHtml = `
                         <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
                             <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
                             <div class="form-group">
                                 <label>Ваше текстовое решение</label>
-                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..." ${isSubmitted ? 'disabled' : ''}>${userAnswers[index] ? userAnswers[index].text || '' : ''}</textarea>
+                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..." ${isSubmitted ? 'disabled' : ''}></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Прикрепить файлы с решением</label>
@@ -1336,12 +1291,10 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 } else {
-                    // Первая часть - краткий ответ
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
                                    placeholder="Введите ваш ответ..." 
-                                   value="${userAnswers[index] || ''}"
                                    oninput="saveAnswer(${index}, this.value)"
                                    ${isSubmitted ? 'disabled' : ''}>
                         </div>
@@ -1352,7 +1305,9 @@ async function startHomework(hwId) {
                     <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
                         <div class="task-content" id="taskcontent_${index}">
                             <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
-                            <div class="task-condition">${task.condition || "Без условия"}</div>
+                            <div class="task-condition">
+                                ${task.condition || "Условие задачи не добавлено"}
+                            </div>
                             ${taskFilesHtml}
                             ${answerHtml}
                             <div class="task-result" id="result_${index}" style="display:none;"></div>
@@ -1364,12 +1319,12 @@ async function startHomework(hwId) {
         </div>
         
         <div class="task-nav">
-            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)">← Назад</button>
+            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)" disabled>Назад</button>
             <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
-            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд →</button>
+            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
         </div>
         
-        <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;">
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
             <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
             <button class="btn bo" onclick="closeHwSolveModal()">Отмена</button>
         </div>
@@ -1384,9 +1339,6 @@ async function startHomework(hwId) {
         MathJax.typesetPromise();
     }
 }
-
-// ========== ОБРАБОТКА ФАЙЛОВ ДЛЯ ЗАДАЧ ВТОРОЙ ЧАСТИ ==========
-let taskSolveFiles = {};
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
     const files = Array.from(input.files);
@@ -1491,13 +1443,11 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
-    // Проверка заполненности
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
         
         if (isSecondPart) {
-            // Вторая часть - проверяем текст или файлы
             const textAnswer = document.getElementById('answer_text_' + i)?.value.trim() || '';
             const files = taskSolveFiles[i] || [];
             if (!textAnswer && files.length === 0) {
@@ -1505,10 +1455,8 @@ async function submitHomework() {
                 goToTask(i);
                 return;
             }
-            // Сохраняем ответ
             userAnswers[i] = { text: textAnswer, files: files };
         } else {
-            // Первая часть - проверяем текстовый ответ
             const answer = userAnswers[i] || '';
             if (answer.trim() === '') {
                 showToast('Ответьте на задачу ' + (i + 1), "error");
@@ -1534,13 +1482,11 @@ async function submitHomework() {
             let uploadedFiles = [];
             
             if (isSecondPart) {
-                // Вторая часть
                 const answerData = userAnswers[i] || { text: '', files: [] };
                 userAnswer = answerData.text || '';
                 if (answerData.files && answerData.files.length > 0) {
                     uploadedFiles = await uploadStudentFiles(answerData.files, currentSolveHwId + '_task_' + i);
                 }
-                // Для второй части всегда считаем правильным, если есть ответ
                 taskResults.push({ 
                     taskIndex: i, 
                     userAnswer: userAnswer, 
@@ -1550,7 +1496,6 @@ async function submitHomework() {
                 });
                 allFiles = allFiles.concat(uploadedFiles);
             } else {
-                // Первая часть - проверка ответа
                 const correctAnswer = task.correctAnswer || '';
                 const userAnswerText = userAnswers[i] || '';
                 const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
@@ -1562,7 +1507,6 @@ async function submitHomework() {
                     isSecondPart: false
                 });
                 
-                // Обновляем отображение
                 const dot = document.getElementById('hwdot_' + i);
                 if (dot) {
                     dot.classList.remove('active', 'has-answer');
@@ -1589,7 +1533,6 @@ async function submitHomework() {
                 }
             }
             
-            // Показываем решение
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
@@ -1600,14 +1543,12 @@ async function submitHomework() {
         const total = tasks.length;
         const percent = Math.round(correctCount / total * 100);
         
-        // Обновляем счетчик
         const counter = document.getElementById('hwCounter');
         if (counter) {
             counter.style.display = 'flex';
             document.getElementById('hwScore').textContent = correctCount;
         }
         
-        // Сохраняем в базу
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1642,7 +1583,6 @@ async function submitHomework() {
         btn.disabled = true;
         btn.className = "btn green";
         
-        // Кнопка "Решения"
         const solutionsBtn = document.createElement('button');
         solutionsBtn.className = 'btn secondary';
         solutionsBtn.textContent = 'Посмотреть решения';
@@ -1666,7 +1606,6 @@ async function submitHomework() {
     }
 }
 
-// ========== ЗАГРУЗКА ФАЙЛОВ В STORAGE ==========
 async function uploadStudentFileToStorage(file, homeworkId) {
     const fileName = Date.now() + '_' + file.name;
     const fileRef = storage.ref('homeworks_submissions/' + currentUser.uid + '/' + homeworkId + '/' + fileName);
@@ -1709,7 +1648,6 @@ async function viewHomeworkResult(hwId) {
     let html = '';
     
     if (hw.tasks && hw.tasks.length > 0) {
-        // Для интерактивных ДЗ показываем результаты по задачам
         html += `
             <div class="result-summary">
                 <div class="score">${submission.correctCount || '—'} / ${submission.total || '—'}</div>
@@ -1781,8 +1719,6 @@ async function viewHomeworkResult(hwId) {
                 </div>
             `;
         });
-    } else {
-        html = '<div style="padding:2rem;text-align:center;color:var(--text3);">Нет данных</div>';
     }
     
     html += `
@@ -1872,7 +1808,6 @@ function init() {
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
     renderCoursesGrid();
     showLoader();
-    setTimeout(initAnimations, 100);
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
