@@ -38,6 +38,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .btn-success:hover { background: var(--green); color: white; }
 .btn-secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
 
 .login-container {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -204,7 +205,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .schedule-item .actions { display: flex; gap: 0.3rem; }
 .schedule-empty { padding: 2rem; text-align: center; color: var(--text3); }
 
-/* Стили для редактора задач - улучшенные */
+/* Стили для редактора задач */
 .task-editor {
     background: var(--bg2); border-radius: 12px; padding: 1rem;
     margin-bottom: 1rem; border: 1px solid var(--line);
@@ -234,7 +235,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .task-editor .task-field textarea:focus {
     outline: none; border-color: var(--gold);
 }
-
 .task-editor .task-field .hint {
     font-size: 0.7rem; color: var(--text3); margin-top: 0.2rem;
 }
@@ -246,30 +246,36 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .task-editor .file-upload-zone:hover { border-color: var(--gold); background: var(--bg2); }
 
-/* Переключатель типа ДЗ */
-.hw-type-toggle {
-    display: flex; align-items: center; gap: 1rem;
-    padding: 0.8rem; background: var(--bg2); border-radius: 8px;
-    border: 1px solid var(--line); margin-bottom: 1rem;
+/* Переключатель типа задачи */
+.task-type-toggle {
+    display: inline-flex; align-items: center; gap: 0.8rem;
+    padding: 0.3rem 0.8rem; background: var(--bg); border-radius: 20px;
+    border: 1px solid var(--line); cursor: pointer; transition: all 0.2s;
 }
-.hw-type-toggle .toggle-label {
-    font-weight: 600; font-size: 0.9rem;
+.task-type-toggle:hover { border-color: var(--gold); }
+.task-type-toggle .toggle-label-sm {
+    font-size: 0.7rem; color: var(--text3);
 }
-.hw-type-toggle .toggle-desc {
-    font-size: 0.75rem; color: var(--text3);
-}
-.toggle-switch {
-    position: relative; width: 48px; height: 26px; flex-shrink: 0;
-    background: var(--card2); border-radius: 13px; cursor: pointer;
+.task-type-toggle .toggle-switch-sm {
+    position: relative; width: 36px; height: 20px; flex-shrink: 0;
+    background: var(--card2); border-radius: 10px; cursor: pointer;
     transition: all 0.3s; border: 1px solid var(--line);
 }
-.toggle-switch.active { background: var(--gold); border-color: var(--gold); }
-.toggle-switch .toggle-slider {
+.task-type-toggle .toggle-switch-sm.active { background: var(--gold); border-color: var(--gold); }
+.task-type-toggle .toggle-switch-sm .toggle-slider-sm {
     position: absolute; top: 2px; left: 2px;
-    width: 20px; height: 20px; border-radius: 50%;
+    width: 14px; height: 14px; border-radius: 50%;
     background: white; transition: all 0.3s;
 }
-.toggle-switch.active .toggle-slider { left: 24px; }
+.task-type-toggle .toggle-switch-sm.active .toggle-slider-sm { left: 18px; }
+
+/* Индикатор типа задачи */
+.task-type-badge {
+    display: inline-block; padding: 0.15rem 0.6rem; border-radius: 12px;
+    font-size: 0.65rem; font-weight: 600;
+}
+.badge-first-part { background: var(--blue3); color: var(--blue2); }
+.badge-second-part { background: var(--gold); color: #1a1a2e; }
 
 @media (max-width: 768px) {
     .schedule-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
@@ -419,43 +425,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all - для всех, или email@example.com"></div>
                     <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
                     
-                    <!-- Переключатель типа задания -->
-                    <div class="hw-type-toggle">
-                        <div>
-                            <div class="toggle-label">Задание второй части</div>
-                            <div class="toggle-desc">Вкл: ученик прикрепляет только файлы. Выкл: ученик вводит краткий ответ</div>
-                        </div>
-                        <div class="toggle-switch" id="hwTypeToggle" onclick="toggleHomeworkType()">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                    
                     <hr style="border-color:var(--line);margin:1rem 0;">
                     
-                    <!-- Задачи (для краткого ответа) - ОБНОВЛЕННЫЙ БЛОК -->
+                    <!-- Задачи -->
                     <div id="tasksSection">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                            <h4>Задачи с кратким ответом</h4>
+                            <h4>Задачи</h4>
                             <button class="btn btn-secondary" onclick="addTask()">+ Добавить задачу</button>
                         </div>
                         <div id="tasksContainer"></div>
-                    </div>
-                    
-                    <!-- Файлы (для задания второй части) -->
-                    <div id="filesSection" style="display:none;">
-                        <div class="form-group">
-                            <label>Условие задания</label>
-                            <textarea id="hwDescription" rows="4" placeholder="Опишите задание. Ученик прикрепит файлы с решением."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Прикрепить файлы к заданию (можно несколько, до 50 МБ)</label>
-                            <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
-                                <div style="font-size:2rem;">+</div>
-                                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
-                            </div>
-                            <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display:none">
-                            <div id="hwFilePreview" class="files-list"></div>
-                        </div>
                     </div>
                     
                     <hr style="border-color:var(--line);margin:1rem 0;">
@@ -626,7 +604,7 @@ let currentGradeFiles = [];
 let currentAdminEmail = null;
 let currentAdminRole = 'full';
 let taskCounter = 0;
-let isSecondPart = false;
+let taskTypes = {}; // true - вторая часть, false - первая часть (краткий ответ)
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -641,7 +619,7 @@ function escapeHtml(str) {
 function showToast(msg, type) {
     const container = document.getElementById("toastContainer");
     const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
+    toast.className = "toast " + type;
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
@@ -651,29 +629,10 @@ function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
 
-// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
-function toggleHomeworkType() {
-    const toggle = document.getElementById('hwTypeToggle');
-    isSecondPart = !isSecondPart;
-    toggle.classList.toggle('active', isSecondPart);
-    
-    document.getElementById('tasksSection').style.display = isSecondPart ? 'none' : 'block';
-    document.getElementById('filesSection').style.display = isSecondPart ? 'block' : 'none';
-    
-    if (isSecondPart) {
-        document.getElementById('tasksContainer').innerHTML = '';
-        taskCounter = 0;
-    } else {
-        if (document.getElementById('tasksContainer').children.length === 0) {
-            addTask();
-        }
-    }
-}
-
 // ========== STORAGE ФУНКЦИИ ==========
 async function uploadFileToStorage(file, folder) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
+    const fileName = Date.now() + '_' + file.name;
+    const fileRef = storage.ref(folder + '/admin/' + fileName);
     const snapshot = await fileRef.put(file);
     const url = await snapshot.ref.getDownloadURL();
     return { name: file.name, url: url, type: file.type };
@@ -702,9 +661,9 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     container.style.display = 'flex';
     container.innerHTML = filesArray.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : 'PDF'}
+            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : 'PDF'}
             <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
+            <span class="remove-file" onclick="' + removeFn + '(' + idx + ')">&times;</span>
         </div>
     `).join('');
 }
@@ -789,33 +748,74 @@ document.getElementById("lessonFileInput")?.addEventListener("change", function(
 document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
 document.getElementById("gradeFileInput")?.addEventListener("change", function(e) { handleGradeFilesSelect(e.target); });
 
-// ========== ДОБАВЛЕНИЕ ЗАДАЧ - УЛУЧШЕННАЯ ВЕРСИЯ ==========
+// ========== ДОБАВЛЕНИЕ ЗАДАЧ ==========
+function toggleTaskType(taskId) {
+    taskTypes[taskId] = !taskTypes[taskId];
+    const toggle = document.querySelector('#taskToggle_' + taskId + ' .toggle-switch-sm');
+    const badge = document.getElementById('taskBadge_' + taskId);
+    const correctAnswerField = document.getElementById('taskCorrectField_' + taskId);
+    
+    if (toggle) {
+        toggle.classList.toggle('active', taskTypes[taskId]);
+    }
+    
+    if (badge) {
+        if (taskTypes[taskId]) {
+            badge.textContent = 'Вторая часть';
+            badge.className = 'task-type-badge badge-second-part';
+        } else {
+            badge.textContent = 'Краткий ответ';
+            badge.className = 'task-type-badge badge-first-part';
+        }
+    }
+    
+    // Показываем/скрываем поле для правильного ответа
+    // Для второй части (taskTypes[taskId] = true) - скрываем
+    // Для первой части (taskTypes[taskId] = false) - показываем
+    if (correctAnswerField) {
+        correctAnswerField.style.display = taskTypes[taskId] ? 'none' : 'block';
+    }
+}
+
 function addTask() {
     const container = document.getElementById("tasksContainer");
     const id = taskCounter++;
+    taskTypes[id] = false; // по умолчанию - первая часть (краткий ответ)
+    
     const html = `
         <div class="task-editor" id="teditor_${id}">
             <div class="task-header">
-                <span class="task-number">Задача ' + (taskCounter) + '</span>
-                <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+                <span class="task-number">
+                    Задача ${taskCounter}
+                    <span class="task-type-badge badge-first-part" id="taskBadge_${id}">Краткий ответ</span>
+                </span>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <div class="task-type-toggle" id="taskToggle_${id}" onclick="toggleTaskType(${id})">
+                        <span class="toggle-label-sm">Вторая часть</span>
+                        <div class="toggle-switch-sm" id="taskSwitch_${id}">
+                            <div class="toggle-slider-sm"></div>
+                        </div>
+                    </div>
+                    <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+                </div>
             </div>
             
             <div class="task-field">
-                <label>Условие задачи</label>
-                <textarea id="tcondition_${id}" rows="3" placeholder="Напишите условие задачи. Поддерживается LaTeX: \\(x^2\\) или $x^2$"></textarea>
+                <label>Текст задачи (поддерживается LaTeX)</label>
+                <textarea id="tcondition_${id}" rows="4" placeholder="Напишите условие задачи. Поддерживается LaTeX: \\(x^2\\) или $x^2$"></textarea>
                 <div class="hint">Используйте LaTeX для формул: \\(E = mc^2\\) или \\[ \\frac{-b \\pm \\sqrt{D}}{2a} \\]</div>
             </div>
             
-            <div class="task-field">
-                <label>Правильный ответ (засчитывается ученику)</label>
+            <div class="task-field" id="taskCorrectField_${id}">
+                <label>Правильный ответ (засчитывается ученику при кратком ответе)</label>
                 <input type="text" id="tcorrect_${id}" placeholder="Например: 2, -2 или x=3">
                 <div class="hint">Этот ответ будет сравниваться с ответом ученика</div>
             </div>
             
             <div class="task-field">
-                <label>Полное решение задачи</label>
-                <textarea id="tsolution_${id}" rows="4" placeholder="Напишите подробное решение. Поддерживается LaTeX: \\[x^2 - 4 = 0\\] \\[(x-2)(x+2) = 0\\] \\[x = \\pm 2\\]"></textarea>
-                <div class="hint">Это решение будет показано ученику после проверки</div>
+                <label>Решение задачи (для проверки учителем)</label>
+                <textarea id="tsolution_${id}" rows="4" placeholder="Напишите решение задачи. Поддерживается LaTeX: \\[x^2 - 4 = 0\\] \\[(x-2)(x+2) = 0\\] \\[x = \\pm 2\\]"></textarea>
+                <div class="hint">Решение будет показано ученику после проверки</div>
             </div>
             
             <div class="task-field">
@@ -827,14 +827,55 @@ function addTask() {
                 <input type="file" id="taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskFilesSelect(this, ${id})">
                 <div id="taskFilePreview_${id}" class="files-list"></div>
             </div>
+            
+            <div style="color: var(--text3); font-size: 0.8rem; margin-top: 0.5rem; border-top: 1px solid var(--line); padding-top: 0.5rem;">
+                <span id="taskTypeHint_${id}">Тип: Краткий ответ (ученик вводит ответ)</span>
+            </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
 }
 
+// Переопределяем toggleTaskType с обновлением подсказки
+const originalToggleTaskType = toggleTaskType;
+toggleTaskType = function(taskId) {
+    taskTypes[taskId] = !taskTypes[taskId];
+    const toggle = document.querySelector('#taskToggle_' + taskId + ' .toggle-switch-sm');
+    const badge = document.getElementById('taskBadge_' + taskId);
+    const correctAnswerField = document.getElementById('taskCorrectField_' + taskId);
+    const hint = document.getElementById('taskTypeHint_' + taskId);
+    
+    if (toggle) {
+        toggle.classList.toggle('active', taskTypes[taskId]);
+    }
+    
+    if (badge) {
+        if (taskTypes[taskId]) {
+            badge.textContent = 'Вторая часть';
+            badge.className = 'task-type-badge badge-second-part';
+        } else {
+            badge.textContent = 'Краткий ответ';
+            badge.className = 'task-type-badge badge-first-part';
+        }
+    }
+    
+    if (correctAnswerField) {
+        correctAnswerField.style.display = taskTypes[taskId] ? 'none' : 'block';
+    }
+    
+    if (hint) {
+        if (taskTypes[taskId]) {
+            hint.textContent = 'Тип: Вторая часть (ученик прикрепляет файлы с решением)';
+        } else {
+            hint.textContent = 'Тип: Краткий ответ (ученик вводит ответ)';
+        }
+    }
+};
+
 function removeTask(id) {
-    const el = document.getElementById(`teditor_${id}`);
+    const el = document.getElementById('teditor_' + id);
     if (el) el.remove();
+    delete taskTypes[id];
 }
 
 const taskFiles = {};
@@ -864,7 +905,7 @@ async function handleTaskFilesSelect(input, taskId) {
 }
 
 function renderTaskFilePreview(taskId) {
-    const container = document.getElementById(`taskFilePreview_${taskId}`);
+    const container = document.getElementById('taskFilePreview_' + taskId);
     if (!container) return;
     const files = taskFiles[taskId] || [];
     if (files.length === 0) {
@@ -874,7 +915,7 @@ function renderTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : 'PDF'}
+            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : 'PDF'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -1034,7 +1075,7 @@ async function loadDashboard() {
                     <div class="justify-between">
                         <div>
                             <span class="title">${escapeHtml(hw.title)}</span>
-                            <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} ${hw.isSecondPart ? 'Вторая часть' : ''}</div>
+                            <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
                         </div>
                         <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                     </div>
@@ -1139,7 +1180,7 @@ async function viewLesson(lessonId) {
     const doc = await db.collection("lessons").doc(lessonId).get();
     const lesson = doc.data();
     document.getElementById("viewLessonTitle").textContent = lesson.title;
-    let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
+    let content = "<div style='line-height: 1.6;'>" + (lesson.content || "Нет содержания") + "</div>";
     if (lesson.files && lesson.files.length) {
         content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     }
@@ -1200,7 +1241,7 @@ function updateEditLessonCourses() {
     const subject = document.getElementById("editLessonSubject").value;
     const courseSelect = document.getElementById("editLessonCourse");
     const available = COURSES.filter(c => c.subject === subject);
-    courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+    courseSelect.innerHTML = available.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join("");
 }
 async function saveEditedLesson() {
     const title = document.getElementById("editLessonTitle").value.trim();
@@ -1236,7 +1277,7 @@ function updateLessonCourses() {
     const subject = document.getElementById("lessonSubject").value;
     const courseSelect = document.getElementById("lessonCourse");
     const available = COURSES.filter(c => c.subject === subject);
-    courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+    courseSelect.innerHTML = available.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join("");
     if (available.length === 0) courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
@@ -1294,12 +1335,12 @@ async function createLesson() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ (ОБНОВЛЁННЫЕ) ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
     const available = COURSES.filter(c => c.subject === subject);
-    courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+    courseSelect.innerHTML = available.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join("");
 }
 
 async function createHomework() {
@@ -1332,96 +1373,74 @@ async function createHomework() {
     showToast("Создание задания...", "info");
     
     try {
-        let uploadedFiles = [];
-        let tasks = [];
-        
-        if (isSecondPart) {
-            const description = document.getElementById("hwDescription").value.trim();
-            if (currentHomeworkFiles.length > 0) {
-                uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
+        const taskEditors = document.querySelectorAll('.task-editor');
+        const tasks = [];
+        for (const editor of taskEditors) {
+            const id = editor.id.replace('teditor_', '');
+            const condition = document.getElementById('tcondition_' + id)?.value.trim() || '';
+            const correctAnswer = document.getElementById('tcorrect_' + id)?.value.trim() || '';
+            const solution = document.getElementById('tsolution_' + id)?.value.trim() || '';
+            const files = taskFiles[id] || [];
+            const isSecondPart = taskTypes[id] || false;
+            
+            // Пропускаем задачи без условия
+            if (!condition) {
+                continue;
             }
             
-            await db.collection("homeworks").add({
-                title: title,
-                description: description || "Задание второй части",
-                subject: subject,
-                courseId: courseId,
-                userEmail: target,
-                userName: target === "all" ? "Все ученики" : target,
-                dueDate: dueDate,
-                files: uploadedFiles,
-                status: "pending",
-                isSecondPart: true,
-                isInteractive: false,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } else {
-            const taskEditors = document.querySelectorAll('.task-editor');
-            for (const editor of taskEditors) {
-                const id = editor.id.replace('teditor_', '');
-                const condition = document.getElementById(`tcondition_${id}`).value.trim();
-                const correctAnswer = document.getElementById(`tcorrect_${id}`).value.trim();
-                const solution = document.getElementById(`tsolution_${id}`).value.trim();
-                const files = taskFiles[id] || [];
-                
-                if (condition) {
-                    let taskUploadedFiles = [];
-                    if (files.length > 0) {
-                        taskUploadedFiles = await uploadMultipleFiles(files, "homeworks");
-                    }
-                    tasks.push({
-                        id: 'task_' + Date.now() + '_' + tasks.length,
-                        condition: condition,
-                        correctAnswer: correctAnswer || "",
-                        solution: solution || "Решение не добавлено",
-                        files: taskUploadedFiles
-                    });
-                }
+            let taskUploadedFiles = [];
+            if (files.length > 0) {
+                taskUploadedFiles = await uploadMultipleFiles(files, "homeworks");
             }
             
-            if (tasks.length === 0) {
-                showToast("Добавьте хотя бы одну задачу", "error");
-                btn.textContent = originalText;
-                btn.disabled = false;
-                return;
-            }
-            
-            await db.collection("homeworks").add({
-                title: title,
-                subject: subject,
-                courseId: courseId,
-                userEmail: target,
-                userName: target === "all" ? "Все ученики" : target,
-                dueDate: dueDate,
-                tasks: tasks,
-                status: "pending",
-                isSecondPart: false,
-                isInteractive: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            tasks.push({
+                id: 'task_' + Date.now() + '_' + tasks.length,
+                condition: condition,
+                correctAnswer: isSecondPart ? '' : correctAnswer, // Для второй части нет правильного ответа
+                solution: solution || 'Решение не добавлено',
+                files: taskUploadedFiles,
+                isSecondPart: isSecondPart // true - вторая часть, false - первая часть
             });
         }
         
-        showToast("Задание создано!", "success");
+        if (tasks.length === 0) {
+            showToast("Добавьте хотя бы одну задачу с условием", "error");
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return;
+        }
+        
+        // Проверяем, есть ли задачи второй части
+        const hasSecondPart = tasks.some(t => t.isSecondPart);
+        
+        await db.collection("homeworks").add({
+            title: title,
+            subject: subject,
+            courseId: courseId,
+            userEmail: target,
+            userName: target === "all" ? "Все ученики" : target,
+            dueDate: dueDate,
+            tasks: tasks,
+            status: "pending",
+            hasSecondPart: hasSecondPart,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showToast("Задание создано! Задач: " + tasks.length, "success");
         
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwSubject").value = "";
         document.getElementById("hwCourse").innerHTML = "";
         document.getElementById("hwTarget").value = "";
         document.getElementById("hwDueDate").value = "";
-        document.getElementById("hwDescription").value = "";
-        document.getElementById("hwFileInput").value = "";
         document.getElementById("tasksContainer").innerHTML = "";
-        currentHomeworkFiles = [];
         taskCounter = 0;
+        taskTypes = {};
         for (const key in taskFiles) {
             delete taskFiles[key];
         }
-        renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
         
-        if (!isSecondPart) {
-            addTask();
-        }
-        
+        addTask();
         loadDashboard();
         loadAllHomeworkHistory();
     } catch (error) {
@@ -1457,14 +1476,11 @@ async function loadAllHomework() {
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
+                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
                     </div>
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
-                ${hw.isSecondPart ? 
-                    `<div class="solution">Задание второй части (ученик прикрепил файлы)</div>` :
-                    `<div class="solution">Задач: ${hw.tasks ? hw.tasks.length : 0}</div>`
-                }
+                <div class="solution">Задач: ${hw.tasks ? hw.tasks.length : 0} ${hw.hasSecondPart ? '(есть задачи второй части)' : ''}</div>
             </div>
         `).join("");
     } catch (err) {
@@ -1491,28 +1507,30 @@ async function loadAllHomeworkHistory() {
             return;
         }
         
-        container.innerHTML = homeworks.map(hw => `
+        container.innerHTML = homeworks.map(hw => {
+            const tasksInfo = hw.tasks ? hw.tasks.map((t, idx) => {
+                const type = t.isSecondPart ? 'Вторая часть' : 'Краткий ответ';
+                return 'Задача ' + (idx + 1) + ' (' + type + ')';
+            }).join('; ') : 'Нет задач';
+            
+            return `
             <div class="homework-card">
                 <div class="justify-between">
                     <div>
                         <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status} ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
+                        <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status}</div>
                     </div>
                     <div class="flex">
-                        ${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
+                        ${hw.status === "submitted" ? '<button class="btn btn-primary" onclick="openGradeModal(\'' + hw.id + '\')">Проверить</button>' : ''}
                         <button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button>
                     </div>
                 </div>
-                ${hw.isSecondPart ? 
-                    `<div class="solution"><strong>Задание второй части</strong>${hw.description ? ': ' + escapeHtml(hw.description) : ''}</div>` :
-                    `<div class="solution"><strong>Задач:</strong> ${hw.tasks ? hw.tasks.length : 0}</div>`
-                }
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
-                ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ''}
-                ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
-                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? '| Оценка: ' + hw.grade + '/10' : ''}</div>` : ''}
+                <div class="solution"><strong>Задачи:</strong> ${escapeHtml(tasksInfo)}</div>
+                ${hw.files && hw.files.length ? '<div class="files-list">' + hw.files.map(f => '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>').join('') + '</div>' : ''}
+                ${hw.gradeFiles && hw.gradeFiles.length ? '<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">' + hw.gradeFiles.map(f => '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>').join('') + '</div></div>' : ''}
+                ${hw.feedback ? '<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ' + escapeHtml(hw.feedback) + (hw.grade ? ' | Оценка: ' + hw.grade + '/10' : '') + '</div>' : ''}
             </div>
-        `).join("");
+        `}).join("");
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки истории ДЗ", "error");
@@ -1527,28 +1545,30 @@ async function openGradeModal(hwId) {
     
     let tasksHtml = '';
     if (currentGradingHw.tasks && currentGradingHw.tasks.length > 0) {
-        tasksHtml = `<div class="solution" style="background: var(--gold3);"><strong>Задач с кратким ответом:</strong> ${currentGradingHw.tasks.length}</div>`;
-    }
-    
-    let secondPartHtml = '';
-    if (currentGradingHw.isSecondPart) {
-        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>Задание второй части</strong>${currentGradingHw.description ? ': ' + escapeHtml(currentGradingHw.description) : ''}</div>`;
-    }
-    
-    let gradeFilesHtml = '';
-    if (currentGradingHw.gradeFiles && currentGradingHw.gradeFiles.length) {
-        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        tasksHtml = '<div class="solution" style="background: var(--blue3);"><strong>Задачи:</strong><br>';
+        currentGradingHw.tasks.forEach((t, idx) => {
+            const type = t.isSecondPart ? 'Вторая часть' : 'Краткий ответ';
+            tasksHtml += (idx + 1) + '. ' + escapeHtml(t.condition) + ' (' + type + ')<br>';
+            if (t.correctAnswer) {
+                tasksHtml += '   Правильный ответ: ' + escapeHtml(t.correctAnswer) + '<br>';
+            }
+        });
+        tasksHtml += '</div>';
     }
     
     let filesHtml = '';
     if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div><strong>Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        filesHtml = '<div><strong>Файлы ученика:</strong><div class="files-list">' + currentGradingHw.files.map(f => '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>').join('') + '</div></div>';
+    }
+    
+    let gradeFilesHtml = '';
+    if (currentGradingHw.gradeFiles && currentGradingHw.gradeFiles.length) {
+        gradeFilesHtml = '<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">' + currentGradingHw.gradeFiles.map(f => '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>').join('') + '</div></div>';
     }
     
     document.getElementById("gradeModalContent").innerHTML = `
         <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
         <div class="meta">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
-        ${secondPartHtml}
         ${tasksHtml}
         ${filesHtml}
         ${gradeFilesHtml}
@@ -1637,7 +1657,7 @@ function updateScheduleCourses() {
     const subject = document.getElementById("scheduleSubject").value;
     const courseSelect = document.getElementById("scheduleCourse");
     const available = COURSES.filter(c => c.subject === subject);
-    courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+    courseSelect.innerHTML = available.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join("");
     if (available.length === 0) courseSelect.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
@@ -1749,7 +1769,7 @@ async function loadSchedule() {
                         <div class="name">${escapeHtml(item.name)}</div>
                         <div class="time">${escapeHtml(item.time || '')}</div>
                         <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">Ссылка на занятие</a></div>` : ''}
+                        ${item.link ? '<div class="link"><a href="' + escapeHtml(item.link) + '" target="_blank">Ссылка на занятие</a></div>' : ''}
                     </div>
                     <div class="actions">
                         <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
@@ -1849,7 +1869,7 @@ function initAdminPanel() {
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
     renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
     
-    if (!isSecondPart && document.getElementById("tasksContainer")) {
+    if (document.getElementById("tasksContainer") && document.getElementById("tasksContainer").children.length === 0) {
         addTask();
     }
 }
