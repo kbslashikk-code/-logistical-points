@@ -6,6 +6,7 @@
     <title>Logistical Points - Образовательная платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
     
+    <!-- MathJax для формул -->
     <script>
         MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -39,6 +40,7 @@
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: all 0.3s; overflow-x: hidden; }
 
+        /* ========== ЗАГРУЗЧИК ========== */
         .loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 10000;
@@ -59,6 +61,7 @@
         .loader-progress { width: 200px; height: 2px; background: var(--gold3); margin: 1rem auto 0; border-radius: 2px; overflow: hidden; }
         .loader-progress-bar { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s ease; }
 
+        /* ========== КНОПКИ ========== */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             padding: 0.7rem 1.5rem; border-radius: 10px; border: none;
@@ -72,11 +75,10 @@
         .btn.bsm { padding: 0.4rem 1rem; font-size: 0.8rem; }
         .btn.green { background: var(--green2); color: var(--green); border: 1px solid var(--green); }
         .btn.green:hover { background: var(--green); color: white; }
-        .btn.red { background: var(--red2); color: var(--red); border: 1px solid var(--red); }
-        .btn.red:hover { background: var(--red); color: white; }
         .btn.secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
         .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
 
+        /* ========== МОДАЛЬНЫЕ ОКНА (ДЛЯ АВТОРИЗАЦИИ) ========== */
         .modal-overlay {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
@@ -85,7 +87,7 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--card); border-radius: 20px; padding: 2rem;
-            width: 90%; max-width: 850px; border: 1px solid var(--line);
+            width: 90%; max-width: 500px; border: 1px solid var(--line);
             animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -97,150 +99,48 @@
             background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text2);
         }
 
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 0.7rem 1rem;
-            background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
-            color: var(--text); font-size: 0.95rem;
+        /* ========== СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) ========== */
+        .hw-solve-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            z-index: 5000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .hw-solve-page.active {
+            display: block;
+        }
+        .hw-solve-page .hw-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--gold);
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .hw-solve-page .hw-header h2 {
+            font-family: var(--fs);
+            font-size: 1.8rem;
+        }
+        .hw-solve-page .hw-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text2);
+            padding: 0 1rem;
+        }
+        .hw-solve-page .hw-header .close-btn:hover {
+            color: var(--red);
         }
 
-        .toast-container {
-            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000;
-        }
-        .toast {
-            padding: 0.7rem 1.2rem; border-radius: 10px; margin-top: 0.5rem;
-            animation: slideIn 0.3s ease;
-        }
-        .toast.success { background: var(--green); color: white; }
-        .toast.error { background: var(--red); color: white; }
-        .toast.info { background: var(--blue); color: white; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .theme-toggle {
-            position: fixed; bottom: 1.5rem; left: 1.5rem;
-            width: 44px; height: 44px; border-radius: 50%;
-            background: var(--card); border: 2px solid var(--line);
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; z-index: 100;
-        }
-
-        nav {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(var(--bg-rgb), 0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--line); z-index: 100;
-        }
-        .nav-container {
-            max-width: 1200px; margin: 0 auto; padding: 1rem 2rem;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .logo {
-            font-family: var(--fs); font-size: 1.2rem; font-weight: 900; cursor: pointer; color: var(--text);
-        }
-        .logo em { color: var(--gold); font-style: italic; }
-        .nav-links { display: flex; gap: 0.5rem; list-style: none; }
-        .nav-links a {
-            padding: 0.5rem 1rem; border-radius: 8px; color: var(--text2);
-            text-decoration: none; cursor: pointer; font-weight: 700;
-        }
-        .nav-links a:hover { background: var(--card2); color: var(--text); }
-
-        .hero {
-            min-height: 100vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center;
-            padding: 6rem 2rem 4rem;
-        }
-        .hero-badge {
-            display: inline-flex; background: var(--gold3); padding: 0.3rem 1.2rem;
-            border-radius: 30px; color: var(--gold); font-size: 0.85rem; margin-bottom: 1.5rem;
-        }
-        .hero h1 {
-            font-family: var(--fs); font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 900; line-height: 1;
-        }
-        .hero h1 em { color: var(--gold); font-style: italic; }
-        .hero p { max-width: 550px; margin-top: 1.5rem; color: var(--text2); font-size: 1.1rem; }
-
-        .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
-        .section-badge {
-            display: inline-block; font-size: 0.7rem; text-transform: uppercase;
-            letter-spacing: 2px; color: var(--gold); margin-bottom: 0.5rem;
-        }
-        .section-title {
-            font-family: var(--fs); font-size: clamp(1.8rem, 4vw, 2.5rem);
-            font-weight: 900; margin-bottom: 0.5rem;
-        }
-        .section-title em { color: var(--gold); font-style: italic; }
-        .section-subtitle { color: var(--text2); margin-bottom: 2rem; font-size: 1rem; max-width: 600px; }
-
-        .course-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem; margin-top: 2rem;
-        }
-        .course-card {
-            background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-            overflow: hidden; cursor: pointer; transition: all 0.3s;
-        }
-        .course-card:hover {
-            transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-        }
-        .course-icon {
-            height: 100px; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; background: linear-gradient(135deg, var(--gold3), transparent);
-            position: relative;
-        }
-        .course-level {
-            position: absolute; top: 0.5rem; right: 0.5rem;
-            background: var(--gold); color: white; padding: 0.2rem 0.6rem;
-            border-radius: 20px; font-size: 0.65rem; font-weight: 700;
-        }
-        .course-info { padding: 1.2rem; }
-        .course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
-        .course-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-        .topic-tag { background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; color: var(--text2); }
-
-        .dashboard {
-            display: none; min-height: 100vh; padding-top: 70px;
-        }
-        .dashboard.active { display: block; }
-        .dashboard-layout { display: flex; min-height: calc(100vh - 70px); }
-        .sidebar {
-            width: 260px; background: var(--bg2); border-right: 1px solid var(--line);
-            padding: 1.5rem;
-        }
-        .sidebar-user { text-align: center; padding-bottom: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
-        .user-avatar {
-            width: 50px; height: 50px; background: var(--gold); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1.3rem; color: white; margin: 0 auto 0.5rem;
-        }
-        .user-name { font-weight: 700; }
-        .user-grade { font-size: 0.7rem; color: var(--text3); }
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li {
-            padding: 0.7rem; border-radius: 10px; cursor: pointer;
-            margin-bottom: 0.2rem; color: var(--text2); font-weight: 700;
-        }
-        .sidebar-menu li:hover { background: var(--card); color: var(--text); }
-        .sidebar-menu li.active { background: var(--gold3); color: var(--gold); }
-        .main-content { flex: 1; padding: 2rem; }
-
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-            padding: 1.2rem; text-align: center;
-        }
-        .stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
-
-        .dashboard-pane { display: none; }
-        .dashboard-pane.active { display: block; }
-
-        /* ========== ИНТЕРАКТИВНОЕ ДЗ ========== */
         .hw-progress-bar {
             display: flex; gap: 0.5rem; justify-content: center;
             margin-bottom: 1.5rem; flex-wrap: wrap;
@@ -282,13 +182,6 @@
         }
         .hw-dot.has-answer { border-color: var(--gold); border-width: 3px; }
         .hw-dot.submitted { cursor: default; opacity: 0.9; }
-        .hw-dot .dot-badge {
-            position: absolute; top: -6px; right: -6px;
-            background: var(--blue2); color: white;
-            font-size: 0.5rem; padding: 1px 4px;
-            border-radius: 8px;
-            font-weight: 700;
-        }
 
         .hw-counter {
             display: flex; justify-content: space-between; align-items: center;
@@ -391,6 +284,9 @@
         }
         .file-item:hover { border-color: var(--gold); }
         .file-item .remove-file { color: var(--red); cursor: pointer; font-weight: bold; margin-left: 0.3rem; }
+        .file-item img {
+            width: 24px; height: 24px; object-fit: cover; border-radius: 4px;
+        }
 
         .multi-file-zone {
             border: 2px dashed var(--line); border-radius: 10px; padding: 1rem;
@@ -406,6 +302,177 @@
         .result-summary .score { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
         .result-summary .label { font-size: 1rem; color: var(--text2); }
 
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.7rem 1rem;
+            background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
+            color: var(--text); font-size: 0.95rem;
+            font-family: var(--f);
+        }
+
+        .toast-container {
+            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 6000;
+        }
+        .toast {
+            padding: 0.7rem 1.2rem; border-radius: 10px; margin-top: 0.5rem;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--green); color: white; }
+        .toast.error { background: var(--red); color: white; }
+        .toast.info { background: var(--blue); color: white; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .theme-toggle {
+            position: fixed; bottom: 1.5rem; left: 1.5rem;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--card); border: 2px solid var(--line);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; z-index: 100;
+        }
+
+        /* ========== НАВИГАЦИЯ ========== */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(var(--bg-rgb), 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line); z-index: 100;
+        }
+        .nav-container {
+            max-width: 1200px; margin: 0 auto; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo {
+            font-family: var(--fs); font-size: 1.2rem; font-weight: 900; cursor: pointer; color: var(--text);
+        }
+        .logo em { color: var(--gold); font-style: italic; }
+        .nav-links { display: flex; gap: 0.5rem; list-style: none; }
+        .nav-links a {
+            padding: 0.5rem 1rem; border-radius: 8px; color: var(--text2);
+            text-decoration: none; cursor: pointer; font-weight: 700;
+        }
+        .nav-links a:hover { background: var(--card2); color: var(--text); }
+
+        /* ========== ГЛАВНАЯ ========== */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            padding: 6rem 2rem 4rem;
+        }
+        .hero-badge {
+            display: inline-flex; background: var(--gold3); padding: 0.3rem 1.2rem;
+            border-radius: 30px; color: var(--gold); font-size: 0.85rem; margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-family: var(--fs); font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900; line-height: 1;
+        }
+        .hero h1 em { color: var(--gold); font-style: italic; }
+        .hero p { max-width: 550px; margin-top: 1.5rem; color: var(--text2); font-size: 1.1rem; }
+        .hero-stats {
+            display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
+        }
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
+
+        .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
+        .section-badge {
+            display: inline-block; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--gold); margin-bottom: 0.5rem;
+        }
+        .section-title {
+            font-family: var(--fs); font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 900; margin-bottom: 0.5rem;
+        }
+        .section-title em { color: var(--gold); font-style: italic; }
+        .section-subtitle { color: var(--text2); margin-bottom: 2rem; font-size: 1rem; max-width: 600px; }
+
+        .course-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
+        }
+        .course-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+            overflow: hidden; cursor: pointer; transition: all 0.3s;
+        }
+        .course-card:hover {
+            transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        .course-icon {
+            height: 100px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; background: linear-gradient(135deg, var(--gold3), transparent);
+            position: relative;
+        }
+        .course-level {
+            position: absolute; top: 0.5rem; right: 0.5rem;
+            background: var(--gold); color: white; padding: 0.2rem 0.6rem;
+            border-radius: 20px; font-size: 0.65rem; font-weight: 700;
+        }
+        .course-info { padding: 1.2rem; }
+        .course-name { font-family: var(--fs); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .course-desc { font-size: 0.85rem; color: var(--text2); margin-bottom: 1rem; line-height: 1.5; }
+        .course-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+        .topic-tag { background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; color: var(--text2); }
+
+        .steps {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem; margin-top: 2rem;
+        }
+        .step {
+            background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+            padding: 1.5rem; text-align: center; transition: all 0.3s;
+        }
+        .step:hover { transform: translateY(-4px); border-color: var(--gold); }
+        .step-number {
+            width: 45px; height: 45px; background: var(--gold3); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.2rem; color: var(--gold); margin: 0 auto 1rem;
+        }
+        .step-title { font-weight: 700; margin-bottom: 0.5rem; }
+        .step-desc { font-size: 0.85rem; color: var(--text2); }
+
+        /* ========== ЛИЧНЫЙ КАБИНЕТ ========== */
+        .dashboard {
+            display: none; min-height: 100vh; padding-top: 70px;
+        }
+        .dashboard.active { display: block; }
+        .dashboard-layout { display: flex; min-height: calc(100vh - 70px); }
+        .sidebar {
+            width: 260px; background: var(--bg2); border-right: 1px solid var(--line);
+            padding: 1.5rem;
+        }
+        .sidebar-user { text-align: center; padding-bottom: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+        .user-avatar {
+            width: 50px; height: 50px; background: var(--gold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.3rem; color: white; margin: 0 auto 0.5rem;
+        }
+        .user-name { font-weight: 700; }
+        .user-grade { font-size: 0.7rem; color: var(--text3); }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li {
+            padding: 0.7rem; border-radius: 10px; cursor: pointer;
+            margin-bottom: 0.2rem; color: var(--text2); font-weight: 700;
+        }
+        .sidebar-menu li:hover { background: var(--card); color: var(--text); }
+        .sidebar-menu li.active { background: var(--gold3); color: var(--gold); }
+        .main-content { flex: 1; padding: 2rem; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+            padding: 1.2rem; text-align: center;
+        }
+        .stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
+
+        .dashboard-pane { display: none; }
+        .dashboard-pane.active { display: block; }
+
+        /* ========== РАСПИСАНИЕ ========== */
         .schedule-day-card {
             background: var(--card); border-radius: 16px; padding: 1.2rem;
             margin-bottom: 1rem; border: 1px solid var(--line);
@@ -438,6 +505,7 @@
             background: var(--card2); border-radius: 16px; border: 1px solid var(--line);
         }
 
+        /* ========== ПРЕПОДАВАТЕЛЬ ========== */
         .teacher-card {
             background: var(--card); border: 1px solid var(--line); border-radius: 20px;
             overflow: hidden; transition: all 0.3s; max-width: 320px; margin: 0 auto;
@@ -465,6 +533,8 @@
             gap: 2rem; margin-top: 2rem; justify-items: center;
         }
 
+        footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2rem; text-align: center; }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .sidebar { display: none; }
@@ -475,6 +545,9 @@
             .hw-dot { width: 34px; height: 34px; font-size: 0.65rem; }
             .task-nav { flex-wrap: wrap; justify-content: center; }
             .hw-counter { flex-direction: column; align-items: flex-start; }
+            .hw-solve-page { padding: 1rem; }
+            .hw-solve-page .hw-header h2 { font-size: 1.3rem; }
+            .teachers-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -491,6 +564,7 @@
     </div>
 </div>
 
+<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ АВТОРИЗАЦИИ ========== -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
@@ -514,6 +588,7 @@
     </div>
 </div>
 
+<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ СБРОСА ПАРОЛЯ ========== -->
 <div class="modal-overlay" id="resetModal">
     <div class="modal">
         <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
@@ -522,16 +597,16 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="hwSolveModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 id="hwSolveTitle">Решение домашнего задания</h3>
-            <button class="modal-close" onclick="closeHwSolveModal()">&times;</button>
-        </div>
-        <div id="hwSolveContent"></div>
+<!-- ========== СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) ========== -->
+<div class="hw-solve-page" id="hwSolvePage">
+    <div class="hw-header">
+        <h2 id="hwSolveTitle">Решение домашнего задания</h2>
+        <button class="close-btn" onclick="closeHwSolvePage()">✕</button>
     </div>
+    <div id="hwSolveContent"></div>
 </div>
 
+<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ РЕЗУЛЬТАТОВ ========== -->
 <div class="modal-overlay" id="hwResultModal">
     <div class="modal">
         <div class="modal-header">
@@ -542,6 +617,7 @@
     </div>
 </div>
 
+<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ РЕШЕНИЙ ========== -->
 <div class="modal-overlay" id="hwSolutionsModal">
     <div class="modal">
         <div class="modal-header">
@@ -552,6 +628,7 @@
     </div>
 </div>
 
+<!-- ========== ГЛАВНАЯ СТРАНИЦА ========== -->
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -575,6 +652,11 @@
         <div style="display:flex;gap:1rem;margin-top:2rem">
             <button class="btn bg" onclick="openAuthModal()">Начать учиться</button>
             <button class="btn bo" onclick="scrollToSection('math')">Смотреть курсы</button>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item"><div class="stat-number">7+</div><div class="stat-label">КУРСОВ</div></div>
+            <div class="stat-item"><div class="stat-number">2</div><div class="stat-label">ПРЕДМЕТА</div></div>
+            <div class="stat-item"><div class="stat-number">1-11</div><div class="stat-label">КЛАССЫ</div></div>
         </div>
     </div>
 
@@ -606,6 +688,9 @@
         </div>
         <div class="teachers-grid">
             <div class="teacher-card">
+                <div class="teacher-photo">
+                    <img src="IMG_4007.PNG" alt="Егоров Степан Евгеньевич" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23ffffff\'/%3E%3Ctext x=\'50\' y=\'67\' text-anchor=\'middle\' font-size=\'40\' fill=\'%239a7018\'%3E👨‍🏫%3C/text%3E%3C/svg%3E'">
+                </div>
                 <div class="teacher-body">
                     <div class="teacher-name">Егоров Степан Евгеньевич</div>
                     <div class="teacher-role">Преподаватель курса математики</div>
@@ -624,6 +709,7 @@
     </footer>
 </div>
 
+<!-- ========== ЛИЧНЫЙ КАБИНЕТ ========== -->
 <div id="dashboard" class="dashboard">
     <nav>
         <div class="nav-container">
@@ -688,6 +774,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
+// ========== КОНФИГУРАЦИЯ FIREBASE ==========
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
     authDomain: "logistical-points.firebaseapp.com",
@@ -700,6 +787,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
+// ========== ДАННЫЕ ==========
 const COURSES = [
     { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
     { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
@@ -716,6 +804,7 @@ let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
 
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -752,6 +841,15 @@ function showLoader() {
             setTimeout(() => { loader.classList.add("hide"); setTimeout(() => loader.style.display = "none", 500); }, 300);
         }
     }, 200);
+}
+
+// ========== ПЕРЕРИСОВКА MATHJAX ==========
+function renderMath() {
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise().catch(function(err) {
+            console.log('MathJax error:', err);
+        });
+    }
 }
 
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
@@ -1007,6 +1105,7 @@ async function viewLesson(lessonId, courseId, title) {
     const oldModal = document.getElementById("lessonDetailModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
+    renderMath();
 }
 
 async function markLessonCompleted(lessonId, courseId) {
@@ -1054,6 +1153,23 @@ function toggleTheme() {
         localStorage.setItem("lp_theme", "dark");
         document.getElementById("themeBtn").textContent = "☀️";
     }
+}
+
+// ========== СТРАНИЦА РЕШЕНИЯ ДЗ ==========
+function openHwSolvePage() {
+    document.getElementById("hwSolvePage").classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeHwSolvePage() {
+    document.getElementById("hwSolvePage").classList.remove("active");
+    document.body.style.overflow = "auto";
+    currentSolveHwId = null;
+    currentSolveHwData = null;
+    userAnswers = {};
+    currentTaskIndex = 0;
+    isSubmitted = false;
+    taskSolveFiles = {};
 }
 
 // ========== РАСПИСАНИЕ ==========
@@ -1156,6 +1272,8 @@ async function loadHomeworkByCourse(courseId) {
             return;
         }
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Создаём модальное окно со списком ДЗ
         const modalHtml = `
             <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
                 <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
@@ -1221,7 +1339,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ ==========
+// ========== ЗАПУСК ДЗ (НА ПОЛНОРАЗМЕРНОЙ СТРАНИЦЕ) ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1272,6 +1390,7 @@ async function startHomework(hwId) {
                 
                 let answerHtml = '';
                 if (isSecondPart) {
+                    // Вторая часть - текстовое решение + файлы
                     answerHtml = `
                         <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
                             <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
@@ -1291,6 +1410,7 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 } else {
+                    // Краткий ответ
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
@@ -1326,18 +1446,15 @@ async function startHomework(hwId) {
         
         <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
             <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
-            <button class="btn bo" onclick="closeHwSolveModal()">Отмена</button>
+            <button class="btn bo" onclick="closeHwSolvePage()">Отмена</button>
         </div>
     `;
     
     document.getElementById("hwSolveContent").innerHTML = html;
-    document.getElementById("hwSolveModal").classList.add("active");
+    openHwSolvePage();
     
     updateNavButtons();
-    
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-    }
+    renderMath();
 }
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
@@ -1375,7 +1492,7 @@ function renderTaskSolveFilePreview(taskIndex) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : 'PDF'}
+            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeTaskSolveFile(${taskIndex}, ${idx})">&times;</span>
         </div>
@@ -1443,6 +1560,7 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
+    // Проверяем, что все задачи решены (для краткого ответа) или есть решение (для второй части)
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1482,6 +1600,7 @@ async function submitHomework() {
             let uploadedFiles = [];
             
             if (isSecondPart) {
+                // Вторая часть
                 const answerData = userAnswers[i] || { text: '', files: [] };
                 userAnswer = answerData.text || '';
                 if (answerData.files && answerData.files.length > 0) {
@@ -1491,11 +1610,12 @@ async function submitHomework() {
                     taskIndex: i, 
                     userAnswer: userAnswer, 
                     files: uploadedFiles,
-                    isCorrect: true,
+                    isCorrect: true, // Для второй части всегда true (проверяет преподаватель)
                     isSecondPart: true
                 });
                 allFiles = allFiles.concat(uploadedFiles);
             } else {
+                // Краткий ответ - автопроверка
                 const correctAnswer = task.correctAnswer || '';
                 const userAnswerText = userAnswers[i] || '';
                 const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
@@ -1533,6 +1653,7 @@ async function submitHomework() {
                 }
             }
             
+            // Показываем решение
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
@@ -1543,12 +1664,14 @@ async function submitHomework() {
         const total = tasks.length;
         const percent = Math.round(correctCount / total * 100);
         
+        // Показываем счётчик
         const counter = document.getElementById('hwCounter');
         if (counter) {
             counter.style.display = 'flex';
             document.getElementById('hwScore').textContent = correctCount;
         }
         
+        // Сохраняем результат
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1583,6 +1706,7 @@ async function submitHomework() {
         btn.disabled = true;
         btn.className = "btn green";
         
+        // Кнопка "Решения"
         const solutionsBtn = document.createElement('button');
         solutionsBtn.className = 'btn secondary';
         solutionsBtn.textContent = 'Посмотреть решения';
@@ -1594,10 +1718,7 @@ async function submitHomework() {
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
         showToast('Задание отправлено на проверку!', "success");
-        
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
+        renderMath();
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
@@ -1625,16 +1746,6 @@ async function uploadStudentFiles(files, homeworkId) {
         }
     }
     return results;
-}
-
-function closeHwSolveModal() {
-    document.getElementById("hwSolveModal").classList.remove("active");
-    currentSolveHwId = null;
-    currentSolveHwData = null;
-    userAnswers = {};
-    currentTaskIndex = 0;
-    isSubmitted = false;
-    taskSolveFiles = {};
 }
 
 // ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
@@ -1729,10 +1840,7 @@ async function viewHomeworkResult(hwId) {
     
     document.getElementById("hwResultContent").innerHTML = html;
     document.getElementById("hwResultModal").classList.add("active");
-    
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-    }
+    renderMath();
 }
 
 function closeHwResultModal() {
@@ -1792,10 +1900,7 @@ async function viewHomeworkSolutions(hwId) {
     
     document.getElementById("hwSolutionsContent").innerHTML = html;
     document.getElementById("hwSolutionsModal").classList.add("active");
-    
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-    }
+    renderMath();
 }
 
 function closeHwSolutionsModal() {
