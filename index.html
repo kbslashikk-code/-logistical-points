@@ -83,7 +83,7 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--card); border-radius: 20px; padding: 2rem;
-            width: 90%; max-width: 700px; border: 1px solid var(--line);
+            width: 90%; max-width: 500px; border: 1px solid var(--line);
             animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -561,6 +561,26 @@
     <div id="hwSolveContent"></div>
 </div>
 
+<div class="modal-overlay" id="hwResultModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Результаты проверки</h3>
+            <button class="modal-close" onclick="closeHwResultModal()">&times;</button>
+        </div>
+        <div id="hwResultContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="hwSolutionsModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="hwSolutionsTitle">Решения задач</h3>
+            <button class="modal-close" onclick="closeHwSolutionsModal()">&times;</button>
+        </div>
+        <div id="hwSolutionsContent"></div>
+    </div>
+</div>
+
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -732,6 +752,7 @@ let userAnswers = {};
 let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
+let currentSubmissions = {};
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -1284,6 +1305,7 @@ async function startHomework(hwId) {
     let html = `
         <div style="margin-bottom:1rem;color:var(--text2);">
             <p>Курс: ${escapeHtml(hw.courseId)}</p>
+            <p>Задач: ${totalTasks}</p>
         </div>
         
         <div class="hw-progress-bar" id="hwProgressBar">
@@ -1296,7 +1318,7 @@ async function startHomework(hwId) {
         
         <div class="hw-counter" id="hwCounter" style="display:none;">
             <span>Верных ответов: <span class="score" id="hwScore">0</span> из <span class="score-total">${totalTasks}</span></span>
-            <span style="font-size:0.8rem;color:var(--text3);">${totalTasks > 0 ? Math.round(0) : 0}%</span>
+            <span style="font-size:0.8rem;color:var(--text3);">0%</span>
         </div>
         
         <div id="hwTasksContainer">
@@ -1322,7 +1344,7 @@ async function startHomework(hwId) {
                             <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
                             <div class="form-group">
                                 <label>Ваше текстовое решение</label>
-                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..." ${isSubmitted ? 'disabled' : ''}></textarea>
+                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Прикрепить файлы с решением</label>
@@ -1340,8 +1362,7 @@ async function startHomework(hwId) {
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
                                    placeholder="Введите ваш ответ..." 
-                                   oninput="saveAnswer(${index}, this.value)"
-                                   ${isSubmitted ? 'disabled' : ''}>
+                                   oninput="saveAnswer(${index}, this.value)">
                         </div>
                     `;
                 }
@@ -1364,7 +1385,7 @@ async function startHomework(hwId) {
         </div>
         
         <div class="task-nav">
-            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)" disabled>Назад</button>
+            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)">Назад</button>
             <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
             <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
         </div>
@@ -1437,7 +1458,6 @@ function removeTaskSolveFile(taskIndex, idx) {
 function goToTask(index) {
     const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
     if (index < 0 || index >= totalTasks) return;
-    if (isSubmitted) return;
     
     document.querySelectorAll('.task-block').forEach(el => el.classList.remove('active'));
     const target = document.getElementById('taskblock_' + index);
@@ -1488,6 +1508,7 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
+    // Проверяем, что все задачи решены
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1600,8 +1621,12 @@ async function submitHomework() {
             counter.style.display = 'flex';
             const scoreEl = document.getElementById('hwScore');
             if (scoreEl) scoreEl.textContent = correctCount;
+            // Обновляем процент
+            const percentEl = counter.querySelector('span:last-child');
+            if (percentEl) percentEl.textContent = percent + '%';
         }
         
+        // Сохраняем результат в users
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1612,7 +1637,8 @@ async function submitHomework() {
             percent: percent,
             files: allFiles,
             userName: userData.name,
-            userEmail: currentUser.email
+            userEmail: currentUser.email,
+            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
         if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
@@ -1626,6 +1652,7 @@ async function submitHomework() {
             homeworkSubmissions: userData.homeworkSubmissions 
         });
         
+        // Обновляем статус ДЗ в homeworks
         await db.collection("homeworks").doc(currentSolveHwId).update({
             status: "submitted",
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1637,21 +1664,16 @@ async function submitHomework() {
         btn.disabled = true;
         btn.className = "btn green";
         
-        const solutionsBtn = document.createElement('button');
-        solutionsBtn.className = 'btn secondary';
-        solutionsBtn.textContent = 'Посмотреть решения';
-        solutionsBtn.onclick = function() {
-            viewHomeworkSolutions(currentSolveHwId);
-        };
-        btn.parentElement.appendChild(solutionsBtn);
-        
+        // Обновляем статистику
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
         showToast('Задание отправлено на проверку!', "success");
         
+        // Перерисовываем формулы
         if (window.MathJax && MathJax.typesetPromise) {
             MathJax.typesetPromise();
         }
+        
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
@@ -1684,144 +1706,110 @@ async function uploadStudentFiles(files, homeworkId) {
 // ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
 async function viewHomeworkResult(hwId) {
     const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
-    if (!submission) { 
-        showToast("Результат не найден", "error"); 
-        return; 
-    }
+    if (!submission) { showToast("Результат не найден", "error"); return; }
     
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
     
-    // Открываем полноразмерную страницу
-    currentSolveHwId = hwId;
-    currentSolveHwData = hw;
-    isSubmitted = true;
-    currentTaskIndex = 0;
+    let html = '';
     
-    document.getElementById("hwSolveTitle").textContent = "Результаты: " + hw.title;
-    
-    const totalTasks = hw.tasks ? hw.tasks.length : 0;
-    const correctCount = submission.correctCount || 0;
-    const percent = submission.percent || 0;
-    
-    let html = `
-        <div style="margin-bottom:1.5rem;text-align:center;">
-            <div style="display:inline-block;background:var(--card);border-radius:16px;padding:1rem 2rem;border:2px solid var(--gold);">
-                <div style="font-size:2rem;font-weight:700;color:var(--gold);">${correctCount} / ${totalTasks}</div>
-                <div style="font-size:0.9rem;color:var(--text2);">${percent}% правильных ответов</div>
+    if (hw.tasks && hw.tasks.length > 0) {
+        html += `
+            <div class="result-summary">
+                <div class="score">${submission.correctCount || '—'} / ${submission.total || '—'}</div>
+                <div class="label">${submission.percent || 0}% правильных ответов</div>
             </div>
-        </div>
+        `;
         
-        <div class="hw-progress-bar" id="hwProgressBar">
-            ${Array.from({ length: totalTasks }, (_, i) => {
-                const result = submission.taskResults ? submission.taskResults[i] : null;
-                const isCorrect = result ? result.isCorrect : false;
-                const dotClass = isCorrect ? 'correct' : 'wrong';
-                const isSecondPart = hw.tasks[i] ? hw.tasks[i].isSecondPart : false;
-                return `
-                    <div class="hw-dot ${dotClass} submitted" onclick="goToTask(${i})" title="Задача ${i + 1}">
-                        ${i + 1}
-                        ${isSecondPart ? '<span style="position:absolute;top:-6px;right:-6px;font-size:0.5rem;background:var(--blue2);color:white;padding:1px 4px;border-radius:8px;">📄</span>' : ''}
+        hw.tasks.forEach((task, index) => {
+            const result = submission.taskResults ? submission.taskResults[index] : null;
+            const isSecondPart = task.isSecondPart || false;
+            const isCorrect = result ? result.isCorrect : false;
+            const userAnswer = result ? result.userAnswer : "";
+            
+            let taskFilesHtml = '';
+            if (task.files && task.files.length > 0) {
+                taskFilesHtml = `
+                    <div class="task-files">
+                        <div class="task-files-label">Файлы к задаче:</div>
+                        <div class="files-list">${task.files.map(f => 
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                        ).join('')}</div>
                     </div>
                 `;
-            }).join('')}
-        </div>
-        
-        <div id="hwTasksContainer">
-            ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
-                const result = submission.taskResults ? submission.taskResults[index] : null;
-                const isCorrect = result ? result.isCorrect : false;
-                const userAnswer = result ? result.userAnswer : "";
-                const isSecondPart = task.isSecondPart || false;
-                
-                let taskFilesHtml = '';
-                if (task.files && task.files.length > 0) {
-                    taskFilesHtml = `
-                        <div class="task-files">
-                            <div class="task-files-label">Файлы к задаче:</div>
-                            <div class="files-list">${task.files.map(f => 
-                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
-                            ).join('')}</div>
-                        </div>
-                    `;
-                }
-                
-                let answerHtml = '';
-                if (isSecondPart) {
-                    let userFilesHtml = '';
-                    if (result && result.files && result.files.length > 0) {
-                        userFilesHtml = `
-                            <div class="task-files">
-                                <div class="task-files-label">Ваши файлы:</div>
-                                <div class="files-list">${result.files.map(f => 
-                                    '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
-                                ).join('')}</div>
-                            </div>
-                        `;
-                    }
-                    answerHtml = `
-                        <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
-                            <div style="font-weight:600;margin-bottom:0.5rem;">Ваше решение:</div>
-                            <div style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
-                            ${userFilesHtml}
-                        </div>
-                    `;
-                } else {
-                    answerHtml = `
-                        <div style="margin-top:0.5rem;">
-                            <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
-                            <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
-                                ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                return `
-                    <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
-                        <div class="task-content ${isCorrect && !isSecondPart ? 'correct' : isSecondPart ? '' : 'wrong'} submitted">
-                            <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
-                            <div class="task-condition">
-                                ${task.condition || "Условие задачи не добавлено"}
-                            </div>
-                            ${taskFilesHtml}
-                            ${answerHtml}
-                            <div class="task-solution">
-                                <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
-                            </div>
-                        </div>
+            }
+            
+            let userFilesHtml = '';
+            if (result && result.files && result.files.length > 0) {
+                userFilesHtml = `
+                    <div class="task-files">
+                        <div class="task-files-label">Ваши файлы:</div>
+                        <div class="files-list">${result.files.map(f => 
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                        ).join('')}</div>
                     </div>
                 `;
-            }).join('') : '<div style="padding:2rem;text-align:center;color:var(--text3);">В этом задании нет задач</div>'}
-        </div>
-        
-        <div class="task-nav">
-            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)" disabled>Назад</button>
-            <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
-            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
-        </div>
-        
-        <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
-            <button class="btn bo" onclick="closeHwSolvePage()">Закрыть</button>
+            }
+            
+            let answerHtml = '';
+            if (isSecondPart) {
+                answerHtml = `
+                    <div style="margin-top:0.5rem;">
+                        <strong>Ваше решение:</strong>
+                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
+                        ${userFilesHtml}
+                    </div>
+                `;
+            } else {
+                answerHtml = `
+                    <div style="margin-top:0.5rem;">
+                        <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
+                    </div>
+                    <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
+                        ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="task-block">
+                    <div class="task-content ${isCorrect && !isSecondPart ? 'correct' : isSecondPart ? '' : 'wrong'} submitted">
+                        <div class="task-number">Задача ${index + 1}</div>
+                        <div class="task-condition">${task.condition || "Без условия"}</div>
+                        ${taskFilesHtml}
+                        ${answerHtml}
+                        <div class="task-solution">
+                            <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    html += `
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn secondary" onclick="document.getElementById('hwResultModal').classList.remove('active'); viewHomeworkSolutions('${hwId}')">Посмотреть решения</button>
+            <button class="btn bg" onclick="document.getElementById('hwResultModal').classList.remove('active');">Закрыть</button>
         </div>
     `;
     
-    document.getElementById("hwSolveContent").innerHTML = html;
-    openHwSolvePage();
-    
-    updateNavButtons();
+    document.getElementById("hwResultContent").innerHTML = html;
+    document.getElementById("hwResultModal").classList.add("active");
     
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise();
     }
 }
 
+function closeHwResultModal() {
+    document.getElementById("hwResultModal").classList.remove("active");
+}
+
 // ========== ПРОСМОТР РЕШЕНИЙ ==========
 async function viewHomeworkSolutions(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
-    
-    // Проверяем, есть ли решение в сохранённых данных
     const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
     
     document.getElementById("hwSolutionsTitle").textContent = 'Решения: ' + hw.title;
