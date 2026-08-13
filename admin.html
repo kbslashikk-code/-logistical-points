@@ -20,6 +20,7 @@
     --green: #22c55e; --green2: rgba(34,197,94,0.1);
     --red: #ef4444; --red2: rgba(239,68,68,0.1);
     --blue: #3b6ef5; --blue2: #7ba3ff; --blue3: rgba(59,110,245,0.1);
+    --orange: #f97316; --orange2: rgba(249,115,22,0.1);
     --text: #f3f4f6; --text2: #9ca3af; --text3: #6b7280;
     --f: 'Segoe UI', Arial, sans-serif;
 }
@@ -127,8 +128,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .badge-pending { background: var(--gold2); color: #1a1a2e; }
 .badge-submitted { background: var(--blue3); color: var(--blue2); }
 .badge-graded { background: var(--green2); color: var(--green); }
-.badge-interactive { background: var(--gold); color: #1a1a2e; }
-.badge-file-upload { background: var(--blue3); color: var(--blue2); }
 
 .toast-container {
     position: fixed; bottom: 1rem; right: 1rem; z-index: 1000;
@@ -152,7 +151,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .modal.active { display: flex; }
 .modal-content {
     background: var(--card); border-radius: 12px; padding: 1.5rem;
-    width: 90%; max-width: 700px; border: 1px solid var(--line);
+    width: 90%; max-width: 800px; border: 1px solid var(--line);
     max-height: 90vh; overflow-y: auto;
 }
 .modal-header {
@@ -178,9 +177,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .file-item img {
     width: 24px; height: 24px; object-fit: cover; border-radius: 4px; cursor: pointer;
 }
-.file-item .remove-file {
-    color: var(--red); cursor: pointer; font-weight: bold; margin-left: 0.3rem;
-}
+.file-item .remove-file { color: var(--red); cursor: pointer; font-weight: bold; margin-left: 0.3rem; }
 .multi-file-zone {
     border: 2px dashed var(--line); border-radius: 10px; padding: 1rem;
     text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 0.5rem;
@@ -204,7 +201,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .schedule-item .actions { display: flex; gap: 0.3rem; }
 .schedule-empty { padding: 2rem; text-align: center; color: var(--text3); }
 
-/* Стили для редактора задач */
 .task-editor {
     background: var(--bg2); border-radius: 12px; padding: 1rem;
     margin-bottom: 1rem; border: 1px solid var(--line);
@@ -216,18 +212,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .task-editor .remove-btn { color: var(--red); cursor: pointer; font-size: 0.8rem; }
 .task-editor .remove-btn:hover { text-decoration: underline; }
 
-/* Переключатель типа ДЗ */
 .hw-type-toggle {
     display: flex; align-items: center; gap: 1rem;
     padding: 0.8rem; background: var(--bg2); border-radius: 8px;
     border: 1px solid var(--line); margin-bottom: 1rem;
 }
-.hw-type-toggle .toggle-label {
-    font-weight: 600; font-size: 0.9rem;
-}
-.hw-type-toggle .toggle-desc {
-    font-size: 0.75rem; color: var(--text3);
-}
+.hw-type-toggle .toggle-label { font-weight: 600; font-size: 0.9rem; }
+.hw-type-toggle .toggle-desc { font-size: 0.75rem; color: var(--text3); }
 .toggle-switch {
     position: relative; width: 48px; height: 26px; flex-shrink: 0;
     background: var(--card2); border-radius: 13px; cursor: pointer;
@@ -241,12 +232,71 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .toggle-switch.active .toggle-slider { left: 24px; }
 
+/* Стили для аналитики */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.2rem; text-align: center;
+}
+.stat-card .stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
+.stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
+
+.chart-container {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 1.5rem; margin-top: 1rem;
+}
+.chart-title { font-weight: 600; margin-bottom: 1rem; color: var(--text2); }
+
+.bar-chart {
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.bar-item {
+    display: flex; align-items: center; gap: 0.8rem;
+}
+.bar-item .bar-label {
+    min-width: 120px; font-size: 0.8rem; color: var(--text2);
+}
+.bar-item .bar-track {
+    flex: 1; height: 24px; background: var(--bg2); border-radius: 4px;
+    overflow: hidden; position: relative;
+}
+.bar-item .bar-fill {
+    height: 100%; border-radius: 4px; transition: width 0.6s ease;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 8px; font-size: 0.7rem; font-weight: 600;
+    color: white; min-width: 30px;
+}
+.bar-fill.good { background: var(--green); }
+.bar-fill.medium { background: var(--gold); }
+.bar-fill.poor { background: var(--orange); }
+.bar-fill.bad { background: var(--red); }
+
+.student-analytics-card {
+    background: var(--bg2); border-radius: 10px; padding: 1rem;
+    margin-bottom: 0.8rem; border: 1px solid var(--line);
+    cursor: pointer; transition: all 0.3s;
+}
+.student-analytics-card:hover { border-color: var(--gold); }
+.student-analytics-card .student-name {
+    font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.student-analytics-card .student-stats {
+    display: flex; gap: 1rem; margin-top: 0.3rem; font-size: 0.8rem; color: var(--text2);
+}
+.student-analytics-card .student-stats span { display: flex; align-items: center; gap: 0.3rem; }
+
 @media (max-width: 768px) {
     .schedule-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .sidebar { width: 100%; position: relative; height: auto; }
     .main-content { margin-left: 0; }
     .admin-container { flex-direction: column; }
     .modal-content { padding: 1rem; }
+    .bar-item .bar-label { min-width: 80px; font-size: 0.7rem; }
 }
 </style>
 </head>
@@ -271,6 +321,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <ul class="sidebar-menu">
                 <li data-tab="dashboard" class="active" onclick="switchTab('dashboard')">Дашборд</li>
                 <li data-tab="students" onclick="switchTab('students'); loadStudents()">Ученики</li>
+                <li data-tab="analytics" onclick="switchTab('analytics'); loadAnalytics()">Аналитика</li>
                 <li data-tab="lessons" onclick="switchTab('lessons'); loadLessons()">Конспекты</li>
                 <li data-tab="homework" onclick="switchTab('homework'); loadAllHomework()">ДЗ на проверку</li>
                 <li data-tab="schedule" onclick="switchTab('schedule'); loadSchedule()">Расписание</li>
@@ -315,6 +366,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <div id="analyticsTab" class="tab-content" style="display: none;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Аналитика по ученикам</h3>
+                        <div>
+                            <select id="analyticsStudentFilter" onchange="loadAnalytics()" style="background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0.4rem 0.8rem;">
+                                <option value="all">Все ученики</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="analyticsContainer"></div>
+                </div>
+            </div>
+
             <div id="lessonsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>Все конспекты</h3></div>
@@ -324,7 +389,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 
             <div id="homeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>Домашние задания на проверку</h3></div>
+                    <div class="card-header"><h3>Домашние задания на проверку (только вторая часть)</h3></div>
                     <div id="pendingHomeworkList"></div>
                 </div>
             </div>
@@ -371,7 +436,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
-            <!-- ========== ДОБАВЛЕНИЕ ДЗ ========== -->
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>Создать домашнее задание</h3>
@@ -419,6 +483,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                             <textarea id="hwSecondPartSolution" rows="4" placeholder="Решение для учеников после проверки..."></textarea>
                         </div>
                         <div class="form-group">
+                            <label>Максимальный балл за задание</label>
+                            <input type="number" id="hwSecondPartMaxScore" value="10" min="1" placeholder="10">
+                        </div>
+                        <div class="form-group">
                             <label>Прикрепить файлы к заданию</label>
                             <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
                                 <div style="font-size:2rem;">📎</div>
@@ -445,7 +513,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ДЗ ========== -->
+<!-- ========== МОДАЛЬНЫЕ ОКНА ========== -->
 <div id="editHomeworkModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -456,7 +524,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ПРОВЕРКИ ДЗ ========== -->
+<!-- ========== МОДАЛЬНОЕ ОКНО ПРОВЕРКИ ДЗ (ОБНОВЛЁННОЕ) ========== -->
 <div id="gradeModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -464,7 +532,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <button class="modal-close" onclick="closeGradeModal()">&times;</button>
         </div>
         <div id="gradeModalContent"></div>
-        <div class="form-group"><label>Оценка (1-10)</label><input type="number" id="gradeValue" min="1" max="10" placeholder="8"></div>
+        <div class="form-group" id="gradeMaxScoreGroup">
+            <label>Максимальный балл за задание</label>
+            <input type="number" id="gradeMaxScore" min="1" value="10" readonly style="background:var(--bg);color:var(--text2);">
+        </div>
+        <div class="form-group">
+            <label>Оценка ученика</label>
+            <input type="number" id="gradeValue" min="0" placeholder="Введите балл">
+        </div>
         <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
         <div class="form-group">
             <label>Прикрепить файлы с правками (можно несколько, до 50 МБ)</label>
@@ -561,6 +636,17 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <button class="btn btn-primary" onclick="addScheduleItem()">Добавить</button>
             <button class="btn btn-secondary" onclick="closeAddScheduleModal()">Отмена</button>
         </div>
+    </div>
+</div>
+
+<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ АНАЛИТИКИ УЧЕНИКА ========== -->
+<div id="studentAnalyticsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="studentAnalyticsTitle">Аналитика ученика</h3>
+            <button class="modal-close" onclick="closeStudentAnalyticsModal()">&times;</button>
+        </div>
+        <div id="studentAnalyticsContent"></div>
     </div>
 </div>
 
@@ -683,7 +769,7 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     container.style.display = 'flex';
     container.innerHTML = filesArray.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
         </div>
@@ -848,7 +934,7 @@ function renderTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -954,7 +1040,7 @@ async function loadDashboard() {
         let languagesPending = 0;
         homeworksSnap.forEach(doc => {
             const hw = doc.data();
-            if (hw.status === "submitted") {
+            if (hw.status === "submitted" && hw.isSecondPart === true) {
                 pending++;
                 if (hw.subject === 'physics') physicsPending++;
                 if (hw.subject === 'languages') languagesPending++;
@@ -992,7 +1078,7 @@ async function loadDashboard() {
         const pendingHw = [];
         homeworksSnap.forEach(doc => {
             const hw = doc.data();
-            if (hw.status === "submitted") {
+            if (hw.status === "submitted" && hw.isSecondPart === true) {
                 if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
                     pendingHw.push({ id: doc.id, ...hw });
                 }
@@ -1008,7 +1094,7 @@ async function loadDashboard() {
                     <div class="justify-between">
                         <div>
                             <span class="title">${escapeHtml(hw.title)}</span>
-                            <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} ${hw.isSecondPart ? 'Вторая часть' : ''}</div>
+                            <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
                         </div>
                         <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                     </div>
@@ -1063,6 +1149,307 @@ async function loadStudents() {
         console.error(err);
         document.getElementById("studentsList").innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--red)'>Ошибка: " + err.message + "</div>";
     }
+}
+
+// ========== АНАЛИТИКА ==========
+async function loadAnalytics() {
+    const filter = document.getElementById('analyticsStudentFilter')?.value || 'all';
+    const container = document.getElementById('analyticsContainer');
+    if (!container) return;
+    
+    try {
+        const usersSnap = await db.collection("users").get();
+        const users = [];
+        usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+        
+        let filteredUsers = users;
+        if (isPhysicsAdmin()) {
+            filteredUsers = users.filter(u => (u.enrolledCourses || []).includes('physics'));
+        } else if (isLanguagesAdmin()) {
+            filteredUsers = users.filter(u => (u.enrolledCourses || []).some(c => ['english', 'german', 'french'].includes(c)));
+        }
+        
+        const filterSelect = document.getElementById('analyticsStudentFilter');
+        if (filterSelect) {
+            const currentValue = filterSelect.value;
+            filterSelect.innerHTML = '<option value="all">Все ученики</option>';
+            filteredUsers.forEach(u => {
+                const name = u.name || u.email || 'Без имени';
+                filterSelect.innerHTML += `<option value="${u.id}">${escapeHtml(name)}</option>`;
+            });
+            if (currentValue) filterSelect.value = currentValue;
+        }
+        
+        let targetUsers = filteredUsers;
+        if (filter !== 'all') {
+            targetUsers = filteredUsers.filter(u => u.id === filter);
+        }
+        
+        if (targetUsers.length === 0) {
+            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text3)">Нет данных для отображения</div>';
+            return;
+        }
+        
+        let html = '';
+        for (const user of targetUsers) {
+            const name = user.name || user.email || 'Без имени';
+            const submissions = user.homeworkSubmissions || [];
+            const totalHw = submissions.length;
+            
+            let totalCorrect = 0;
+            let totalTasks = 0;
+            let completedHw = 0;
+            const hwDetails = [];
+            let totalMaxScore = 0;
+            let totalUserScore = 0;
+            
+            for (const sub of submissions) {
+                // Для второй части используем баллы, для первой - количество правильных
+                const correct = sub.correctCount || 0;
+                const total = sub.total || 0;
+                const maxScore = sub.maxScore || 0;
+                const userScore = sub.userScore || 0;
+                
+                if (total > 0) {
+                    totalCorrect += correct;
+                    totalTasks += total;
+                    if (correct === total) completedHw++;
+                }
+                
+                if (maxScore > 0) {
+                    totalMaxScore += maxScore;
+                    totalUserScore += userScore;
+                }
+                
+                let hwTitle = sub.title || 'Без названия';
+                let isSecondPart = false;
+                try {
+                    const hwDoc = await db.collection("homeworks").doc(sub.id).get();
+                    if (hwDoc.exists) {
+                        const hwData = hwDoc.data();
+                        hwTitle = hwData.title || hwTitle;
+                        isSecondPart = hwData.isSecondPart || false;
+                    }
+                } catch(e) {}
+                
+                const percent = total > 0 ? Math.round(correct / total * 100) : 0;
+                const scorePercent = maxScore > 0 ? Math.round(userScore / maxScore * 100) : 0;
+                
+                hwDetails.push({
+                    id: sub.id,
+                    title: hwTitle,
+                    correct: correct,
+                    total: total,
+                    percent: percent,
+                    maxScore: maxScore,
+                    userScore: userScore,
+                    scorePercent: scorePercent,
+                    results: sub.taskResults || [],
+                    isSecondPart: isSecondPart,
+                    submittedAt: sub.submittedAt || null
+                });
+            }
+            
+            const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
+            const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
+            const completedPercent = totalHw > 0 ? Math.round(completedHw / totalHw * 100) : 0;
+            
+            html += `
+                <div class="student-analytics-card" onclick="openStudentAnalyticsModal('${user.id}')">
+                    <div class="student-name">
+                        ${escapeHtml(name)}
+                        <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">${escapeHtml(user.email || '')}</span>
+                    </div>
+                    <div class="student-stats">
+                        <span>📚 ДЗ: ${totalHw}</span>
+                        <span>✅ Верно: ${avgPercent}%</span>
+                        <span>🏆 Выполнено: ${completedPercent}%</span>
+                        ${totalMaxScore > 0 ? `<span>⭐ Баллы: ${avgScorePercent}%</span>` : ''}
+                        ${user.grade ? `<span>📖 ${escapeHtml(user.grade)}</span>` : ''}
+                    </div>
+                    <div style="margin-top:0.5rem;height:4px;background:var(--line);border-radius:2px;overflow:hidden;">
+                        <div style="height:100%;width:${avgPercent}%;background:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};border-radius:2px;transition:width 0.5s;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const allUsers = targetUsers;
+        const allSubmissions = allUsers.flatMap(u => u.homeworkSubmissions || []);
+        let allCorrect = 0, allTasks = 0;
+        let allMaxScore = 0, allUserScore = 0;
+        for (const sub of allSubmissions) {
+            allCorrect += sub.correctCount || 0;
+            allTasks += sub.total || 0;
+            allMaxScore += sub.maxScore || 0;
+            allUserScore += sub.userScore || 0;
+        }
+        const overallAvg = allTasks > 0 ? Math.round(allCorrect / allTasks * 100) : 0;
+        const overallScoreAvg = allMaxScore > 0 ? Math.round(allUserScore / allMaxScore * 100) : 0;
+        
+        container.innerHTML = `
+            <div class="stats-grid" style="margin-bottom:1rem;">
+                <div class="stat-card"><div class="stat-number">${allUsers.length}</div><div class="stat-label">Учеников</div></div>
+                <div class="stat-card"><div class="stat-number">${allSubmissions.length}</div><div class="stat-label">Всего ДЗ сдано</div></div>
+                <div class="stat-card"><div class="stat-number">${overallAvg}%</div><div class="stat-label">Общий прогресс</div></div>
+                <div class="stat-card"><div class="stat-number">${allTasks}</div><div class="stat-label">Всего задач</div></div>
+            </div>
+            ${html}
+        `;
+        
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
+    }
+}
+
+// ========== ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА ==========
+async function openStudentAnalyticsModal(userId) {
+    const doc = await db.collection("users").doc(userId).get();
+    const user = doc.data();
+    if (!user) {
+        showToast("Ученик не найден", "error");
+        return;
+    }
+    
+    const name = user.name || user.email || 'Без имени';
+    document.getElementById("studentAnalyticsTitle").textContent = `Аналитика: ${escapeHtml(name)}`;
+    
+    const submissions = user.homeworkSubmissions || [];
+    const hwDetails = [];
+    let totalCorrect = 0, totalTasks = 0;
+    let totalMaxScore = 0, totalUserScore = 0;
+    
+    for (const sub of submissions) {
+        let hwTitle = sub.title || 'Без названия';
+        let isSecondPart = false;
+        let maxScore = sub.maxScore || 0;
+        let userScore = sub.userScore || 0;
+        try {
+            const hwDoc = await db.collection("homeworks").doc(sub.id).get();
+            if (hwDoc.exists) {
+                const hwData = hwDoc.data();
+                hwTitle = hwData.title || hwTitle;
+                isSecondPart = hwData.isSecondPart || false;
+                if (isSecondPart && hwData.maxScore) {
+                    maxScore = hwData.maxScore || 0;
+                }
+            }
+        } catch(e) {}
+        
+        const correct = sub.correctCount || 0;
+        const total = sub.total || 0;
+        if (total > 0) {
+            totalCorrect += correct;
+            totalTasks += total;
+        }
+        if (maxScore > 0) {
+            totalMaxScore += maxScore;
+            totalUserScore += userScore;
+        }
+        
+        const percent = total > 0 ? Math.round(correct / total * 100) : 0;
+        const scorePercent = maxScore > 0 ? Math.round(userScore / maxScore * 100) : 0;
+        
+        hwDetails.push({
+            id: sub.id,
+            title: hwTitle,
+            correct: correct,
+            total: total,
+            percent: percent,
+            maxScore: maxScore,
+            userScore: userScore,
+            scorePercent: scorePercent,
+            results: sub.taskResults || [],
+            isSecondPart: isSecondPart,
+            submittedAt: sub.submittedAt || null
+        });
+    }
+    
+    const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
+    const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
+    
+    const ranges = { '80-100': 0, '60-79': 0, '40-59': 0, '0-39': 0 };
+    hwDetails.forEach(h => {
+        if (h.total === 0 && h.maxScore === 0) return;
+        const p = h.isSecondPart ? h.scorePercent : h.percent;
+        if (p >= 80) ranges['80-100']++;
+        else if (p >= 60) ranges['60-79']++;
+        else if (p >= 40) ranges['40-59']++;
+        else ranges['0-39']++;
+    });
+    
+    const totalHw = hwDetails.length;
+    
+    let html = `
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">${totalHw}</div><div class="stat-label">Всего ДЗ</div></div>
+            <div class="stat-card"><div class="stat-number">${avgPercent}%</div><div class="stat-label">Средний результат</div></div>
+            <div class="stat-card"><div class="stat-number">${totalTasks}</div><div class="stat-label">Всего задач</div></div>
+            <div class="stat-card"><div class="stat-number">${totalCorrect}</div><div class="stat-label">Верных ответов</div></div>
+            ${totalMaxScore > 0 ? `
+                <div class="stat-card"><div class="stat-number">${totalUserScore}/${totalMaxScore}</div><div class="stat-label">Баллы</div></div>
+                <div class="stat-card"><div class="stat-number">${avgScorePercent}%</div><div class="stat-label">Средний балл</div></div>
+            ` : ''}
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title">Распределение результатов по ДЗ</div>
+            <div class="bar-chart">
+                ${Object.entries(ranges).map(([key, value]) => {
+                    const maxVal = Math.max(...Object.values(ranges), 1);
+                    const width = Math.round(value / maxVal * 100);
+                    let colorClass = 'poor';
+                    if (key === '80-100') colorClass = 'good';
+                    else if (key === '60-79') colorClass = 'medium';
+                    else if (key === '40-59') colorClass = 'poor';
+                    else colorClass = 'bad';
+                    return `
+                        <div class="bar-item">
+                            <div class="bar-label">${key}%</div>
+                            <div class="bar-track">
+                                <div class="bar-fill ${colorClass}" style="width:${Math.max(width, 2)}%;">
+                                    ${value > 0 ? value : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+        
+        <div class="chart-container" style="margin-top:1rem;">
+            <div class="chart-title">История выполненных ДЗ</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                ${hwDetails.length > 0 ? hwDetails.map((hw, idx) => {
+                    const displayPercent = hw.isSecondPart ? hw.scorePercent : hw.percent;
+                    const displayCorrect = hw.isSecondPart ? hw.userScore : hw.correct;
+                    const displayTotal = hw.isSecondPart ? hw.maxScore : hw.total;
+                    const color = displayPercent >= 80 ? 'var(--green)' : displayPercent >= 50 ? 'var(--gold)' : 'var(--red)';
+                    return `
+                        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.5rem;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};">
+                            <div style="font-size:0.8rem;color:var(--text3);min-width:30px;">#${idx + 1}</div>
+                            <div style="flex:1;font-size:0.85rem;">${escapeHtml(hw.title)}</div>
+                            <div style="font-size:0.7rem;color:var(--text3);">${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
+                            <div style="font-size:0.85rem;font-weight:600;color:${color};">${displayPercent}%</div>
+                            <div style="font-size:0.7rem;color:var(--text3);">${displayCorrect}/${displayTotal}</div>
+                        </div>
+                    `;
+                }).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет выполненных ДЗ</div>'}
+            </div>
+        </div>
+        
+        <div style="margin-top:1rem;display:flex;justify-content:center;">
+            <button class="btn btn-secondary" onclick="closeStudentAnalyticsModal()">Закрыть</button>
+        </div>
+    `;
+    
+    document.getElementById("studentAnalyticsContent").innerHTML = html;
+    document.getElementById("studentAnalyticsModal").classList.add("active");
+}
+
+function closeStudentAnalyticsModal() {
+    document.getElementById("studentAnalyticsModal").classList.remove("active");
 }
 
 // ========== КОНСПЕКТЫ ==========
@@ -1268,7 +1655,7 @@ async function createLesson() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ (С РЕДАКТИРОВАНИЕМ) ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -1312,6 +1699,7 @@ async function createHomework() {
         if (isSecondPart) {
             const condition = document.getElementById("hwSecondPartCondition").value.trim();
             const solution = document.getElementById("hwSecondPartSolution").value.trim();
+            const maxScore = parseInt(document.getElementById("hwSecondPartMaxScore").value) || 10;
             
             if (!condition) {
                 showToast("Введите условие задачи", "error");
@@ -1337,6 +1725,7 @@ async function createHomework() {
                 status: "pending",
                 isSecondPart: true,
                 isInteractive: false,
+                maxScore: maxScore,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         } else {
@@ -1394,6 +1783,7 @@ async function createHomework() {
         document.getElementById("hwDueDate").value = "";
         document.getElementById("hwSecondPartCondition").value = "";
         document.getElementById("hwSecondPartSolution").value = "";
+        document.getElementById("hwSecondPartMaxScore").value = "10";
         document.getElementById("hwFileInput").value = "";
         document.getElementById("tasksContainer").innerHTML = "";
         currentHomeworkFiles = [];
@@ -1463,7 +1853,6 @@ async function openEditHomeworkModal(hwId) {
         <hr style="border-color:var(--line);margin:1rem 0;">
     `;
     
-    // Задачи (для краткого ответа)
     html += `
         <div id="editTasksSection" style="${hw.isSecondPart ? 'display:none;' : ''}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
@@ -1498,7 +1887,7 @@ async function openEditHomeworkModal(hwId) {
                         <div class="files-list">
                             ${task.files && task.files.length > 0 ? task.files.map(f => `
                                 <div class="file-item">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                                     <span>${escapeHtml(f.name)}</span>
                                     <span class="remove-file" onclick="removeEditTaskFile(${index}, '${f.url}')">&times;</span>
                                 </div>
@@ -1521,7 +1910,6 @@ async function openEditHomeworkModal(hwId) {
         </div>
     `;
     
-    // Вторая часть
     html += `
         <div id="editSecondPartSection" style="${hw.isSecondPart ? '' : 'display:none;'}">
             <div class="form-group">
@@ -1533,11 +1921,15 @@ async function openEditHomeworkModal(hwId) {
                 <textarea id="editSecondPartSolution" rows="4">${escapeHtml(hw.solution || '')}</textarea>
             </div>
             <div class="form-group">
+                <label>Максимальный балл</label>
+                <input type="number" id="editSecondPartMaxScore" value="${hw.maxScore || 10}" min="1">
+            </div>
+            <div class="form-group">
                 <label>Прикреплённые файлы</label>
                 <div class="files-list">
                     ${hw.files && hw.files.length > 0 ? hw.files.map(f => `
                         <div class="file-item" onclick="window.open('${f.url}')">
-                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                             <span>${escapeHtml(f.name)}</span>
                         </div>
                     `).join('') : 'Нет файлов'}
@@ -1562,13 +1954,10 @@ async function openEditHomeworkModal(hwId) {
     document.getElementById("editHomeworkContent").innerHTML = html;
     document.getElementById("editHomeworkModal").classList.add("active");
     
-    // Заполняем курсы
     updateEditHwCourses();
     
-    // Если есть задачи, обновляем их количество
     const taskCount = document.querySelectorAll('#editTasksContainer .task-editor').length;
     if (taskCount === 0 && !hw.isSecondPart) {
-        // Добавляем пустую задачу, если нет ни одной
         addEditTask();
     }
 }
@@ -1584,7 +1973,6 @@ function updateEditHwCourses() {
     const currentValue = courseSelect.value;
     const available = COURSES.filter(c => c.subject === subject);
     courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
-    // Восстанавливаем значение, если оно было
     if (currentValue) {
         courseSelect.value = currentValue;
     }
@@ -1631,7 +2019,6 @@ function addEditTask() {
 function removeEditTask(id) {
     const el = document.getElementById(`edit_teditor_${id}`);
     if (el) el.remove();
-    // Переименовываем оставшиеся задачи
     const editors = document.querySelectorAll('#editTasksContainer .task-editor');
     editors.forEach((editor, index) => {
         const numSpan = editor.querySelector('.task-number');
@@ -1674,7 +2061,7 @@ function renderEditTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -1682,14 +2069,11 @@ function renderEditTaskFilePreview(taskId) {
 }
 
 function removeEditTaskFile(taskId, identifier) {
-    // Если это файл из существующей задачи (по URL)
     if (typeof identifier === 'string' && identifier.startsWith('http')) {
-        // Удаляем из DOM, но из Firestore удалим при сохранении
         const items = document.querySelectorAll(`#edit_teditor_${taskId} .file-item`);
         items.forEach(item => {
             const span = item.querySelector('span');
             if (span && span.textContent) {
-                // Помечаем для удаления
                 if (!item.dataset.marked) {
                     item.style.opacity = '0.5';
                     item.style.textDecoration = 'line-through';
@@ -1703,7 +2087,6 @@ function removeEditTaskFile(taskId, identifier) {
         return;
     }
     
-    // Если это новый файл (по индексу)
     if (editTaskFiles[taskId]) {
         editTaskFiles[taskId].splice(identifier, 1);
         renderEditTaskFilePreview(taskId);
@@ -1743,7 +2126,7 @@ function renderEditHwFilePreview() {
     container.style.display = 'flex';
     container.innerHTML = editHwFiles.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditHwFile(${idx})">&times;</span>
         </div>
@@ -1797,6 +2180,7 @@ async function saveEditedHomework() {
         if (isSecond) {
             const condition = document.getElementById("editSecondPartCondition").value.trim();
             const solution = document.getElementById("editSecondPartSolution").value.trim();
+            const maxScore = parseInt(document.getElementById("editSecondPartMaxScore").value) || 10;
             
             if (!condition) {
                 showToast("Введите условие задачи", "error");
@@ -1808,19 +2192,17 @@ async function saveEditedHomework() {
             updateData.condition = condition;
             updateData.solution = solution || "Решение не добавлено";
             updateData.isInteractive = false;
+            updateData.maxScore = maxScore;
             
-            // Загружаем новые файлы для второй части
             let uploadedFiles = [];
             if (editHwFiles.length > 0) {
                 uploadedFiles = await uploadMultipleFiles(editHwFiles, "homeworks");
             }
             
-            // Сохраняем существующие файлы и добавляем новые
             const doc = await db.collection("homeworks").doc(currentEditHomeworkId).get();
             const existingFiles = doc.data()?.files || [];
             updateData.files = [...existingFiles, ...uploadedFiles];
         } else {
-            // Обработка задач для краткого ответа
             const taskEditors = document.querySelectorAll('#editTasksContainer .task-editor');
             const tasks = [];
             
@@ -1830,7 +2212,6 @@ async function saveEditedHomework() {
                 const correctAnswer = document.getElementById(`edit_tcorrect_${id}`).value.trim();
                 const solution = document.getElementById(`edit_tsolution_${id}`).value.trim();
                 
-                // Проверяем, есть ли файлы для этой задачи
                 let taskUploadedFiles = [];
                 if (editTaskFiles[id] && editTaskFiles[id].length > 0) {
                     taskUploadedFiles = await uploadMultipleFiles(editTaskFiles[id], "homeworks");
@@ -1858,6 +2239,7 @@ async function saveEditedHomework() {
             updateData.isInteractive = true;
             updateData.condition = undefined;
             updateData.solution = undefined;
+            updateData.maxScore = undefined;
         }
         
         await db.collection("homeworks").doc(currentEditHomeworkId).update(updateData);
@@ -1874,7 +2256,45 @@ async function saveEditedHomework() {
     }
 }
 
-// ========== ЗАГРУЗКА ВСЕХ ДЗ (С КНОПКОЙ РЕДАКТИРОВАНИЯ) ==========
+// ========== ЗАГРУЗКА ВСЕХ ДЗ ==========
+async function loadAllHomework() {
+    try {
+        const snapshot = await db.collection("homeworks").get();
+        const homeworks = [];
+        snapshot.forEach(doc => {
+            const hw = doc.data();
+            if (hw.status === "submitted" && hw.isSecondPart === true) {
+                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
+                    homeworks.push({ id: doc.id, ...hw });
+                }
+            }
+        });
+        
+        const container = document.getElementById("pendingHomeworkList");
+        if (homeworks.length === 0) {
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке (задания второй части)</div>";
+            return;
+        }
+        
+        container.innerHTML = homeworks.map(hw => `
+            <div class="homework-card">
+                <div class="justify-between">
+                    <div>
+                        <span class="title">${escapeHtml(hw.title)}</span>
+                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
+                </div>
+                <div class="solution">Задание второй части (ученик прикрепил файлы)</div>
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+            </div>
+        `).join("");
+    } catch (err) {
+        console.error(err);
+        showToast("Ошибка загрузки ДЗ", "error");
+    }
+}
+
 async function loadAllHomeworkHistory() {
     try {
         const snapshot = await db.collection("homeworks").get();
@@ -1901,19 +2321,19 @@ async function loadAllHomeworkHistory() {
                         <div class="meta">${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail)} · ${escapeHtml(hw.courseId)} · Статус: ${hw.status} ${hw.isSecondPart ? '(Вторая часть)' : '(Краткий ответ)'}</div>
                     </div>
                     <div class="flex">
-                        ${hw.status === "submitted" ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
+                        ${hw.status === "submitted" && hw.isSecondPart === true ? `<button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ""}
                         <button class="btn btn-secondary" onclick="openEditHomeworkModal('${hw.id}')">Редактировать</button>
                         <button class="btn btn-danger" onclick="deleteHomework('${hw.id}')">Удалить</button>
                     </div>
                 </div>
                 ${hw.isSecondPart ? 
-                    `<div class="solution"><strong>Задание второй части</strong>${hw.condition ? `: ${escapeHtml(hw.condition)}` : ''}</div>` :
+                    `<div class="solution"><strong>Задание второй части</strong>${hw.condition ? `: ${escapeHtml(hw.condition)}` : ''} ${hw.maxScore ? `(Макс. балл: ${hw.maxScore})` : ''}</div>` :
                     `<div class="solution"><strong>Задач:</strong> ${hw.tasks ? hw.tasks.length : 0}</div>`
                 }
                 ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
                 ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ''}
                 ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
-                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/10` : ""}</div>` : ''}
+                ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/${hw.maxScore || 10}` : ""}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1922,57 +2342,13 @@ async function loadAllHomeworkHistory() {
     }
 }
 
-// ========== ЗАГРУЗКА ДЗ НА ПРОВЕРКУ ==========
-async function loadAllHomework() {
-    try {
-        const snapshot = await db.collection("homeworks").get();
-        const homeworks = [];
-        snapshot.forEach(doc => {
-            const hw = doc.data();
-            if (hw.status === "submitted") {
-                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
-                    homeworks.push({ id: doc.id, ...hw });
-                }
-            }
-        });
-        
-        const container = document.getElementById("pendingHomeworkList");
-        if (homeworks.length === 0) {
-            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
-            return;
-        }
-        
-        container.innerHTML = homeworks.map(hw => `
-            <div class="homework-card">
-                <div class="justify-between">
-                    <div>
-                        <span class="title">${escapeHtml(hw.title)}</span>
-                        <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)} ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
-                    </div>
-                    <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
-                </div>
-                ${hw.isSecondPart ? 
-                    `<div class="solution">Задание второй части (ученик прикрепил файлы)</div>` :
-                    `<div class="solution">Задач: ${hw.tasks ? hw.tasks.length : 0}</div>`
-                }
-            </div>
-        `).join("");
-    } catch (err) {
-        console.error(err);
-        showToast("Ошибка загрузки ДЗ", "error");
-    }
-}
-
-// ========== МОДАЛКА ПРОВЕРКИ ДЗ ==========
+// ========== МОДАЛКА ПРОВЕРКИ ДЗ (ОБНОВЛЁННАЯ) ==========
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
     currentGradeFiles = [];
     
-    let tasksHtml = '';
-    if (currentGradingHw.tasks && currentGradingHw.tasks.length > 0) {
-        tasksHtml = `<div class="solution" style="background: var(--gold3);"><strong>Задач с кратким ответом:</strong> ${currentGradingHw.tasks.length}</div>`;
-    }
+    const maxScore = currentGradingHw.maxScore || 10;
     
     let secondPartHtml = '';
     if (currentGradingHw.isSecondPart) {
@@ -1993,11 +2369,11 @@ async function openGradeModal(hwId) {
         <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
         <div class="meta">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
         ${secondPartHtml}
-        ${tasksHtml}
         ${filesHtml}
         ${gradeFilesHtml}
     `;
     
+    document.getElementById("gradeMaxScore").value = maxScore;
     document.getElementById("gradeValue").value = currentGradingHw.grade || "";
     document.getElementById("gradeFeedback").value = currentGradingHw.feedback || "";
     document.getElementById("gradeFileInput").value = "";
@@ -2018,6 +2394,21 @@ async function submitGrade(action) {
     
     const grade = document.getElementById("gradeValue").value;
     const feedback = document.getElementById("gradeFeedback").value;
+    const maxScore = parseInt(document.getElementById("gradeMaxScore").value) || 10;
+    
+    // Проверка: если это вторая часть, проверяем, что балл не превышает максимум
+    if (currentGradingHw.isSecondPart) {
+        if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > maxScore)) {
+            showToast(`Оценка должна быть от 0 до ${maxScore}`, "error");
+            return;
+        }
+    } else {
+        // Для первой части проверяем от 0 до 10
+        if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > 10)) {
+            showToast("Оценка должна быть от 0 до 10", "error");
+            return;
+        }
+    }
     
     showToast("Отправка...", "info");
     
@@ -2037,8 +2428,13 @@ async function submitGrade(action) {
             gradedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        if (action === "graded" && grade && grade >= 1 && grade <= 10) {
-            updateData.grade = parseInt(grade);
+        if (action === "graded") {
+            if (grade !== undefined && grade !== null && grade !== '') {
+                updateData.grade = parseFloat(grade);
+                // Сохраняем также userScore для аналитики
+                updateData.userScore = parseFloat(grade);
+                updateData.maxScore = maxScore;
+            }
         }
         
         await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
@@ -2048,6 +2444,7 @@ async function submitGrade(action) {
         loadAllHomework();
         loadAllHomeworkHistory();
         loadDashboard();
+        loadAnalytics();
         
     } catch (error) {
         console.error("Ошибка:", error);
@@ -2296,6 +2693,8 @@ function initAdminPanel() {
     if (!isSecondPart && document.getElementById("tasksContainer")) {
         addTask();
     }
+    
+    loadAnalytics();
 }
 
 // ========== АВТОРИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
