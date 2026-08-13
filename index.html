@@ -83,7 +83,7 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: var(--card); border-radius: 20px; padding: 2rem;
-            width: 90%; max-width: 500px; border: 1px solid var(--line);
+            width: 90%; max-width: 700px; border: 1px solid var(--line);
             animation: modalIn 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
@@ -1795,6 +1795,7 @@ async function viewHomeworkResult(hwId) {
     html += `
         <div style="text-align:center;margin-top:1rem;">
             <button class="btn bg" onclick="document.getElementById('hwResultModal').classList.remove('active');">Закрыть</button>
+            <button class="btn secondary" onclick="document.getElementById('hwResultModal').classList.remove('active'); viewHomeworkSolutions('${hwId}')">Посмотреть решения</button>
         </div>
     `;
     
