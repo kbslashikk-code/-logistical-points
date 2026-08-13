@@ -152,12 +152,7 @@
             font-size: 1.8rem;
         }
         .hw-solve-page .hw-header .close-btn {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--text2);
-            padding: 0 1rem;
+            background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text2); padding: 0 1rem;
         }
         .hw-solve-page .hw-header .close-btn:hover { color: var(--red); }
 
@@ -566,26 +561,6 @@
     <div id="hwSolveContent"></div>
 </div>
 
-<div class="modal-overlay" id="hwResultModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3>Результаты проверки</h3>
-            <button class="modal-close" onclick="closeHwResultModal()">&times;</button>
-        </div>
-        <div id="hwResultContent"></div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="hwSolutionsModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h3 id="hwSolutionsTitle">Решения задач</h3>
-            <button class="modal-close" onclick="closeHwSolutionsModal()">&times;</button>
-        </div>
-        <div id="hwSolutionsContent"></div>
-    </div>
-</div>
-
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -730,7 +705,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
-// ========== КОНФИГУРАЦИЯ FIREBASE ==========
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
     authDomain: "logistical-points.firebaseapp.com",
@@ -743,7 +717,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// ========== ДАННЫЕ ==========
 const COURSES = [
     { id: "algebra", name: "Алгебра", icon: "∑", level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
     { id: "geometry", name: "Геометрия", icon: "△", level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
@@ -1711,110 +1684,145 @@ async function uploadStudentFiles(files, homeworkId) {
 // ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
 async function viewHomeworkResult(hwId) {
     const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
-    if (!submission) { showToast("Результат не найден", "error"); return; }
+    if (!submission) { 
+        showToast("Результат не найден", "error"); 
+        return; 
+    }
     
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
     
-    let html = '';
+    // Открываем полноразмерную страницу
+    currentSolveHwId = hwId;
+    currentSolveHwData = hw;
+    isSubmitted = true;
+    currentTaskIndex = 0;
     
-    if (hw.tasks && hw.tasks.length > 0) {
-        html += `
-            <div class="result-summary">
-                <div class="score">${submission.correctCount || '—'} / ${submission.total || '—'}</div>
-                <div class="label">${submission.percent || 0}% правильных ответов</div>
+    document.getElementById("hwSolveTitle").textContent = "Результаты: " + hw.title;
+    
+    const totalTasks = hw.tasks ? hw.tasks.length : 0;
+    const correctCount = submission.correctCount || 0;
+    const percent = submission.percent || 0;
+    
+    let html = `
+        <div style="margin-bottom:1.5rem;text-align:center;">
+            <div style="display:inline-block;background:var(--card);border-radius:16px;padding:1rem 2rem;border:2px solid var(--gold);">
+                <div style="font-size:2rem;font-weight:700;color:var(--gold);">${correctCount} / ${totalTasks}</div>
+                <div style="font-size:0.9rem;color:var(--text2);">${percent}% правильных ответов</div>
             </div>
-        `;
+        </div>
         
-        hw.tasks.forEach((task, index) => {
-            const result = submission.taskResults ? submission.taskResults[index] : null;
-            const isSecondPart = task.isSecondPart || false;
-            const isCorrect = result ? result.isCorrect : false;
-            const userAnswer = result ? result.userAnswer : "";
-            
-            let taskFilesHtml = '';
-            if (task.files && task.files.length > 0) {
-                taskFilesHtml = `
-                    <div class="task-files">
-                        <div class="task-files-label">Файлы к задаче:</div>
-                        <div class="files-list">${task.files.map(f => 
-                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
-                        ).join('')}</div>
+        <div class="hw-progress-bar" id="hwProgressBar">
+            ${Array.from({ length: totalTasks }, (_, i) => {
+                const result = submission.taskResults ? submission.taskResults[i] : null;
+                const isCorrect = result ? result.isCorrect : false;
+                const dotClass = isCorrect ? 'correct' : 'wrong';
+                const isSecondPart = hw.tasks[i] ? hw.tasks[i].isSecondPart : false;
+                return `
+                    <div class="hw-dot ${dotClass} submitted" onclick="goToTask(${i})" title="Задача ${i + 1}">
+                        ${i + 1}
+                        ${isSecondPart ? '<span style="position:absolute;top:-6px;right:-6px;font-size:0.5rem;background:var(--blue2);color:white;padding:1px 4px;border-radius:8px;">📄</span>' : ''}
                     </div>
                 `;
-            }
-            
-            let userFilesHtml = '';
-            if (result && result.files && result.files.length > 0) {
-                userFilesHtml = `
-                    <div class="task-files">
-                        <div class="task-files-label">Ваши файлы:</div>
-                        <div class="files-list">${result.files.map(f => 
-                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
-                        ).join('')}</div>
-                    </div>
-                `;
-            }
-            
-            let answerHtml = '';
-            if (isSecondPart) {
-                answerHtml = `
-                    <div style="margin-top:0.5rem;">
-                        <strong>Ваше решение:</strong>
-                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
-                        ${userFilesHtml}
-                    </div>
-                `;
-            } else {
-                answerHtml = `
-                    <div style="margin-top:0.5rem;">
-                        <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
-                    </div>
-                    <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
-                        ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
-                    </div>
-                `;
-            }
-            
-            html += `
-                <div class="task-block">
-                    <div class="task-content ${isCorrect && !isSecondPart ? 'correct' : isSecondPart ? '' : 'wrong'} submitted">
-                        <div class="task-number">Задача ${index + 1}</div>
-                        <div class="task-condition">${task.condition || "Без условия"}</div>
-                        ${taskFilesHtml}
-                        ${answerHtml}
-                        <div class="task-solution">
-                            <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
+            }).join('')}
+        </div>
+        
+        <div id="hwTasksContainer">
+            ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
+                const result = submission.taskResults ? submission.taskResults[index] : null;
+                const isCorrect = result ? result.isCorrect : false;
+                const userAnswer = result ? result.userAnswer : "";
+                const isSecondPart = task.isSecondPart || false;
+                
+                let taskFilesHtml = '';
+                if (task.files && task.files.length > 0) {
+                    taskFilesHtml = `
+                        <div class="task-files">
+                            <div class="task-files-label">Файлы к задаче:</div>
+                            <div class="files-list">${task.files.map(f => 
+                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                            ).join('')}</div>
+                        </div>
+                    `;
+                }
+                
+                let answerHtml = '';
+                if (isSecondPart) {
+                    let userFilesHtml = '';
+                    if (result && result.files && result.files.length > 0) {
+                        userFilesHtml = `
+                            <div class="task-files">
+                                <div class="task-files-label">Ваши файлы:</div>
+                                <div class="files-list">${result.files.map(f => 
+                                    '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                                ).join('')}</div>
+                            </div>
+                        `;
+                    }
+                    answerHtml = `
+                        <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
+                            <div style="font-weight:600;margin-bottom:0.5rem;">Ваше решение:</div>
+                            <div style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
+                            ${userFilesHtml}
+                        </div>
+                    `;
+                } else {
+                    answerHtml = `
+                        <div style="margin-top:0.5rem;">
+                            <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
+                            <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
+                                ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
+                        <div class="task-content ${isCorrect && !isSecondPart ? 'correct' : isSecondPart ? '' : 'wrong'} submitted">
+                            <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
+                            <div class="task-condition">
+                                ${task.condition || "Условие задачи не добавлено"}
+                            </div>
+                            ${taskFilesHtml}
+                            ${answerHtml}
+                            <div class="task-solution">
+                                <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        });
-    }
-    
-    html += `
-        <div style="text-align:center;margin-top:1rem;">
-            <button class="btn bg" onclick="document.getElementById('hwResultModal').classList.remove('active');">Закрыть</button>
-            <button class="btn secondary" onclick="document.getElementById('hwResultModal').classList.remove('active'); viewHomeworkSolutions('${hwId}')">Посмотреть решения</button>
+                `;
+            }).join('') : '<div style="padding:2rem;text-align:center;color:var(--text3);">В этом задании нет задач</div>'}
+        </div>
+        
+        <div class="task-nav">
+            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)" disabled>Назад</button>
+            <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
+            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
+        </div>
+        
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
+            <button class="btn bo" onclick="closeHwSolvePage()">Закрыть</button>
         </div>
     `;
     
-    document.getElementById("hwResultContent").innerHTML = html;
-    document.getElementById("hwResultModal").classList.add("active");
+    document.getElementById("hwSolveContent").innerHTML = html;
+    openHwSolvePage();
+    
+    updateNavButtons();
     
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise();
     }
 }
 
-function closeHwResultModal() {
-    document.getElementById("hwResultModal").classList.remove("active");
-}
-
 // ========== ПРОСМОТР РЕШЕНИЙ ==========
 async function viewHomeworkSolutions(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
+    
+    // Проверяем, есть ли решение в сохранённых данных
+    const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
     
     document.getElementById("hwSolutionsTitle").textContent = 'Решения: ' + hw.title;
     
@@ -1839,6 +1847,26 @@ async function viewHomeworkSolutions(hwId) {
             }
             
             const isSecondPart = task.isSecondPart || false;
+            const result = submission ? submission.taskResults?.[index] : null;
+            const userAnswer = result ? result.userAnswer : "";
+            const isCorrect = result ? result.isCorrect : false;
+            
+            let userAnswerHtml = '';
+            if (isSecondPart) {
+                userAnswerHtml = `
+                    <div style="margin-top:0.5rem;background:var(--bg);border-radius:8px;padding:0.8rem;border-left:3px solid var(--gold);">
+                        <strong>Ваш ответ:</strong>
+                        <div style="margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
+                    </div>
+                `;
+            } else {
+                userAnswerHtml = `
+                    <div style="margin-top:0.5rem;">
+                        <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
+                        <span style="color:${isCorrect ? 'var(--green)' : 'var(--red)'};font-weight:600;margin-left:0.5rem;">${isCorrect ? 'Правильно' : 'Неправильно'}</span>
+                    </div>
+                `;
+            }
             
             html += `
                 <div class="task-block">
@@ -1846,6 +1874,7 @@ async function viewHomeworkSolutions(hwId) {
                         <div class="task-number">Задача ${index + 1}</div>
                         <div class="task-condition">${task.condition || "Без условия"}</div>
                         ${taskFilesHtml}
+                        ${userAnswerHtml}
                         ${!isSecondPart ? '<div style="margin-top:0.5rem;"><strong>Правильный ответ:</strong> ' + escapeHtml(task.correctAnswer || "—") + '</div>' : ''}
                         <div class="task-solution">
                             <strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}
