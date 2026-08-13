@@ -138,9 +138,7 @@
         }
         .hw-solve-page.active { display: block; }
         .hw-solve-page .hw-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--gold);
             margin-bottom: 1.5rem;
@@ -752,7 +750,6 @@ let userAnswers = {};
 let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
-let currentSubmissions = {};
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -1287,7 +1284,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ ==========
+// ========== ЗАПУСК ДЗ (С ИСПРАВЛЕННОЙ НАВИГАЦИЕЙ) ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1455,10 +1452,13 @@ function removeTaskSolveFile(taskIndex, idx) {
     }
 }
 
+// ========== НАВИГАЦИЯ ПО ЗАДАЧАМ (ИСПРАВЛЕННАЯ - БЕЗ БЛОКИРОВКИ ПОСЛЕ ОТПРАВКИ) ==========
+
 function goToTask(index) {
     const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
     if (index < 0 || index >= totalTasks) return;
     
+    // Навигация доступна всегда, даже после отправки
     document.querySelectorAll('.task-block').forEach(el => el.classList.remove('active'));
     const target = document.getElementById('taskblock_' + index);
     if (target) target.classList.add('active');
@@ -1508,7 +1508,6 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
-    // Проверяем, что все задачи решены
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1621,12 +1620,10 @@ async function submitHomework() {
             counter.style.display = 'flex';
             const scoreEl = document.getElementById('hwScore');
             if (scoreEl) scoreEl.textContent = correctCount;
-            // Обновляем процент
             const percentEl = counter.querySelector('span:last-child');
             if (percentEl) percentEl.textContent = percent + '%';
         }
         
-        // Сохраняем результат в users
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1652,7 +1649,6 @@ async function submitHomework() {
             homeworkSubmissions: userData.homeworkSubmissions 
         });
         
-        // Обновляем статус ДЗ в homeworks
         await db.collection("homeworks").doc(currentSolveHwId).update({
             status: "submitted",
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1664,12 +1660,10 @@ async function submitHomework() {
         btn.disabled = true;
         btn.className = "btn green";
         
-        // Обновляем статистику
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
         showToast('Задание отправлено на проверку!', "success");
         
-        // Перерисовываем формулы
         if (window.MathJax && MathJax.typesetPromise) {
             MathJax.typesetPromise();
         }
