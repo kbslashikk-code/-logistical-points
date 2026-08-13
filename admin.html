@@ -17,10 +17,11 @@
 :root {
     --bg: #0a0e17; --bg2: #111827; --card: #1f2937; --card2: #374151;
     --line: #374151; --gold: #d4a54a; --gold2: #e8c97a;
-    --green: #22c55e; --green2: rgba(34,197,94,0.1);
-    --red: #ef4444; --red2: rgba(239,68,68,0.1);
+    --green: #22c55e; --green2: rgba(34,197,94,0.15);
+    --red: #ef4444; --red2: rgba(239,68,68,0.15);
     --blue: #3b6ef5; --blue2: #7ba3ff; --blue3: rgba(59,110,245,0.1);
-    --orange: #f97316; --orange2: rgba(249,115,22,0.1);
+    --orange: #f97316; --orange2: rgba(249,115,22,0.15);
+    --purple: #8b5cf6; --purple2: rgba(139,92,246,0.15);
     --text: #f3f4f6; --text2: #9ca3af; --text3: #6b7280;
     --f: 'Segoe UI', Arial, sans-serif;
 }
@@ -146,7 +147,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 
 .modal {
     display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+    z-index: 1000; align-items: center; justify-content: center;
 }
 .modal.active { display: flex; }
 .modal-content {
@@ -232,19 +234,26 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .toggle-switch.active .toggle-slider { left: 24px; }
 
-/* Стили для аналитики */
+/* ========== СТИЛИ ДЛЯ АНАЛИТИКИ ========== */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 1rem;
     margin-bottom: 2rem;
 }
 .stat-card {
     background: var(--card); border: 1px solid var(--line); border-radius: 14px;
     padding: 1.2rem; text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
 }
-.stat-card .stat-number { font-size: 2rem; font-weight: 700; color: var(--gold); }
-.stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); }
+.stat-card:hover { transform: translateY(-2px); border-color: var(--gold); }
+.stat-card .stat-number { font-size: 2.2rem; font-weight: 700; color: var(--gold); }
+.stat-card .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
+.stat-card .stat-icon {
+    font-size: 1.8rem; opacity: 0.2; position: absolute; right: 0.5rem; bottom: 0.3rem;
+}
 
 .chart-container {
     background: var(--card); border: 1px solid var(--line); border-radius: 10px;
@@ -252,43 +261,143 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .chart-title { font-weight: 600; margin-bottom: 1rem; color: var(--text2); }
 
+/* Анимированные бары */
 .bar-chart {
-    display: flex; flex-direction: column; gap: 0.5rem;
+    display: flex; flex-direction: column; gap: 0.6rem;
 }
 .bar-item {
     display: flex; align-items: center; gap: 0.8rem;
+    animation: slideIn 0.5s ease forwards;
+    opacity: 0;
 }
+.bar-item:nth-child(1) { animation-delay: 0.05s; }
+.bar-item:nth-child(2) { animation-delay: 0.1s; }
+.bar-item:nth-child(3) { animation-delay: 0.15s; }
+.bar-item:nth-child(4) { animation-delay: 0.2s; }
+.bar-item:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 .bar-item .bar-label {
-    min-width: 120px; font-size: 0.8rem; color: var(--text2);
+    min-width: 100px; font-size: 0.8rem; color: var(--text2);
 }
 .bar-item .bar-track {
-    flex: 1; height: 24px; background: var(--bg2); border-radius: 4px;
+    flex: 1; height: 28px; background: var(--bg2); border-radius: 6px;
     overflow: hidden; position: relative;
 }
 .bar-item .bar-fill {
-    height: 100%; border-radius: 4px; transition: width 0.6s ease;
+    height: 100%; border-radius: 6px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 8px; font-size: 0.7rem; font-weight: 600;
+    padding-right: 10px; font-size: 0.7rem; font-weight: 600;
     color: white; min-width: 30px;
+    position: relative;
 }
-.bar-fill.good { background: var(--green); }
-.bar-fill.medium { background: var(--gold); }
-.bar-fill.poor { background: var(--orange); }
-.bar-fill.bad { background: var(--red); }
+.bar-fill.good { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.bar-fill.medium { background: linear-gradient(90deg, #d4a54a, #b89030); }
+.bar-fill.poor { background: linear-gradient(90deg, #f97316, #ea580c); }
+.bar-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
+.bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
+/* Карточка ученика в аналитике */
 .student-analytics-card {
     background: var(--bg2); border-radius: 10px; padding: 1rem;
     margin-bottom: 0.8rem; border: 1px solid var(--line);
     cursor: pointer; transition: all 0.3s;
 }
-.student-analytics-card:hover { border-color: var(--gold); }
+.student-analytics-card:hover { border-color: var(--gold); transform: translateX(4px); }
 .student-analytics-card .student-name {
     font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;
 }
 .student-analytics-card .student-stats {
     display: flex; gap: 1rem; margin-top: 0.3rem; font-size: 0.8rem; color: var(--text2);
+    flex-wrap: wrap;
 }
-.student-analytics-card .student-stats span { display: flex; align-items: center; gap: 0.3rem; }
+.student-analytics-card .student-stats .stat-item {
+    display: flex; align-items: center; gap: 0.3rem;
+    background: var(--bg); padding: 0.15rem 0.5rem; border-radius: 4px;
+}
+.student-analytics-card .student-stats .stat-item .value {
+    font-weight: 600; color: var(--text);
+}
+.student-analytics-card .progress-bar {
+    margin-top: 0.5rem; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden;
+}
+.student-analytics-card .progress-bar .progress-fill {
+    height: 100%; border-radius: 2px; transition: width 1s ease;
+}
+.student-analytics-card .hw-preview {
+    display: flex; flex-direction: column; gap: 0.2rem; margin-top: 0.4rem;
+}
+.student-analytics-card .hw-preview .hw-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem;
+    transition: all 0.2s; cursor: pointer;
+}
+.student-analytics-card .hw-preview .hw-item:hover { background: var(--card); }
+.student-analytics-card .hw-preview .hw-item .hw-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.student-analytics-card .hw-preview .hw-item .hw-dot.green { background: var(--green); }
+.student-analytics-card .hw-preview .hw-item .hw-dot.gold { background: var(--gold); }
+.student-analytics-card .hw-preview .hw-item .hw-dot.red { background: var(--red); }
+.student-analytics-card .hw-preview .hw-item .hw-name {
+    flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.student-analytics-card .hw-preview .hw-item .hw-score {
+    font-weight: 600; font-size: 0.65rem;
+}
+
+/* Модалка просмотра ДЗ */
+.hw-detail-modal .modal-content { max-width: 900px; }
+.hw-detail-modal .task-detail {
+    padding: 0.8rem 1rem; margin-bottom: 0.5rem; border-radius: 8px;
+    border-left: 4px solid var(--line); background: var(--bg2);
+    transition: all 0.3s;
+}
+.hw-detail-modal .task-detail.correct { border-left-color: var(--green); background: var(--green2); }
+.hw-detail-modal .task-detail.wrong { border-left-color: var(--red); background: var(--red2); }
+.hw-detail-modal .task-detail .task-condition {
+    font-weight: 500; font-size: 0.95rem; margin-bottom: 0.3rem;
+}
+.hw-detail-modal .task-detail .task-answers {
+    display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem;
+}
+.hw-detail-modal .task-detail .task-answers .label { color: var(--text3); }
+.hw-detail-modal .task-detail .task-answers .user-answer { font-weight: 600; }
+.hw-detail-modal .task-detail .task-answers .user-answer.wrong { color: var(--red); }
+.hw-detail-modal .task-detail .task-answers .user-answer.correct { color: var(--green); }
+.hw-detail-modal .task-detail .task-solution {
+    margin-top: 0.5rem; padding: 0.5rem 0.8rem; background: var(--bg);
+    border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--gold);
+}
+.hw-detail-modal .task-detail .task-solution .math { font-size: 0.9rem; }
+
+.hw-review-summary {
+    display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.8rem;
+    padding: 0.8rem; background: var(--card); border-radius: 8px;
+    border: 1px solid var(--line);
+}
+.hw-review-summary .stat {
+    display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem;
+}
+.hw-review-summary .stat .value {
+    font-weight: 700; font-size: 1.1rem;
+}
+.hw-review-summary .stat .value.good { color: var(--green); }
+.hw-review-summary .stat .value.medium { color: var(--gold); }
+.hw-review-summary .stat .value.poor { color: var(--red); }
+
+/* Анимация для плавающих элементов */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
 
 @media (max-width: 768px) {
     .schedule-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
@@ -296,7 +405,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     .main-content { margin-left: 0; }
     .admin-container { flex-direction: column; }
     .modal-content { padding: 1rem; }
-    .bar-item .bar-label { min-width: 80px; font-size: 0.7rem; }
+    .bar-item .bar-label { min-width: 70px; font-size: 0.7rem; }
+    .hw-review-summary { flex-direction: column; gap: 0.5rem; }
+    .hw-detail-modal .task-detail .task-answers { flex-direction: column; gap: 0.3rem; }
+    .student-analytics-card .hw-preview .hw-item { flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -389,7 +501,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 
             <div id="homeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
-                    <div class="card-header"><h3>Домашние задания на проверку (только вторая часть)</h3></div>
+                    <div class="card-header"><h3>Домашние задания на проверку</h3></div>
                     <div id="pendingHomeworkList"></div>
                 </div>
             </div>
@@ -524,7 +636,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ПРОВЕРКИ ДЗ (ОБНОВЛЁННОЕ) ========== -->
 <div id="gradeModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -554,6 +665,19 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <button class="btn btn-success" onclick="submitGrade('graded')">Принять</button>
             <button class="btn btn-danger" onclick="submitGrade('returned')">Вернуть на доработку</button>
             <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="hwDetailModal" class="modal hw-detail-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="hwDetailTitle">Домашнее задание</h3>
+            <button class="modal-close" onclick="closeHwDetailModal()">&times;</button>
+        </div>
+        <div id="hwDetailContent"></div>
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeHwDetailModal()">Закрыть</button>
         </div>
     </div>
 </div>
@@ -639,7 +763,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ АНАЛИТИКИ УЧЕНИКА ========== -->
 <div id="studentAnalyticsModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1151,7 +1274,7 @@ async function loadStudents() {
     }
 }
 
-// ========== АНАЛИТИКА ==========
+// ========== АНАЛИТИКА (ОБНОВЛЁННАЯ) ==========
 async function loadAnalytics() {
     const filter = document.getElementById('analyticsStudentFilter')?.value || 'all';
     const container = document.getElementById('analyticsContainer');
@@ -1196,15 +1319,13 @@ async function loadAnalytics() {
             const submissions = user.homeworkSubmissions || [];
             const totalHw = submissions.length;
             
-            let totalCorrect = 0;
-            let totalTasks = 0;
+            let totalCorrect = 0, totalTasks = 0;
+            let totalMaxScore = 0, totalUserScore = 0;
             let completedHw = 0;
+            let totalSecondPart = 0, totalFirstPart = 0;
             const hwDetails = [];
-            let totalMaxScore = 0;
-            let totalUserScore = 0;
             
             for (const sub of submissions) {
-                // Для второй части используем баллы, для первой - количество правильных
                 const correct = sub.correctCount || 0;
                 const total = sub.total || 0;
                 const maxScore = sub.maxScore || 0;
@@ -1219,16 +1340,25 @@ async function loadAnalytics() {
                 if (maxScore > 0) {
                     totalMaxScore += maxScore;
                     totalUserScore += userScore;
+                    totalSecondPart++;
+                } else if (total > 0) {
+                    totalFirstPart++;
                 }
                 
                 let hwTitle = sub.title || 'Без названия';
                 let isSecondPart = false;
+                let status = 'submitted';
+                let grade = null;
+                let hwDueDate = '';
                 try {
                     const hwDoc = await db.collection("homeworks").doc(sub.id).get();
                     if (hwDoc.exists) {
                         const hwData = hwDoc.data();
                         hwTitle = hwData.title || hwTitle;
                         isSecondPart = hwData.isSecondPart || false;
+                        status = hwData.status || 'submitted';
+                        grade = hwData.grade || null;
+                        hwDueDate = hwData.dueDate || '';
                     }
                 } catch(e) {}
                 
@@ -1244,62 +1374,148 @@ async function loadAnalytics() {
                     maxScore: maxScore,
                     userScore: userScore,
                     scorePercent: scorePercent,
-                    results: sub.taskResults || [],
                     isSecondPart: isSecondPart,
+                    status: status,
+                    grade: grade,
+                    dueDate: hwDueDate,
                     submittedAt: sub.submittedAt || null
                 });
             }
             
+            hwDetails.sort((a, b) => {
+                const dateA = a.submittedAt?.toDate ? a.submittedAt.toDate() : new Date(0);
+                const dateB = b.submittedAt?.toDate ? b.submittedAt.toDate() : new Date(0);
+                return dateB - dateA;
+            });
+            
             const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
             const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
             const completedPercent = totalHw > 0 ? Math.round(completedHw / totalHw * 100) : 0;
+            
+            const statusMap = {
+                'graded': 'Проверено',
+                'submitted': 'Сдано',
+                'pending': 'Ожидает',
+                'returned': 'Возвращено'
+            };
             
             html += `
                 <div class="student-analytics-card" onclick="openStudentAnalyticsModal('${user.id}')">
                     <div class="student-name">
                         ${escapeHtml(name)}
                         <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">${escapeHtml(user.email || '')}</span>
+                        <span style="font-size:0.6rem;background:var(--card);padding:0.1rem 0.5rem;border-radius:10px;color:var(--text2);">
+                            ${totalHw} ДЗ
+                        </span>
                     </div>
                     <div class="student-stats">
-                        <span>📚 ДЗ: ${totalHw}</span>
-                        <span>✅ Верно: ${avgPercent}%</span>
-                        <span>🏆 Выполнено: ${completedPercent}%</span>
-                        ${totalMaxScore > 0 ? `<span>⭐ Баллы: ${avgScorePercent}%</span>` : ''}
-                        ${user.grade ? `<span>📖 ${escapeHtml(user.grade)}</span>` : ''}
+                        <span class="stat-item">Верно: <span class="value" style="color:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${avgPercent}%</span></span>
+                        <span class="stat-item">Выполнено: <span class="value">${completedPercent}%</span></span>
+                        ${totalMaxScore > 0 ? `<span class="stat-item">Баллы: <span class="value" style="color:${avgScorePercent >= 80 ? 'var(--green)' : avgScorePercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${avgScorePercent}%</span></span>` : ''}
+                        ${user.grade ? `<span class="stat-item">Класс: <span class="value">${escapeHtml(user.grade)}</span></span>` : ''}
+                        <span class="stat-item" style="font-size:0.65rem;color:var(--text3);">
+                            ${totalFirstPart > 0 ? `Краткий ответ: ${totalFirstPart}` : ''}
+                            ${totalFirstPart > 0 && totalSecondPart > 0 ? ' | ' : ''}
+                            ${totalSecondPart > 0 ? `Вторая часть: ${totalSecondPart}` : ''}
+                        </span>
                     </div>
-                    <div style="margin-top:0.5rem;height:4px;background:var(--line);border-radius:2px;overflow:hidden;">
-                        <div style="height:100%;width:${avgPercent}%;background:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};border-radius:2px;transition:width 0.5s;"></div>
+                    <div class="hw-preview">
+                        ${hwDetails.slice(0, 4).map(hw => {
+                            const displayPercent = hw.isSecondPart ? hw.scorePercent : hw.percent;
+                            const displayCorrect = hw.isSecondPart ? hw.userScore : hw.correct;
+                            const displayTotal = hw.isSecondPart ? hw.maxScore : hw.total;
+                            const dotColor = displayPercent >= 80 ? 'green' : displayPercent >= 50 ? 'gold' : 'red';
+                            const isGraded = hw.status === 'graded';
+                            const displayText = displayTotal > 0 ? `${displayCorrect}/${displayTotal}` : '—';
+                            return `
+                                <div class="hw-item" onclick="event.stopPropagation(); openHwDetailModal('${hw.id}', '${user.id}')">
+                                    <span class="hw-dot ${dotColor}"></span>
+                                    <span class="hw-name">${escapeHtml(hw.title)}</span>
+                                    <span class="hw-score" style="color:${displayPercent >= 80 ? 'var(--green)' : displayPercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${displayPercent}%</span>
+                                    <span style="font-size:0.6rem;color:var(--text3);">${displayText}</span>
+                                    ${isGraded ? `<span style="font-size:0.5rem;color:var(--green);background:var(--green2);padding:0.05rem 0.3rem;border-radius:4px;">проверено</span>` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                        ${hwDetails.length > 4 ? `<div style="font-size:0.65rem;color:var(--text3);text-align:center;padding:0.2rem;">+ ещё ${hwDetails.length - 4}</div>` : ''}
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${avgPercent}%;background:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};"></div>
                     </div>
                 </div>
             `;
         }
         
+        // Общая статистика
         const allUsers = targetUsers;
         const allSubmissions = allUsers.flatMap(u => u.homeworkSubmissions || []);
         let allCorrect = 0, allTasks = 0;
         let allMaxScore = 0, allUserScore = 0;
+        let allSecondPart = 0, allFirstPart = 0;
         for (const sub of allSubmissions) {
             allCorrect += sub.correctCount || 0;
             allTasks += sub.total || 0;
             allMaxScore += sub.maxScore || 0;
             allUserScore += sub.userScore || 0;
+            if (sub.maxScore > 0) allSecondPart++;
+            else if (sub.total > 0) allFirstPart++;
         }
         const overallAvg = allTasks > 0 ? Math.round(allCorrect / allTasks * 100) : 0;
         const overallScoreAvg = allMaxScore > 0 ? Math.round(allUserScore / allMaxScore * 100) : 0;
         
+        // Данные для диаграммы
+        const typeData = [
+            { label: 'Краткий ответ', count: allFirstPart, color: 'var(--blue2)' },
+            { label: 'Вторая часть', count: allSecondPart, color: 'var(--gold)' }
+        ];
+        const maxTypeCount = Math.max(...typeData.map(d => d.count), 1);
+        
         container.innerHTML = `
-            <div class="stats-grid" style="margin-bottom:1rem;">
-                <div class="stat-card"><div class="stat-number">${allUsers.length}</div><div class="stat-label">Учеников</div></div>
-                <div class="stat-card"><div class="stat-number">${allSubmissions.length}</div><div class="stat-label">Всего ДЗ сдано</div></div>
-                <div class="stat-card"><div class="stat-number">${overallAvg}%</div><div class="stat-label">Общий прогресс</div></div>
-                <div class="stat-card"><div class="stat-number">${allTasks}</div><div class="stat-label">Всего задач</div></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">${allUsers.length}</div>
+                    <div class="stat-label">Учеников</div>
+                    <div class="stat-icon">👥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${allSubmissions.length}</div>
+                    <div class="stat-label">Всего ДЗ сдано</div>
+                    <div class="stat-icon">📄</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${overallAvg}%</div>
+                    <div class="stat-label">Общий прогресс</div>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${allTasks}</div>
+                    <div class="stat-label">Всего задач</div>
+                    <div class="stat-icon">📋</div>
+                </div>
             </div>
+            
+            <div class="chart-container">
+                <div class="chart-title">Распределение по типам заданий</div>
+                <div class="bar-chart">
+                    ${typeData.map(item => `
+                        <div class="bar-item">
+                            <div class="bar-label">${item.label}</div>
+                            <div class="bar-track">
+                                <div class="bar-fill purple" style="width:${Math.round(item.count / maxTypeCount * 100)}%;">
+                                    ${item.count}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
             ${html}
         `;
         
     } catch (err) {
         console.error(err);
-        container.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
     }
 }
 
@@ -1319,18 +1535,25 @@ async function openStudentAnalyticsModal(userId) {
     const hwDetails = [];
     let totalCorrect = 0, totalTasks = 0;
     let totalMaxScore = 0, totalUserScore = 0;
+    let totalSecondPart = 0, totalFirstPart = 0;
     
     for (const sub of submissions) {
         let hwTitle = sub.title || 'Без названия';
         let isSecondPart = false;
         let maxScore = sub.maxScore || 0;
         let userScore = sub.userScore || 0;
+        let status = 'submitted';
+        let grade = null;
+        let dueDate = '';
         try {
             const hwDoc = await db.collection("homeworks").doc(sub.id).get();
             if (hwDoc.exists) {
                 const hwData = hwDoc.data();
                 hwTitle = hwData.title || hwTitle;
                 isSecondPart = hwData.isSecondPart || false;
+                status = hwData.status || 'submitted';
+                grade = hwData.grade || null;
+                dueDate = hwData.dueDate || '';
                 if (isSecondPart && hwData.maxScore) {
                     maxScore = hwData.maxScore || 0;
                 }
@@ -1346,6 +1569,9 @@ async function openStudentAnalyticsModal(userId) {
         if (maxScore > 0) {
             totalMaxScore += maxScore;
             totalUserScore += userScore;
+            totalSecondPart++;
+        } else if (total > 0) {
+            totalFirstPart++;
         }
         
         const percent = total > 0 ? Math.round(correct / total * 100) : 0;
@@ -1360,11 +1586,19 @@ async function openStudentAnalyticsModal(userId) {
             maxScore: maxScore,
             userScore: userScore,
             scorePercent: scorePercent,
-            results: sub.taskResults || [],
             isSecondPart: isSecondPart,
+            status: status,
+            grade: grade,
+            dueDate: dueDate,
             submittedAt: sub.submittedAt || null
         });
     }
+    
+    hwDetails.sort((a, b) => {
+        const dateA = a.submittedAt?.toDate ? a.submittedAt.toDate() : new Date(0);
+        const dateB = b.submittedAt?.toDate ? b.submittedAt.toDate() : new Date(0);
+        return dateB - dateA;
+    });
     
     const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
     const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
@@ -1426,13 +1660,22 @@ async function openStudentAnalyticsModal(userId) {
                     const displayCorrect = hw.isSecondPart ? hw.userScore : hw.correct;
                     const displayTotal = hw.isSecondPart ? hw.maxScore : hw.total;
                     const color = displayPercent >= 80 ? 'var(--green)' : displayPercent >= 50 ? 'var(--gold)' : 'var(--red)';
+                    const statusColor = hw.status === 'graded' ? 'var(--green)' : hw.status === 'submitted' ? 'var(--gold)' : 'var(--text3)';
+                    const statusMap = {
+                        'graded': 'Проверено',
+                        'submitted': 'Сдано',
+                        'pending': 'Ожидает',
+                        'returned': 'Возвращено'
+                    };
                     return `
-                        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.5rem;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};">
+                        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.5rem;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};cursor:pointer;" onclick="openHwDetailModal('${hw.id}', '${userId}')">
                             <div style="font-size:0.8rem;color:var(--text3);min-width:30px;">#${idx + 1}</div>
                             <div style="flex:1;font-size:0.85rem;">${escapeHtml(hw.title)}</div>
-                            <div style="font-size:0.7rem;color:var(--text3);">${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
+                            <div style="font-size:0.65rem;color:${statusColor};">${statusMap[hw.status] || hw.status}</div>
+                            <div style="font-size:0.65rem;color:var(--text3);">${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
                             <div style="font-size:0.85rem;font-weight:600;color:${color};">${displayPercent}%</div>
                             <div style="font-size:0.7rem;color:var(--text3);">${displayCorrect}/${displayTotal}</div>
+                            <div style="font-size:0.8rem;color:var(--blue2);cursor:pointer;">👁</div>
                         </div>
                     `;
                 }).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет выполненных ДЗ</div>'}
@@ -1446,10 +1689,203 @@ async function openStudentAnalyticsModal(userId) {
     
     document.getElementById("studentAnalyticsContent").innerHTML = html;
     document.getElementById("studentAnalyticsModal").classList.add("active");
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 function closeStudentAnalyticsModal() {
     document.getElementById("studentAnalyticsModal").classList.remove("active");
+}
+
+// ========== ПРОСМОТР ДЗ В АНАЛИТИКЕ ==========
+async function openHwDetailModal(hwId, userId) {
+    try {
+        const hwDoc = await db.collection("homeworks").doc(hwId).get();
+        if (!hwDoc.exists) {
+            showToast("ДЗ не найдено", "error");
+            return;
+        }
+        const hw = hwDoc.data();
+        
+        const userDoc = await db.collection("users").doc(userId).get();
+        if (!userDoc.exists) {
+            showToast("Ученик не найден", "error");
+            return;
+        }
+        const user = userDoc.data();
+        
+        const submission = (user.homeworkSubmissions || []).find(s => s.id === hwId);
+        if (!submission) {
+            showToast("Ученик не сдавал это ДЗ", "error");
+            return;
+        }
+        
+        const isSecondPart = hw.isSecondPart || false;
+        const maxScore = hw.maxScore || 10;
+        const userScore = submission.userScore || submission.grade || 0;
+        const correctCount = submission.correctCount || 0;
+        const total = submission.total || (hw.tasks ? hw.tasks.length : 0);
+        const percent = total > 0 ? Math.round(correctCount / total * 100) : 0;
+        const scorePercent = maxScore > 0 ? Math.round(userScore / maxScore * 100) : 0;
+        const status = hw.status || 'submitted';
+        const statusMap = {
+            'pending': 'Ожидает',
+            'submitted': 'Сдано',
+            'graded': 'Проверено',
+            'returned': 'Возвращено'
+        };
+        
+        document.getElementById("hwDetailTitle").textContent = hw.title || 'Домашнее задание';
+        
+        let html = `
+            <div class="hw-review-summary">
+                <div class="stat">
+                    <span>Ученик:</span>
+                    <span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span>
+                </div>
+                <div class="stat">
+                    <span>Статус:</span>
+                    <span style="font-weight:600;color:${status === 'graded' ? 'var(--green)' : status === 'submitted' ? 'var(--gold)' : 'var(--text3)'};">${statusMap[status] || status}</span>
+                </div>
+                ${isSecondPart ? `
+                    <div class="stat">
+                        <span>Баллы:</span>
+                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${userScore} / ${maxScore}</span>
+                    </div>
+                    <div class="stat">
+                        <span>Процент:</span>
+                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${scorePercent}%</span>
+                    </div>
+                ` : `
+                    <div class="stat">
+                        <span>Правильно:</span>
+                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${correctCount} / ${total}</span>
+                    </div>
+                    <div class="stat">
+                        <span>Процент:</span>
+                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${percent}%</span>
+                    </div>
+                `}
+                ${hw.grade !== undefined && hw.grade !== null && !isSecondPart ? `
+                    <div class="stat">
+                        <span>Оценка:</span>
+                        <span style="font-weight:700;color:var(--gold);">${hw.grade}/10</span>
+                    </div>
+                ` : ''}
+                ${hw.feedback ? `
+                    <div class="stat">
+                        <span>Комментарий:</span>
+                        <span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(hw.feedback)}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+        
+        if (isSecondPart) {
+            html += `
+                <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
+                    <div style="font-weight:600;margin-bottom:0.5rem;">Условие задачи:</div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;">
+                        ${hw.condition || 'Нет условия'}
+                    </div>
+                </div>
+                <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
+                    <div style="font-weight:600;margin-bottom:0.5rem;">Решение ученика:</div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;white-space:pre-wrap;">
+                        ${submission.solution || 'Нет текстового решения'}
+                    </div>
+                    ${submission.files && submission.files.length > 0 ? `
+                        <div style="margin-top:0.5rem;">
+                            <div style="font-size:0.75rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
+                            <div class="files-list">${submission.files.map(f => `
+                                <div class="file-item" onclick="window.open('${f.url}')">
+                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
+                                    <span>${escapeHtml(f.name)}</span>
+                                </div>
+                            `).join('')}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                ${hw.solution ? `
+                    <div style="background:var(--bg2);border-radius:10px;padding:1rem;border:1px solid var(--line);">
+                        <div style="font-weight:600;margin-bottom:0.5rem;">Правильное решение:</div>
+                        <div style="padding:0.8rem;background:var(--bg);border-radius:6px;border-left:3px solid var(--gold);line-height:1.6;">
+                            ${hw.solution}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        } else {
+            const tasks = hw.tasks || [];
+            const results = submission.taskResults || [];
+            
+            html += `<div style="margin-top:0.5rem;">`;
+            
+            tasks.forEach((task, index) => {
+                const result = results[index] || null;
+                const isCorrect = result ? result.isCorrect : false;
+                const userAnswer = result ? result.userAnswer : '';
+                const correctAnswer = task.correctAnswer || '';
+                
+                html += `
+                    <div class="task-detail ${isCorrect ? 'correct' : 'wrong'}">
+                        <div class="task-condition">${task.condition || 'Без условия'}</div>
+                        <div class="task-answers">
+                            <div>
+                                <span class="label">Ваш ответ:</span>
+                                <span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span>
+                            </div>
+                            ${!isCorrect ? `
+                                <div>
+                                    <span class="label">Правильный ответ:</span>
+                                    <span style="font-weight:600;color:var(--green);">${escapeHtml(correctAnswer)}</span>
+                                </div>
+                            ` : ''}
+                            <div>
+                                <span class="label">Результат:</span>
+                                <span style="font-weight:600;color:${isCorrect ? 'var(--green)' : 'var(--red)'};">${isCorrect ? 'Правильно' : 'Неправильно'}</span>
+                            </div>
+                        </div>
+                        ${task.solution ? `
+                            <div class="task-solution">
+                                <strong>Решение:</strong><br>${task.solution}
+                            </div>
+                        ` : ''}
+                        ${task.files && task.files.length > 0 ? `
+                            <div style="margin-top:0.5rem;">
+                                <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.2rem;">Файлы к задаче:</div>
+                                <div class="files-list">${task.files.map(f => `
+                                    <div class="file-item" onclick="window.open('${f.url}')">
+                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
+                                        <span>${escapeHtml(f.name)}</span>
+                                    </div>
+                                `).join('')}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+        }
+        
+        document.getElementById("hwDetailContent").innerHTML = html;
+        document.getElementById("hwDetailModal").classList.add("active");
+        
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+        
+    } catch (error) {
+        console.error("Ошибка:", error);
+        showToast("Ошибка загрузки: " + error.message, "error");
+    }
+}
+
+function closeHwDetailModal() {
+    document.getElementById("hwDetailModal").classList.remove("active");
 }
 
 // ========== КОНСПЕКТЫ ==========
@@ -2272,7 +2708,7 @@ async function loadAllHomework() {
         
         const container = document.getElementById("pendingHomeworkList");
         if (homeworks.length === 0) {
-            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке (задания второй части)</div>";
+            container.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text3)'>Нет ДЗ на проверке</div>";
             return;
         }
         
@@ -2342,7 +2778,7 @@ async function loadAllHomeworkHistory() {
     }
 }
 
-// ========== МОДАЛКА ПРОВЕРКИ ДЗ (ОБНОВЛЁННАЯ) ==========
+// ========== МОДАЛКА ПРОВЕРКИ ДЗ ==========
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
@@ -2396,14 +2832,12 @@ async function submitGrade(action) {
     const feedback = document.getElementById("gradeFeedback").value;
     const maxScore = parseInt(document.getElementById("gradeMaxScore").value) || 10;
     
-    // Проверка: если это вторая часть, проверяем, что балл не превышает максимум
     if (currentGradingHw.isSecondPart) {
         if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > maxScore)) {
             showToast(`Оценка должна быть от 0 до ${maxScore}`, "error");
             return;
         }
     } else {
-        // Для первой части проверяем от 0 до 10
         if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > 10)) {
             showToast("Оценка должна быть от 0 до 10", "error");
             return;
@@ -2431,7 +2865,6 @@ async function submitGrade(action) {
         if (action === "graded") {
             if (grade !== undefined && grade !== null && grade !== '') {
                 updateData.grade = parseFloat(grade);
-                // Сохраняем также userScore для аналитики
                 updateData.userScore = parseFloat(grade);
                 updateData.maxScore = maxScore;
             }
