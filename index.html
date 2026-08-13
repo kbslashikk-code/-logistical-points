@@ -6,7 +6,6 @@
     <title>Logistical Points - Образовательная платформа</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
     
-    <!-- MathJax для формул -->
     <script>
         MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -40,7 +39,6 @@
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: all 0.3s; overflow-x: hidden; }
 
-        /* ========== ЗАГРУЗЧИК ========== */
         .loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 10000;
@@ -61,7 +59,6 @@
         .loader-progress { width: 200px; height: 2px; background: var(--gold3); margin: 1rem auto 0; border-radius: 2px; overflow: hidden; }
         .loader-progress-bar { width: 0%; height: 100%; background: var(--gold); transition: width 0.3s ease; }
 
-        /* ========== КНОПКИ ========== */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             padding: 0.7rem 1.5rem; border-radius: 10px; border: none;
@@ -78,7 +75,6 @@
         .btn.secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
         .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
 
-        /* ========== МОДАЛЬНЫЕ ОКНА (ДЛЯ АВТОРИЗАЦИИ) ========== */
         .modal-overlay {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
@@ -99,7 +95,34 @@
             background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text2);
         }
 
-        /* ========== СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) ========== */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.7rem 1rem;
+            background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
+            color: var(--text); font-size: 0.95rem;
+        }
+
+        .toast-container {
+            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 6000;
+        }
+        .toast {
+            padding: 0.7rem 1.2rem; border-radius: 10px; margin-top: 0.5rem;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--green); color: white; }
+        .toast.error { background: var(--red); color: white; }
+        .toast.info { background: var(--blue); color: white; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .theme-toggle {
+            position: fixed; bottom: 1.5rem; left: 1.5rem;
+            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--card); border: 2px solid var(--line);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; z-index: 100;
+        }
+
         .hw-solve-page {
             display: none;
             position: fixed;
@@ -112,9 +135,7 @@
             overflow-y: auto;
             padding: 2rem;
         }
-        .hw-solve-page.active {
-            display: block;
-        }
+        .hw-solve-page.active { display: block; }
         .hw-solve-page .hw-header {
             display: flex;
             justify-content: space-between;
@@ -137,9 +158,7 @@
             color: var(--text2);
             padding: 0 1rem;
         }
-        .hw-solve-page .hw-header .close-btn:hover {
-            color: var(--red);
-        }
+        .hw-solve-page .hw-header .close-btn:hover { color: var(--red); }
 
         .hw-progress-bar {
             display: flex; gap: 0.5rem; justify-content: center;
@@ -302,36 +321,6 @@
         .result-summary .score { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
         .result-summary .label { font-size: 1rem; color: var(--text2); }
 
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 0.7rem 1rem;
-            background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
-            color: var(--text); font-size: 0.95rem;
-            font-family: var(--f);
-        }
-
-        .toast-container {
-            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 6000;
-        }
-        .toast {
-            padding: 0.7rem 1.2rem; border-radius: 10px; margin-top: 0.5rem;
-            animation: slideIn 0.3s ease;
-        }
-        .toast.success { background: var(--green); color: white; }
-        .toast.error { background: var(--red); color: white; }
-        .toast.info { background: var(--blue); color: white; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .theme-toggle {
-            position: fixed; bottom: 1.5rem; left: 1.5rem;
-            width: 44px; height: 44px; border-radius: 50%;
-            background: var(--card); border: 2px solid var(--line);
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; z-index: 100;
-        }
-
-        /* ========== НАВИГАЦИЯ ========== */
         nav {
             position: fixed; top: 0; left: 0; right: 0;
             background: rgba(var(--bg-rgb), 0.95); backdrop-filter: blur(10px);
@@ -352,7 +341,6 @@
         }
         .nav-links a:hover { background: var(--card2); color: var(--text); }
 
-        /* ========== ГЛАВНАЯ ========== */
         .hero {
             min-height: 100vh; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center;
@@ -368,12 +356,6 @@
         }
         .hero h1 em { color: var(--gold); font-style: italic; }
         .hero p { max-width: 550px; margin-top: 1.5rem; color: var(--text2); font-size: 1.1rem; }
-        .hero-stats {
-            display: flex; gap: 3rem; margin-top: 4rem; flex-wrap: wrap; justify-content: center;
-        }
-        .stat-item { text-align: center; }
-        .stat-number { font-size: 2.5rem; font-weight: 700; color: var(--gold); }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text3); letter-spacing: 1px; }
 
         .section { max-width: 1200px; margin: 0 auto; padding: 5rem 2rem; }
         .section-badge {
@@ -414,24 +396,6 @@
         .course-topics { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
         .topic-tag { background: var(--bg2); padding: 0.2rem 0.6rem; border-radius: 15px; font-size: 0.7rem; color: var(--text2); }
 
-        .steps {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem; margin-top: 2rem;
-        }
-        .step {
-            background: var(--card); border: 1px solid var(--line); border-radius: 20px;
-            padding: 1.5rem; text-align: center; transition: all 0.3s;
-        }
-        .step:hover { transform: translateY(-4px); border-color: var(--gold); }
-        .step-number {
-            width: 45px; height: 45px; background: var(--gold3); border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 1.2rem; color: var(--gold); margin: 0 auto 1rem;
-        }
-        .step-title { font-weight: 700; margin-bottom: 0.5rem; }
-        .step-desc { font-size: 0.85rem; color: var(--text2); }
-
-        /* ========== ЛИЧНЫЙ КАБИНЕТ ========== */
         .dashboard {
             display: none; min-height: 100vh; padding-top: 70px;
         }
@@ -472,7 +436,6 @@
         .dashboard-pane { display: none; }
         .dashboard-pane.active { display: block; }
 
-        /* ========== РАСПИСАНИЕ ========== */
         .schedule-day-card {
             background: var(--card); border-radius: 16px; padding: 1.2rem;
             margin-bottom: 1rem; border: 1px solid var(--line);
@@ -505,7 +468,6 @@
             background: var(--card2); border-radius: 16px; border: 1px solid var(--line);
         }
 
-        /* ========== ПРЕПОДАВАТЕЛЬ ========== */
         .teacher-card {
             background: var(--card); border: 1px solid var(--line); border-radius: 20px;
             overflow: hidden; transition: all 0.3s; max-width: 320px; margin: 0 auto;
@@ -564,7 +526,6 @@
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ АВТОРИЗАЦИИ ========== -->
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
@@ -588,7 +549,6 @@
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ СБРОСА ПАРОЛЯ ========== -->
 <div class="modal-overlay" id="resetModal">
     <div class="modal">
         <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
@@ -597,7 +557,6 @@
     </div>
 </div>
 
-<!-- ========== СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) ========== -->
 <div class="hw-solve-page" id="hwSolvePage">
     <div class="hw-header">
         <h2 id="hwSolveTitle">Решение домашнего задания</h2>
@@ -606,7 +565,6 @@
     <div id="hwSolveContent"></div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ РЕЗУЛЬТАТОВ ========== -->
 <div class="modal-overlay" id="hwResultModal">
     <div class="modal">
         <div class="modal-header">
@@ -617,7 +575,6 @@
     </div>
 </div>
 
-<!-- ========== МОДАЛЬНОЕ ОКНО ДЛЯ РЕШЕНИЙ ========== -->
 <div class="modal-overlay" id="hwSolutionsModal">
     <div class="modal">
         <div class="modal-header">
@@ -628,7 +585,6 @@
     </div>
 </div>
 
-<!-- ========== ГЛАВНАЯ СТРАНИЦА ========== -->
 <div id="homePage">
     <nav>
         <div class="nav-container">
@@ -709,7 +665,6 @@
     </footer>
 </div>
 
-<!-- ========== ЛИЧНЫЙ КАБИНЕТ ========== -->
 <div id="dashboard" class="dashboard">
     <nav>
         <div class="nav-container">
@@ -804,7 +759,6 @@ let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -821,7 +775,7 @@ function showToast(msg, type) {
     toast.className = "toast " + type;
     toast.textContent = msg;
     container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), 4000);
 }
 
 function showLoader() {
@@ -841,15 +795,6 @@ function showLoader() {
             setTimeout(() => { loader.classList.add("hide"); setTimeout(() => loader.style.display = "none", 500); }, 300);
         }
     }, 200);
-}
-
-// ========== ПЕРЕРИСОВКА MATHJAX ==========
-function renderMath() {
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise().catch(function(err) {
-            console.log('MathJax error:', err);
-        });
-    }
 }
 
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
@@ -1094,6 +1039,14 @@ async function viewLesson(lessonId, courseId, title) {
                     </div>
                     <div style="background:var(--card);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;border:1px solid var(--line);">
                         <div style="line-height:1.8;color:var(--text2);">${lesson.content || "Нет содержания"}</div>
+                        ${lesson.files && lesson.files.length > 0 ? `
+                            <div style="margin-top:1rem;">
+                                <div style="font-size:0.8rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
+                                <div class="files-list">${lesson.files.map(f => 
+                                    '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄') + ' ' + escapeHtml(f.name) + '</div>'
+                                ).join('')}</div>
+                            </div>
+                        ` : ''}
                     </div>
                     <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
                         <button class="btn bg" onclick="markLessonCompleted('${lessonId}','${courseId}')">Отметить как пройденный</button>
@@ -1105,7 +1058,10 @@ async function viewLesson(lessonId, courseId, title) {
     const oldModal = document.getElementById("lessonDetailModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
-    renderMath();
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 async function markLessonCompleted(lessonId, courseId) {
@@ -1155,7 +1111,6 @@ function toggleTheme() {
     }
 }
 
-// ========== СТРАНИЦА РЕШЕНИЯ ДЗ ==========
 function openHwSolvePage() {
     document.getElementById("hwSolvePage").classList.add("active");
     document.body.style.overflow = "hidden";
@@ -1272,8 +1227,6 @@ async function loadHomeworkByCourse(courseId) {
             return;
         }
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        
-        // Создаём модальное окно со списком ДЗ
         const modalHtml = `
             <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
                 <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
@@ -1339,7 +1292,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ (НА ПОЛНОРАЗМЕРНОЙ СТРАНИЦЕ) ==========
+// ========== ЗАПУСК ДЗ ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1382,7 +1335,7 @@ async function startHomework(hwId) {
                         <div class="task-files">
                             <div class="task-files-label">Файлы к задаче:</div>
                             <div class="files-list">${task.files.map(f => 
-                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄') + ' ' + escapeHtml(f.name) + '</div>'
                             ).join('')}</div>
                         </div>
                     `;
@@ -1390,7 +1343,6 @@ async function startHomework(hwId) {
                 
                 let answerHtml = '';
                 if (isSecondPart) {
-                    // Вторая часть - текстовое решение + файлы
                     answerHtml = `
                         <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
                             <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
@@ -1410,7 +1362,6 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 } else {
-                    // Краткий ответ
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
@@ -1454,7 +1405,10 @@ async function startHomework(hwId) {
     openHwSolvePage();
     
     updateNavButtons();
-    renderMath();
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
@@ -1560,7 +1514,6 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
-    // Проверяем, что все задачи решены (для краткого ответа) или есть решение (для второй части)
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1575,16 +1528,23 @@ async function submitHomework() {
             }
             userAnswers[i] = { text: textAnswer, files: files };
         } else {
-            const answer = userAnswers[i] || '';
-            if (answer.trim() === '') {
+            const answerInput = document.getElementById('answer_' + i);
+            const answer = answerInput ? answerInput.value.trim() : '';
+            if (answer === '') {
                 showToast('Ответьте на задачу ' + (i + 1), "error");
                 goToTask(i);
                 return;
             }
+            userAnswers[i] = answer;
         }
     }
     
     const btn = document.getElementById('submitBtn');
+    if (!btn) {
+        showToast("Кнопка отправки не найдена", "error");
+        return;
+    }
+    
     btn.textContent = "Отправка...";
     btn.disabled = true;
     
@@ -1600,7 +1560,6 @@ async function submitHomework() {
             let uploadedFiles = [];
             
             if (isSecondPart) {
-                // Вторая часть
                 const answerData = userAnswers[i] || { text: '', files: [] };
                 userAnswer = answerData.text || '';
                 if (answerData.files && answerData.files.length > 0) {
@@ -1610,12 +1569,11 @@ async function submitHomework() {
                     taskIndex: i, 
                     userAnswer: userAnswer, 
                     files: uploadedFiles,
-                    isCorrect: true, // Для второй части всегда true (проверяет преподаватель)
+                    isCorrect: true,
                     isSecondPart: true
                 });
                 allFiles = allFiles.concat(uploadedFiles);
             } else {
-                // Краткий ответ - автопроверка
                 const correctAnswer = task.correctAnswer || '';
                 const userAnswerText = userAnswers[i] || '';
                 const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
@@ -1641,7 +1599,7 @@ async function submitHomework() {
                 if (resultDiv) {
                     resultDiv.style.display = 'block';
                     resultDiv.className = 'task-result ' + (isCorrect ? 'correct' : 'wrong');
-                    resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
+                    resultDiv.textContent = isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + correctAnswer;
                 }
                 if (input) {
                     input.className = 'task-answer-input ' + (isCorrect ? 'correct' : 'wrong');
@@ -1653,7 +1611,6 @@ async function submitHomework() {
                 }
             }
             
-            // Показываем решение
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
@@ -1664,14 +1621,13 @@ async function submitHomework() {
         const total = tasks.length;
         const percent = Math.round(correctCount / total * 100);
         
-        // Показываем счётчик
         const counter = document.getElementById('hwCounter');
         if (counter) {
             counter.style.display = 'flex';
-            document.getElementById('hwScore').textContent = correctCount;
+            const scoreEl = document.getElementById('hwScore');
+            if (scoreEl) scoreEl.textContent = correctCount;
         }
         
-        // Сохраняем результат
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1702,14 +1658,13 @@ async function submitHomework() {
         
         isSubmitted = true;
         
-        btn.textContent = "Отправлено";
+        btn.textContent = "✅ Отправлено";
         btn.disabled = true;
         btn.className = "btn green";
         
-        // Кнопка "Решения"
         const solutionsBtn = document.createElement('button');
         solutionsBtn.className = 'btn secondary';
-        solutionsBtn.textContent = 'Посмотреть решения';
+        solutionsBtn.textContent = '📖 Посмотреть решения';
         solutionsBtn.onclick = function() {
             viewHomeworkSolutions(currentSolveHwId);
         };
@@ -1717,11 +1672,14 @@ async function submitHomework() {
         
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
-        showToast('Задание отправлено на проверку!', "success");
-        renderMath();
+        showToast('✅ Задание отправлено на проверку!', "success");
+        
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
     } catch (error) {
         console.error(error);
-        showToast("Ошибка: " + error.message, "error");
+        showToast("❌ Ошибка: " + error.message, "error");
         btn.textContent = "Отправить на проверку";
         btn.disabled = false;
     }
@@ -1778,7 +1736,7 @@ async function viewHomeworkResult(hwId) {
                     <div class="task-files">
                         <div class="task-files-label">Файлы к задаче:</div>
                         <div class="files-list">${task.files.map(f => 
-                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄') + ' ' + escapeHtml(f.name) + '</div>'
                         ).join('')}</div>
                     </div>
                 `;
@@ -1790,7 +1748,7 @@ async function viewHomeworkResult(hwId) {
                     <div class="task-files">
                         <div class="task-files-label">Ваши файлы:</div>
                         <div class="files-list">${result.files.map(f => 
-                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄') + ' ' + escapeHtml(f.name) + '</div>'
                         ).join('')}</div>
                     </div>
                 `;
@@ -1811,7 +1769,7 @@ async function viewHomeworkResult(hwId) {
                         <strong>Ваш ответ:</strong> ${escapeHtml(userAnswer) || "—"}
                     </div>
                     <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
-                        ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + task.correctAnswer}
+                        ${isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + task.correctAnswer}
                     </div>
                 `;
             }
@@ -1840,7 +1798,10 @@ async function viewHomeworkResult(hwId) {
     
     document.getElementById("hwResultContent").innerHTML = html;
     document.getElementById("hwResultModal").classList.add("active");
-    renderMath();
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 function closeHwResultModal() {
@@ -1868,7 +1829,7 @@ async function viewHomeworkSolutions(hwId) {
                     <div class="task-files">
                         <div class="task-files-label">Файлы к задаче:</div>
                         <div class="files-list">${task.files.map(f => 
-                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '' : '') + ' ' + escapeHtml(f.name) + '</div>'
+                            '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄') + ' ' + escapeHtml(f.name) + '</div>'
                         ).join('')}</div>
                     </div>
                 `;
@@ -1900,7 +1861,10 @@ async function viewHomeworkSolutions(hwId) {
     
     document.getElementById("hwSolutionsContent").innerHTML = html;
     document.getElementById("hwSolutionsModal").classList.add("active");
-    renderMath();
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 function closeHwSolutionsModal() {
