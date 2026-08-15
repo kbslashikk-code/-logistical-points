@@ -124,6 +124,7 @@
             font-size: 1.2rem; z-index: 100;
         }
 
+        /* СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) */
         .hw-solve-page {
             display: none;
             position: fixed;
@@ -138,7 +139,9 @@
         }
         .hw-solve-page.active { display: block; }
         .hw-solve-page .hw-header {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding-bottom: 1rem;
             border-bottom: 2px solid var(--gold);
             margin-bottom: 1.5rem;
@@ -551,6 +554,7 @@
     </div>
 </div>
 
+<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА РЕШЕНИЯ ДЗ -->
 <div class="hw-solve-page" id="hwSolvePage">
     <div class="hw-header">
         <h2 id="hwSolveTitle">Решение домашнего задания</h2>
@@ -1284,7 +1288,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ (С ИСПРАВЛЕННОЙ НАВИГАЦИЕЙ) ==========
+// ========== ЗАПУСК ДЗ (ПОЛНОРАЗМЕРНАЯ СТРАНИЦА) ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1452,13 +1456,11 @@ function removeTaskSolveFile(taskIndex, idx) {
     }
 }
 
-// ========== НАВИГАЦИЯ ПО ЗАДАЧАМ (ИСПРАВЛЕННАЯ - БЕЗ БЛОКИРОВКИ ПОСЛЕ ОТПРАВКИ) ==========
-
+// ========== НАВИГАЦИЯ ПО ЗАДАЧАМ ==========
 function goToTask(index) {
     const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
     if (index < 0 || index >= totalTasks) return;
     
-    // Навигация доступна всегда, даже после отправки
     document.querySelectorAll('.task-block').forEach(el => el.classList.remove('active'));
     const target = document.getElementById('taskblock_' + index);
     if (target) target.classList.add('active');
