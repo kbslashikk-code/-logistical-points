@@ -261,7 +261,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .chart-title { font-weight: 600; margin-bottom: 1rem; color: var(--text2); }
 
-/* Анимированные бары */
 .bar-chart {
     display: flex; flex-direction: column; gap: 0.6rem;
 }
@@ -301,7 +300,289 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .bar-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
 .bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
-/* ========== КОМПАКТНАЯ АНАЛИТИКА (поиск + таблица + донат) ========== */
+/* ========== НОВЫЕ СТИЛИ ДЛЯ АНАЛИТИКИ ========== */
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.analytics-header h2 { font-size: 1.3rem; color: var(--gold); }
+
+.analytics-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.analytics-summary-cards .summary-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+}
+.analytics-summary-cards .summary-card .number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+.analytics-summary-cards .summary-card .label {
+    font-size: 0.7rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.analytics-charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+@media (max-width: 768px) {
+    .analytics-charts-row { grid-template-columns: 1fr; }
+}
+
+.floating-chart-container {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.2rem;
+}
+.floating-chart-container .chart-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text2);
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topic-bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.topic-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.topic-bar-item:hover { background: var(--bg2); }
+.topic-bar-item .topic-label {
+    min-width: 70px;
+    font-size: 0.8rem;
+    color: var(--text2);
+    white-space: nowrap;
+}
+.topic-bar-item .topic-track {
+    flex: 1;
+    height: 22px;
+    background: var(--bg2);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+.topic-bar-item .topic-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: white;
+}
+.topic-bar-item .topic-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.topic-bar-item .topic-fill.gold { background: linear-gradient(90deg, #d4a54a, #b89030); }
+.topic-bar-item .topic-fill.blue { background: linear-gradient(90deg, #3b6ef5, #2a5ad4); }
+.topic-bar-item .topic-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
+.topic-bar-item .topic-fill.orange { background: linear-gradient(90deg, #f97316, #ea580c); }
+.topic-bar-item .topic-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+.topic-bar-item .topic-fill.pink { background: linear-gradient(90deg, #ec4899, #db2777); }
+.topic-bar-item .topic-value {
+    min-width: 40px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+}
+.topic-bar-item .click-hint {
+    font-size: 0.6rem;
+    color: var(--text3);
+    cursor: pointer;
+}
+
+/* Донат-диаграмма без счетчика внутри */
+.donut-chart-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.donut-svg {
+    flex-shrink: 0;
+    position: relative;
+}
+.donut-segment {
+    transition: opacity 0.2s, transform 0.2s;
+    transform-origin: 90px 90px;
+    cursor: pointer;
+    opacity: 0.92;
+}
+.donut-segment:hover,
+.donut-segment.highlighted {
+    opacity: 1;
+    transform: scale(1.045);
+    filter: brightness(1.15);
+}
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 180px;
+}
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+.donut-legend-item:hover { background: var(--bg2); }
+.donut-legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+.donut-legend-label {
+    font-size: 0.85rem;
+    color: var(--text2);
+}
+.donut-legend-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* Модалка детальной аналитики по заданию */
+.task-analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+@media (max-width: 768px) {
+    .task-analytics-grid { grid-template-columns: 1fr; }
+}
+
+.task-analytics-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+.task-analytics-card:hover { border-color: var(--gold); }
+
+.task-analytics-card .task-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.3rem;
+}
+.task-analytics-card .task-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    color: var(--text2);
+}
+.task-analytics-card .task-stats .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.task-analytics-card .task-stats .stat-item .value {
+    font-weight: 600;
+    color: var(--text);
+}
+.task-analytics-card .task-stats .stat-item .value.good { color: var(--green); }
+.task-analytics-card .task-stats .stat-item .value.medium { color: var(--gold); }
+.task-analytics-card .task-stats .stat-item .value.poor { color: var(--red); }
+.task-analytics-card .mini-progress {
+    margin-top: 0.5rem;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.task-analytics-card .mini-progress .mini-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+
+.analytics-hw-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.analytics-hw-item {
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.analytics-hw-item:hover {
+    border-color: var(--gold);
+    background: var(--card2);
+}
+.analytics-hw-item .hw-info { flex: 1; min-width: 0; }
+.analytics-hw-item .hw-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.analytics-hw-item .hw-meta {
+    font-size: 0.7rem;
+    color: var(--text3);
+}
+.analytics-hw-item .hw-result {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+.analytics-hw-item .hw-result .percent {
+    font-weight: 700;
+    font-size: 1rem;
+}
+.analytics-hw-item .hw-result .detail-link {
+    color: var(--blue2);
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
 .analytics-toolbar {
     display: flex; justify-content: space-between; align-items: center;
     gap: 1rem; margin: 1.5rem 0 0.8rem;
@@ -337,48 +618,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .mini-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 
-.hw-percent-row {
-    background: var(--bg2); border-radius: 8px; padding: 0.6rem 0.8rem;
-    cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
-}
-.hw-percent-row:hover { border-color: var(--gold); background: var(--card2); }
-.hw-percent-row-main { display: flex; align-items: center; gap: 0.8rem; }
-
-/* Донат-диаграмма */
-.donut-chart-wrap {
-    display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: center;
-}
-.donut-svg { flex-shrink: 0; }
-.donut-segment {
-    transition: opacity 0.2s, transform 0.2s;
-    transform-origin: 90px 90px;
-    cursor: pointer;
-    opacity: 0.92;
-}
-.donut-segment:hover, .donut-segment.highlighted {
-    opacity: 1;
-    transform: scale(1.045);
-    filter: brightness(1.15);
-}
-.donut-center-text {
-    fill: var(--text); font-size: 1.6rem; font-weight: 700; font-family: var(--f);
-}
-.donut-legend { display: flex; flex-direction: column; gap: 0.6rem; min-width: 180px; }
-.donut-legend-item {
-    display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
-    padding: 0.3rem 0.5rem; border-radius: 6px; transition: background 0.2s;
-}
-.donut-legend-item:hover { background: var(--bg2); }
-.donut-legend-color { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
-.donut-legend-label { font-size: 0.85rem; color: var(--text2); }
-.donut-legend-value { font-size: 0.85rem; font-weight: 600; margin-left: auto; }
-
-@media (max-width: 768px) {
-    .analytics-toolbar { flex-direction: column; align-items: stretch; }
-    .donut-chart-wrap { flex-direction: column; }
-}
-
-/* Карточка ученика в аналитике */
+/* Стили для таблицы учеников в аналитике */
 .student-analytics-card {
     background: var(--bg2); border-radius: 10px; padding: 1rem;
     margin-bottom: 0.8rem; border: 1px solid var(--line);
@@ -486,6 +726,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     .hw-review-summary { flex-direction: column; gap: 0.5rem; }
     .hw-detail-modal .task-detail .task-answers { flex-direction: column; gap: 0.3rem; }
     .student-analytics-card .hw-preview .hw-item { flex-wrap: wrap; }
+    .analytics-charts-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -520,6 +761,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             </ul>
         </div>
         <div class="main-content">
+            <!-- Дашборд -->
             <div id="dashboardTab" class="tab-content active">
                 <div class="card">
                     <h3>Статистика</h3>
@@ -548,6 +790,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Ученики -->
             <div id="studentsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>Список учеников и их прогресс</h3></div>
@@ -555,6 +798,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Аналитика -->
             <div id="analyticsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header">
@@ -564,6 +808,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Конспекты -->
             <div id="lessonsTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>Все конспекты</h3></div>
@@ -571,6 +816,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- ДЗ на проверку -->
             <div id="homeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>Домашние задания на проверку</h3></div>
@@ -578,6 +824,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Расписание -->
             <div id="scheduleTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header">
@@ -590,6 +837,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Добавить конспект -->
             <div id="addLessonTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>Добавить конспект</h3>
@@ -619,6 +867,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Добавить ДЗ -->
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>Создать домашнее задание</h3>
@@ -685,6 +934,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
+            <!-- Все ДЗ -->
             <div id="allHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <div class="card-header"><h3>История всех домашних заданий</h3></div>
@@ -842,6 +1092,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
+<!-- Модалка детальной аналитики по заданию -->
+<div id="taskAnalyticsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="taskAnalyticsTitle">Детальная аналитика задания</h3>
+            <button class="modal-close" onclick="closeTaskAnalyticsModal()">&times;</button>
+        </div>
+        <div id="taskAnalyticsContent"></div>
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="closeTaskAnalyticsModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -889,10 +1153,10 @@ let currentAdminRole = 'full';
 let taskCounter = 0;
 let isSecondPart = false;
 
-// Кэш аналитики: карта ДЗ (для фильтрации удалённых ДЗ без лишних запросов) и текущий список учеников
+// Кэш аналитики
 let analyticsHwCache = {};
 let analyticsStudentsCache = [];
-let analyticsSortField = 'avgPercent';
+let analyticsSortField = 'combined';
 let analyticsSortDir = 'desc';
 
 function escapeHtml(str) {
@@ -967,7 +1231,7 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     container.style.display = 'flex';
     container.innerHTML = filesArray.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
         </div>
@@ -1131,7 +1395,7 @@ function renderTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -1348,20 +1612,20 @@ async function loadStudents() {
     }
 }
 
-// ========== АНАЛИТИКА (компактная таблица + донат-диаграмма) ==========
+// ========== АНАЛИТИКА (ОБНОВЛЁННАЯ) ==========
+let analyticsData = null;
+
 async function loadAnalytics() {
     const container = document.getElementById('analyticsContainer');
     if (!container) return;
 
-    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Загрузка аналитики...</div>';
+    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">⏳ Загрузка аналитики...</div>';
 
     try {
         const usersSnap = await db.collection("users").get();
         const users = [];
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
 
-        // Загружаем все ДЗ ОДИН раз (а не по запросу на каждую сдачу) — это и быстрее,
-        // и позволяет легко исключить сдачи по удалённым/несуществующим ДЗ из аналитики.
         const hwSnap = await db.collection("homeworks").get();
         const hwMap = {};
         hwSnap.forEach(doc => { hwMap[doc.id] = doc.data(); });
@@ -1375,37 +1639,97 @@ async function loadAnalytics() {
         }
 
         const studentsData = [];
-        let allFirstPart = 0, allSecondPart = 0, allValidSubmissions = 0;
+        let totalFirstPartTasks = 0;
+        let totalFirstPartCorrect = 0;
+        let totalSecondPartMaxScore = 0;
+        let totalSecondPartUserScore = 0;
+        let totalSecondPartCount = 0;
+        let totalSubmissions = 0;
+
+        // Для аналитики по темам — собираем все ДЗ с их результатами
+        const allHomeworkStats = {};
 
         for (const user of filteredUsers) {
             const rawSubmissions = user.homeworkSubmissions || [];
-            // Сдачи по удалённым/несуществующим ДЗ полностью исключаются из аналитики
             const validSubmissions = rawSubmissions.filter(sub => hwMap[sub.id]);
 
-            let totalCorrect = 0, totalTasks = 0;
-            let totalMaxScore = 0, totalUserScore = 0;
+            let userFirstCorrect = 0;
+            let userFirstTotal = 0;
+            let userSecondScore = 0;
+            let userSecondMax = 0;
+            let userSecondCount = 0;
 
             for (const sub of validSubmissions) {
                 const hwData = hwMap[sub.id];
-                const isSecond = hwData.isSecondPart || false;
-                if (isSecond) {
-                    allSecondPart++;
-                    const maxScore = hwData.maxScore || sub.maxScore || 0;
-                    if (maxScore > 0) { totalMaxScore += maxScore; totalUserScore += (sub.userScore || 0); }
-                } else {
-                    allFirstPart++;
-                    totalCorrect += (sub.correctCount || 0);
-                    totalTasks += (sub.total || 0);
-                }
-            }
-            allValidSubmissions += validSubmissions.length;
+                const isSecond = hwData?.isSecondPart || false;
+                totalSubmissions++;
 
-            const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : null;
-            const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : null;
-            let combinedPercent = null;
-            if (avgPercent !== null && avgScorePercent !== null) combinedPercent = Math.round((avgPercent + avgScorePercent) / 2);
-            else if (avgPercent !== null) combinedPercent = avgPercent;
-            else if (avgScorePercent !== null) combinedPercent = avgScorePercent;
+                if (isSecond) {
+                    const maxScore = hwData?.maxScore || sub.maxScore || 0;
+                    const userScore = sub.userScore || sub.grade || 0;
+                    if (maxScore > 0) {
+                        userSecondScore += userScore;
+                        userSecondMax += maxScore;
+                        userSecondCount++;
+                        totalSecondPartMaxScore += maxScore;
+                        totalSecondPartUserScore += userScore;
+                        totalSecondPartCount++;
+                    }
+                } else {
+                    const correct = sub.correctCount || 0;
+                    const total = sub.total || 0;
+                    userFirstCorrect += correct;
+                    userFirstTotal += total;
+                    totalFirstPartTasks += total;
+                    totalFirstPartCorrect += correct;
+                }
+
+                // Собираем статистику по каждому ДЗ
+                const hwTitle = hwData?.title || sub.title || 'Без названия';
+                if (!allHomeworkStats[sub.id]) {
+                    allHomeworkStats[sub.id] = {
+                        id: sub.id,
+                        title: hwTitle,
+                        isSecond: isSecond,
+                        subject: hwData?.subject || 'unknown',
+                        courseId: hwData?.courseId || '',
+                        totalStudents: 0,
+                        totalCorrect: 0,
+                        totalTasks: 0,
+                        totalMaxScore: 0,
+                        totalUserScore: 0,
+                        students: []
+                    };
+                }
+                const stats = allHomeworkStats[sub.id];
+                stats.totalStudents++;
+                if (isSecond) {
+                    stats.totalMaxScore += (hwData?.maxScore || sub.maxScore || 0);
+                    stats.totalUserScore += (sub.userScore || sub.grade || 0);
+                } else {
+                    stats.totalCorrect += (sub.correctCount || 0);
+                    stats.totalTasks += (sub.total || 0);
+                }
+                stats.students.push({
+                    userId: user.id,
+                    userName: user.name || user.email || 'Без имени',
+                    correct: sub.correctCount || 0,
+                    total: sub.total || 0,
+                    userScore: sub.userScore || sub.grade || 0,
+                    maxScore: hwData?.maxScore || sub.maxScore || 0
+                });
+            }
+
+            const avgFirst = userFirstTotal > 0 ? Math.round(userFirstCorrect / userFirstTotal * 100) : null;
+            const avgSecond = userSecondMax > 0 ? Math.round(userSecondScore / userSecondMax * 100) : null;
+            let combined = null;
+            if (avgFirst !== null && avgSecond !== null) {
+                combined = Math.round((avgFirst + avgSecond) / 2);
+            } else if (avgFirst !== null) {
+                combined = avgFirst;
+            } else if (avgSecond !== null) {
+                combined = avgSecond;
+            }
 
             studentsData.push({
                 id: user.id,
@@ -1413,54 +1737,119 @@ async function loadAnalytics() {
                 email: user.email || '',
                 grade: user.grade || '',
                 hwCount: validSubmissions.length,
-                avgPercent: combinedPercent
+                avgFirst: avgFirst,
+                avgSecond: avgSecond,
+                combined: combined,
+                firstCorrect: userFirstCorrect,
+                firstTotal: userFirstTotal,
+                secondScore: userSecondScore,
+                secondMax: userSecondMax,
+                secondCount: userSecondCount
             });
         }
 
+        analyticsData = {
+            students: studentsData,
+            hwStats: allHomeworkStats,
+            totalStudents: filteredUsers.length,
+            totalSubmissions: totalSubmissions,
+            totalFirstPartTasks: totalFirstPartTasks,
+            totalFirstPartCorrect: totalFirstPartCorrect,
+            totalSecondPartMaxScore: totalSecondPartMaxScore,
+            totalSecondPartUserScore: totalSecondPartUserScore,
+            totalSecondPartCount: totalSecondPartCount
+        };
+
         analyticsStudentsCache = studentsData;
 
+        // --- Построение интерфейса ---
+        const overallFirstPercent = totalFirstPartTasks > 0 ? Math.round(totalFirstPartCorrect / totalFirstPartTasks * 100) : 0;
+        const overallSecondPercent = totalSecondPartMaxScore > 0 ? Math.round(totalSecondPartUserScore / totalSecondPartMaxScore * 100) : 0;
+
+        // 1. Общая сводка
+        let summaryCardsHtml = `
+            <div class="analytics-summary-cards">
+                <div class="summary-card"><div class="number">${filteredUsers.length}</div><div class="label">Учеников</div></div>
+                <div class="summary-card"><div class="number">${totalSubmissions}</div><div class="label">Всего ДЗ сдано</div></div>
+                <div class="summary-card"><div class="number">${totalFirstPartTasks}</div><div class="label">Задач (1 часть)</div></div>
+                <div class="summary-card"><div class="number">${totalSecondPartCount}</div><div class="label">ДЗ (2 часть)</div></div>
+            </div>
+        `;
+
+        // 2. Плавающие столбцы (по темам)
+        const hwList = Object.values(allHomeworkStats).sort((a, b) => b.totalStudents - a.totalStudents);
+        
+        let floatingChartsHtml = `
+            <div class="analytics-charts-row">
+                <div class="floating-chart-container">
+                    <div class="chart-title">📊 Первая часть (краткий ответ)</div>
+                    <div class="topic-bar-chart">
+                        ${hwList.filter(h => !h.isSecond).slice(0, 8).map(hw => {
+                            const percent = hw.totalTasks > 0 ? Math.round(hw.totalCorrect / hw.totalTasks * 100) : 0;
+                            const color = percent >= 80 ? 'green' : percent >= 60 ? 'gold' : percent >= 40 ? 'orange' : 'red';
+                            return `
+                                <div class="topic-bar-item" onclick="openTaskAnalyticsModal('${hw.id}')">
+                                    <div class="topic-label">${escapeHtml(hw.title.substring(0, 20))}</div>
+                                    <div class="topic-track">
+                                        <div class="topic-fill ${color}" style="width:${Math.max(percent, 5)}%;">
+                                            ${percent}%
+                                        </div>
+                                    </div>
+                                    <div class="topic-value">${hw.totalCorrect}/${hw.totalTasks}</div>
+                                    <div class="click-hint">👁</div>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${hwList.filter(h => !h.isSecond).length === 0 ? '<div style="padding:0.5rem;text-align:center;color:var(--text3);">Нет данных</div>' : ''}
+                    </div>
+                </div>
+                <div class="floating-chart-container">
+                    <div class="chart-title">📊 Вторая часть (развёрнутые решения)</div>
+                    <div class="topic-bar-chart">
+                        ${hwList.filter(h => h.isSecond).slice(0, 8).map(hw => {
+                            const percent = hw.totalMaxScore > 0 ? Math.round(hw.totalUserScore / hw.totalMaxScore * 100) : 0;
+                            const color = percent >= 80 ? 'purple' : percent >= 60 ? 'blue' : percent >= 40 ? 'orange' : 'red';
+                            return `
+                                <div class="topic-bar-item" onclick="openTaskAnalyticsModal('${hw.id}')">
+                                    <div class="topic-label">${escapeHtml(hw.title.substring(0, 20))}</div>
+                                    <div class="topic-track">
+                                        <div class="topic-fill ${color}" style="width:${Math.max(percent, 5)}%;">
+                                            ${percent}%
+                                        </div>
+                                    </div>
+                                    <div class="topic-value">${hw.totalUserScore}/${hw.totalMaxScore}</div>
+                                    <div class="click-hint">👁</div>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${hwList.filter(h => h.isSecond).length === 0 ? '<div style="padding:0.5rem;text-align:center;color:var(--text3);">Нет данных</div>' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 3. Круговая диаграмма общего распределения
         const donutData = [
-            { label: 'Краткий ответ', value: allFirstPart, color: '#3b6ef5' },
-            { label: 'Вторая часть', value: allSecondPart, color: '#d4a54a' }
+            { label: 'Первая часть (задачи)', value: totalFirstPartTasks, color: '#3b6ef5' },
+            { label: 'Вторая часть (решения)', value: totalSecondPartCount, color: '#d4a54a' }
         ];
+        const donutHtml = buildDonutChart(donutData);
 
-        container.innerHTML = `
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">${filteredUsers.length}</div>
-                    <div class="stat-label">Учеников</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${allValidSubmissions}</div>
-                    <div class="stat-label">Всего ДЗ сдано</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${allFirstPart}</div>
-                    <div class="stat-label">Краткий ответ</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${allSecondPart}</div>
-                    <div class="stat-label">Вторая часть</div>
-                </div>
-            </div>
-
-            <div class="chart-container">
-                <div class="chart-title">Распределение по типам заданий</div>
-                ${allValidSubmissions > 0 ? buildDonutChart(donutData) : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет данных</div>'}
-            </div>
-
+        // 4. Таблица учеников
+        let tableHtml = `
             <div class="analytics-toolbar">
-                <input type="text" id="analyticsSearchInput" class="analytics-search" placeholder="Поиск ученика по имени или email..." oninput="filterAnalyticsList()">
+                <input type="text" id="analyticsSearchInput" class="analytics-search" placeholder="🔍 Поиск ученика по имени или email..." oninput="renderAnalyticsTable()">
                 <div class="analytics-result-count" id="analyticsResultCount"></div>
             </div>
-
             <div class="analytics-table-wrap">
                 <table class="analytics-table">
                     <thead>
                         <tr>
                             <th class="sortable" onclick="sortAnalyticsTable('name')">Ученик <span id="sortIcon_name"></span></th>
                             <th class="sortable" onclick="sortAnalyticsTable('hwCount')">ДЗ <span id="sortIcon_hwCount"></span></th>
-                            <th class="sortable" onclick="sortAnalyticsTable('avgPercent')">Средний % <span id="sortIcon_avgPercent"></span></th>
+                            <th class="sortable" onclick="sortAnalyticsTable('avgFirst')">1 часть % <span id="sortIcon_avgFirst"></span></th>
+                            <th class="sortable" onclick="sortAnalyticsTable('avgSecond')">2 часть % <span id="sortIcon_avgSecond"></span></th>
+                            <th class="sortable" onclick="sortAnalyticsTable('combined')">Средний % <span id="sortIcon_combined"></span></th>
                             <th>Класс</th>
                         </tr>
                     </thead>
@@ -1469,89 +1858,36 @@ async function loadAnalytics() {
             </div>
         `;
 
-        sortAnalyticsTable(analyticsSortField, true);
+        // Собираем всё вместе
+        container.innerHTML = `
+            ${summaryCardsHtml}
+            <div style="margin-bottom:1.5rem;">
+                <div class="chart-container">
+                    <div class="chart-title">📊 Распределение по типам заданий</div>
+                    ${totalFirstPartTasks + totalSecondPartCount > 0 ? donutHtml : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет данных</div>'}
+                </div>
+            </div>
+            ${floatingChartsHtml}
+            <div class="chart-container">
+                <div class="chart-title">👥 Успеваемость учеников</div>
+                ${tableHtml}
+            </div>
+        `;
+
+        // Инициализируем сортировку
+        sortAnalyticsTable('combined', true);
+
+        if (window.MathJax && MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
 
     } catch (err) {
         console.error(err);
-        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--red)">❌ Ошибка загрузки аналитики: ' + err.message + '</div>';
     }
 }
 
-// ---- Компактная таблица: поиск и сортировка (работают локально, без новых запросов) ----
-function filterAnalyticsList() {
-    renderAnalyticsTable();
-}
-
-function sortAnalyticsTable(field, keepDir) {
-    if (!keepDir) {
-        if (analyticsSortField === field) {
-            analyticsSortDir = analyticsSortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-            analyticsSortField = field;
-            analyticsSortDir = field === 'name' ? 'asc' : 'desc';
-        }
-    }
-    ['name', 'hwCount', 'avgPercent'].forEach(f => {
-        const el = document.getElementById(`sortIcon_${f}`);
-        if (el) el.textContent = f === analyticsSortField ? (analyticsSortDir === 'asc' ? '▲' : '▼') : '';
-    });
-    renderAnalyticsTable();
-}
-
-function renderAnalyticsTable() {
-    const searchInput = document.getElementById('analyticsSearchInput');
-    const query = (searchInput?.value || '').trim().toLowerCase();
-
-    let rows = analyticsStudentsCache.filter(s => {
-        if (!query) return true;
-        return s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query);
-    });
-
-    rows = rows.slice().sort((a, b) => {
-        if (analyticsSortField === 'name') {
-            const cmp = (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), 'ru');
-            return analyticsSortDir === 'asc' ? cmp : -cmp;
-        }
-        let va = a[analyticsSortField], vb = b[analyticsSortField];
-        va = (va === null || va === undefined) ? -1 : va;
-        vb = (vb === null || vb === undefined) ? -1 : vb;
-        return analyticsSortDir === 'asc' ? va - vb : vb - va;
-    });
-
-    const countEl = document.getElementById('analyticsResultCount');
-    if (countEl) countEl.textContent = `${rows.length} из ${analyticsStudentsCache.length}`;
-
-    const tbody = document.getElementById('analyticsTableBody');
-    if (!tbody) return;
-
-    if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text3);">Ничего не найдено</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = rows.map(s => {
-        const percent = s.avgPercent;
-        const color = percent === null ? 'var(--text3)' : percent >= 80 ? 'var(--green)' : percent >= 50 ? 'var(--gold)' : 'var(--red)';
-        return `
-            <tr class="analytics-row" onclick="openStudentAnalyticsModal('${s.id}')">
-                <td>
-                    <div class="analytics-row-name">${escapeHtml(s.name)}</div>
-                    <div class="analytics-row-email">${escapeHtml(s.email)}</div>
-                </td>
-                <td>${s.hwCount}</td>
-                <td>
-                    <div class="analytics-percent-cell">
-                        <span style="color:${color};font-weight:700;min-width:38px;">${percent === null ? '—' : percent + '%'}</span>
-                        ${percent !== null ? `<div class="mini-progress"><div class="mini-progress-fill" style="width:${percent}%;background:${color};"></div></div>` : ''}
-                    </div>
-                </td>
-                <td>${s.grade ? escapeHtml(s.grade) : '—'}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// ---- Донат-диаграмма (SVG, без внешних библиотек) с интерактивной подсветкой сегментов ----
+// ---- Донат-диаграмма (без счетчика внутри) ----
 function buildDonutChart(dataArr) {
     const size = 180, thickness = 34;
     const radius = size / 2;
@@ -1563,9 +1899,6 @@ function buildDonutChart(dataArr) {
         const startAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
         cumulative += d.value;
         let endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
-        // SVG не может нарисовать дугу с одинаковыми начальной и конечной точками
-        // (полный круг, когда сегмент занимает 100%), поэтому чуть укорачиваем угол —
-        // визуально незаметно, но чинит "пропадающую" диаграмму.
         if (endAngle - startAngle >= 2 * Math.PI - 0.001) {
             endAngle -= 0.001;
         }
@@ -1598,7 +1931,6 @@ function buildDonutChart(dataArr) {
         <div class="donut-chart-wrap">
             <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="donut-svg">
                 ${paths}
-                <text x="${radius}" y="${radius}" text-anchor="middle" dominant-baseline="middle" class="donut-center-text">${total}</text>
             </svg>
             <div class="donut-legend">${legend}</div>
         </div>
@@ -1610,7 +1942,90 @@ function highlightDonutSegment(idx, active) {
     if (seg) seg.classList.toggle('highlighted', active);
 }
 
-// ========== ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА ==========
+// ---- Таблица аналитики (поиск + сортировка) ----
+function renderAnalyticsTable() {
+    const searchInput = document.getElementById('analyticsSearchInput');
+    const query = (searchInput?.value || '').trim().toLowerCase();
+
+    let rows = analyticsStudentsCache.filter(s => {
+        if (!query) return true;
+        return s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query);
+    });
+
+    rows = rows.slice().sort((a, b) => {
+        if (analyticsSortField === 'name') {
+            const cmp = (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), 'ru');
+            return analyticsSortDir === 'asc' ? cmp : -cmp;
+        }
+        let va = a[analyticsSortField], vb = b[analyticsSortField];
+        va = (va === null || va === undefined) ? -1 : va;
+        vb = (vb === null || vb === undefined) ? -1 : vb;
+        return analyticsSortDir === 'asc' ? va - vb : vb - va;
+    });
+
+    const countEl = document.getElementById('analyticsResultCount');
+    if (countEl) countEl.textContent = `${rows.length} из ${analyticsStudentsCache.length}`;
+
+    const tbody = document.getElementById('analyticsTableBody');
+    if (!tbody) return;
+
+    if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text3);">🔍 Ничего не найдено</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = rows.map(s => {
+        const colorFirst = s.avgFirst === null ? 'var(--text3)' : s.avgFirst >= 80 ? 'var(--green)' : s.avgFirst >= 50 ? 'var(--gold)' : 'var(--red)';
+        const colorSecond = s.avgSecond === null ? 'var(--text3)' : s.avgSecond >= 80 ? 'var(--green)' : s.avgSecond >= 50 ? 'var(--gold)' : 'var(--red)';
+        const colorCombined = s.combined === null ? 'var(--text3)' : s.combined >= 80 ? 'var(--green)' : s.combined >= 50 ? 'var(--gold)' : 'var(--red)';
+        return `
+            <tr class="analytics-row" onclick="openStudentAnalyticsModal('${s.id}')">
+                <td>
+                    <div class="analytics-row-name">${escapeHtml(s.name)}</div>
+                    <div class="analytics-row-email">${escapeHtml(s.email)}</div>
+                </td>
+                <td>${s.hwCount}</td>
+                <td>
+                    <div class="analytics-percent-cell">
+                        <span style="color:${colorFirst};font-weight:700;min-width:38px;">${s.avgFirst === null ? '—' : s.avgFirst + '%'}</span>
+                        ${s.avgFirst !== null ? `<div class="mini-progress"><div class="mini-progress-fill" style="width:${s.avgFirst}%;background:${colorFirst};"></div></div>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="analytics-percent-cell">
+                        <span style="color:${colorSecond};font-weight:700;min-width:38px;">${s.avgSecond === null ? '—' : s.avgSecond + '%'}</span>
+                        ${s.avgSecond !== null ? `<div class="mini-progress"><div class="mini-progress-fill" style="width:${s.avgSecond}%;background:${colorSecond};"></div></div>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="analytics-percent-cell">
+                        <span style="color:${colorCombined};font-weight:700;min-width:38px;">${s.combined === null ? '—' : s.combined + '%'}</span>
+                        ${s.combined !== null ? `<div class="mini-progress"><div class="mini-progress-fill" style="width:${s.combined}%;background:${colorCombined};"></div></div>` : ''}
+                    </div>
+                </td>
+                <td>${s.grade ? escapeHtml(s.grade) : '—'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function sortAnalyticsTable(field, keepDir) {
+    if (!keepDir) {
+        if (analyticsSortField === field) {
+            analyticsSortDir = analyticsSortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            analyticsSortField = field;
+            analyticsSortDir = field === 'name' ? 'asc' : 'desc';
+        }
+    }
+    ['name', 'hwCount', 'avgFirst', 'avgSecond', 'combined'].forEach(f => {
+        const el = document.getElementById(`sortIcon_${f}`);
+        if (el) el.textContent = f === analyticsSortField ? (analyticsSortDir === 'asc' ? '▲' : '▼') : '';
+    });
+    renderAnalyticsTable();
+}
+
+// ========== ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА (С КРУГОВОЙ ДИАГРАММОЙ) ==========
 async function openStudentAnalyticsModal(userId) {
     const doc = await db.collection("users").doc(userId).get();
     const user = doc.data();
@@ -1621,10 +2036,9 @@ async function openStudentAnalyticsModal(userId) {
 
     const name = user.name || user.email || 'Без имени';
     document.getElementById("studentAnalyticsTitle").textContent = `Аналитика: ${escapeHtml(name)}`;
-    document.getElementById("studentAnalyticsContent").innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Загрузка...</div>';
+    document.getElementById("studentAnalyticsContent").innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">⏳ Загрузка...</div>';
     document.getElementById("studentAnalyticsModal").classList.add("active");
 
-    // Используем карту ДЗ из кэша аналитики (заполняется в loadAnalytics), при отсутствии — загружаем заново
     let hwMap = analyticsHwCache;
     if (!hwMap || Object.keys(hwMap).length === 0) {
         const hwSnap = await db.collection("homeworks").get();
@@ -1634,27 +2048,31 @@ async function openStudentAnalyticsModal(userId) {
     }
 
     const rawSubmissions = user.homeworkSubmissions || [];
-    // Сдачи по удалённым/несуществующим ДЗ полностью исключаются из аналитики
     const submissions = rawSubmissions.filter(sub => hwMap[sub.id]);
 
     const hwDetails = [];
-    let totalCorrect = 0, totalTasks = 0;
-    let totalMaxScore = 0, totalUserScore = 0;
+    let totalFirstTasks = 0, totalFirstCorrect = 0;
+    let totalSecondMax = 0, totalSecondScore = 0;
+    let totalSecondCount = 0;
 
     for (const sub of submissions) {
         const hwData = hwMap[sub.id];
-        const isSecond = hwData.isSecondPart || false;
-        const maxScore = hwData.maxScore || sub.maxScore || 0;
+        const isSecond = hwData?.isSecondPart || false;
+        const maxScore = hwData?.maxScore || sub.maxScore || 0;
         const userScore = sub.userScore || sub.grade || 0;
         const correct = sub.correctCount || 0;
         const total = sub.total || 0;
-        const status = hwData.status || 'submitted';
+        const status = hwData?.status || 'submitted';
 
         if (isSecond) {
-            if (maxScore > 0) { totalMaxScore += maxScore; totalUserScore += userScore; }
+            if (maxScore > 0) {
+                totalSecondMax += maxScore;
+                totalSecondScore += userScore;
+                totalSecondCount++;
+            }
         } else {
-            totalCorrect += correct;
-            totalTasks += total;
+            totalFirstCorrect += correct;
+            totalFirstTasks += total;
         }
 
         const percent = isSecond
@@ -1663,7 +2081,7 @@ async function openStudentAnalyticsModal(userId) {
 
         hwDetails.push({
             id: sub.id,
-            title: hwData.title || sub.title || 'Без названия',
+            title: hwData?.title || sub.title || 'Без названия',
             correct, total, maxScore, userScore, percent,
             isSecondPart: isSecond,
             status,
@@ -1677,8 +2095,8 @@ async function openStudentAnalyticsModal(userId) {
         return dateB - dateA;
     });
 
-    const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : null;
-    const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : null;
+    const avgFirst = totalFirstTasks > 0 ? Math.round(totalFirstCorrect / totalFirstTasks * 100) : null;
+    const avgSecond = totalSecondMax > 0 ? Math.round(totalSecondScore / totalSecondMax * 100) : null;
     const totalHw = hwDetails.length;
 
     const statusMap = {
@@ -1688,18 +2106,30 @@ async function openStudentAnalyticsModal(userId) {
         'returned': 'Возвращено'
     };
 
+    // Круговая диаграмма для ученика (без счетчика внутри)
+    const donutData = [
+        { label: 'Первая часть', value: totalFirstTasks, color: '#3b6ef5' },
+        { label: 'Вторая часть', value: totalSecondCount, color: '#d4a54a' }
+    ];
+    const donutHtml = totalFirstTasks + totalSecondCount > 0 ? buildDonutChart(donutData) : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет данных</div>';
+
     let html = `
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-number">${totalHw}</div><div class="stat-label">Всего ДЗ</div></div>
-            ${avgPercent !== null ? `<div class="stat-card"><div class="stat-number">${avgPercent}%</div><div class="stat-label">Ср. % (краткий ответ)</div></div>` : ''}
-            ${avgScorePercent !== null ? `<div class="stat-card"><div class="stat-number">${avgScorePercent}%</div><div class="stat-label">Ср. % (вторая часть)</div></div>` : ''}
-            <div class="stat-card"><div class="stat-number">${totalTasks}</div><div class="stat-label">Всего задач</div></div>
-            <div class="stat-card"><div class="stat-number">${totalCorrect}</div><div class="stat-label">Верных ответов</div></div>
+            ${avgFirst !== null ? `<div class="stat-card"><div class="stat-number">${avgFirst}%</div><div class="stat-label">1 часть</div></div>` : ''}
+            ${avgSecond !== null ? `<div class="stat-card"><div class="stat-number">${avgSecond}%</div><div class="stat-label">2 часть</div></div>` : ''}
+            <div class="stat-card"><div class="stat-number">${totalFirstTasks + totalSecondCount}</div><div class="stat-label">Всего заданий</div></div>
+            <div class="stat-card"><div class="stat-number">${totalFirstCorrect}</div><div class="stat-label">Верных ответов</div></div>
         </div>
 
         <div class="chart-container" style="margin-top:1rem;">
-            <div class="chart-title">Процент выполнения по каждому ДЗ</div>
-            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div class="chart-title">📊 Распределение по типам заданий</div>
+            ${donutHtml}
+        </div>
+
+        <div class="chart-container" style="margin-top:1rem;">
+            <div class="chart-title">📋 История выполненных ДЗ</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
                 ${hwDetails.length > 0 ? hwDetails.map(hw => {
                     const percent = hw.percent;
                     const color = percent === null ? 'var(--text3)' : percent >= 80 ? 'var(--green)' : percent >= 50 ? 'var(--gold)' : 'var(--red)';
@@ -1708,20 +2138,17 @@ async function openStudentAnalyticsModal(userId) {
                         ? (hw.maxScore > 0 ? `${hw.userScore}/${hw.maxScore}` : '—')
                         : (hw.total > 0 ? `${hw.correct}/${hw.total}` : '—');
                     return `
-                        <div class="hw-percent-row" onclick="openHwDetailModal('${hw.id}', '${userId}')">
-                            <div class="hw-percent-row-main">
-                                <div style="flex:1;min-width:0;">
-                                    <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)}</div>
-                                    <div style="font-size:0.7rem;color:var(--text3);">
-                                        ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'} ·
-                                        <span style="color:${statusColor}">${statusMap[hw.status] || hw.status}</span>
-                                        ${displayText !== '—' ? ' · ' + displayText : ''}
-                                    </div>
+                        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.5rem;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};cursor:pointer;" onclick="openHwDetailModal('${hw.id}', '${userId}')">
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)}</div>
+                                <div style="font-size:0.7rem;color:var(--text3);">
+                                    ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'} ·
+                                    <span style="color:${statusColor}">${statusMap[hw.status] || hw.status}</span>
+                                    ${displayText !== '—' ? ' · ' + displayText : ''}
                                 </div>
-                                <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
-                                <div style="color:var(--blue2);font-size:0.75rem;font-weight:600;" title="Посмотреть ответы ученика">Смотреть</div>
                             </div>
-                            ${percent !== null ? `<div class="mini-progress" style="width:100%;margin-top:0.5rem;"><div class="mini-progress-fill" style="width:${percent}%;background:${color};"></div></div>` : ''}
+                            <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
+                            <div style="color:var(--blue2);font-size:0.75rem;font-weight:600;">👁</div>
                         </div>
                     `;
                 }).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет выполненных ДЗ</div>'}
@@ -1742,6 +2169,79 @@ async function openStudentAnalyticsModal(userId) {
 
 function closeStudentAnalyticsModal() {
     document.getElementById("studentAnalyticsModal").classList.remove("active");
+}
+
+// ========== ДЕТАЛЬНАЯ АНАЛИТИКА ПО ЗАДАНИЮ (ДЛЯ ВСЕХ УЧЕНИКОВ) ==========
+async function openTaskAnalyticsModal(hwId) {
+    const hwData = analyticsData?.hwStats[hwId];
+    if (!hwData) {
+        showToast("Данные по заданию не найдены", "error");
+        return;
+    }
+
+    document.getElementById("taskAnalyticsTitle").textContent = `📊 ${escapeHtml(hwData.title)}`;
+    document.getElementById("taskAnalyticsContent").innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">⏳ Загрузка...</div>';
+    document.getElementById("taskAnalyticsModal").classList.add("active");
+
+    const isSecond = hwData.isSecond;
+    let totalCorrect = 0, totalTasks = 0;
+    let totalMaxScore = 0, totalUserScore = 0;
+
+    for (const student of hwData.students) {
+        if (isSecond) {
+            totalMaxScore += student.maxScore || 0;
+            totalUserScore += student.userScore || 0;
+        } else {
+            totalCorrect += student.correct || 0;
+            totalTasks += student.total || 0;
+        }
+    }
+
+    const overallPercent = isSecond
+        ? (totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0)
+        : (totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0);
+
+    const color = overallPercent >= 80 ? 'good' : overallPercent >= 60 ? 'medium' : 'poor';
+
+    let html = `
+        <div class="hw-review-summary">
+            <div class="stat"><span>Тип:</span><span style="font-weight:600;">${isSecond ? 'Вторая часть' : 'Первая часть'}</span></div>
+            <div class="stat"><span>Учеников сдало:</span><span style="font-weight:600;">${hwData.students.length}</span></div>
+            <div class="stat">
+                <span>Общий результат:</span>
+                <span class="value ${color}">${isSecond ? `${totalUserScore}/${totalMaxScore}` : `${totalCorrect}/${totalTasks}`} (${overallPercent}%)</span>
+            </div>
+        </div>
+
+        <div class="task-analytics-grid">
+            ${hwData.students.map(student => {
+                const sPercent = isSecond
+                    ? (student.maxScore > 0 ? Math.round(student.userScore / student.maxScore * 100) : 0)
+                    : (student.total > 0 ? Math.round(student.correct / student.total * 100) : 0);
+                const sColor = sPercent >= 80 ? 'good' : sPercent >= 60 ? 'medium' : 'poor';
+                return `
+                    <div class="task-analytics-card" onclick="openStudentAnalyticsModal('${student.userId}')">
+                        <div class="task-name">${escapeHtml(student.userName)}</div>
+                        <div class="task-stats">
+                            <span class="stat-item">Результат: <span class="value ${sColor}">${isSecond ? `${student.userScore}/${student.maxScore}` : `${student.correct}/${student.total}`}</span></span>
+                            <span class="stat-item">%: <span class="value ${sColor}">${sPercent}%</span></span>
+                        </div>
+                        <div class="mini-progress"><div class="mini-fill" style="width:${sPercent}%;background:${sPercent >= 80 ? 'var(--green)' : sPercent >= 60 ? 'var(--gold)' : 'var(--red)'};"></div></div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    document.getElementById("taskAnalyticsContent").innerHTML = html;
+
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
+}
+
+function closeTaskAnalyticsModal() {
+    document.getElementById("taskAnalyticsModal").classList.remove("active");
 }
 
 // ========== ПРОСМОТР ДЗ В АНАЛИТИКЕ ==========
@@ -1786,45 +2286,16 @@ async function openHwDetailModal(hwId, userId) {
         
         let html = `
             <div class="hw-review-summary">
-                <div class="stat">
-                    <span>Ученик:</span>
-                    <span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span>
-                </div>
-                <div class="stat">
-                    <span>Статус:</span>
-                    <span style="font-weight:600;color:${status === 'graded' ? 'var(--green)' : status === 'submitted' ? 'var(--gold)' : 'var(--text3)'};">${statusMap[status] || status}</span>
-                </div>
+                <div class="stat"><span>Ученик:</span><span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span></div>
+                <div class="stat"><span>Статус:</span><span style="font-weight:600;color:${status === 'graded' ? 'var(--green)' : status === 'submitted' ? 'var(--gold)' : 'var(--text3)'};">${statusMap[status] || status}</span></div>
                 ${isSecondPart ? `
-                    <div class="stat">
-                        <span>Баллы:</span>
-                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${userScore} / ${maxScore}</span>
-                    </div>
-                    <div class="stat">
-                        <span>Процент:</span>
-                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${scorePercent}%</span>
-                    </div>
+                    <div class="stat"><span>Баллы:</span><span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${userScore} / ${maxScore}</span></div>
+                    <div class="stat"><span>Процент:</span><span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${scorePercent}%</span></div>
                 ` : `
-                    <div class="stat">
-                        <span>Правильно:</span>
-                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${correctCount} / ${total}</span>
-                    </div>
-                    <div class="stat">
-                        <span>Процент:</span>
-                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${percent}%</span>
-                    </div>
+                    <div class="stat"><span>Правильно:</span><span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${correctCount} / ${total}</span></div>
+                    <div class="stat"><span>Процент:</span><span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${percent}%</span></div>
                 `}
-                ${hw.grade !== undefined && hw.grade !== null && !isSecondPart ? `
-                    <div class="stat">
-                        <span>Оценка:</span>
-                        <span style="font-weight:700;color:var(--gold);">${hw.grade}/10</span>
-                    </div>
-                ` : ''}
-                ${hw.feedback ? `
-                    <div class="stat">
-                        <span>Комментарий:</span>
-                        <span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(hw.feedback)}</span>
-                    </div>
-                ` : ''}
+                ${hw.feedback ? `<div class="stat"><span>Комментарий:</span><span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(hw.feedback)}</span></div>` : ''}
             </div>
         `;
         
@@ -1832,33 +2303,20 @@ async function openHwDetailModal(hwId, userId) {
             html += `
                 <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
                     <div style="font-weight:600;margin-bottom:0.5rem;">Условие задачи:</div>
-                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;">
-                        ${hw.condition || 'Нет условия'}
-                    </div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;">${hw.condition || 'Нет условия'}</div>
                 </div>
                 <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
                     <div style="font-weight:600;margin-bottom:0.5rem;">Решение ученика:</div>
-                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;white-space:pre-wrap;">
-                        ${submission.solution || 'Нет текстового решения'}
-                    </div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${submission.solution || 'Нет текстового решения'}</div>
                     ${submission.files && submission.files.length > 0 ? `
-                        <div style="margin-top:0.5rem;">
-                            <div style="font-size:0.75rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
-                            <div class="files-list">${submission.files.map(f => `
-                                <div class="file-item" onclick="window.open('${f.url}')">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
-                                    <span>${escapeHtml(f.name)}</span>
-                                </div>
-                            `).join('')}</div>
-                        </div>
+                        <div style="margin-top:0.5rem;"><div style="font-size:0.75rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
+                        <div class="files-list">${submission.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'} <span>${escapeHtml(f.name)}</span></div>`).join('')}</div></div>
                     ` : ''}
                 </div>
                 ${hw.solution ? `
                     <div style="background:var(--bg2);border-radius:10px;padding:1rem;border:1px solid var(--line);">
                         <div style="font-weight:600;margin-bottom:0.5rem;">Правильное решение:</div>
-                        <div style="padding:0.8rem;background:var(--bg);border-radius:6px;border-left:3px solid var(--gold);line-height:1.6;">
-                            ${hw.solution}
-                        </div>
+                        <div style="padding:0.8rem;background:var(--bg);border-radius:6px;border-left:3px solid var(--gold);line-height:1.6;">${hw.solution}</div>
                     </div>
                 ` : ''}
             `;
@@ -1867,7 +2325,6 @@ async function openHwDetailModal(hwId, userId) {
             const results = submission.taskResults || [];
             
             html += `<div style="margin-top:0.5rem;">`;
-            
             tasks.forEach((task, index) => {
                 const result = results[index] || null;
                 const isCorrect = result ? result.isCorrect : false;
@@ -1878,41 +2335,18 @@ async function openHwDetailModal(hwId, userId) {
                     <div class="task-detail ${isCorrect ? 'correct' : 'wrong'}">
                         <div class="task-condition">${task.condition || 'Без условия'}</div>
                         <div class="task-answers">
-                            <div>
-                                <span class="label">Ваш ответ:</span>
-                                <span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span>
-                            </div>
-                            ${!isCorrect ? `
-                                <div>
-                                    <span class="label">Правильный ответ:</span>
-                                    <span style="font-weight:600;color:var(--green);">${escapeHtml(correctAnswer)}</span>
-                                </div>
-                            ` : ''}
-                            <div>
-                                <span class="label">Результат:</span>
-                                <span style="font-weight:600;color:${isCorrect ? 'var(--green)' : 'var(--red)'};">${isCorrect ? 'Правильно' : 'Неправильно'}</span>
-                            </div>
+                            <div><span class="label">Ваш ответ:</span><span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span></div>
+                            ${!isCorrect ? `<div><span class="label">Правильный ответ:</span><span style="font-weight:600;color:var(--green);">${escapeHtml(correctAnswer)}</span></div>` : ''}
+                            <div><span class="label">Результат:</span><span style="font-weight:600;color:${isCorrect ? 'var(--green)' : 'var(--red)'};">${isCorrect ? 'Правильно' : 'Неправильно'}</span></div>
                         </div>
-                        ${task.solution ? `
-                            <div class="task-solution">
-                                <strong>Решение:</strong><br>${task.solution}
-                            </div>
-                        ` : ''}
+                        ${task.solution ? `<div class="task-solution"><strong>Решение:</strong><br>${task.solution}</div>` : ''}
                         ${task.files && task.files.length > 0 ? `
-                            <div style="margin-top:0.5rem;">
-                                <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.2rem;">Файлы к задаче:</div>
-                                <div class="files-list">${task.files.map(f => `
-                                    <div class="file-item" onclick="window.open('${f.url}')">
-                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
-                                        <span>${escapeHtml(f.name)}</span>
-                                    </div>
-                                `).join('')}</div>
-                            </div>
+                            <div style="margin-top:0.5rem;"><div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.2rem;">Файлы к задаче:</div>
+                            <div class="files-list">${task.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'} <span>${escapeHtml(f.name)}</span></div>`).join('')}</div></div>
                         ` : ''}
                     </div>
                 `;
             });
-            
             html += `</div>`;
         }
         
@@ -1968,7 +2402,7 @@ async function loadLessons() {
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
-                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1983,7 +2417,7 @@ async function viewLesson(lessonId) {
     document.getElementById("viewLessonTitle").textContent = lesson.title;
     let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.files && lesson.files.length) {
-        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -2295,8 +2729,6 @@ async function openEditHomeworkModal(hwId) {
     const hw = doc.data();
     currentEditHomeworkId = hwId;
 
-    // Сбрасываем состояние файлов редактирования от предыдущей сессии,
-    // иначе файлы, добавленные при редактировании одного ДЗ, могли "прилипнуть" к следующему.
     editHwFiles = [];
     editTaskFiles = {};
     editTaskRemovedExistingFiles = {};
@@ -2375,7 +2807,7 @@ async function openEditHomeworkModal(hwId) {
                         <div class="files-list" id="edit_taskExistingFiles_${index}">
                             ${task.files && task.files.length > 0 ? task.files.map((f, fIdx) => `
                                 <div class="file-item" data-file-url="${f.url}">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
+                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
                                     <span>${escapeHtml(f.name)}</span>
                                     <span class="remove-file" onclick="removeEditTaskExistingFile(${index}, ${fIdx})">&times;</span>
                                 </div>
@@ -2417,7 +2849,7 @@ async function openEditHomeworkModal(hwId) {
                 <div class="files-list">
                     ${hw.files && hw.files.length > 0 ? hw.files.map(f => `
                         <div class="file-item" onclick="window.open('${f.url}')">
-                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
+                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
                             <span>${escapeHtml(f.name)}</span>
                         </div>
                     `).join('') : 'Нет файлов'}
@@ -2468,8 +2900,8 @@ function updateEditHwCourses() {
 
 let editTaskCounter = 0;
 let editTaskFiles = {};
-// Индексы существующих (уже сохранённых в Firestore) файлов задачи, отмеченные на удаление, по id задачи
 let editTaskRemovedExistingFiles = {};
+let editHwFiles = [];
 
 function addEditTask() {
     const container = document.getElementById("editTasksContainer");
@@ -2550,7 +2982,7 @@ function renderEditTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -2564,7 +2996,6 @@ function removeEditTaskFile(taskId, idx) {
     }
 }
 
-// Пометить уже сохранённый (существующий) файл задачи на удаление при сохранении
 function removeEditTaskExistingFile(taskId, fileIdx) {
     if (!editTaskRemovedExistingFiles[taskId]) editTaskRemovedExistingFiles[taskId] = new Set();
     editTaskRemovedExistingFiles[taskId].add(fileIdx);
@@ -2574,8 +3005,6 @@ function removeEditTaskExistingFile(taskId, fileIdx) {
         if (items[fileIdx]) items[fileIdx].remove();
     }
 }
-
-let editHwFiles = [];
 
 async function handleEditHwFilesSelect(input) {
     const files = Array.from(input.files);
@@ -2608,7 +3037,7 @@ function renderEditHwFilePreview() {
     container.style.display = 'flex';
     container.innerHTML = editHwFiles.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditHwFile(${idx})">&times;</span>
         </div>
@@ -2644,7 +3073,7 @@ async function saveEditedHomework() {
     
     const btn = document.querySelector('#editHomeworkModal .btn-primary');
     const originalText = btn.textContent;
-    btn.textContent = "Сохранение...";
+    btn.textContent = "⏳ Сохранение...";
     btn.disabled = true;
     
     try {
@@ -2675,8 +3104,6 @@ async function saveEditedHomework() {
             updateData.solution = solution || "Решение не добавлено";
             updateData.isInteractive = false;
             updateData.maxScore = maxScore;
-            // Переключились со "Задачи" на "Вторая часть" — поле tasks для этого типа больше не нужно.
-            // Firestore .update() запрещает undefined, поэтому используем FieldValue.delete().
             updateData.tasks = firebase.firestore.FieldValue.delete();
             
             let uploadedFiles = [];
@@ -2697,7 +3124,6 @@ async function saveEditedHomework() {
                 const correctAnswer = document.getElementById(`edit_tcorrect_${id}`).value.trim();
                 const solution = document.getElementById(`edit_tsolution_${id}`).value.trim();
                 
-                // Существующие файлы задачи, оставшиеся в DOM (уже без удалённых)
                 let existingTaskFiles = [];
                 const existingFilesContainer = document.getElementById(`edit_taskExistingFiles_${id}`);
                 if (existingFilesContainer) {
@@ -2736,23 +3162,20 @@ async function saveEditedHomework() {
             
             updateData.tasks = tasks;
             updateData.isInteractive = true;
-            // ГЛАВНЫЙ ФИКС: Firestore .update() не принимает undefined в значениях полей —
-            // это и вызывало ошибку при сохранении ("Function DocumentReference.update() called
-            // with invalid data. Unsupported field value: undefined"). Явно удаляем поля через
-            // FieldValue.delete() вместо присвоения undefined.
             updateData.condition = firebase.firestore.FieldValue.delete();
             updateData.solution = firebase.firestore.FieldValue.delete();
             updateData.maxScore = firebase.firestore.FieldValue.delete();
         }
         
         await db.collection("homeworks").doc(currentEditHomeworkId).update(updateData);
-        showToast("Задание обновлено!", "success");
+        showToast("✅ Задание обновлено!", "success");
         closeEditHomeworkModal();
         loadAllHomeworkHistory();
         loadDashboard();
+        loadAnalytics();
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("Ошибка: " + error.message, "error");
+        showToast("❌ Ошибка: " + error.message, "error");
     } finally {
         btn.textContent = originalText;
         btn.disabled = false;
@@ -2789,7 +3212,7 @@ async function loadAllHomework() {
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
                 <div class="solution">Задание второй части (ученик прикрепил файлы)</div>
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -2833,9 +3256,9 @@ async function loadAllHomeworkHistory() {
                     `<div class="solution"><strong>Задание второй части</strong>${hw.condition ? `: ${escapeHtml(hw.condition)}` : ''} ${hw.maxScore ? `(Макс. балл: ${hw.maxScore})` : ''}</div>` :
                     `<div class="solution"><strong>Задач:</strong> ${hw.tasks ? hw.tasks.length : 0}</div>`
                 }
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
                 ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ''}
-                ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
+                ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
                 ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/${hw.maxScore || 10}` : ""}</div>` : ''}
             </div>
         `).join("");
@@ -2860,12 +3283,12 @@ async function openGradeModal(hwId) {
     
     let gradeFilesHtml = '';
     if (currentGradingHw.gradeFiles && currentGradingHw.gradeFiles.length) {
-        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
     }
     
     let filesHtml = '';
     if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div><strong>Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        filesHtml = `<div><strong>Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
     }
     
     document.getElementById("gradeModalContent").innerHTML = `
@@ -2917,7 +3340,7 @@ async function submitGrade(action) {
         let uploadedGradeFiles = [];
         if (currentGradeFiles.length > 0) {
             const btn = document.querySelector('#gradeModal .btn-success');
-            if (btn) { btn.textContent = "Загрузка..."; btn.disabled = true; }
+            if (btn) { btn.textContent = "⏳ Загрузка..."; btn.disabled = true; }
             uploadedGradeFiles = await uploadMultipleFiles(currentGradeFiles, "grades");
             showToast(`Загружено ${uploadedGradeFiles.length} файлов с правками`, "success");
         }
@@ -2938,7 +3361,7 @@ async function submitGrade(action) {
         }
         
         await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
-        showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
+        showToast(action === "graded" ? "✅ Задание проверено!" : "↺ Задание возвращено на доработку", "success");
         
         closeGradeModal();
         loadAllHomework();
@@ -2948,10 +3371,10 @@ async function submitGrade(action) {
         
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("Ошибка: " + error.message, "error");
+        showToast("❌ Ошибка: " + error.message, "error");
     } finally {
         const btn = document.querySelector('#gradeModal .btn-success');
-        if (btn) { btn.textContent = "Принять"; btn.disabled = false; }
+        if (btn) { btn.textContent = "✓ Принять"; btn.disabled = false; }
     }
 }
 
@@ -3029,7 +3452,7 @@ async function addScheduleItem() {
             createdBy: currentUser.email
         });
         
-        showToast("Занятие добавлено в расписание!", "success");
+        showToast("✅ Занятие добавлено в расписание!", "success");
         closeAddScheduleModal();
         
         document.getElementById("scheduleDate").value = "";
@@ -3042,7 +3465,7 @@ async function addScheduleItem() {
         loadSchedule();
     } catch (error) {
         console.error("Ошибка добавления:", error);
-        showToast("Ошибка: " + error.message, "error");
+        showToast("❌ Ошибка: " + error.message, "error");
     }
 }
 
@@ -3064,7 +3487,7 @@ async function loadSchedule() {
         const container = document.getElementById("scheduleList");
         
         if (scheduleItems.length === 0) {
-            container.innerHTML = '<div class="schedule-empty">Расписание пока не заполнено</div>';
+            container.innerHTML = '<div class="schedule-empty">📅 Расписание пока не заполнено</div>';
             return;
         }
         
@@ -3090,10 +3513,10 @@ async function loadSchedule() {
                         <div class="name">${escapeHtml(item.name)}</div>
                         <div class="time">${escapeHtml(item.time || '')}</div>
                         <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">Ссылка на занятие</a></div>` : ''}
+                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">🔗 Ссылка на занятие</a></div>` : ''}
                     </div>
                     <div class="actions">
-                        <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
+                        <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">🗑 Удалить</button>
                     </div>
                 </div>
             `;
@@ -3220,4 +3643,3 @@ auth.onAuthStateChanged(async (user) => {
 </script>
 </body>
 </html>
- 
