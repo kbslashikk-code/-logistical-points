@@ -731,7 +731,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     .analytics-charts-row { grid-template-columns: 1fr; }
 }
 
-/* Стили для чата с ИИ */
 .ai-chat-messages {
     height: 400px;
     overflow-y: auto;
@@ -910,7 +909,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 <div class="card">
                     <h3>Создать домашнее задание</h3>
                     
-                    <!-- Кнопка для вызова ИИ -->
                     <button class="btn btn-ai" onclick="openAIChat()">
                         Сгенерировать ДЗ через ИИ
                     </button>
@@ -1175,6 +1173,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -1223,7 +1222,6 @@ let analyticsStudentsCache = [];
 let analyticsSortField = 'combined';
 let analyticsSortDir = 'desc';
 
-// Переменные для чата с ИИ
 let aiGeneratedData = null;
 
 function escapeHtml(str) {
@@ -1853,7 +1851,7 @@ async function loadStudents() {
     }
 }
 
-// ========== АНАЛИТИКА (ОБНОВЛЁННАЯ - СТОЛБЦЫ + СЧЁТ ПО ЗАДАНИЯМ) ==========
+// ========== АНАЛИТИКА ==========
 let analyticsData = null;
 
 async function loadAnalytics() {
@@ -2008,9 +2006,6 @@ async function loadAnalytics() {
         };
 
         analyticsStudentsCache = studentsData;
-
-        const overallFirstPercent = totalFirstPartTasks > 0 ? Math.round(totalFirstPartCorrect / totalFirstPartTasks * 100) : 0;
-        const overallSecondPercent = totalSecondPartMaxScore > 0 ? Math.round(totalSecondPartUserScore / totalSecondPartMaxScore * 100) : 0;
 
         const barData = [
             { label: 'Всего ДЗ', value: totalSubmissions, color: 'purple', max: Math.max(totalSubmissions, 1) },
