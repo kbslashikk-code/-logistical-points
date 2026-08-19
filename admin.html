@@ -40,6 +40,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .btn-success:hover { background: var(--green); color: white; }
 .btn-secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+.btn-ai { 
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
+    color: white; 
+    border: none;
+    width: 100%;
+    padding: 0.7rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+.btn-ai:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
 
 .login-container {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -720,6 +730,50 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     .student-analytics-card .hw-preview .hw-item { flex-wrap: wrap; }
     .analytics-charts-row { grid-template-columns: 1fr; }
 }
+
+/* Стили для чата с ИИ */
+.ai-chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.ai-chat-message {
+    margin-bottom: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+}
+.ai-chat-message.user {
+    background: var(--card2);
+    border-left: 3px solid var(--blue);
+}
+.ai-chat-message.agent {
+    background: var(--card);
+    border-left: 3px solid var(--gold);
+}
+.ai-chat-message .msg-label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.3rem;
+}
+.ai-chat-message .msg-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+.ai-chat-message .msg-content .task-block {
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid var(--gold);
+}
+.ai-chat-message .msg-content .task-block .task-title {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
 </style>
 </head>
 <body>
@@ -855,6 +909,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>Создать домашнее задание</h3>
+                    
+                    <!-- Кнопка для вызова ИИ -->
+                    <button class="btn btn-ai" onclick="openAIChat()">
+                        Сгенерировать ДЗ через ИИ
+                    </button>
                     
                     <div class="form-group"><label>Название задания</label><input type="text" id="hwTitle" placeholder="Например: Квадратные уравнения. Урок 1"></div>
                     <div class="form-group"><label>Предмет</label>
@@ -1088,6 +1147,30 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     </div>
 </div>
 
+<!-- ========== МОДАЛЬНОЕ ОКНО ЧАТА С ИИ ========== -->
+<div id="aiChatModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h3>Чат с ИИ-агентом</h3>
+            <button class="modal-close" onclick="closeAIChat()">&times;</button>
+        </div>
+        <div id="aiChatMessages" class="ai-chat-messages">
+            <div style="text-align: center; color: var(--text3); padding: 2rem;">
+                Опишите, какое ДЗ нужно сгенерировать<br>
+                <span style="font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса"</span>
+            </div>
+        </div>
+        <div class="flex" style="gap: 0.5rem;">
+            <input type="text" id="aiChatInput" placeholder="Опишите задание..." style="flex: 1; padding: 0.7rem; background: var(--bg2); border: 1px solid var(--line); border-radius: 6px; color: var(--text);">
+            <button class="btn btn-primary" onclick="sendAIMessage()">Отправить</button>
+        </div>
+        <div class="flex" style="justify-content: flex-end; margin-top: 1rem; gap: 0.5rem;">
+            <button class="btn btn-success" id="aiApplyBtn" style="display: none;" onclick="applyAIGenerated()">Применить задание</button>
+            <button class="btn btn-secondary" onclick="closeAIChat()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -1140,6 +1223,9 @@ let analyticsStudentsCache = [];
 let analyticsSortField = 'combined';
 let analyticsSortDir = 'desc';
 
+// Переменные для чата с ИИ
+let aiGeneratedData = null;
+
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -1162,6 +1248,181 @@ function showToast(msg, type) {
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
+
+// ========== ЧАТ С ИИ-АГЕНТОМ ==========
+function openAIChat() {
+    const modal = document.getElementById("aiChatModal");
+    modal.classList.add("active");
+    document.getElementById("aiChatInput").focus();
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+    
+    const messages = document.getElementById("aiChatMessages");
+    messages.innerHTML = `
+        <div class="ai-chat-message agent">
+            <span class="msg-label">ИИ-агент</span>
+            <div class="msg-content">
+                Привет! Опиши, какое домашнее задание нужно создать.<br>
+                <span style="color: var(--text3); font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса с решениями"</span>
+            </div>
+        </div>
+    `;
+}
+
+function closeAIChat() {
+    document.getElementById("aiChatModal").classList.remove("active");
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+}
+
+function addAIMessage(type, content) {
+    const messages = document.getElementById("aiChatMessages");
+    const div = document.createElement("div");
+    div.className = `ai-chat-message ${type}`;
+    
+    const label = type === 'user' ? 'Вы' : 'ИИ-агент';
+    div.innerHTML = `
+        <span class="msg-label">${label}</span>
+        <div class="msg-content">${content}</div>
+    `;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([div]);
+    }
+}
+
+function formatAIGeneratedTask(data) {
+    let html = '<div style="padding: 0.5rem 0; margin-bottom: 0.5rem; font-weight: 600; color: var(--gold);">Задание сгенерировано!</div>';
+    html += `<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${escapeHtml(data.title || 'Домашнее задание')}</div>`;
+    
+    if (data.tasks && data.tasks.length > 0) {
+        data.tasks.forEach((task, i) => {
+            html += `
+                <div class="task-block">
+                    <div class="task-title">Задача ${i+1}</div>
+                    <div style="margin-bottom: 0.3rem;">${task.condition || ''}</div>
+                    <div style="font-size: 0.8rem; color: var(--text3);">Ответ: ${escapeHtml(task.correctAnswer || '')}</div>
+                    ${task.solution ? `<div style="font-size: 0.8rem; color: var(--text2);">Решение: ${escapeHtml(task.solution.substring(0, 150))}${task.solution.length > 150 ? '...' : ''}</div>` : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += `<div style="padding: 0.5rem; background: var(--bg2); border-radius: 6px; color: var(--text3);">${JSON.stringify(data, null, 2)}</div>`;
+    }
+    
+    return html;
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById("aiChatInput");
+    const message = input.value.trim();
+    if (!message) return;
+    
+    input.value = "";
+    
+    addAIMessage('user', message);
+    addAIMessage('agent', 'Генерирую задание...');
+    
+    try {
+        const functions = firebase.functions();
+        const generateHomework = functions.httpsCallable('generateHomework');
+        
+        const result = await generateHomework({
+            subject: document.getElementById("hwSubject").value || "math",
+            topic: message,
+            grade: "8",
+            taskCount: 5,
+            taskType: 'first',
+            difficulty: 'medium',
+            courseId: document.getElementById("hwCourse").value || "algebra",
+            target: document.getElementById("hwTarget").value || "all",
+            dueDate: document.getElementById("hwDueDate").value || "",
+            maxScore: 10
+        });
+        
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        
+        const responseText = result.data.result;
+        let parsedData = null;
+        let displayText = responseText;
+        
+        try {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                parsedData = JSON.parse(jsonMatch[0]);
+                aiGeneratedData = parsedData;
+                displayText = formatAIGeneratedTask(parsedData);
+                document.getElementById("aiApplyBtn").style.display = 'inline-flex';
+            } else {
+                displayText = responseText;
+            }
+        } catch (e) {
+            displayText = responseText;
+        }
+        
+        addAIMessage('agent', displayText);
+        
+    } catch (error) {
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        addAIMessage('agent', 'Ошибка: ' + error.message);
+    }
+}
+
+function applyAIGenerated() {
+    if (!aiGeneratedData) {
+        showToast("Нет данных для применения", "error");
+        return;
+    }
+    
+    try {
+        const data = aiGeneratedData;
+        
+        if (data.title) {
+            document.getElementById("hwTitle").value = data.title;
+        }
+        
+        if (data.tasks && data.tasks.length > 0) {
+            document.getElementById("tasksContainer").innerHTML = '';
+            taskCounter = 0;
+            
+            data.tasks.forEach((task, index) => {
+                const container = document.getElementById("tasksContainer");
+                const id = taskCounter++;
+                const html = `
+                    <div class="task-editor" id="teditor_${id}">
+                        <div class="task-header">
+                            <span class="task-number">Задача ${taskCounter}</span>
+                            <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Условие задачи</label>
+                            <textarea id="tcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Правильный ответ</label>
+                            <input type="text" id="tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Решение задачи</label>
+                            <textarea id="tsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        closeAIChat();
+        showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
+        
+    } catch (error) {
+        showToast("Ошибка: " + error.message, "error");
+    }
+}
 
 // ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
 function toggleHomeworkType() {
@@ -1620,8 +1881,8 @@ async function loadAnalytics() {
         }
 
         const studentsData = [];
-        let totalFirstPartHomework = 0; // количество ДЗ первой части (не задач!)
-        let totalSecondPartHomework = 0; // количество ДЗ второй части (не заданий!)
+        let totalFirstPartHomework = 0;
+        let totalSecondPartHomework = 0;
         let totalFirstPartCorrect = 0;
         let totalFirstPartTasks = 0;
         let totalSecondPartMaxScore = 0;
@@ -1656,7 +1917,7 @@ async function loadAnalytics() {
                         userSecondCount++;
                         totalSecondPartMaxScore += maxScore;
                         totalSecondPartUserScore += userScore;
-                        totalSecondPartHomework++; // считаем ДЗ, а не задачи
+                        totalSecondPartHomework++;
                         userSecondHwCount++;
                     }
                 } else {
@@ -1666,7 +1927,7 @@ async function loadAnalytics() {
                     userFirstTotal += total;
                     totalFirstPartTasks += total;
                     totalFirstPartCorrect += correct;
-                    totalFirstPartHomework++; // считаем ДЗ, а не задачи
+                    totalFirstPartHomework++;
                     userFirstHwCount++;
                 }
 
@@ -1752,7 +2013,6 @@ async function loadAnalytics() {
         const overallFirstPercent = totalFirstPartTasks > 0 ? Math.round(totalFirstPartCorrect / totalFirstPartTasks * 100) : 0;
         const overallSecondPercent = totalSecondPartMaxScore > 0 ? Math.round(totalSecondPartUserScore / totalSecondPartMaxScore * 100) : 0;
 
-        // --- СТОЛБЦЫ (ГИСТОГРАММА) для главной статистики ---
         const barData = [
             { label: 'Всего ДЗ', value: totalSubmissions, color: 'purple', max: Math.max(totalSubmissions, 1) },
             { label: '1 часть (ДЗ)', value: totalFirstPartHomework, color: 'blue', max: Math.max(totalSubmissions, 1) },
@@ -1781,7 +2041,6 @@ async function loadAnalytics() {
             </div>
         `;
 
-        // Сводные карточки
         let summaryCardsHtml = `
             <div class="analytics-summary-cards">
                 <div class="summary-card"><div class="number">${filteredUsers.length}</div><div class="label">Учеников</div></div>
@@ -1791,7 +2050,6 @@ async function loadAnalytics() {
             </div>
         `;
 
-        // Плавающие столбцы по темам
         const hwList = Object.values(allHomeworkStats).sort((a, b) => b.totalStudents - a.totalStudents);
         
         let floatingChartsHtml = `
@@ -1843,14 +2101,12 @@ async function loadAnalytics() {
             </div>
         `;
 
-        // Круговая диаграмма распределения типов
         const donutData = [
             { label: 'Первая часть (задачи)', value: totalFirstPartHomework, color: '#3b6ef5' },
             { label: 'Вторая часть (решения)', value: totalSecondPartHomework, color: '#d4a54a' }
         ];
         const donutHtml = totalFirstPartHomework + totalSecondPartHomework > 0 ? buildDonutChart(donutData) : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет данных</div>';
 
-        // Таблица учеников
         let tableHtml = `
             <div class="analytics-toolbar">
                 <input type="text" id="analyticsSearchInput" class="analytics-search" placeholder="Поиск ученика по имени или email..." oninput="renderAnalyticsTable()">
@@ -1901,7 +2157,6 @@ async function loadAnalytics() {
     }
 }
 
-// ---- Донат-диаграмма (без счетчика внутри) ----
 function buildDonutChart(dataArr) {
     const size = 180, thickness = 34;
     const radius = size / 2;
@@ -1956,7 +2211,6 @@ function highlightDonutSegment(idx, active) {
     if (seg) seg.classList.toggle('highlighted', active);
 }
 
-// ---- Таблица аналитики ----
 function renderAnalyticsTable() {
     const searchInput = document.getElementById('analyticsSearchInput');
     const query = (searchInput?.value || '').trim().toLowerCase();
@@ -2121,7 +2375,6 @@ async function openStudentAnalyticsModal(userId) {
         'returned': 'Возвращено'
     };
 
-    // Круговая диаграмма для ученика (по количеству ДЗ)
     const donutData = [
         { label: 'Первая часть', value: totalFirstHwCount, color: '#3b6ef5' },
         { label: 'Вторая часть', value: totalSecondHwCount, color: '#d4a54a' }
