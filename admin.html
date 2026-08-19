@@ -234,6 +234,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .toggle-switch.active .toggle-slider { left: 24px; }
 
+/* ========== СТИЛИ ДЛЯ АНАЛИТИКИ ========== */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -260,6 +261,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 }
 .chart-title { font-weight: 600; margin-bottom: 1rem; color: var(--text2); }
 
+/* Анимированные бары */
 .bar-chart {
     display: flex; flex-direction: column; gap: 0.6rem;
 }
@@ -299,6 +301,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .bar-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
 .bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
+/* Карточка ученика в аналитике */
 .student-analytics-card {
     background: var(--bg2); border-radius: 10px; padding: 1rem;
     margin-bottom: 0.8rem; border: 1px solid var(--line);
@@ -347,6 +350,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
     font-weight: 600; font-size: 0.65rem;
 }
 
+/* Модалка просмотра ДЗ */
 .hw-detail-modal .modal-content { max-width: 900px; }
 .hw-detail-modal .task-detail {
     padding: 0.8rem 1rem; margin-bottom: 0.5rem; border-radius: 8px;
@@ -386,6 +390,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .hw-review-summary .stat .value.medium { color: var(--gold); }
 .hw-review-summary .stat .value.poor { color: var(--red); }
 
+/* Анимация для плавающих элементов */
 @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-6px); }
@@ -815,7 +820,6 @@ let currentAdminRole = 'full';
 let taskCounter = 0;
 let isSecondPart = false;
 
-// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -835,20 +839,11 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-function cleanUndefined(obj) {
-    Object.keys(obj).forEach(key => {
-        if (obj[key] === undefined) {
-            delete obj[key];
-        }
-    });
-    return obj;
-}
-
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
 
-// === ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ===
+// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
 function toggleHomeworkType() {
     const toggle = document.getElementById('hwTypeToggle');
     isSecondPart = !isSecondPart;
@@ -865,15 +860,7 @@ function toggleHomeworkType() {
     }
 }
 
-function toggleEditHomeworkType() {
-    const toggle = document.getElementById('editHwTypeToggle');
-    toggle.classList.toggle('active');
-    const isSecond = toggle.classList.contains('active');
-    document.getElementById('editTasksSection').style.display = isSecond ? 'none' : 'block';
-    document.getElementById('editSecondPartSection').style.display = isSecond ? 'block' : 'none';
-}
-
-// === STORAGE ФУНКЦИИ ===
+// ========== STORAGE ФУНКЦИИ ==========
 async function uploadFileToStorage(file, folder) {
     const fileName = `${Date.now()}_${file.name}`;
     const fileRef = storage.ref(`${folder}/admin/${fileName}`);
@@ -905,14 +892,14 @@ function renderFilePreview(containerId, filesArray, removeFn) {
     container.style.display = 'flex';
     container.innerHTML = filesArray.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
         </div>
     `).join('');
 }
 
-// === ОБРАБОТЧИКИ ФАЙЛОВ ===
+// ========== ОБРАБОТЧИКИ ФАЙЛОВ ==========
 async function handleLessonFilesSelect(input) {
     const files = Array.from(input.files);
     if (currentLessonFiles.length + files.length > 10) {
@@ -992,9 +979,7 @@ document.getElementById("lessonFileInput")?.addEventListener("change", function(
 document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
 document.getElementById("gradeFileInput")?.addEventListener("change", function(e) { handleGradeFilesSelect(e.target); });
 
-// === ДОБАВЛЕНИЕ ЗАДАЧ ===
-const taskFiles = {};
-
+// ========== ДОБАВЛЕНИЕ ЗАДАЧ ==========
 function addTask() {
     const container = document.getElementById("tasksContainer");
     const id = taskCounter++;
@@ -1035,6 +1020,8 @@ function removeTask(id) {
     if (el) el.remove();
 }
 
+const taskFiles = {};
+
 async function handleTaskFilesSelect(input, taskId) {
     const files = Array.from(input.files);
     if (!taskFiles[taskId]) taskFiles[taskId] = [];
@@ -1070,7 +1057,7 @@ function renderTaskFilePreview(taskId) {
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
@@ -1084,7 +1071,7 @@ function removeTaskFile(taskId, idx) {
     }
 }
 
-// === АВТОРИЗАЦИЯ ===
+// ========== АВТОРИЗАЦИЯ ==========
 async function adminLogin() {
     const email = document.getElementById("adminEmail").value.trim().toLowerCase();
     const password = document.getElementById("adminPassword").value;
@@ -1153,7 +1140,7 @@ function switchTab(tab) {
     document.querySelector(`.sidebar-menu li[data-tab="${tab}"]`).classList.add("active");
 }
 
-// === ДАШБОРД ===
+// ========== ДАШБОРД ==========
 async function loadDashboard() {
     try {
         const usersSnap = await db.collection("users").get();
@@ -1243,7 +1230,7 @@ async function loadDashboard() {
     }
 }
 
-// === УЧЕНИКИ ===
+// ========== УЧЕНИКИ ==========
 async function loadStudents() {
     try {
         const usersSnap = await db.collection("users").get();
@@ -1287,7 +1274,7 @@ async function loadStudents() {
     }
 }
 
-// === АНАЛИТИКА ===
+// ========== АНАЛИТИКА (ОБНОВЛЁННАЯ) ==========
 async function loadAnalytics() {
     const filter = document.getElementById('analyticsStudentFilter')?.value || 'all';
     const container = document.getElementById('analyticsContainer');
@@ -1405,6 +1392,13 @@ async function loadAnalytics() {
             const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
             const completedPercent = totalHw > 0 ? Math.round(completedHw / totalHw * 100) : 0;
             
+            const statusMap = {
+                'graded': 'Проверено',
+                'submitted': 'Сдано',
+                'pending': 'Ожидает',
+                'returned': 'Возвращено'
+            };
+            
             html += `
                 <div class="student-analytics-card" onclick="openStudentAnalyticsModal('${user.id}')">
                     <div class="student-name">
@@ -1452,6 +1446,7 @@ async function loadAnalytics() {
             `;
         }
         
+        // Общая статистика
         const allUsers = targetUsers;
         const allSubmissions = allUsers.flatMap(u => u.homeworkSubmissions || []);
         let allCorrect = 0, allTasks = 0;
@@ -1468,6 +1463,7 @@ async function loadAnalytics() {
         const overallAvg = allTasks > 0 ? Math.round(allCorrect / allTasks * 100) : 0;
         const overallScoreAvg = allMaxScore > 0 ? Math.round(allUserScore / allMaxScore * 100) : 0;
         
+        // Данные для диаграммы
         const typeData = [
             { label: 'Краткий ответ', count: allFirstPart, color: 'var(--blue2)' },
             { label: 'Вторая часть', count: allSecondPart, color: 'var(--gold)' }
@@ -1476,10 +1472,26 @@ async function loadAnalytics() {
         
         container.innerHTML = `
             <div class="stats-grid">
-                <div class="stat-card"><div class="stat-number">${allUsers.length}</div><div class="stat-label">Учеников</div><div class="stat-icon">👥</div></div>
-                <div class="stat-card"><div class="stat-number">${allSubmissions.length}</div><div class="stat-label">Всего ДЗ сдано</div><div class="stat-icon">📄</div></div>
-                <div class="stat-card"><div class="stat-number">${overallAvg}%</div><div class="stat-label">Общий прогресс</div><div class="stat-icon">📈</div></div>
-                <div class="stat-card"><div class="stat-number">${allTasks}</div><div class="stat-label">Всего задач</div><div class="stat-icon">📋</div></div>
+                <div class="stat-card">
+                    <div class="stat-number">${allUsers.length}</div>
+                    <div class="stat-label">Учеников</div>
+                    <div class="stat-icon">👥</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${allSubmissions.length}</div>
+                    <div class="stat-label">Всего ДЗ сдано</div>
+                    <div class="stat-icon">📄</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${overallAvg}%</div>
+                    <div class="stat-label">Общий прогресс</div>
+                    <div class="stat-icon">📈</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${allTasks}</div>
+                    <div class="stat-label">Всего задач</div>
+                    <div class="stat-icon">📋</div>
+                </div>
             </div>
             
             <div class="chart-container">
@@ -1501,17 +1513,13 @@ async function loadAnalytics() {
             ${html}
         `;
         
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
-        
     } catch (err) {
         console.error(err);
         container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
     }
 }
 
-// === ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА ===
+// ========== ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА ==========
 async function openStudentAnalyticsModal(userId) {
     const doc = await db.collection("users").doc(userId).get();
     const user = doc.data();
@@ -1691,7 +1699,7 @@ function closeStudentAnalyticsModal() {
     document.getElementById("studentAnalyticsModal").classList.remove("active");
 }
 
-// === ПРОСМОТР ДЗ В АНАЛИТИКЕ ===
+// ========== ПРОСМОТР ДЗ В АНАЛИТИКЕ ==========
 async function openHwDetailModal(hwId, userId) {
     try {
         const hwDoc = await db.collection("homeworks").doc(hwId).get();
@@ -1733,20 +1741,44 @@ async function openHwDetailModal(hwId, userId) {
         
         let html = `
             <div class="hw-review-summary">
-                <div class="stat"><span>Ученик:</span><span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span></div>
-                <div class="stat"><span>Статус:</span><span style="font-weight:600;color:${status === 'graded' ? 'var(--green)' : status === 'submitted' ? 'var(--gold)' : 'var(--text3)'};">${statusMap[status] || status}</span></div>
+                <div class="stat">
+                    <span>Ученик:</span>
+                    <span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span>
+                </div>
+                <div class="stat">
+                    <span>Статус:</span>
+                    <span style="font-weight:600;color:${status === 'graded' ? 'var(--green)' : status === 'submitted' ? 'var(--gold)' : 'var(--text3)'};">${statusMap[status] || status}</span>
+                </div>
                 ${isSecondPart ? `
-                    <div class="stat"><span>Баллы:</span><span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${userScore} / ${maxScore}</span></div>
-                    <div class="stat"><span>Процент:</span><span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${scorePercent}%</span></div>
+                    <div class="stat">
+                        <span>Баллы:</span>
+                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${userScore} / ${maxScore}</span>
+                    </div>
+                    <div class="stat">
+                        <span>Процент:</span>
+                        <span class="value ${scorePercent >= 80 ? 'good' : scorePercent >= 50 ? 'medium' : 'poor'}">${scorePercent}%</span>
+                    </div>
                 ` : `
-                    <div class="stat"><span>Правильно:</span><span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${correctCount} / ${total}</span></div>
-                    <div class="stat"><span>Процент:</span><span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${percent}%</span></div>
+                    <div class="stat">
+                        <span>Правильно:</span>
+                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${correctCount} / ${total}</span>
+                    </div>
+                    <div class="stat">
+                        <span>Процент:</span>
+                        <span class="value ${percent >= 80 ? 'good' : percent >= 50 ? 'medium' : 'poor'}">${percent}%</span>
+                    </div>
                 `}
                 ${hw.grade !== undefined && hw.grade !== null && !isSecondPart ? `
-                    <div class="stat"><span>Оценка:</span><span style="font-weight:700;color:var(--gold);">${hw.grade}/10</span></div>
+                    <div class="stat">
+                        <span>Оценка:</span>
+                        <span style="font-weight:700;color:var(--gold);">${hw.grade}/10</span>
+                    </div>
                 ` : ''}
                 ${hw.feedback ? `
-                    <div class="stat"><span>Комментарий:</span><span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(hw.feedback)}</span></div>
+                    <div class="stat">
+                        <span>Комментарий:</span>
+                        <span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(hw.feedback)}</span>
+                    </div>
                 ` : ''}
             </div>
         `;
@@ -1755,17 +1787,21 @@ async function openHwDetailModal(hwId, userId) {
             html += `
                 <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
                     <div style="font-weight:600;margin-bottom:0.5rem;">Условие задачи:</div>
-                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;">${hw.condition || 'Нет условия'}</div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;">
+                        ${hw.condition || 'Нет условия'}
+                    </div>
                 </div>
                 <div style="background:var(--bg2);border-radius:10px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
                     <div style="font-weight:600;margin-bottom:0.5rem;">Решение ученика:</div>
-                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;white-space:pre-wrap;">${submission.solution || 'Нет текстового решения'}</div>
+                    <div style="padding:0.8rem;background:var(--bg);border-radius:6px;line-height:1.6;white-space:pre-wrap;">
+                        ${submission.solution || 'Нет текстового решения'}
+                    </div>
                     ${submission.files && submission.files.length > 0 ? `
                         <div style="margin-top:0.5rem;">
                             <div style="font-size:0.75rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
                             <div class="files-list">${submission.files.map(f => `
                                 <div class="file-item" onclick="window.open('${f.url}')">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                                     <span>${escapeHtml(f.name)}</span>
                                 </div>
                             `).join('')}</div>
@@ -1775,7 +1811,9 @@ async function openHwDetailModal(hwId, userId) {
                 ${hw.solution ? `
                     <div style="background:var(--bg2);border-radius:10px;padding:1rem;border:1px solid var(--line);">
                         <div style="font-weight:600;margin-bottom:0.5rem;">Правильное решение:</div>
-                        <div style="padding:0.8rem;background:var(--bg);border-radius:6px;border-left:3px solid var(--gold);line-height:1.6;">${hw.solution}</div>
+                        <div style="padding:0.8rem;background:var(--bg);border-radius:6px;border-left:3px solid var(--gold);line-height:1.6;">
+                            ${hw.solution}
+                        </div>
                     </div>
                 ` : ''}
             `;
@@ -1784,6 +1822,7 @@ async function openHwDetailModal(hwId, userId) {
             const results = submission.taskResults || [];
             
             html += `<div style="margin-top:0.5rem;">`;
+            
             tasks.forEach((task, index) => {
                 const result = results[index] || null;
                 const isCorrect = result ? result.isCorrect : false;
@@ -1794,19 +1833,32 @@ async function openHwDetailModal(hwId, userId) {
                     <div class="task-detail ${isCorrect ? 'correct' : 'wrong'}">
                         <div class="task-condition">${task.condition || 'Без условия'}</div>
                         <div class="task-answers">
-                            <div><span class="label">Ваш ответ:</span><span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span></div>
-                            ${!isCorrect ? `<div><span class="label">Правильный ответ:</span><span style="font-weight:600;color:var(--green);">${escapeHtml(correctAnswer)}</span></div>` : ''}
-                            <div><span class="label">Результат:</span><span style="font-weight:600;color:${isCorrect ? 'var(--green)' : 'var(--red)'};">${isCorrect ? 'Правильно' : 'Неправильно'}</span></div>
+                            <div>
+                                <span class="label">Ваш ответ:</span>
+                                <span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span>
+                            </div>
+                            ${!isCorrect ? `
+                                <div>
+                                    <span class="label">Правильный ответ:</span>
+                                    <span style="font-weight:600;color:var(--green);">${escapeHtml(correctAnswer)}</span>
+                                </div>
+                            ` : ''}
+                            <div>
+                                <span class="label">Результат:</span>
+                                <span style="font-weight:600;color:${isCorrect ? 'var(--green)' : 'var(--red)'};">${isCorrect ? 'Правильно' : 'Неправильно'}</span>
+                            </div>
                         </div>
                         ${task.solution ? `
-                            <div class="task-solution"><strong>Решение:</strong><br>${task.solution}</div>
+                            <div class="task-solution">
+                                <strong>Решение:</strong><br>${task.solution}
+                            </div>
                         ` : ''}
                         ${task.files && task.files.length > 0 ? `
                             <div style="margin-top:0.5rem;">
                                 <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.2rem;">Файлы к задаче:</div>
                                 <div class="files-list">${task.files.map(f => `
                                     <div class="file-item" onclick="window.open('${f.url}')">
-                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                                         <span>${escapeHtml(f.name)}</span>
                                     </div>
                                 `).join('')}</div>
@@ -1815,6 +1867,7 @@ async function openHwDetailModal(hwId, userId) {
                     </div>
                 `;
             });
+            
             html += `</div>`;
         }
         
@@ -1835,7 +1888,7 @@ function closeHwDetailModal() {
     document.getElementById("hwDetailModal").classList.remove("active");
 }
 
-// === КОНСПЕКТЫ ===
+// ========== КОНСПЕКТЫ ==========
 async function loadLessons() {
     try {
         const snapshot = await db.collection("lessons").get();
@@ -1860,14 +1913,17 @@ async function loadLessons() {
         container.innerHTML = lessons.map(lesson => `
             <div class="lesson-card">
                 <div class="justify-between">
-                    <div><span class="title">${escapeHtml(lesson.title)}</span><div class="meta">${escapeHtml(lesson.courseId || "Без курса")}</div></div>
+                    <div>
+                        <span class="title">${escapeHtml(lesson.title)}</span>
+                        <div class="meta">${escapeHtml(lesson.courseId || "Без курса")}</div>
+                    </div>
                     <div class="flex">
                         <button class="btn btn-primary" onclick="viewLesson('${lesson.id}')">Просмотреть</button>
                         <button class="btn btn-secondary" onclick="editLesson('${lesson.id}')">Ред.</button>
                         <button class="btn btn-danger" onclick="deleteLesson('${lesson.id}')">Удалить</button>
                     </div>
                 </div>
-                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${lesson.files && lesson.files.length ? `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -1882,7 +1938,7 @@ async function viewLesson(lessonId) {
     document.getElementById("viewLessonTitle").textContent = lesson.title;
     let content = `<div style="line-height: 1.6;">${lesson.content || "Нет содержания"}</div>`;
     if (lesson.files && lesson.files.length) {
-        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+        content += `<div class="files-list">${lesson.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>`;
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
@@ -1972,7 +2028,7 @@ async function saveEditedLesson() {
     loadDashboard();
 }
 
-// === ДОБАВЛЕНИЕ КОНСПЕКТА ===
+// ========== ДОБАВЛЕНИЕ КОНСПЕКТА ==========
 function updateLessonCourses() {
     const subject = document.getElementById("lessonSubject").value;
     const courseSelect = document.getElementById("lessonCourse");
@@ -2035,7 +2091,7 @@ async function createLesson() {
     }
 }
 
-// === ДОМАШНИЕ ЗАДАНИЯ ===
+// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
 function updateCourses() {
     const subject = document.getElementById("hwSubject").value;
     const courseSelect = document.getElementById("hwCourse");
@@ -2188,13 +2244,18 @@ async function createHomework() {
     }
 }
 
-// === РЕДАКТИРОВАНИЕ ДЗ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===
+// ========== РЕДАКТИРОВАНИЕ ДЗ ==========
 async function openEditHomeworkModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
     currentEditHomeworkId = hwId;
+
+    // Сбрасываем состояние файлов редактирования от предыдущей сессии,
+    // иначе файлы, добавленные при редактировании одного ДЗ, могли "прилипнуть" к следующему.
     editHwFiles = [];
     editTaskFiles = {};
+    editTaskRemovedExistingFiles = {};
+    editTaskCounter = 0;
     
     let html = `
         <div class="form-group">
@@ -2266,12 +2327,12 @@ async function openEditHomeworkModal(hwId) {
                     </div>
                     <div class="form-group">
                         <label>Файлы к задаче</label>
-                        <div class="files-list">
-                            ${task.files && task.files.length > 0 ? task.files.map(f => `
-                                <div class="file-item">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                        <div class="files-list" id="edit_taskExistingFiles_${index}">
+                            ${task.files && task.files.length > 0 ? task.files.map((f, fIdx) => `
+                                <div class="file-item" data-file-url="${f.url}">
+                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                                     <span>${escapeHtml(f.name)}</span>
-                                    <span class="remove-file" onclick="removeEditTaskFile(${index}, '${f.url}')">&times;</span>
+                                    <span class="remove-file" onclick="removeEditTaskExistingFile(${index}, ${fIdx})">&times;</span>
                                 </div>
                             `).join('') : ''}
                         </div>
@@ -2285,6 +2346,7 @@ async function openEditHomeworkModal(hwId) {
                 </div>
             `;
         });
+        editTaskCounter = hw.tasks.length;
     }
     
     html += `
@@ -2311,7 +2373,7 @@ async function openEditHomeworkModal(hwId) {
                 <div class="files-list">
                     ${hw.files && hw.files.length > 0 ? hw.files.map(f => `
                         <div class="file-item" onclick="window.open('${f.url}')">
-                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : '📄'}
+                            ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">` : ''}
                             <span>${escapeHtml(f.name)}</span>
                         </div>
                     `).join('') : 'Нет файлов'}
@@ -2337,6 +2399,7 @@ async function openEditHomeworkModal(hwId) {
     document.getElementById("editHomeworkModal").classList.add("active");
     
     updateEditHwCourses();
+    document.getElementById("editHwCourse").value = hw.courseId || "";
     
     const taskCount = document.querySelectorAll('#editTasksContainer .task-editor').length;
     if (taskCount === 0 && !hw.isSecondPart) {
@@ -2362,7 +2425,8 @@ function updateEditHwCourses() {
 
 let editTaskCounter = 0;
 let editTaskFiles = {};
-let editHwFiles = [];
+// Индексы существующих (уже сохранённых в Firestore) файлов задачи, отмеченные на удаление, по id задачи
+let editTaskRemovedExistingFiles = {};
 
 function addEditTask() {
     const container = document.getElementById("editTasksContainer");
@@ -2438,43 +2502,38 @@ function renderEditTaskFilePreview(taskId) {
     if (!container) return;
     const files = editTaskFiles[taskId] || [];
     if (files.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        container.innerHTML = '';
         return;
     }
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditTaskFile(${taskId}, ${idx})">&times;</span>
         </div>
     `).join('');
 }
 
-function removeEditTaskFile(taskId, identifier) {
-    if (typeof identifier === 'string' && identifier.startsWith('http')) {
-        const items = document.querySelectorAll(`#edit_teditor_${taskId} .file-item`);
-        items.forEach(item => {
-            const span = item.querySelector('span');
-            if (span && span.textContent) {
-                if (!item.dataset.marked) {
-                    item.style.opacity = '0.5';
-                    item.style.textDecoration = 'line-through';
-                    item.dataset.marked = 'true';
-                    item.dataset.delete = 'true';
-                } else {
-                    item.remove();
-                }
-            }
-        });
-        return;
-    }
-    
+function removeEditTaskFile(taskId, idx) {
     if (editTaskFiles[taskId]) {
-        editTaskFiles[taskId].splice(identifier, 1);
+        editTaskFiles[taskId].splice(idx, 1);
         renderEditTaskFilePreview(taskId);
     }
 }
+
+// Пометить уже сохранённый (существующий) файл задачи на удаление при сохранении
+function removeEditTaskExistingFile(taskId, fileIdx) {
+    if (!editTaskRemovedExistingFiles[taskId]) editTaskRemovedExistingFiles[taskId] = new Set();
+    editTaskRemovedExistingFiles[taskId].add(fileIdx);
+    const container = document.getElementById(`edit_taskExistingFiles_${taskId}`);
+    if (container) {
+        const items = container.querySelectorAll('.file-item');
+        if (items[fileIdx]) items[fileIdx].remove();
+    }
+}
+
+let editHwFiles = [];
 
 async function handleEditHwFilesSelect(input) {
     const files = Array.from(input.files);
@@ -2501,13 +2560,13 @@ function renderEditHwFilePreview() {
     const container = document.getElementById("editHwFilePreview");
     if (!container) return;
     if (editHwFiles.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        container.innerHTML = '';
         return;
     }
     container.style.display = 'flex';
     container.innerHTML = editHwFiles.map((file, idx) => `
         <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : '📄'}
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
             <span>${escapeHtml(file.file.name)}</span>
             <span class="remove-file" onclick="removeEditHwFile(${idx})">&times;</span>
         </div>
@@ -2519,7 +2578,13 @@ function removeEditHwFile(idx) {
     renderEditHwFilePreview();
 }
 
-// === СОХРАНЕНИЕ ОТРЕДАКТИРОВАННОГО ДЗ (ИСПРАВЛЕННАЯ ВЕРСИЯ) ===
+function toggleEditHomeworkType() {
+    const toggle = document.getElementById('editHwTypeToggle');
+    const isSecond = toggle.classList.toggle('active');
+    document.getElementById('editTasksSection').style.display = isSecond ? 'none' : 'block';
+    document.getElementById('editSecondPartSection').style.display = isSecond ? 'block' : 'none';
+}
+
 async function saveEditedHomework() {
     if (!currentEditHomeworkId) return;
     
@@ -2537,11 +2602,10 @@ async function saveEditedHomework() {
     
     const btn = document.querySelector('#editHomeworkModal .btn-primary');
     const originalText = btn.textContent;
-    btn.textContent = "⏳ Сохранение...";
+    btn.textContent = "Сохранение...";
     btn.disabled = true;
     
     try {
-        // Базовые поля, которые всегда обновляем
         const updateData = {
             title: title,
             subject: subject,
@@ -2554,7 +2618,6 @@ async function saveEditedHomework() {
         };
         
         if (isSecond) {
-            // === ВТОРАЯ ЧАСТЬ ===
             const condition = document.getElementById("editSecondPartCondition").value.trim();
             const solution = document.getElementById("editSecondPartSolution").value.trim();
             const maxScore = parseInt(document.getElementById("editSecondPartMaxScore").value) || 10;
@@ -2568,13 +2631,12 @@ async function saveEditedHomework() {
             
             updateData.condition = condition;
             updateData.solution = solution || "Решение не добавлено";
-            updateData.maxScore = maxScore;
             updateData.isInteractive = false;
+            updateData.maxScore = maxScore;
+            // Переключились со "Задачи" на "Вторая часть" — поле tasks для этого типа больше не нужно.
+            // Firestore .update() запрещает undefined, поэтому используем FieldValue.delete().
+            updateData.tasks = firebase.firestore.FieldValue.delete();
             
-            // Удаляем поля, которые не нужны для второй части
-            delete updateData.tasks;
-            
-            // Загружаем новые файлы
             let uploadedFiles = [];
             if (editHwFiles.length > 0) {
                 uploadedFiles = await uploadMultipleFiles(editHwFiles, "homeworks");
@@ -2583,9 +2645,7 @@ async function saveEditedHomework() {
             const doc = await db.collection("homeworks").doc(currentEditHomeworkId).get();
             const existingFiles = doc.data()?.files || [];
             updateData.files = [...existingFiles, ...uploadedFiles];
-            
         } else {
-            // === ОБЫЧНОЕ ДЗ (с задачами) ===
             const taskEditors = document.querySelectorAll('#editTasksContainer .task-editor');
             const tasks = [];
             
@@ -2594,6 +2654,20 @@ async function saveEditedHomework() {
                 const condition = document.getElementById(`edit_tcondition_${id}`).value.trim();
                 const correctAnswer = document.getElementById(`edit_tcorrect_${id}`).value.trim();
                 const solution = document.getElementById(`edit_tsolution_${id}`).value.trim();
+                
+                // Существующие файлы задачи, оставшиеся в DOM (уже без удалённых)
+                let existingTaskFiles = [];
+                const existingFilesContainer = document.getElementById(`edit_taskExistingFiles_${id}`);
+                if (existingFilesContainer) {
+                    const items = existingFilesContainer.querySelectorAll('.file-item[data-file-url]');
+                    items.forEach(item => {
+                        existingTaskFiles.push({
+                            url: item.dataset.fileUrl,
+                            name: item.querySelector('span')?.textContent || 'файл',
+                            type: item.querySelector('img') ? 'image/*' : 'application/pdf'
+                        });
+                    });
+                }
                 
                 let taskUploadedFiles = [];
                 if (editTaskFiles[id] && editTaskFiles[id].length > 0) {
@@ -2606,7 +2680,7 @@ async function saveEditedHomework() {
                         condition: condition,
                         correctAnswer: correctAnswer || "",
                         solution: solution || "Решение не добавлено",
-                        files: taskUploadedFiles
+                        files: [...existingTaskFiles, ...taskUploadedFiles]
                     });
                 }
             }
@@ -2620,34 +2694,30 @@ async function saveEditedHomework() {
             
             updateData.tasks = tasks;
             updateData.isInteractive = true;
-            
-            // Удаляем поля второй части (которые могли остаться от предыдущей версии)
-            delete updateData.condition;
-            delete updateData.solution;
-            delete updateData.maxScore;
-            delete updateData.files;
+            // ГЛАВНЫЙ ФИКС: Firestore .update() не принимает undefined в значениях полей —
+            // это и вызывало ошибку при сохранении ("Function DocumentReference.update() called
+            // with invalid data. Unsupported field value: undefined"). Явно удаляем поля через
+            // FieldValue.delete() вместо присвоения undefined.
+            updateData.condition = firebase.firestore.FieldValue.delete();
+            updateData.solution = firebase.firestore.FieldValue.delete();
+            updateData.maxScore = firebase.firestore.FieldValue.delete();
         }
         
-        // Очищаем undefined поля
-        cleanUndefined(updateData);
-        
         await db.collection("homeworks").doc(currentEditHomeworkId).update(updateData);
-        showToast("✅ Задание обновлено!", "success");
+        showToast("Задание обновлено!", "success");
         closeEditHomeworkModal();
         loadAllHomeworkHistory();
         loadDashboard();
-        loadAnalytics();
-        
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
     } finally {
         btn.textContent = originalText;
         btn.disabled = false;
     }
 }
 
-// === ЗАГРУЗКА ВСЕХ ДЗ ===
+// ========== ЗАГРУЗКА ВСЕХ ДЗ ==========
 async function loadAllHomework() {
     try {
         const snapshot = await db.collection("homeworks").get();
@@ -2677,7 +2747,7 @@ async function loadAllHomework() {
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
                 </div>
                 <div class="solution">Задание второй части (ученик прикрепил файлы)</div>
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
             </div>
         `).join("");
     } catch (err) {
@@ -2721,9 +2791,9 @@ async function loadAllHomeworkHistory() {
                     `<div class="solution"><strong>Задание второй части</strong>${hw.condition ? `: ${escapeHtml(hw.condition)}` : ''} ${hw.maxScore ? `(Макс. балл: ${hw.maxScore})` : ''}</div>` :
                     `<div class="solution"><strong>Задач:</strong> ${hw.tasks ? hw.tasks.length : 0}</div>`
                 }
-                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
+                ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
                 ${hw.solution ? `<div class="solution"><strong>Решение ученика:</strong> ${escapeHtml(hw.solution)}</div>` : ''}
-                ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
+                ${hw.gradeFiles && hw.gradeFiles.length ? `<div class="solution" style="background: var(--blue3);"><strong>Файлы с правками:</strong><div class="files-list">${hw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>` : ''}
                 ${hw.feedback ? `<div class="solution" style="background: var(--blue3);"><strong>Фидбек:</strong> ${escapeHtml(hw.feedback)} ${hw.grade ? `| Оценка: ${hw.grade}/${hw.maxScore || 10}` : ""}</div>` : ''}
             </div>
         `).join("");
@@ -2733,7 +2803,7 @@ async function loadAllHomeworkHistory() {
     }
 }
 
-// === МОДАЛКА ПРОВЕРКИ ДЗ ===
+// ========== МОДАЛКА ПРОВЕРКИ ДЗ ==========
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     currentGradingHw = { id: hwId, ...doc.data() };
@@ -2743,17 +2813,17 @@ async function openGradeModal(hwId) {
     
     let secondPartHtml = '';
     if (currentGradingHw.isSecondPart) {
-        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>📝 Задание второй части</strong>${currentGradingHw.condition ? `: ${escapeHtml(currentGradingHw.condition)}` : ''}</div>`;
+        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>Задание второй части</strong>${currentGradingHw.condition ? `: ${escapeHtml(currentGradingHw.condition)}` : ''}</div>`;
     }
     
     let gradeFilesHtml = '';
     if (currentGradingHw.gradeFiles && currentGradingHw.gradeFiles.length) {
-        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>📎 Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
     }
     
     let filesHtml = '';
     if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div><strong>📎 Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : '📄'} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
+        filesHtml = `<div><strong>Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
     }
     
     document.getElementById("gradeModalContent").innerHTML = `
@@ -2805,7 +2875,7 @@ async function submitGrade(action) {
         let uploadedGradeFiles = [];
         if (currentGradeFiles.length > 0) {
             const btn = document.querySelector('#gradeModal .btn-success');
-            if (btn) { btn.textContent = "⏳ Загрузка..."; btn.disabled = true; }
+            if (btn) { btn.textContent = "Загрузка..."; btn.disabled = true; }
             uploadedGradeFiles = await uploadMultipleFiles(currentGradeFiles, "grades");
             showToast(`Загружено ${uploadedGradeFiles.length} файлов с правками`, "success");
         }
@@ -2825,10 +2895,8 @@ async function submitGrade(action) {
             }
         }
         
-        cleanUndefined(updateData);
-        
         await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
-        showToast(action === "graded" ? "✅ Задание проверено!" : "↺ Задание возвращено на доработку", "success");
+        showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
         
         closeGradeModal();
         loadAllHomework();
@@ -2838,10 +2906,10 @@ async function submitGrade(action) {
         
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
     } finally {
         const btn = document.querySelector('#gradeModal .btn-success');
-        if (btn) { btn.textContent = "✓ Принять"; btn.disabled = false; }
+        if (btn) { btn.textContent = "Принять"; btn.disabled = false; }
     }
 }
 
@@ -2863,7 +2931,7 @@ async function deleteHomework(id) {
     loadDashboard();
 }
 
-// === РАСПИСАНИЕ ===
+// ========== РАСПИСАНИЕ ==========
 function updateScheduleCourses() {
     const subject = document.getElementById("scheduleSubject").value;
     const courseSelect = document.getElementById("scheduleCourse");
@@ -2919,7 +2987,7 @@ async function addScheduleItem() {
             createdBy: currentUser.email
         });
         
-        showToast("✅ Занятие добавлено в расписание!", "success");
+        showToast("Занятие добавлено в расписание!", "success");
         closeAddScheduleModal();
         
         document.getElementById("scheduleDate").value = "";
@@ -2932,7 +3000,7 @@ async function addScheduleItem() {
         loadSchedule();
     } catch (error) {
         console.error("Ошибка добавления:", error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
     }
 }
 
@@ -2954,7 +3022,7 @@ async function loadSchedule() {
         const container = document.getElementById("scheduleList");
         
         if (scheduleItems.length === 0) {
-            container.innerHTML = '<div class="schedule-empty">📅 Расписание пока не заполнено</div>';
+            container.innerHTML = '<div class="schedule-empty">Расписание пока не заполнено</div>';
             return;
         }
         
@@ -2980,10 +3048,10 @@ async function loadSchedule() {
                         <div class="name">${escapeHtml(item.name)}</div>
                         <div class="time">${escapeHtml(item.time || '')}</div>
                         <div class="course">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">🔗 Ссылка на занятие</a></div>` : ''}
+                        ${item.link ? `<div class="link"><a href="${escapeHtml(item.link)}" target="_blank">Ссылка на занятие</a></div>` : ''}
                     </div>
                     <div class="actions">
-                        <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">🗑 Удалить</button>
+                        <button class="btn btn-danger" onclick="deleteScheduleItem('${item.id}')">Удалить</button>
                     </div>
                 </div>
             `;
@@ -3008,7 +3076,7 @@ async function deleteScheduleItem(id) {
     }
 }
 
-// === ИНИЦИАЛИЗАЦИЯ ===
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 function initAdminPanel() {
     const lessonSubject = document.getElementById("lessonSubject");
     if (lessonSubject) {
@@ -3081,15 +3149,13 @@ function initAdminPanel() {
     renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
     
     if (!isSecondPart && document.getElementById("tasksContainer")) {
-        if (document.getElementById("tasksContainer").children.length === 0) {
-            addTask();
-        }
+        addTask();
     }
     
     loadAnalytics();
 }
 
-// === АВТОРИЗАЦИЯ ПРИ ЗАГРУЗКЕ ===
+// ========== АВТОРИЗАЦИЯ ПРИ ЗАГРУЗКЕ ==========
 auth.onAuthStateChanged(async (user) => {
     if (user && user.email && ADMINS[user.email.toLowerCase()]) {
         currentAdminEmail = user.email.toLowerCase();
