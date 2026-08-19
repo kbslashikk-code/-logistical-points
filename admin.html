@@ -1326,8 +1326,7 @@ async function sendAIMessage() {
     addAIMessage('agent', 'Генерирую задание...');
     
     try {
-        const functions = firebase.functions();
-        const generateHomework = functions.httpsCallable('generateHomework');
+        const generateHomework = firebase.functions().httpsCallable('generateHomework');
         
         const result = await generateHomework({
             subject: document.getElementById("hwSubject").value || "math",
