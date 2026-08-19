@@ -610,7 +610,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     <div class="form-group">
                         <label>Прикрепить файлы (можно несколько, до 50 МБ)</label>
                         <div class="multi-file-zone" onclick="document.getElementById('lessonFileInput').click()">
-                            <div style="font-size:2rem;">📎</div>
                             <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
                         <input type="file" id="lessonFileInput" accept="image/*,application/pdf" multiple style="display:none">
@@ -673,7 +672,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                         <div class="form-group">
                             <label>Прикрепить файлы к заданию</label>
                             <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
-                                <div style="font-size:2rem;">📎</div>
                                 <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                             </div>
                             <input type="file" id="hwFileInput" accept="image/*,application/pdf" multiple style="display:none">
@@ -727,7 +725,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
         <div class="form-group">
             <label>Прикрепить файлы с правками (можно несколько, до 50 МБ)</label>
             <div class="multi-file-zone" onclick="document.getElementById('gradeFileInput').click()">
-                <div style="font-size:2rem;">📎</div>
                 <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
             </div>
             <input type="file" id="gradeFileInput" accept="image/*,application/pdf" multiple style="display:none">
@@ -1082,7 +1079,6 @@ function addTask() {
             <div class="form-group">
                 <label>Прикрепить файлы к задаче (можно несколько, до 50 МБ)</label>
                 <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${id}').click()">
-                    <div style="font-size:2rem;">📎</div>
                     <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                 </div>
                 <input type="file" id="taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskFilesSelect(this, ${id})">
@@ -1433,22 +1429,18 @@ async function loadAnalytics() {
                 <div class="stat-card">
                     <div class="stat-number">${filteredUsers.length}</div>
                     <div class="stat-label">Учеников</div>
-                    <div class="stat-icon">👥</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${allValidSubmissions}</div>
                     <div class="stat-label">Всего ДЗ сдано</div>
-                    <div class="stat-icon">📄</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${allFirstPart}</div>
                     <div class="stat-label">Краткий ответ</div>
-                    <div class="stat-icon">✏️</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number">${allSecondPart}</div>
                     <div class="stat-label">Вторая часть</div>
-                    <div class="stat-icon">📝</div>
                 </div>
             </div>
 
@@ -1570,7 +1562,13 @@ function buildDonutChart(dataArr) {
     const paths = dataArr.map((d, idx) => {
         const startAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
         cumulative += d.value;
-        const endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
+        let endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
+        // SVG не может нарисовать дугу с одинаковыми начальной и конечной точками
+        // (полный круг, когда сегмент занимает 100%), поэтому чуть укорачиваем угол —
+        // визуально незаметно, но чинит "пропадающую" диаграмму.
+        if (endAngle - startAngle >= 2 * Math.PI - 0.001) {
+            endAngle -= 0.001;
+        }
         const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
 
         const x1 = radius + radius * Math.cos(startAngle), y1 = radius + radius * Math.sin(startAngle);
@@ -1721,7 +1719,7 @@ async function openStudentAnalyticsModal(userId) {
                                     </div>
                                 </div>
                                 <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
-                                <div style="color:var(--blue2);font-size:0.9rem;" title="Посмотреть ответы ученика">👁</div>
+                                <div style="color:var(--blue2);font-size:0.75rem;font-weight:600;" title="Посмотреть ответы ученика">Смотреть</div>
                             </div>
                             ${percent !== null ? `<div class="mini-progress" style="width:100%;margin-top:0.5rem;"><div class="mini-progress-fill" style="width:${percent}%;background:${color};"></div></div>` : ''}
                         </div>
@@ -2384,7 +2382,6 @@ async function openEditHomeworkModal(hwId) {
                             `).join('') : ''}
                         </div>
                         <div class="multi-file-zone" onclick="document.getElementById('edit_taskFileInput_${index}').click()">
-                            <div style="font-size:2rem;">📎</div>
                             <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                         </div>
                         <input type="file" id="edit_taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleEditTaskFilesSelect(this, ${index})">
@@ -2426,7 +2423,6 @@ async function openEditHomeworkModal(hwId) {
                     `).join('') : 'Нет файлов'}
                 </div>
                 <div class="multi-file-zone" onclick="document.getElementById('editHwFileInput').click()">
-                    <div style="font-size:2rem;">📎</div>
                     <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                 </div>
                 <input type="file" id="editHwFileInput" accept="image/*,application/pdf" multiple style="display:none" onchange="handleEditHwFilesSelect(this)">
@@ -2499,7 +2495,6 @@ function addEditTask() {
             <div class="form-group">
                 <label>Прикрепить файлы к задаче</label>
                 <div class="multi-file-zone" onclick="document.getElementById('edit_taskFileInput_${id}').click()">
-                    <div style="font-size:2rem;">📎</div>
                     <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                 </div>
                 <input type="file" id="edit_taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleEditTaskFilesSelect(this, ${id})">
