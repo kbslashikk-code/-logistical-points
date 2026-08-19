@@ -301,6 +301,83 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .bar-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
 .bar-fill.purple { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
+/* ========== КОМПАКТНАЯ АНАЛИТИКА (поиск + таблица + донат) ========== */
+.analytics-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 1rem; margin: 1.5rem 0 0.8rem;
+    flex-wrap: wrap;
+}
+.analytics-search {
+    flex: 1; min-width: 220px; padding: 0.6rem 1rem;
+    background: var(--bg2); border: 1px solid var(--line); border-radius: 8px;
+    color: var(--text); font-size: 0.9rem;
+}
+.analytics-search:focus { outline: none; border-color: var(--gold); }
+.analytics-result-count { font-size: 0.75rem; color: var(--text3); white-space: nowrap; }
+
+.analytics-table-wrap { overflow-x: auto; }
+.analytics-table { width: 100%; border-collapse: collapse; }
+.analytics-table th {
+    text-align: left; padding: 0.6rem 0.8rem; color: var(--text3);
+    font-weight: 500; font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1px solid var(--line);
+    user-select: none; white-space: nowrap;
+}
+.analytics-table th.sortable { cursor: pointer; }
+.analytics-table th.sortable:hover { color: var(--gold); }
+.analytics-table td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.analytics-row { cursor: pointer; transition: background 0.15s; }
+.analytics-row:hover { background: var(--bg2); }
+.analytics-row-name { font-weight: 600; font-size: 0.88rem; }
+.analytics-row-email { font-size: 0.68rem; color: var(--text3); }
+.analytics-percent-cell { display: flex; align-items: center; gap: 0.6rem; }
+
+.mini-progress {
+    width: 70px; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden;
+}
+.mini-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+.hw-percent-row {
+    background: var(--bg2); border-radius: 8px; padding: 0.6rem 0.8rem;
+    cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
+}
+.hw-percent-row:hover { border-color: var(--gold); background: var(--card2); }
+.hw-percent-row-main { display: flex; align-items: center; gap: 0.8rem; }
+
+/* Донат-диаграмма */
+.donut-chart-wrap {
+    display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: center;
+}
+.donut-svg { flex-shrink: 0; }
+.donut-segment {
+    transition: opacity 0.2s, transform 0.2s;
+    transform-origin: 90px 90px;
+    cursor: pointer;
+    opacity: 0.92;
+}
+.donut-segment:hover, .donut-segment.highlighted {
+    opacity: 1;
+    transform: scale(1.045);
+    filter: brightness(1.15);
+}
+.donut-center-text {
+    fill: var(--text); font-size: 1.6rem; font-weight: 700; font-family: var(--f);
+}
+.donut-legend { display: flex; flex-direction: column; gap: 0.6rem; min-width: 180px; }
+.donut-legend-item {
+    display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
+    padding: 0.3rem 0.5rem; border-radius: 6px; transition: background 0.2s;
+}
+.donut-legend-item:hover { background: var(--bg2); }
+.donut-legend-color { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+.donut-legend-label { font-size: 0.85rem; color: var(--text2); }
+.donut-legend-value { font-size: 0.85rem; font-weight: 600; margin-left: auto; }
+
+@media (max-width: 768px) {
+    .analytics-toolbar { flex-direction: column; align-items: stretch; }
+    .donut-chart-wrap { flex-direction: column; }
+}
+
 /* Карточка ученика в аналитике */
 .student-analytics-card {
     background: var(--bg2); border-radius: 10px; padding: 1rem;
@@ -482,11 +559,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 <div class="card">
                     <div class="card-header">
                         <h3>Аналитика по ученикам</h3>
-                        <div>
-                            <select id="analyticsStudentFilter" onchange="loadAnalytics()" style="background:var(--bg2);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0.4rem 0.8rem;">
-                                <option value="all">Все ученики</option>
-                            </select>
-                        </div>
                     </div>
                     <div id="analyticsContainer"></div>
                 </div>
@@ -819,6 +891,12 @@ let currentAdminEmail = null;
 let currentAdminRole = 'full';
 let taskCounter = 0;
 let isSecondPart = false;
+
+// Кэш аналитики: карта ДЗ (для фильтрации удалённых ДЗ без лишних запросов) и текущий список учеников
+let analyticsHwCache = {};
+let analyticsStudentsCache = [];
+let analyticsSortField = 'avgPercent';
+let analyticsSortDir = 'desc';
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -1274,249 +1352,264 @@ async function loadStudents() {
     }
 }
 
-// ========== АНАЛИТИКА (ОБНОВЛЁННАЯ) ==========
+// ========== АНАЛИТИКА (компактная таблица + донат-диаграмма) ==========
 async function loadAnalytics() {
-    const filter = document.getElementById('analyticsStudentFilter')?.value || 'all';
     const container = document.getElementById('analyticsContainer');
     if (!container) return;
-    
+
+    container.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Загрузка аналитики...</div>';
+
     try {
         const usersSnap = await db.collection("users").get();
         const users = [];
         usersSnap.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
-        
+
+        // Загружаем все ДЗ ОДИН раз (а не по запросу на каждую сдачу) — это и быстрее,
+        // и позволяет легко исключить сдачи по удалённым/несуществующим ДЗ из аналитики.
+        const hwSnap = await db.collection("homeworks").get();
+        const hwMap = {};
+        hwSnap.forEach(doc => { hwMap[doc.id] = doc.data(); });
+        analyticsHwCache = hwMap;
+
         let filteredUsers = users;
         if (isPhysicsAdmin()) {
             filteredUsers = users.filter(u => (u.enrolledCourses || []).includes('physics'));
         } else if (isLanguagesAdmin()) {
             filteredUsers = users.filter(u => (u.enrolledCourses || []).some(c => ['english', 'german', 'french'].includes(c)));
         }
-        
-        const filterSelect = document.getElementById('analyticsStudentFilter');
-        if (filterSelect) {
-            const currentValue = filterSelect.value;
-            filterSelect.innerHTML = '<option value="all">Все ученики</option>';
-            filteredUsers.forEach(u => {
-                const name = u.name || u.email || 'Без имени';
-                filterSelect.innerHTML += `<option value="${u.id}">${escapeHtml(name)}</option>`;
-            });
-            if (currentValue) filterSelect.value = currentValue;
-        }
-        
-        let targetUsers = filteredUsers;
-        if (filter !== 'all') {
-            targetUsers = filteredUsers.filter(u => u.id === filter);
-        }
-        
-        if (targetUsers.length === 0) {
-            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text3)">Нет данных для отображения</div>';
-            return;
-        }
-        
-        let html = '';
-        for (const user of targetUsers) {
-            const name = user.name || user.email || 'Без имени';
-            const submissions = user.homeworkSubmissions || [];
-            const totalHw = submissions.length;
-            
+
+        const studentsData = [];
+        let allFirstPart = 0, allSecondPart = 0, allValidSubmissions = 0;
+
+        for (const user of filteredUsers) {
+            const rawSubmissions = user.homeworkSubmissions || [];
+            // Сдачи по удалённым/несуществующим ДЗ полностью исключаются из аналитики
+            const validSubmissions = rawSubmissions.filter(sub => hwMap[sub.id]);
+
             let totalCorrect = 0, totalTasks = 0;
             let totalMaxScore = 0, totalUserScore = 0;
-            let completedHw = 0;
-            let totalSecondPart = 0, totalFirstPart = 0;
-            const hwDetails = [];
-            
-            for (const sub of submissions) {
-                const correct = sub.correctCount || 0;
-                const total = sub.total || 0;
-                const maxScore = sub.maxScore || 0;
-                const userScore = sub.userScore || 0;
-                
-                if (total > 0) {
-                    totalCorrect += correct;
-                    totalTasks += total;
-                    if (correct === total) completedHw++;
+
+            for (const sub of validSubmissions) {
+                const hwData = hwMap[sub.id];
+                const isSecond = hwData.isSecondPart || false;
+                if (isSecond) {
+                    allSecondPart++;
+                    const maxScore = hwData.maxScore || sub.maxScore || 0;
+                    if (maxScore > 0) { totalMaxScore += maxScore; totalUserScore += (sub.userScore || 0); }
+                } else {
+                    allFirstPart++;
+                    totalCorrect += (sub.correctCount || 0);
+                    totalTasks += (sub.total || 0);
                 }
-                
-                if (maxScore > 0) {
-                    totalMaxScore += maxScore;
-                    totalUserScore += userScore;
-                    totalSecondPart++;
-                } else if (total > 0) {
-                    totalFirstPart++;
-                }
-                
-                let hwTitle = sub.title || 'Без названия';
-                let isSecondPart = false;
-                let status = 'submitted';
-                let grade = null;
-                let hwDueDate = '';
-                try {
-                    const hwDoc = await db.collection("homeworks").doc(sub.id).get();
-                    if (hwDoc.exists) {
-                        const hwData = hwDoc.data();
-                        hwTitle = hwData.title || hwTitle;
-                        isSecondPart = hwData.isSecondPart || false;
-                        status = hwData.status || 'submitted';
-                        grade = hwData.grade || null;
-                        hwDueDate = hwData.dueDate || '';
-                    }
-                } catch(e) {}
-                
-                const percent = total > 0 ? Math.round(correct / total * 100) : 0;
-                const scorePercent = maxScore > 0 ? Math.round(userScore / maxScore * 100) : 0;
-                
-                hwDetails.push({
-                    id: sub.id,
-                    title: hwTitle,
-                    correct: correct,
-                    total: total,
-                    percent: percent,
-                    maxScore: maxScore,
-                    userScore: userScore,
-                    scorePercent: scorePercent,
-                    isSecondPart: isSecondPart,
-                    status: status,
-                    grade: grade,
-                    dueDate: hwDueDate,
-                    submittedAt: sub.submittedAt || null
-                });
             }
-            
-            hwDetails.sort((a, b) => {
-                const dateA = a.submittedAt?.toDate ? a.submittedAt.toDate() : new Date(0);
-                const dateB = b.submittedAt?.toDate ? b.submittedAt.toDate() : new Date(0);
-                return dateB - dateA;
+            allValidSubmissions += validSubmissions.length;
+
+            const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : null;
+            const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : null;
+            let combinedPercent = null;
+            if (avgPercent !== null && avgScorePercent !== null) combinedPercent = Math.round((avgPercent + avgScorePercent) / 2);
+            else if (avgPercent !== null) combinedPercent = avgPercent;
+            else if (avgScorePercent !== null) combinedPercent = avgScorePercent;
+
+            studentsData.push({
+                id: user.id,
+                name: user.name || user.email || 'Без имени',
+                email: user.email || '',
+                grade: user.grade || '',
+                hwCount: validSubmissions.length,
+                avgPercent: combinedPercent
             });
-            
-            const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
-            const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
-            const completedPercent = totalHw > 0 ? Math.round(completedHw / totalHw * 100) : 0;
-            
-            const statusMap = {
-                'graded': 'Проверено',
-                'submitted': 'Сдано',
-                'pending': 'Ожидает',
-                'returned': 'Возвращено'
-            };
-            
-            html += `
-                <div class="student-analytics-card" onclick="openStudentAnalyticsModal('${user.id}')">
-                    <div class="student-name">
-                        ${escapeHtml(name)}
-                        <span style="font-size:0.7rem;color:var(--text3);font-weight:400;">${escapeHtml(user.email || '')}</span>
-                        <span style="font-size:0.6rem;background:var(--card);padding:0.1rem 0.5rem;border-radius:10px;color:var(--text2);">
-                            ${totalHw} ДЗ
-                        </span>
-                    </div>
-                    <div class="student-stats">
-                        <span class="stat-item">Верно: <span class="value" style="color:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${avgPercent}%</span></span>
-                        <span class="stat-item">Выполнено: <span class="value">${completedPercent}%</span></span>
-                        ${totalMaxScore > 0 ? `<span class="stat-item">Баллы: <span class="value" style="color:${avgScorePercent >= 80 ? 'var(--green)' : avgScorePercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${avgScorePercent}%</span></span>` : ''}
-                        ${user.grade ? `<span class="stat-item">Класс: <span class="value">${escapeHtml(user.grade)}</span></span>` : ''}
-                        <span class="stat-item" style="font-size:0.65rem;color:var(--text3);">
-                            ${totalFirstPart > 0 ? `Краткий ответ: ${totalFirstPart}` : ''}
-                            ${totalFirstPart > 0 && totalSecondPart > 0 ? ' | ' : ''}
-                            ${totalSecondPart > 0 ? `Вторая часть: ${totalSecondPart}` : ''}
-                        </span>
-                    </div>
-                    <div class="hw-preview">
-                        ${hwDetails.slice(0, 4).map(hw => {
-                            const displayPercent = hw.isSecondPart ? hw.scorePercent : hw.percent;
-                            const displayCorrect = hw.isSecondPart ? hw.userScore : hw.correct;
-                            const displayTotal = hw.isSecondPart ? hw.maxScore : hw.total;
-                            const dotColor = displayPercent >= 80 ? 'green' : displayPercent >= 50 ? 'gold' : 'red';
-                            const isGraded = hw.status === 'graded';
-                            const displayText = displayTotal > 0 ? `${displayCorrect}/${displayTotal}` : '—';
-                            return `
-                                <div class="hw-item" onclick="event.stopPropagation(); openHwDetailModal('${hw.id}', '${user.id}')">
-                                    <span class="hw-dot ${dotColor}"></span>
-                                    <span class="hw-name">${escapeHtml(hw.title)}</span>
-                                    <span class="hw-score" style="color:${displayPercent >= 80 ? 'var(--green)' : displayPercent >= 50 ? 'var(--gold)' : 'var(--red)'};">${displayPercent}%</span>
-                                    <span style="font-size:0.6rem;color:var(--text3);">${displayText}</span>
-                                    ${isGraded ? `<span style="font-size:0.5rem;color:var(--green);background:var(--green2);padding:0.05rem 0.3rem;border-radius:4px;">проверено</span>` : ''}
-                                </div>
-                            `;
-                        }).join('')}
-                        ${hwDetails.length > 4 ? `<div style="font-size:0.65rem;color:var(--text3);text-align:center;padding:0.2rem;">+ ещё ${hwDetails.length - 4}</div>` : ''}
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:${avgPercent}%;background:${avgPercent >= 80 ? 'var(--green)' : avgPercent >= 50 ? 'var(--gold)' : 'var(--red)'};"></div>
-                    </div>
-                </div>
-            `;
         }
-        
-        // Общая статистика
-        const allUsers = targetUsers;
-        const allSubmissions = allUsers.flatMap(u => u.homeworkSubmissions || []);
-        let allCorrect = 0, allTasks = 0;
-        let allMaxScore = 0, allUserScore = 0;
-        let allSecondPart = 0, allFirstPart = 0;
-        for (const sub of allSubmissions) {
-            allCorrect += sub.correctCount || 0;
-            allTasks += sub.total || 0;
-            allMaxScore += sub.maxScore || 0;
-            allUserScore += sub.userScore || 0;
-            if (sub.maxScore > 0) allSecondPart++;
-            else if (sub.total > 0) allFirstPart++;
-        }
-        const overallAvg = allTasks > 0 ? Math.round(allCorrect / allTasks * 100) : 0;
-        const overallScoreAvg = allMaxScore > 0 ? Math.round(allUserScore / allMaxScore * 100) : 0;
-        
-        // Данные для диаграммы
-        const typeData = [
-            { label: 'Краткий ответ', count: allFirstPart, color: 'var(--blue2)' },
-            { label: 'Вторая часть', count: allSecondPart, color: 'var(--gold)' }
+
+        analyticsStudentsCache = studentsData;
+
+        const donutData = [
+            { label: 'Краткий ответ', value: allFirstPart, color: '#3b6ef5' },
+            { label: 'Вторая часть', value: allSecondPart, color: '#d4a54a' }
         ];
-        const maxTypeCount = Math.max(...typeData.map(d => d.count), 1);
-        
+
         container.innerHTML = `
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-number">${allUsers.length}</div>
+                    <div class="stat-number">${filteredUsers.length}</div>
                     <div class="stat-label">Учеников</div>
                     <div class="stat-icon">👥</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${allSubmissions.length}</div>
+                    <div class="stat-number">${allValidSubmissions}</div>
                     <div class="stat-label">Всего ДЗ сдано</div>
                     <div class="stat-icon">📄</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${overallAvg}%</div>
-                    <div class="stat-label">Общий прогресс</div>
-                    <div class="stat-icon">📈</div>
+                    <div class="stat-number">${allFirstPart}</div>
+                    <div class="stat-label">Краткий ответ</div>
+                    <div class="stat-icon">✏️</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">${allTasks}</div>
-                    <div class="stat-label">Всего задач</div>
-                    <div class="stat-icon">📋</div>
+                    <div class="stat-number">${allSecondPart}</div>
+                    <div class="stat-label">Вторая часть</div>
+                    <div class="stat-icon">📝</div>
                 </div>
             </div>
-            
+
             <div class="chart-container">
                 <div class="chart-title">Распределение по типам заданий</div>
-                <div class="bar-chart">
-                    ${typeData.map(item => `
-                        <div class="bar-item">
-                            <div class="bar-label">${item.label}</div>
-                            <div class="bar-track">
-                                <div class="bar-fill purple" style="width:${Math.round(item.count / maxTypeCount * 100)}%;">
-                                    ${item.count}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
+                ${allValidSubmissions > 0 ? buildDonutChart(donutData) : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет данных</div>'}
             </div>
-            
-            ${html}
+
+            <div class="analytics-toolbar">
+                <input type="text" id="analyticsSearchInput" class="analytics-search" placeholder="Поиск ученика по имени или email..." oninput="filterAnalyticsList()">
+                <div class="analytics-result-count" id="analyticsResultCount"></div>
+            </div>
+
+            <div class="analytics-table-wrap">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortAnalyticsTable('name')">Ученик <span id="sortIcon_name"></span></th>
+                            <th class="sortable" onclick="sortAnalyticsTable('hwCount')">ДЗ <span id="sortIcon_hwCount"></span></th>
+                            <th class="sortable" onclick="sortAnalyticsTable('avgPercent')">Средний % <span id="sortIcon_avgPercent"></span></th>
+                            <th>Класс</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody"></tbody>
+                </table>
+            </div>
         `;
-        
+
+        sortAnalyticsTable(analyticsSortField, true);
+
     } catch (err) {
         console.error(err);
         container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--red)">Ошибка загрузки аналитики: ' + err.message + '</div>';
     }
+}
+
+// ---- Компактная таблица: поиск и сортировка (работают локально, без новых запросов) ----
+function filterAnalyticsList() {
+    renderAnalyticsTable();
+}
+
+function sortAnalyticsTable(field, keepDir) {
+    if (!keepDir) {
+        if (analyticsSortField === field) {
+            analyticsSortDir = analyticsSortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            analyticsSortField = field;
+            analyticsSortDir = field === 'name' ? 'asc' : 'desc';
+        }
+    }
+    ['name', 'hwCount', 'avgPercent'].forEach(f => {
+        const el = document.getElementById(`sortIcon_${f}`);
+        if (el) el.textContent = f === analyticsSortField ? (analyticsSortDir === 'asc' ? '▲' : '▼') : '';
+    });
+    renderAnalyticsTable();
+}
+
+function renderAnalyticsTable() {
+    const searchInput = document.getElementById('analyticsSearchInput');
+    const query = (searchInput?.value || '').trim().toLowerCase();
+
+    let rows = analyticsStudentsCache.filter(s => {
+        if (!query) return true;
+        return s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query);
+    });
+
+    rows = rows.slice().sort((a, b) => {
+        if (analyticsSortField === 'name') {
+            const cmp = (a.name || '').toLowerCase().localeCompare((b.name || '').toLowerCase(), 'ru');
+            return analyticsSortDir === 'asc' ? cmp : -cmp;
+        }
+        let va = a[analyticsSortField], vb = b[analyticsSortField];
+        va = (va === null || va === undefined) ? -1 : va;
+        vb = (vb === null || vb === undefined) ? -1 : vb;
+        return analyticsSortDir === 'asc' ? va - vb : vb - va;
+    });
+
+    const countEl = document.getElementById('analyticsResultCount');
+    if (countEl) countEl.textContent = `${rows.length} из ${analyticsStudentsCache.length}`;
+
+    const tbody = document.getElementById('analyticsTableBody');
+    if (!tbody) return;
+
+    if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:var(--text3);">Ничего не найдено</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = rows.map(s => {
+        const percent = s.avgPercent;
+        const color = percent === null ? 'var(--text3)' : percent >= 80 ? 'var(--green)' : percent >= 50 ? 'var(--gold)' : 'var(--red)';
+        return `
+            <tr class="analytics-row" onclick="openStudentAnalyticsModal('${s.id}')">
+                <td>
+                    <div class="analytics-row-name">${escapeHtml(s.name)}</div>
+                    <div class="analytics-row-email">${escapeHtml(s.email)}</div>
+                </td>
+                <td>${s.hwCount}</td>
+                <td>
+                    <div class="analytics-percent-cell">
+                        <span style="color:${color};font-weight:700;min-width:38px;">${percent === null ? '—' : percent + '%'}</span>
+                        ${percent !== null ? `<div class="mini-progress"><div class="mini-progress-fill" style="width:${percent}%;background:${color};"></div></div>` : ''}
+                    </div>
+                </td>
+                <td>${s.grade ? escapeHtml(s.grade) : '—'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ---- Донат-диаграмма (SVG, без внешних библиотек) с интерактивной подсветкой сегментов ----
+function buildDonutChart(dataArr) {
+    const size = 180, thickness = 34;
+    const radius = size / 2;
+    const innerRadius = radius - thickness;
+    const total = dataArr.reduce((s, d) => s + d.value, 0) || 1;
+    let cumulative = 0;
+
+    const paths = dataArr.map((d, idx) => {
+        const startAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
+        cumulative += d.value;
+        const endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
+        const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+
+        const x1 = radius + radius * Math.cos(startAngle), y1 = radius + radius * Math.sin(startAngle);
+        const x2 = radius + radius * Math.cos(endAngle), y2 = radius + radius * Math.sin(endAngle);
+        const ix1 = radius + innerRadius * Math.cos(startAngle), iy1 = radius + innerRadius * Math.sin(startAngle);
+        const ix2 = radius + innerRadius * Math.cos(endAngle), iy2 = radius + innerRadius * Math.sin(endAngle);
+
+        const dPath = d.value > 0
+            ? `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${ix1} ${iy1} Z`
+            : '';
+        const percent = Math.round(d.value / total * 100);
+        return dPath ? `<path d="${dPath}" fill="${d.color}" class="donut-segment" data-idx="${idx}"><title>${escapeHtml(d.label)}: ${d.value} (${percent}%)</title></path>` : '';
+    }).join('');
+
+    const legend = dataArr.map((d, idx) => {
+        const percent = Math.round(d.value / total * 100);
+        return `
+            <div class="donut-legend-item" onmouseenter="highlightDonutSegment(${idx}, true)" onmouseleave="highlightDonutSegment(${idx}, false)">
+                <span class="donut-legend-color" style="background:${d.color}"></span>
+                <span class="donut-legend-label">${escapeHtml(d.label)}</span>
+                <span class="donut-legend-value">${d.value} (${percent}%)</span>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="donut-chart-wrap">
+            <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" class="donut-svg">
+                ${paths}
+                <text x="${radius}" y="${radius}" text-anchor="middle" dominant-baseline="middle" class="donut-center-text">${total}</text>
+            </svg>
+            <div class="donut-legend">${legend}</div>
+        </div>
+    `;
+}
+
+function highlightDonutSegment(idx, active) {
+    const seg = document.querySelector(`.donut-segment[data-idx="${idx}"]`);
+    if (seg) seg.classList.toggle('highlighted', active);
 }
 
 // ========== ДЕТАЛЬНАЯ АНАЛИТИКА УЧЕНИКА ==========
@@ -1527,169 +1620,123 @@ async function openStudentAnalyticsModal(userId) {
         showToast("Ученик не найден", "error");
         return;
     }
-    
+
     const name = user.name || user.email || 'Без имени';
     document.getElementById("studentAnalyticsTitle").textContent = `Аналитика: ${escapeHtml(name)}`;
-    
-    const submissions = user.homeworkSubmissions || [];
+    document.getElementById("studentAnalyticsContent").innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text3);">Загрузка...</div>';
+    document.getElementById("studentAnalyticsModal").classList.add("active");
+
+    // Используем карту ДЗ из кэша аналитики (заполняется в loadAnalytics), при отсутствии — загружаем заново
+    let hwMap = analyticsHwCache;
+    if (!hwMap || Object.keys(hwMap).length === 0) {
+        const hwSnap = await db.collection("homeworks").get();
+        hwMap = {};
+        hwSnap.forEach(d => { hwMap[d.id] = d.data(); });
+        analyticsHwCache = hwMap;
+    }
+
+    const rawSubmissions = user.homeworkSubmissions || [];
+    // Сдачи по удалённым/несуществующим ДЗ полностью исключаются из аналитики
+    const submissions = rawSubmissions.filter(sub => hwMap[sub.id]);
+
     const hwDetails = [];
     let totalCorrect = 0, totalTasks = 0;
     let totalMaxScore = 0, totalUserScore = 0;
-    let totalSecondPart = 0, totalFirstPart = 0;
-    
+
     for (const sub of submissions) {
-        let hwTitle = sub.title || 'Без названия';
-        let isSecondPart = false;
-        let maxScore = sub.maxScore || 0;
-        let userScore = sub.userScore || 0;
-        let status = 'submitted';
-        let grade = null;
-        let dueDate = '';
-        try {
-            const hwDoc = await db.collection("homeworks").doc(sub.id).get();
-            if (hwDoc.exists) {
-                const hwData = hwDoc.data();
-                hwTitle = hwData.title || hwTitle;
-                isSecondPart = hwData.isSecondPart || false;
-                status = hwData.status || 'submitted';
-                grade = hwData.grade || null;
-                dueDate = hwData.dueDate || '';
-                if (isSecondPart && hwData.maxScore) {
-                    maxScore = hwData.maxScore || 0;
-                }
-            }
-        } catch(e) {}
-        
+        const hwData = hwMap[sub.id];
+        const isSecond = hwData.isSecondPart || false;
+        const maxScore = hwData.maxScore || sub.maxScore || 0;
+        const userScore = sub.userScore || sub.grade || 0;
         const correct = sub.correctCount || 0;
         const total = sub.total || 0;
-        if (total > 0) {
+        const status = hwData.status || 'submitted';
+
+        if (isSecond) {
+            if (maxScore > 0) { totalMaxScore += maxScore; totalUserScore += userScore; }
+        } else {
             totalCorrect += correct;
             totalTasks += total;
         }
-        if (maxScore > 0) {
-            totalMaxScore += maxScore;
-            totalUserScore += userScore;
-            totalSecondPart++;
-        } else if (total > 0) {
-            totalFirstPart++;
-        }
-        
-        const percent = total > 0 ? Math.round(correct / total * 100) : 0;
-        const scorePercent = maxScore > 0 ? Math.round(userScore / maxScore * 100) : 0;
-        
+
+        const percent = isSecond
+            ? (maxScore > 0 ? Math.round(userScore / maxScore * 100) : null)
+            : (total > 0 ? Math.round(correct / total * 100) : null);
+
         hwDetails.push({
             id: sub.id,
-            title: hwTitle,
-            correct: correct,
-            total: total,
-            percent: percent,
-            maxScore: maxScore,
-            userScore: userScore,
-            scorePercent: scorePercent,
-            isSecondPart: isSecondPart,
-            status: status,
-            grade: grade,
-            dueDate: dueDate,
+            title: hwData.title || sub.title || 'Без названия',
+            correct, total, maxScore, userScore, percent,
+            isSecondPart: isSecond,
+            status,
             submittedAt: sub.submittedAt || null
         });
     }
-    
+
     hwDetails.sort((a, b) => {
         const dateA = a.submittedAt?.toDate ? a.submittedAt.toDate() : new Date(0);
         const dateB = b.submittedAt?.toDate ? b.submittedAt.toDate() : new Date(0);
         return dateB - dateA;
     });
-    
-    const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : 0;
-    const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : 0;
-    
-    const ranges = { '80-100': 0, '60-79': 0, '40-59': 0, '0-39': 0 };
-    hwDetails.forEach(h => {
-        if (h.total === 0 && h.maxScore === 0) return;
-        const p = h.isSecondPart ? h.scorePercent : h.percent;
-        if (p >= 80) ranges['80-100']++;
-        else if (p >= 60) ranges['60-79']++;
-        else if (p >= 40) ranges['40-59']++;
-        else ranges['0-39']++;
-    });
-    
+
+    const avgPercent = totalTasks > 0 ? Math.round(totalCorrect / totalTasks * 100) : null;
+    const avgScorePercent = totalMaxScore > 0 ? Math.round(totalUserScore / totalMaxScore * 100) : null;
     const totalHw = hwDetails.length;
-    
+
+    const statusMap = {
+        'graded': 'Проверено',
+        'submitted': 'Сдано',
+        'pending': 'Ожидает',
+        'returned': 'Возвращено'
+    };
+
     let html = `
         <div class="stats-grid">
             <div class="stat-card"><div class="stat-number">${totalHw}</div><div class="stat-label">Всего ДЗ</div></div>
-            <div class="stat-card"><div class="stat-number">${avgPercent}%</div><div class="stat-label">Средний результат</div></div>
+            ${avgPercent !== null ? `<div class="stat-card"><div class="stat-number">${avgPercent}%</div><div class="stat-label">Ср. % (краткий ответ)</div></div>` : ''}
+            ${avgScorePercent !== null ? `<div class="stat-card"><div class="stat-number">${avgScorePercent}%</div><div class="stat-label">Ср. % (вторая часть)</div></div>` : ''}
             <div class="stat-card"><div class="stat-number">${totalTasks}</div><div class="stat-label">Всего задач</div></div>
             <div class="stat-card"><div class="stat-number">${totalCorrect}</div><div class="stat-label">Верных ответов</div></div>
-            ${totalMaxScore > 0 ? `
-                <div class="stat-card"><div class="stat-number">${totalUserScore}/${totalMaxScore}</div><div class="stat-label">Баллы</div></div>
-                <div class="stat-card"><div class="stat-number">${avgScorePercent}%</div><div class="stat-label">Средний балл</div></div>
-            ` : ''}
         </div>
-        
-        <div class="chart-container">
-            <div class="chart-title">Распределение результатов по ДЗ</div>
-            <div class="bar-chart">
-                ${Object.entries(ranges).map(([key, value]) => {
-                    const maxVal = Math.max(...Object.values(ranges), 1);
-                    const width = Math.round(value / maxVal * 100);
-                    let colorClass = 'poor';
-                    if (key === '80-100') colorClass = 'good';
-                    else if (key === '60-79') colorClass = 'medium';
-                    else if (key === '40-59') colorClass = 'poor';
-                    else colorClass = 'bad';
-                    return `
-                        <div class="bar-item">
-                            <div class="bar-label">${key}%</div>
-                            <div class="bar-track">
-                                <div class="bar-fill ${colorClass}" style="width:${Math.max(width, 2)}%;">
-                                    ${value > 0 ? value : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-        
+
         <div class="chart-container" style="margin-top:1rem;">
-            <div class="chart-title">История выполненных ДЗ</div>
-            <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                ${hwDetails.length > 0 ? hwDetails.map((hw, idx) => {
-                    const displayPercent = hw.isSecondPart ? hw.scorePercent : hw.percent;
-                    const displayCorrect = hw.isSecondPart ? hw.userScore : hw.correct;
-                    const displayTotal = hw.isSecondPart ? hw.maxScore : hw.total;
-                    const color = displayPercent >= 80 ? 'var(--green)' : displayPercent >= 50 ? 'var(--gold)' : 'var(--red)';
+            <div class="chart-title">Процент выполнения по каждому ДЗ</div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                ${hwDetails.length > 0 ? hwDetails.map(hw => {
+                    const percent = hw.percent;
+                    const color = percent === null ? 'var(--text3)' : percent >= 80 ? 'var(--green)' : percent >= 50 ? 'var(--gold)' : 'var(--red)';
                     const statusColor = hw.status === 'graded' ? 'var(--green)' : hw.status === 'submitted' ? 'var(--gold)' : 'var(--text3)';
-                    const statusMap = {
-                        'graded': 'Проверено',
-                        'submitted': 'Сдано',
-                        'pending': 'Ожидает',
-                        'returned': 'Возвращено'
-                    };
+                    const displayText = hw.isSecondPart
+                        ? (hw.maxScore > 0 ? `${hw.userScore}/${hw.maxScore}` : '—')
+                        : (hw.total > 0 ? `${hw.correct}/${hw.total}` : '—');
                     return `
-                        <div style="display:flex;align-items:center;gap:0.8rem;padding:0.5rem;background:var(--bg2);border-radius:6px;border-left:3px solid ${color};cursor:pointer;" onclick="openHwDetailModal('${hw.id}', '${userId}')">
-                            <div style="font-size:0.8rem;color:var(--text3);min-width:30px;">#${idx + 1}</div>
-                            <div style="flex:1;font-size:0.85rem;">${escapeHtml(hw.title)}</div>
-                            <div style="font-size:0.65rem;color:${statusColor};">${statusMap[hw.status] || hw.status}</div>
-                            <div style="font-size:0.65rem;color:var(--text3);">${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'}</div>
-                            <div style="font-size:0.85rem;font-weight:600;color:${color};">${displayPercent}%</div>
-                            <div style="font-size:0.7rem;color:var(--text3);">${displayCorrect}/${displayTotal}</div>
-                            <div style="font-size:0.8rem;color:var(--blue2);cursor:pointer;">👁</div>
+                        <div class="hw-percent-row" onclick="openHwDetailModal('${hw.id}', '${userId}')">
+                            <div class="hw-percent-row-main">
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)}</div>
+                                    <div style="font-size:0.7rem;color:var(--text3);">
+                                        ${hw.isSecondPart ? 'Вторая часть' : 'Краткий ответ'} ·
+                                        <span style="color:${statusColor}">${statusMap[hw.status] || hw.status}</span>
+                                        ${displayText !== '—' ? ' · ' + displayText : ''}
+                                    </div>
+                                </div>
+                                <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
+                                <div style="color:var(--blue2);font-size:0.9rem;" title="Посмотреть ответы ученика">👁</div>
+                            </div>
+                            ${percent !== null ? `<div class="mini-progress" style="width:100%;margin-top:0.5rem;"><div class="mini-progress-fill" style="width:${percent}%;background:${color};"></div></div>` : ''}
                         </div>
                     `;
                 }).join('') : '<div style="padding:1rem;text-align:center;color:var(--text3);">Нет выполненных ДЗ</div>'}
             </div>
         </div>
-        
+
         <div style="margin-top:1rem;display:flex;justify-content:center;">
             <button class="btn btn-secondary" onclick="closeStudentAnalyticsModal()">Закрыть</button>
         </div>
     `;
-    
+
     document.getElementById("studentAnalyticsContent").innerHTML = html;
-    document.getElementById("studentAnalyticsModal").classList.add("active");
-    
+
     if (window.MathJax && MathJax.typesetPromise) {
         MathJax.typesetPromise();
     }
