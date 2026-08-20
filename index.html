@@ -8,7 +8,7 @@
     
     <script>
         MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
             svg: { fontCache: 'global' }
         };
     </script>
@@ -74,7 +74,7 @@
         .btn.green:hover { background: var(--green); color: white; }
         .btn.secondary { background: var(--card2); color: var(--text2); border: 1px solid var(--line); }
         .btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
         .modal-overlay {
             display: none; position: fixed; inset: 0;
@@ -125,6 +125,7 @@
             font-size: 1.2rem; z-index: 100;
         }
 
+        /* СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) */
         .hw-solve-page {
             display: none;
             position: fixed;
@@ -537,7 +538,7 @@
         <div id="loginPanel" class="tab-pane active">
             <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
             <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="......"></div>
-            <button class="btn bg" style="width:100%" onclick="handleLogin()">Войти</button>
+            <button class="btn bg" style="width:100%" id="loginSubmitBtn" onclick="handleLogin()">Войти</button>
             <p style="text-align:center;margin-top:1rem;font-size:0.8rem"><span style="color:var(--gold);cursor:pointer" onclick="showResetPassword()">Забыли пароль?</span></p>
         </div>
         <div id="registerPanel" class="tab-pane" style="display:none;">
@@ -545,7 +546,7 @@
             <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com"></div>
             <div class="form-group"><label>Класс</label><select id="regGrade"><option value="">Выберите класс</option><option value="1-4">1-4 класс</option><option value="5-6">5-6 класс</option><option value="7-8">7-8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10-11 класс (ЕГЭ)</option></select></div>
             <div class="form-group"><label>Пароль</label><input type="password" id="regPassword" placeholder="минимум 6 символов"></div>
-            <button class="btn bg" style="width:100%" onclick="handleRegister()">Создать аккаунт</button>
+            <button class="btn bg" style="width:100%" id="regSubmitBtn" onclick="handleRegister()">Создать аккаунт</button>
         </div>
     </div>
 </div>
@@ -554,7 +555,7 @@
     <div class="modal">
         <div class="modal-header"><h3>Сброс пароля</h3><button class="modal-close" onclick="closeResetModal()">&times;</button></div>
         <div class="form-group"><label>Email</label><input type="email" id="resetEmail" placeholder="your@email.com"></div>
-        <button class="btn bg" style="width:100%" onclick="sendResetPassword()">Отправить ссылку</button>
+        <button class="btn bg" style="width:100%" id="resetSubmitBtn" onclick="sendResetPassword()">Отправить ссылку</button>
     </div>
 </div>
 
@@ -739,6 +740,14 @@ let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
 
+// Флаги блокировки повторных нажатий, пока предыдущий запрос ещё выполняется
+let isSubmittingHw = false;
+let isLoggingIn = false;
+let isRegistering = false;
+let isResettingPassword = false;
+let isEnrolling = {};
+let isMarkingLesson = {};
+
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -756,27 +765,6 @@ function showToast(msg, type) {
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
-}
-
-// ========== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX ==========
-async function renderMath() {
-    if (window.MathJax && MathJax.typesetPromise) {
-        try {
-            await MathJax.typesetPromise();
-        } catch (e) {
-            console.warn("MathJax error:", e);
-        }
-    }
-}
-
-async function renderMathInElement(el) {
-    if (window.MathJax && MathJax.typesetPromise) {
-        try {
-            await MathJax.typesetPromise([el]);
-        } catch (e) {
-            console.warn("MathJax error:", e);
-        }
-    }
 }
 
 let loaderInterval = null;
@@ -813,11 +801,28 @@ function openResetModal() { document.getElementById("resetModal").classList.add(
 function closeResetModal() { document.getElementById("resetModal").classList.remove("active"); }
 function showResetPassword() { closeAuthModal(); openResetModal(); }
 
-function sendResetPassword() {
+async function sendResetPassword() {
+    if (isResettingPassword) return; // защита от повторных кликов
     const email = document.getElementById("resetEmail").value.trim();
     if (!email) { showToast("Введите email", "error"); return; }
-    auth.sendPasswordResetEmail(email).then(() => { showToast("Ссылка для сброса отправлена на почту", "success"); closeResetModal(); })
-        .catch(error => showToast(error.message, "error"));
+
+    isResettingPassword = true;
+    const btn = document.getElementById("resetSubmitBtn");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Отправка...";
+
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showToast("Ссылка для сброса отправлена на почту", "success");
+        closeResetModal();
+    } catch (error) {
+        showToast(error.message, "error");
+    } finally {
+        isResettingPassword = false;
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
 }
 
 function switchAuthTab(tab) {
@@ -833,12 +838,21 @@ function switchAuthTab(tab) {
     }
 }
 
-function handleLogin() {
+async function handleLogin() {
+    if (isLoggingIn) return; // защита от повторных кликов
     const email = document.getElementById("loginEmail").value.trim(), password = document.getElementById("loginPassword").value;
     if (!email || !password) { showToast("Заполните все поля", "error"); return; }
-    auth.signInWithEmailAndPassword(email, password).then(async (userCredential) => {
+
+    isLoggingIn = true;
+    const btn = document.getElementById("loginSubmitBtn");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Вход...";
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
-        if (!user.emailVerified) { showToast("Подтвердите email. Проверьте почту!", "error"); auth.signOut(); return; }
+        if (!user.emailVerified) { showToast("Подтвердите email. Проверьте почту!", "error"); await auth.signOut(); return; }
         const doc = await db.collection("users").doc(user.uid).get();
         userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
         if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
@@ -846,20 +860,41 @@ function handleLogin() {
         updateUIAfterLogin();
         closeAuthModal();
         showToast("Добро пожаловать!", "success");
-    }).catch(error => showToast(error.message, "error"));
+    } catch (error) {
+        showToast(error.message, "error");
+    } finally {
+        isLoggingIn = false;
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
 }
 
-function handleRegister() {
+async function handleRegister() {
+    if (isRegistering) return; // защита от повторных кликов
     const name = document.getElementById("regName").value.trim(), email = document.getElementById("regEmail").value.trim();
     const grade = document.getElementById("regGrade").value, password = document.getElementById("regPassword").value;
     if (!name || !email || !grade || password.length < 6) { showToast("Заполните все поля правильно", "error"); return; }
-    auth.createUserWithEmailAndPassword(email, password).then(async (userCredential) => {
+
+    isRegistering = true;
+    const btn = document.getElementById("regSubmitBtn");
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Создание...";
+
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
         await user.sendEmailVerification();
         showToast("Регистрация успешна! Подтвердите email", "success");
         closeAuthModal();
         await auth.signOut();
-    }).catch(error => showToast(error.message, "error"));
+    } catch (error) {
+        showToast(error.message, "error");
+    } finally {
+        isRegistering = false;
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
 }
 
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
@@ -882,7 +917,6 @@ function updateUIAfterLogin() {
     updateLessonsCount();
     loadStudentSchedule();
     loadHomeworkCourses();
-    setTimeout(() => renderMath(), 500);
 }
 
 async function updateLessonsCount() {
@@ -914,14 +948,17 @@ function renderCoursesGrid() {
             <div class="course-topics">${course.topics.map(t => '<span class="topic-tag">' + t + '</span>').join("")}</div>
             <button class="btn bg">${currentUser ? "Открыть" : "Записаться"}</button></div>
         </div>`).join("");
-    setTimeout(() => renderMath(), 300);
 }
 
-function enrollCourse(courseId) {
+async function enrollCourse(courseId) {
     if (!currentUser) { openAuthModal(); return; }
-    if (!userData.enrolledCourses.includes(courseId)) {
+    if (isEnrolling[courseId]) return; // защита от повторных кликов на этот же курс
+    if (userData.enrolledCourses.includes(courseId)) return;
+
+    isEnrolling[courseId] = true;
+    try {
         userData.enrolledCourses.push(courseId);
-        db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
+        await db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
         showToast("Вы записаны на курс!", "success");
         renderMyCourses();
         renderAvailableCourses();
@@ -931,6 +968,12 @@ function enrollCourse(courseId) {
         document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
         loadStudentSchedule();
         loadHomeworkCourses();
+    } catch (error) {
+        // откатываем локальное изменение, если запись в базу не удалась
+        userData.enrolledCourses = userData.enrolledCourses.filter(id => id !== courseId);
+        showToast("Не удалось записаться на курс: " + error.message, "error");
+    } finally {
+        isEnrolling[courseId] = false;
     }
 }
 
@@ -1036,7 +1079,6 @@ async function openCourseLessons(courseId) {
     const oldModal = document.getElementById("lessonsModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
-    setTimeout(() => renderMath(), 300);
 }
 
 async function viewLesson(lessonId, courseId, title) {
@@ -1062,7 +1104,7 @@ async function viewLesson(lessonId, courseId, title) {
                         ` : ''}
                     </div>
                     <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
-                        <button class="btn bg" onclick="markLessonCompleted('${lessonId}','${courseId}')">Отметить как пройденный</button>
+                        <button class="btn bg" id="markCompleteBtn_${lessonId}" onclick="markLessonCompleted('${lessonId}','${courseId}')">Отметить как пройденный</button>
                     </div>
                 </div>
             </div>
@@ -1071,19 +1113,36 @@ async function viewLesson(lessonId, courseId, title) {
     const oldModal = document.getElementById("lessonDetailModal");
     if (oldModal) oldModal.remove();
     document.body.insertAdjacentHTML("beforeend", modalHtml);
-    setTimeout(() => renderMath(), 300);
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 async function markLessonCompleted(lessonId, courseId) {
+    if (isMarkingLesson[lessonId]) return; // защита от повторных кликов
     const lessonKey = courseId + '_' + lessonId;
     if (!userData.completedLessons) userData.completedLessons = [];
-    if (!userData.completedLessons.includes(lessonKey)) {
+    if (userData.completedLessons.includes(lessonKey)) return;
+
+    isMarkingLesson[lessonId] = true;
+    const btn = document.getElementById('markCompleteBtn_' + lessonId);
+    if (btn) { btn.disabled = true; btn.textContent = "Сохранение..."; }
+
+    try {
         userData.completedLessons.push(lessonKey);
         await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
         showToast("Конспект отмечен как пройденный!", "success");
-        document.getElementById("lessonDetailModal").remove();
+        const modal = document.getElementById("lessonDetailModal");
+        if (modal) modal.remove();
         renderProgress();
         updateLessonsCount();
+    } catch (error) {
+        userData.completedLessons = userData.completedLessons.filter(k => k !== lessonKey);
+        showToast("Не удалось сохранить: " + error.message, "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Отметить как пройденный"; }
+    } finally {
+        isMarkingLesson[lessonId] = false;
     }
 }
 
@@ -1135,6 +1194,7 @@ function closeHwSolvePage() {
     currentTaskIndex = 0;
     isSubmitted = false;
     taskSolveFiles = {};
+    isSubmittingHw = false;
 }
 
 // ========== РАСПИСАНИЕ ==========
@@ -1217,28 +1277,10 @@ async function loadHomeworkCourses() {
     `).join("");
 }
 
-// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ==========
-async function refreshUserData() {
-    if (!currentUser) return;
-    try {
-        const doc = await db.collection("users").doc(currentUser.uid).get();
-        if (doc.exists) {
-            userData = doc.data();
-            document.getElementById("statHomework").textContent = (userData.homeworkSubmissions || []).length;
-        }
-    } catch (error) {
-        console.error("Ошибка обновления данных:", error);
-    }
-}
-
 async function loadHomeworkByCourse(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     if (!course) { showToast("Курс не найден", "error"); return; }
     if (!currentUser || !currentUser.email) { showToast("Ошибка авторизации", "error"); return; }
-    
-    // Принудительно обновляем данные пользователя перед загрузкой
-    await refreshUserData();
-    
     showToast('Загрузка заданий для ' + course.name + '...', "info");
     try {
         const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
@@ -1263,7 +1305,7 @@ async function loadHomeworkByCourse(courseId) {
                             <h2 style="font-family:var(--fs);font-size:1.8rem;">${course.name} - Домашние задания</h2>
                             <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;">&times;</button>
                         </div>
-                        <div id="homeworkListContainer">
+                        <div>
                             ${homeworks.map(hw => {
                                 const submitted = submissions.find(s => s.id === hw.id);
                                 const isGraded = hw.status === 'graded' || hw.status === 'returned';
@@ -1278,9 +1320,7 @@ async function loadHomeworkByCourse(courseId) {
                                             <button class="btn secondary bsm" onclick="event.stopPropagation(); viewHomeworkSolutions('${hw.id}')">Решения</button>
                                         `;
                                     } else {
-                                        actionBtn = `
-                                            <button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>
-                                        `;
+                                        actionBtn = `<button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>`;
                                     }
                                 } else {
                                     actionBtn = `<button class="btn bg bsm" onclick="event.stopPropagation(); startHomework('${hw.id}')">Выполнить</button>`;
@@ -1316,7 +1356,6 @@ async function loadHomeworkByCourse(courseId) {
         const oldModal = document.getElementById('homeworkModal_' + courseId);
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML("beforeend", modalHtml);
-        setTimeout(() => renderMath(), 300);
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки заданий: " + err.message, "error");
@@ -1333,6 +1372,7 @@ async function startHomework(hwId) {
     currentTaskIndex = 0;
     isSubmitted = false;
     taskSolveFiles = {};
+    isSubmittingHw = false;
     
     const totalTasks = hw.tasks ? hw.tasks.length : 0;
     
@@ -1434,8 +1474,12 @@ async function startHomework(hwId) {
     
     document.getElementById("hwSolveContent").innerHTML = html;
     openHwSolvePage();
+    
     updateNavButtons();
-    setTimeout(() => renderMath(), 300);
+    
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
@@ -1536,12 +1580,21 @@ function saveAnswer(index, value) {
     }
 }
 
-// ========== ОТПРАВКА ДЗ (ИСПРАВЛЕННАЯ) ==========
+// ========== ОТПРАВКА ДЗ ==========
 async function submitHomework() {
-    if (isSubmitted) return;
+    // Главная защита от бага "жму 10 раз - улетает 10 запросов":
+    // блокируем и функцию, и саму кнопку СРАЗУ, синхронно, до любых await.
+    if (isSubmitted || isSubmittingHw) return;
+    isSubmittingHw = true;
+
+    const btn = document.getElementById('submitBtn');
+    if (!btn) { isSubmittingHw = false; showToast("Кнопка отправки не найдена", "error"); return; }
+    btn.disabled = true;
+    btn.textContent = "Отправка...";
+
     const tasks = currentSolveHwData.tasks || [];
-    
-    // Проверка заполнения
+
+    // Валидация ответов (если не прошла — возвращаем кнопку в исходное состояние)
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1552,6 +1605,9 @@ async function submitHomework() {
             if (!textAnswer && files.length === 0) {
                 showToast('Заполните решение или прикрепите файлы для задачи ' + (i + 1), "error");
                 goToTask(i);
+                btn.disabled = false;
+                btn.textContent = "Отправить на проверку";
+                isSubmittingHw = false;
                 return;
             }
             userAnswers[i] = { text: textAnswer, files: files };
@@ -1561,17 +1617,14 @@ async function submitHomework() {
             if (answer === '') {
                 showToast('Ответьте на задачу ' + (i + 1), "error");
                 goToTask(i);
+                btn.disabled = false;
+                btn.textContent = "Отправить на проверку";
+                isSubmittingHw = false;
                 return;
             }
             userAnswers[i] = answer;
         }
     }
-    
-    const btn = document.getElementById('submitBtn');
-    if (!btn) { showToast("Кнопка отправки не найдена", "error"); return; }
-    
-    btn.textContent = "Отправка...";
-    btn.disabled = true;
     
     try {
         let correctCount = 0;
@@ -1624,7 +1677,7 @@ async function submitHomework() {
                 if (resultDiv) {
                     resultDiv.style.display = 'block';
                     resultDiv.className = 'task-result ' + (isCorrect ? 'correct' : 'wrong');
-                    resultDiv.textContent = isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + correctAnswer;
+                    resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
                 }
                 if (input) {
                     input.className = 'task-answer-input ' + (isCorrect ? 'correct' : 'wrong');
@@ -1639,7 +1692,7 @@ async function submitHomework() {
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
-                solutionDiv.innerHTML = '<strong>📘 Решение:</strong><br>' + (task.solution || "Решение не добавлено");
+                solutionDiv.innerHTML = '<strong>Решение:</strong><br>' + (task.solution || "Решение не добавлено");
             }
         }
         
@@ -1655,7 +1708,6 @@ async function submitHomework() {
             if (percentEl) percentEl.textContent = percent + '%';
         }
         
-        // === СОХРАНЯЕМ ДЗ В FIRESTORE ===
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1670,7 +1722,6 @@ async function submitHomework() {
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        // Обновляем userData.homeworkSubmissions
         if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
         const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentSolveHwId);
         if (existingIndex !== -1) {
@@ -1678,53 +1729,36 @@ async function submitHomework() {
         } else {
             userData.homeworkSubmissions.push(submissionData);
         }
-        
-        // Сохраняем в Firestore
         await db.collection("users").doc(currentUser.uid).update({ 
             homeworkSubmissions: userData.homeworkSubmissions 
         });
         
-        // Обновляем статус ДЗ
         await db.collection("homeworks").doc(currentSolveHwId).update({
             status: "submitted",
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // === ПЕРЕЗАГРУЖАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ===
-        await refreshUserData();
-        
         isSubmitted = true;
         
-        btn.textContent = "✅ Отправлено";
+        btn.textContent = "Отправлено";
         btn.disabled = true;
         btn.className = "btn green";
         
-        // Обновляем статистику в дашборде
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
-        showToast('✅ Задание отправлено на проверку!', "success");
+        showToast('Задание отправлено на проверку!', "success");
         
         if (window.MathJax && MathJax.typesetPromise) {
             MathJax.typesetPromise();
         }
         
-        // === ОБНОВЛЯЕМ КНОПКИ В МОДАЛКЕ С ЗАДАНИЯМИ ===
-        setTimeout(() => {
-            closeHwSolvePage();
-            // Если открыта модалка с ДЗ — обновляем её
-            const hwModal = document.querySelector('.modal-overlay[style*="display:flex"]');
-            if (hwModal && hwModal.id && hwModal.id.startsWith('homeworkModal_')) {
-                const courseId = hwModal.id.replace('homeworkModal_', '');
-                loadHomeworkByCourse(courseId);
-            }
-            loadHomeworkCourses();
-        }, 500);
-        
     } catch (error) {
         console.error(error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
         btn.textContent = "Отправить на проверку";
         btn.disabled = false;
+    } finally {
+        isSubmittingHw = false;
     }
 }
 
@@ -1749,7 +1783,7 @@ async function uploadStudentFiles(files, homeworkId) {
     return results;
 }
 
-// ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
+// ========== ПРОСМОТР РЕЗУЛЬТАТА / РЕШЕНИЙ (ПОЛНОРАЗМЕРНАЯ СТРАНИЦА С НАВИГАЦИЕЙ) ==========
 async function viewHomeworkResult(hwId) {
     const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
     if (!submission) { showToast("Результат не найден", "error"); return; }
@@ -1834,7 +1868,7 @@ function openHwReviewPage(hwId, hw, submission) {
                     <input type="text" class="task-answer-input ${isCorrect ? 'correct' : 'wrong'}" value="${escapeHtml(userAnswer) || '—'}" disabled>
                 </div>
                 <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
-                    ${isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—')}
+                    ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—')}
                 </div>
             `;
         }
@@ -1846,7 +1880,7 @@ function openHwReviewPage(hwId, hw, submission) {
                     <div class="task-condition">${task.condition || "Условие задачи не добавлено"}</div>
                     ${taskFilesHtml}
                     ${answerHtml}
-                    <div class="task-solution"><strong>📘 Решение:</strong><br>${task.solution || "Решение не добавлено"}</div>
+                    <div class="task-solution"><strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}</div>
                 </div>
             </div>
         `;
@@ -1881,7 +1915,10 @@ function openHwReviewPage(hwId, hw, submission) {
     document.getElementById("hwSolveContent").innerHTML = html;
     openHwSolvePage();
     updateNavButtons();
-    setTimeout(() => renderMath(), 300);
+
+    if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+    }
 }
 
 // ========== ЗАПУСК ==========
