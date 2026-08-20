@@ -770,6 +770,16 @@ async function renderMath() {
     }
 }
 
+async function renderMathInElement(el) {
+    if (window.MathJax && MathJax.typesetPromise) {
+        try {
+            await MathJax.typesetPromise([el]);
+        } catch (e) {
+            console.warn("MathJax error:", e);
+        }
+    }
+}
+
 let loaderInterval = null;
 
 function showLoader() {
@@ -1289,6 +1299,7 @@ async function loadHomeworkByCourse(courseId) {
         const oldModal = document.getElementById('homeworkModal_' + courseId);
         if (oldModal) oldModal.remove();
         document.body.insertAdjacentHTML("beforeend", modalHtml);
+        setTimeout(() => renderMath(), 300);
     } catch (err) {
         console.error(err);
         showToast("Ошибка загрузки заданий: " + err.message, "error");
