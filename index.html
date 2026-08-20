@@ -125,7 +125,6 @@
             font-size: 1.2rem; z-index: 100;
         }
 
-        /* СТРАНИЦА РЕШЕНИЯ ДЗ (ПОЛНОРАЗМЕРНАЯ) */
         .hw-solve-page {
             display: none;
             position: fixed;
@@ -1218,10 +1217,28 @@ async function loadHomeworkCourses() {
     `).join("");
 }
 
+// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ==========
+async function refreshUserData() {
+    if (!currentUser) return;
+    try {
+        const doc = await db.collection("users").doc(currentUser.uid).get();
+        if (doc.exists) {
+            userData = doc.data();
+            document.getElementById("statHomework").textContent = (userData.homeworkSubmissions || []).length;
+        }
+    } catch (error) {
+        console.error("Ошибка обновления данных:", error);
+    }
+}
+
 async function loadHomeworkByCourse(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     if (!course) { showToast("Курс не найден", "error"); return; }
     if (!currentUser || !currentUser.email) { showToast("Ошибка авторизации", "error"); return; }
+    
+    // Принудительно обновляем данные пользователя перед загрузкой
+    await refreshUserData();
+    
     showToast('Загрузка заданий для ' + course.name + '...', "info");
     try {
         const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
@@ -1672,6 +1689,9 @@ async function submitHomework() {
             status: "submitted",
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        
+        // === ПЕРЕЗАГРУЖАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ===
+        await refreshUserData();
         
         isSubmitted = true;
         
