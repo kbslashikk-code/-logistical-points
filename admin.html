@@ -6,7 +6,10 @@
 <title>Админ панель - Logistical Points</title>
 <script>
     MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        },
         svg: { fontCache: 'global' }
     };
 </script>
@@ -948,8 +951,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     
                     <div id="secondPartSection" style="display:none;">
                         <div class="form-group">
-                            <label>Условие задачи (можно использовать LaTeX)</label>
-                            <textarea id="hwSecondPartCondition" rows="4" placeholder="Например: Решите задачу и прикрепите файлы с решением..."></textarea>
+                            <label>Условие задачи (можно использовать LaTeX: \[...\] или $...$)</label>
+                            <textarea id="hwSecondPartCondition" rows="4" placeholder="Например: \[ \sqrt{(\sqrt{7} - 4)^2} + \sqrt{7} \]"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Решение задачи (можно использовать LaTeX)</label>
@@ -1224,6 +1227,17 @@ let analyticsSortDir = 'desc';
 
 let aiGeneratedData = null;
 
+// ========== ФУНКЦИЯ ПРИНУДИТЕЛЬНОГО РЕНДЕРИНГА MATHJAX ==========
+async function renderMath() {
+    if (window.MathJax && MathJax.typesetPromise) {
+        try {
+            await MathJax.typesetPromise();
+        } catch (e) {
+            console.warn("MathJax error:", e);
+        }
+    }
+}
+
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -1286,9 +1300,7 @@ function addAIMessage(type, content) {
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
     
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([div]);
-    }
+    setTimeout(() => renderMath(), 200);
 }
 
 function formatAIGeneratedTask(data) {
@@ -1396,7 +1408,7 @@ function applyAIGenerated() {
                             <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
                         </div>
                         <div class="form-group">
-                            <label>Условие задачи</label>
+                            <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
                             <textarea id="tcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
                         </div>
                         <div class="form-group">
@@ -1404,7 +1416,7 @@ function applyAIGenerated() {
                             <input type="text" id="tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
                         </div>
                         <div class="form-group">
-                            <label>Решение задачи</label>
+                            <label>Решение задачи (можно использовать LaTeX)</label>
                             <textarea id="tsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
                         </div>
                     </div>
@@ -1415,6 +1427,8 @@ function applyAIGenerated() {
         
         closeAIChat();
         showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
+        
+        setTimeout(() => renderMath(), 300);
         
     } catch (error) {
         showToast("Ошибка: " + error.message, "error");
@@ -1590,6 +1604,7 @@ function addTask() {
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
+    setTimeout(() => renderMath(), 200);
 }
 
 function removeTask(id) {
@@ -2141,9 +2156,7 @@ async function loadAnalytics() {
 
         sortAnalyticsTable('combined', true);
 
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
+        setTimeout(() => renderMath(), 300);
 
     } catch (err) {
         console.error(err);
@@ -2423,10 +2436,7 @@ async function openStudentAnalyticsModal(userId) {
     `;
 
     document.getElementById("studentAnalyticsContent").innerHTML = html;
-
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-    }
+    setTimeout(() => renderMath(), 200);
 }
 
 function closeStudentAnalyticsModal() {
@@ -2496,10 +2506,7 @@ async function openTaskAnalyticsModal(hwId) {
     `;
 
     document.getElementById("taskAnalyticsContent").innerHTML = html;
-
-    if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise();
-    }
+    setTimeout(() => renderMath(), 200);
 }
 
 function closeTaskAnalyticsModal() {
@@ -2615,9 +2622,7 @@ async function openHwDetailModal(hwId, userId) {
         document.getElementById("hwDetailContent").innerHTML = html;
         document.getElementById("hwDetailModal").classList.add("active");
         
-        if (window.MathJax && MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
+        setTimeout(() => renderMath(), 300);
         
     } catch (error) {
         console.error("Ошибка:", error);
@@ -2683,6 +2688,7 @@ async function viewLesson(lessonId) {
     }
     document.getElementById("viewLessonContent").innerHTML = content;
     document.getElementById("viewLessonModal").classList.add("active");
+    setTimeout(() => renderMath(), 200);
 }
 function closeViewLessonModal() { document.getElementById("viewLessonModal").classList.remove("active"); }
 
@@ -3540,7 +3546,7 @@ async function openGradeModal(hwId) {
     
     let secondPartHtml = '';
     if (currentGradingHw.isSecondPart) {
-        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>Задание второй части</strong>${currentGradingHw.condition ? `: ${escapeHtml(currentGradingHw.condition)}` : ''}</div>`;
+        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>Задание второй части</strong>${currentGradingHw.condition ? `: ${currentGradingHw.condition}` : ''}</div>`;
     }
     
     let gradeFilesHtml = '';
@@ -3569,6 +3575,7 @@ async function openGradeModal(hwId) {
     currentGradeFiles = [];
     
     document.getElementById("gradeModal").classList.add("active");
+    setTimeout(() => renderMath(), 200);
 }
 
 function closeGradeModal() { 
