@@ -1204,6 +1204,7 @@ let analyticsSortField = 'combined';
 let analyticsSortDir = 'desc';
 
 let aiGeneratedData = null;
+let gradeTaskFiles = {};
 
 // ========== ФУНКЦИЯ ПРИНУДИТЕЛЬНОГО РЕНДЕРИНГА MATHJAX ==========
 async function renderMath() {
@@ -3054,6 +3055,7 @@ async function loadAllHomework() {
                         <div class="meta">${escapeHtml(hw.userName || hw.userEmail)} · ${escapeHtml(hw.courseId)}</div>
                     </div>
                     <button class="btn btn-primary" onclick="openGradeModal('${hw.id}')">Проверить</button>
+                    <button class="btn btn-secondary" onclick="openEditHomeworkModal('${hw.id}')">Редактировать</button>
                 </div>
                 <div class="solution">Задание второй части (ученик прикрепил файлы)</div>
                 ${hw.files && hw.files.length ? `<div class="files-list">${hw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div>` : ''}
@@ -3112,38 +3114,45 @@ async function loadAllHomeworkHistory() {
     }
 }
 
-// ========== ПРОВЕРКА ДЗ (АДМИН) ==========
+// ========== ОТКРЫТИЕ МОДАЛКИ ПРОВЕРКИ ==========
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
     currentGradingHw = { id: hwId, ...hw };
     
-    // Получаем данные о submission ученика
+    // Получаем данные ученика и его решение
+    let userDocData = null;
     let submissionData = null;
     if (hw.userEmail && hw.userEmail !== 'all') {
         const usersSnap = await db.collection("users").where("email", "==", hw.userEmail).get();
         if (!usersSnap.empty) {
             const userDoc = usersSnap.docs[0];
-            const user = userDoc.data();
-            submissionData = (user.homeworkSubmissions || []).find(s => s.id === hwId);
+            userDocData = userDoc.data();
+            submissionData = (userDocData.homeworkSubmissions || []).find(s => s.id === hwId);
         }
     }
     
     const tasks = hw.tasks || [];
-    const totalTasks = tasks.length;
     const taskResults = submissionData?.taskResults || [];
+    const userName = userDocData?.name || hw.userName || hw.userEmail || 'Неизвестно';
+    const userEmail = userDocData?.email || hw.userEmail || '—';
     
     let html = `
-        <div style="margin-bottom:1.5rem;">
-            <div style="font-size:1.3rem;font-weight:700;color:var(--gold);">${escapeHtml(hw.title)}</div>
-            <div style="font-size:0.85rem;color:var(--text3);margin-top:0.3rem;">
-                Ученик: ${escapeHtml(hw.userName || hw.userEmail || 'Неизвестно')} · 
-                Курс: ${escapeHtml(hw.courseId)} · 
-                Задач: ${totalTasks}
-                ${hw.isSecondPart ? ' · 📘 Вторая часть' : ' · 📝 Краткий ответ'}
+        <div style="margin-bottom:1.5rem;border-bottom:1px solid var(--line);padding-bottom:1rem;">
+            <div style="font-size:1.3rem;font-weight:700;color:var(--gold);">📘 ${escapeHtml(hw.title)}</div>
+            <div style="font-size:0.9rem;color:var(--text2);margin-top:0.3rem;">
+                👤 Ученик: <strong>${escapeHtml(userName)}</strong> 
+                <span style="color:var(--text3);font-size:0.8rem;">(${escapeHtml(userEmail)})</span>
+                <span style="margin-left:1rem;">📚 Курс: ${escapeHtml(hw.courseId)}</span>
+                ${hw.isSecondPart ? ' · 📌 Вторая часть' : ' · 📝 Краткий ответ'}
             </div>
-            ${hw.dueDate ? `<div style="font-size:0.8rem;color:var(--text3);">Срок сдачи: ${escapeHtml(hw.dueDate)}</div>` : ''}
-            ${submissionData?.submittedAt ? `<div style="font-size:0.8rem;color:var(--text3);">Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
+            ${hw.dueDate ? `<div style="font-size:0.8rem;color:var(--text3);">📅 Срок сдачи: ${escapeHtml(hw.dueDate)}</div>` : ''}
+            ${submissionData?.submittedAt ? `<div style="font-size:0.8rem;color:var(--text3);">⏳ Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
+            <div style="margin-top:0.5rem;">
+                <span class="badge ${hw.status === 'graded' ? 'badge-graded' : hw.status === 'returned' ? 'badge-returned' : 'badge-pending'}">
+                    ${hw.status === 'graded' ? '✅ Проверено' : hw.status === 'returned' ? '↩️ Возвращено' : '⏳ Ожидает проверки'}
+                </span>
+            </div>
         </div>
     `;
     
@@ -3152,20 +3161,19 @@ async function openGradeModal(hwId) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
         const result = taskResults[i] || null;
-        const userAnswer = result ? result.userAnswer : '';
+        const userAnswer = result ? result.userAnswer : '—';
         const userFiles = result ? (result.files || []) : [];
         const isCorrect = result ? result.isCorrect : false;
         const userScore = result ? (result.userScore || 0) : 0;
         
-        // Определяем статус задачи
         let statusBadge = '';
         let statusColor = '';
         if (isSecondPart) {
             if (hw.status === 'graded') {
-                statusBadge = `✅ Проверено (${userScore}/${task.maxScore || 10})`;
+                statusBadge = `✅ ${userScore}/${task.maxScore || 10}`;
                 statusColor = 'var(--green)';
             } else if (hw.status === 'returned') {
-                statusBadge = '↩️ Возвращено на доработку';
+                statusBadge = '↩️ На доработке';
                 statusColor = 'var(--red)';
             } else {
                 statusBadge = '⏳ На проверке';
@@ -3177,47 +3185,37 @@ async function openGradeModal(hwId) {
         }
         
         html += `
-            <div style="background:var(--bg2);border-radius:12px;padding:1.2rem;margin-bottom:1.2rem;border:1px solid var(--line);">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.8rem;">
+            <div style="background:var(--bg2);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
                     <div>
                         <span style="font-weight:700;font-size:1.05rem;">Задача ${i + 1}</span>
-                        ${isSecondPart ? ' <span style="font-size:0.7rem;background:var(--gold3);color:var(--gold);padding:0.1rem 0.5rem;border-radius:4px;">Вторая часть</span>' : ''}
+                        ${isSecondPart ? ' <span style="font-size:0.65rem;background:var(--gold3);color:var(--gold);padding:0.15rem 0.5rem;border-radius:4px;">Вторая часть</span>' : ''}
                     </div>
                     <span style="font-size:0.85rem;font-weight:600;color:${statusColor};">${statusBadge}</span>
                 </div>
                 
-                <!-- Условие задачи -->
-                <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;border-left:4px solid var(--gold);">
-                    <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📌 Условие:</div>
-                    <div style="line-height:1.8;">${task.condition || 'Нет условия'}</div>
+                <!-- Условие -->
+                <div style="background:var(--bg);padding:0.7rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
+                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📌 Условие</div>
+                    <div style="line-height:1.8;font-size:0.95rem;">${task.condition || 'Нет условия'}</div>
                 </div>
                 
-                <!-- Ответ/Решение ученика -->
-                ${isSecondPart ? `
-                    <div style="margin-bottom:0.8rem;">
-                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📝 Решение ученика:</div>
-                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;white-space:pre-wrap;line-height:1.8;min-height:60px;border:1px solid var(--line);">
-                            ${userAnswer || 'Нет текстового решения'}
-                        </div>
+                <!-- Ответ ученика -->
+                <div style="margin-bottom:0.5rem;">
+                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">✏️ Ответ/Решение ученика</div>
+                    <div style="background:var(--bg);padding:0.6rem;border-radius:6px;border:1px solid var(--line);white-space:pre-wrap;line-height:1.6;min-height:40px;">
+                        ${userAnswer || '—'}
                     </div>
-                ` : `
-                    <div style="margin-bottom:0.8rem;">
-                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">✏️ Ответ ученика:</div>
-                        <div style="background:var(--bg);padding:0.5rem 0.8rem;border-radius:8px;border:1px solid var(--line);">
-                            ${userAnswer || 'Нет ответа'}
-                            ${!isSecondPart ? ` · Правильный ответ: <span style="font-weight:600;color:var(--green);">${escapeHtml(task.correctAnswer || '—')}</span>` : ''}
-                        </div>
-                    </div>
-                `}
+                </div>
                 
                 <!-- Файлы ученика -->
                 ${userFiles.length > 0 ? `
-                    <div style="margin-bottom:0.8rem;">
-                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📎 Файлы ученика (${userFiles.length}):</div>
+                    <div style="margin-bottom:0.5rem;">
+                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📎 Файлы ученика (${userFiles.length})</div>
                         <div class="files-list">
                             ${userFiles.map(f => `
                                 <div class="file-item" onclick="window.open('${f.url}')">
-                                    ${f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">' : '📄'}
+                                    ${f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄'}
                                     ${escapeHtml(f.name)}
                                 </div>
                             `).join('')}
@@ -3227,44 +3225,45 @@ async function openGradeModal(hwId) {
                 
                 <!-- Эталонное решение -->
                 ${task.solution ? `
-                    <div style="background:var(--gold3);padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;border-left:4px solid var(--gold);">
-                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📘 Эталонное решение:</div>
-                        <div style="line-height:1.8;">${task.solution}</div>
+                    <div style="background:var(--gold3);padding:0.7rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
+                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📘 Эталонное решение</div>
+                        <div style="line-height:1.8;font-size:0.9rem;">${task.solution}</div>
                     </div>
                 ` : ''}
                 
-                <!-- Форма проверки (только для второй части) -->
+                <!-- Форма для проверки (только для второй части) -->
                 ${isSecondPart ? `
-                    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--line);">
+                    <div style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--line);">
                         <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
                             <div style="flex:1;min-width:120px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Балл за задачу</div>
-                                <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" 
-                                       style="width:80px;padding:0.3rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);">
-                                <span style="font-size:0.75rem;color:var(--text3);">/ ${task.maxScore || 10}</span>
+                                <div style="font-size:0.6rem;color:var(--text3);text-transform:uppercase;">Балл</div>
+                                <div style="display:flex;align-items:center;gap:0.3rem;">
+                                    <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" 
+                                           style="width:70px;padding:0.3rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);">
+                                    <span style="font-size:0.75rem;color:var(--text3);">/ ${task.maxScore || 10}</span>
+                                </div>
                             </div>
-                            <div style="flex:2;min-width:200px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Комментарий</div>
+                            <div style="flex:2;min-width:150px;">
+                                <div style="font-size:0.6rem;color:var(--text3);text-transform:uppercase;">Комментарий</div>
                                 <input type="text" id="feedback_task_${i}" placeholder="Комментарий к задаче..." 
-                                       style="width:100%;padding:0.3rem 0.5rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);">
+                                       style="width:100%;padding:0.3rem 0.5rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);font-size:0.85rem;">
                             </div>
-                            <div style="flex:1;min-width:150px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Файлы с правками</div>
+                            <div style="flex:1;min-width:120px;">
+                                <div style="font-size:0.6rem;color:var(--text3);text-transform:uppercase;">Правки</div>
                                 <div class="multi-file-zone" onclick="document.getElementById('gradeTaskFileInput_${i}').click()" 
-                                     style="padding:0.3rem;border:1px dashed var(--line);border-radius:4px;text-align:center;cursor:pointer;font-size:0.7rem;">
-                                    📎 Выбрать файлы
+                                     style="padding:0.2rem;border:1px dashed var(--line);border-radius:4px;text-align:center;cursor:pointer;font-size:0.7rem;">
+                                    📎 Выбрать
                                 </div>
                                 <input type="file" id="gradeTaskFileInput_${i}" accept="image/*,application/pdf" multiple style="display:none" 
                                        onchange="handleGradeTaskFilesSelect(this, ${i})">
-                                <div id="gradeTaskFilePreview_${i}" class="files-list" style="margin-top:0.3rem;"></div>
+                                <div id="gradeTaskFilePreview_${i}" class="files-list" style="margin-top:0.2rem;"></div>
                             </div>
                         </div>
                     </div>
                 ` : `
-                    <!-- Для первой части - только информация -->
-                    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--text3);">
+                    <div style="font-size:0.8rem;color:var(--text3);padding-top:0.5rem;border-top:1px solid var(--line);">
                         ${isCorrect ? '✅ Задача решена верно' : '❌ Задача решена неверно'}
-                        ${task.correctAnswer ? ' · Правильный ответ: ' + escapeHtml(task.correctAnswer) : ''}
+                        ${task.correctAnswer ? ' · Правильный ответ: <strong style="color:var(--green);">' + escapeHtml(task.correctAnswer) + '</strong>' : ''}
                     </div>
                 `}
             </div>
@@ -3273,8 +3272,8 @@ async function openGradeModal(hwId) {
     
     // Кнопки действий
     html += `
-        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;">
-            <button class="btn btn-success" onclick="submitGrade('graded')">✅ Принять все задачи</button>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:1rem;">
+            <button class="btn btn-success" onclick="submitGrade('graded')">✅ Принять и проверить</button>
             <button class="btn btn-danger" onclick="submitGrade('returned')">↩️ Вернуть на доработку</button>
             <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
         </div>
@@ -3286,8 +3285,6 @@ async function openGradeModal(hwId) {
 }
 
 // ========== ОБРАБОТЧИК ФАЙЛОВ ДЛЯ ПРОВЕРКИ ==========
-let gradeTaskFiles = {};
-
 function handleGradeTaskFilesSelect(input, taskIndex) {
     const files = Array.from(input.files);
     if (!gradeTaskFiles[taskIndex]) gradeTaskFiles[taskIndex] = [];
@@ -3345,7 +3342,6 @@ async function submitGrade(action) {
     const tasks = hw.tasks || [];
     const isSecondPart = hw.isSecondPart || false;
     
-    // Если это вторая часть, собираем оценки для каждой задачи
     let taskGrades = [];
     let taskFeedbacks = [];
     let allGradeFiles = [];
@@ -3382,7 +3378,6 @@ async function submitGrade(action) {
         }
     }
     
-    // Формируем общий комментарий
     let overallFeedback = '';
     if (isSecondPart) {
         const feedbacks = taskGrades.filter(t => t.feedback).map(t => `Задача ${t.taskIndex + 1}: ${t.feedback}`);
@@ -3391,16 +3386,6 @@ async function submitGrade(action) {
         }
     } else {
         overallFeedback = document.getElementById('gradeFeedback')?.value.trim() || '';
-    }
-    
-    // Проверяем, все ли задачи оценены
-    if (isSecondPart) {
-        for (let i = 0; i < taskGrades.length; i++) {
-            if (taskGrades[i].score < 0) {
-                showToast('Оценка не может быть отрицательной', "error");
-                return;
-            }
-        }
     }
     
     try {
@@ -3426,14 +3411,13 @@ async function submitGrade(action) {
                 updateData.feedback = feedback;
             }
         } else {
-            // Returned
             updateData.feedback = overallFeedback || 'Верните на доработку';
             updateData.gradeFiles = allGradeFiles.length > 0 ? allGradeFiles : (hw.gradeFiles || []);
         }
         
         await db.collection("homeworks").doc(hw.id).update(updateData);
         
-        // Также обновляем submission в документе пользователя
+        // Обновляем submission в документе пользователя
         if (hw.userEmail && hw.userEmail !== 'all') {
             const usersSnap = await db.collection("users").where("email", "==", hw.userEmail).get();
             if (!usersSnap.empty) {
