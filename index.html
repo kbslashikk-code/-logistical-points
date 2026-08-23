@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 
     <style>
+        /* ===== ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #faf7f0; --bg2: #f2ece0; --bg3: #e8dfc8;
@@ -39,6 +40,7 @@
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: all 0.3s; overflow-x: hidden; }
 
+        /* Остальные стили (loader, btn, modal, etc.) — без изменений */
         .loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 10000;
@@ -202,6 +204,14 @@
             outline: 3px solid var(--gold);
             outline-offset: 2px;
         }
+        /* НОВЫЙ СТИЛЬ: для задач второй части — без цветов */
+        .hw-dot.second-part {
+            border-color: var(--line2);
+            background: var(--card);
+            color: var(--text2);
+        }
+        .hw-dot.second-part.has-answer { border-color: var(--gold); border-width: 3px; }
+        .hw-dot.second-part.submitted { background: var(--gold3); color: var(--gold); border-color: var(--gold); }
 
         .hw-counter {
             display: flex; justify-content: space-between; align-items: center;
@@ -234,6 +244,15 @@
         .task-content.correct { border-color: var(--green); background: var(--green2); }
         .task-content.wrong { border-color: var(--red); background: var(--red2); }
         .task-content.submitted { opacity: 0.95; }
+        /* Для второй части — без подсветки */
+        .task-content.second-part {
+            border-color: var(--line);
+            background: var(--card2);
+        }
+        .task-content.second-part.submitted {
+            border-color: var(--gold);
+            background: var(--gold3);
+        }
 
         .task-number { font-size: 0.85rem; color: var(--text3); margin-bottom: 0.5rem; }
         .task-condition { 
@@ -277,6 +296,12 @@
             color: var(--red); 
             background: var(--red2);
             border-left: 4px solid var(--red);
+        }
+        /* Результат для второй части */
+        .task-result.second-part-result {
+            color: var(--gold);
+            background: var(--gold3);
+            border-left: 4px solid var(--gold);
         }
 
         .task-solution {
@@ -516,6 +541,7 @@
 </head>
 <body>
 
+<!-- ===== ВЕСЬ HTML КОД ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ (до тега <script>) ===== -->
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="loader-screen" id="loaderScreen">
@@ -769,13 +795,6 @@ async function renderMath() {
     }
 }
 
-// ИСПРАВЛЕНО: теперь перед повторным тайпсеттингом элемент явно очищается
-// от предыдущей MathJax-разметки (typesetClear). Раньше повторный вызов
-// MathJax.typesetPromise() на уже обработанном узле (например, на всём
-// контейнере с задачами, где условия уже были отрисованы ранее) приводил
-// к тому, что MathJax "спотыкался" об уже готовую разметку и обрывал
-// обработку до блоков с решениями — из-за этого решения показывались
-// как сырой LaTeX-код вместо красивых формул.
 async function renderMathInElement(el) {
     if (!el) return;
     if (window.MathJax && MathJax.typesetPromise) {
@@ -1226,7 +1245,7 @@ async function loadHomeworkCourses() {
     `).join("");
 }
 
-// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ==========
+// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
 async function refreshUserData() {
     if (!currentUser) return;
     try {
@@ -1245,7 +1264,6 @@ async function loadHomeworkByCourse(courseId) {
     if (!course) { showToast("Курс не найден", "error"); return; }
     if (!currentUser || !currentUser.email) { showToast("Ошибка авторизации", "error"); return; }
     
-    // Принудительно обновляем данные пользователя перед загрузкой
     await refreshUserData();
     
     showToast('Загрузка заданий для ' + course.name + '...', "info");
@@ -1276,7 +1294,7 @@ async function loadHomeworkByCourse(courseId) {
                             ${homeworks.map(hw => {
                                 const submitted = submissions.find(s => s.id === hw.id);
                                 const isGraded = hw.status === 'graded' || hw.status === 'returned';
-                                const statusText = submitted ? (isGraded ? "Проверено" : "Сдано") : "Ожидает";
+                                const statusText = submitted ? (isGraded ? "Проверено" : "На проверке") : "Ожидает";
                                 const statusColor = submitted ? (isGraded ? "var(--green)" : "var(--gold)") : "var(--text3)";
                                 
                                 let actionBtn = '';
@@ -1313,7 +1331,7 @@ async function loadHomeworkByCourse(courseId) {
                                                 <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">${actionBtn}</div>
                                             </div>
                                         </div>
-                                        ${hw.grade ? '<div style="margin-top:0.8rem;padding-top:0.5rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--green);">Оценка: ' + hw.grade + '/10</div>' : ""}
+                                        ${hw.grade ? '<div style="margin-top:0.8rem;padding-top:0.5rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--green);">Оценка: ' + hw.grade + '/' + (hw.maxScore || 10) + '</div>' : ''}
                                     </div>
                                 `;
                             }).join('')}
@@ -1354,11 +1372,15 @@ async function startHomework(hwId) {
         </div>
         
         <div class="hw-progress-bar" id="hwProgressBar">
-            ${Array.from({ length: totalTasks }, (_, i) => `
-                <div class="hw-dot" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">
-                    ${i + 1}
-                </div>
-            `).join('')}
+            ${Array.from({ length: totalTasks }, (_, i) => {
+                const isSecondPart = hw.tasks[i]?.isSecondPart || false;
+                const dotClass = isSecondPart ? 'second-part' : '';
+                return `
+                    <div class="hw-dot ${dotClass}" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">
+                        ${i + 1}
+                    </div>
+                `;
+            }).join('')}
         </div>
         
         <div class="hw-counter" id="hwCounter" style="display:none;">
@@ -1384,18 +1406,20 @@ async function startHomework(hwId) {
                 
                 let answerHtml = '';
                 if (isSecondPart) {
+                    // === ВТОРАЯ ЧАСТЬ: кнопка "Прикрепить решение" ===
                     answerHtml = `
                         <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
-                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
+                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">📎 Задание с развернутым решением</div>
                             <div class="form-group">
-                                <label>Ваше текстовое решение</label>
+                                <label>Ваше текстовое решение (по желанию)</label>
                                 <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..."></textarea>
                             </div>
                             <div class="form-group">
-                                <label>Прикрепить файлы с решением</label>
+                                <label>Прикрепить файлы с решением (до 10 файлов)</label>
                                 <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${index}').click()">
-                                    <div style="font-size:1.5rem;">+</div>
-                                    <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов, до 50 МБ)</div>
+                                    <div style="font-size:1.5rem;">📤</div>
+                                    <div style="font-size:0.8rem;">Нажмите, чтобы прикрепить решение</div>
+                                    <div style="font-size:0.7rem;color:var(--text3);">Поддерживаются изображения и PDF</div>
                                 </div>
                                 <input type="file" id="taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskSolveFilesSelect(this, ${index})">
                                 <div id="taskFilePreview_${index}" class="files-list"></div>
@@ -1403,6 +1427,7 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 } else {
+                    // === ПЕРВАЯ ЧАСТЬ: поле для ввода ответа ===
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
@@ -1412,9 +1437,11 @@ async function startHomework(hwId) {
                     `;
                 }
                 
+                const contentClass = isSecondPart ? 'second-part' : '';
+                
                 return `
                     <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
-                        <div class="task-content" id="taskcontent_${index}">
+                        <div class="task-content ${contentClass}" id="taskcontent_${index}">
                             <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
                             <div class="task-condition">
                                 ${task.condition || "Условие задачи не добавлено"}
@@ -1436,7 +1463,7 @@ async function startHomework(hwId) {
         </div>
         
         <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
-            <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
+            <button class="btn bg" id="submitBtn" onclick="submitHomework()">📤 Отправить на проверку</button>
             <button class="btn bo" onclick="closeHwSolvePage()">Отмена</button>
         </div>
     `;
@@ -1545,7 +1572,7 @@ function saveAnswer(index, value) {
     }
 }
 
-// ========== ОТПРАВКА ДЗ (ИСПРАВЛЕННАЯ) ==========
+// ========== ОТПРАВКА ДЗ ==========
 async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
@@ -1559,7 +1586,7 @@ async function submitHomework() {
             const textAnswer = document.getElementById('answer_text_' + i)?.value.trim() || '';
             const files = taskSolveFiles[i] || [];
             if (!textAnswer && files.length === 0) {
-                showToast('Заполните решение или прикрепите файлы для задачи ' + (i + 1), "error");
+                showToast('Прикрепите решение или файлы для задачи ' + (i + 1), "error");
                 goToTask(i);
                 return;
             }
@@ -1603,7 +1630,7 @@ async function submitHomework() {
                     taskIndex: i, 
                     userAnswer: userAnswer, 
                     files: uploadedFiles,
-                    isCorrect: true,
+                    isCorrect: true,  // для второй части всегда true, оценку ставит админ
                     isSecondPart: true
                 });
                 allFiles = allFiles.concat(uploadedFiles);
@@ -1655,21 +1682,23 @@ async function submitHomework() {
         const total = tasks.length;
         const percent = Math.round(correctCount / total * 100);
         
-        const counter = document.getElementById('hwCounter');
-        if (counter) {
-            counter.style.display = 'flex';
-            const scoreEl = document.getElementById('hwScore');
-            if (scoreEl) scoreEl.textContent = correctCount;
-            const percentEl = counter.querySelector('span:last-child');
-            if (percentEl) percentEl.textContent = percent + '%';
+        // Обновляем счетчик только для первой части
+        const firstPartTasks = tasks.filter(t => !t.isSecondPart).length;
+        if (firstPartTasks > 0) {
+            const counter = document.getElementById('hwCounter');
+            if (counter) {
+                counter.style.display = 'flex';
+                const scoreEl = document.getElementById('hwScore');
+                if (scoreEl) scoreEl.textContent = correctCount;
+                const percentEl = counter.querySelector('span:last-child');
+                if (percentEl) percentEl.textContent = percent + '%';
+            }
         }
         
-        // ИСПРАВЛЕНО: рендерим MathJax только внутри контейнера с задачами,
-        // с предварительной очисткой (typesetClear), а не глобальным вызовом
-        // без аргументов — иначе решения оставались нерендеренными.
+        // Рендерим MathJax
         await renderMathInElement(document.getElementById('hwTasksContainer'));
         
-        // === СОХРАНЯЕМ ДЗ В FIRESTORE ===
+        // === СОХРАНЯЕМ ДЗ ===
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1681,16 +1710,9 @@ async function submitHomework() {
             files: allFiles,
             userName: userData.name,
             userEmail: currentUser.email,
-            // ИСПРАВЛЕНО: firebase.firestore.FieldValue.serverTimestamp() нельзя
-            // использовать внутри массива (homeworkSubmissions — массив).
-            // Firestore выбрасывал ошибку прямо здесь, update() падал в catch,
-            // а isSubmitted/сохранение в базу так и не происходили — из-за
-            // этого при следующем заходе ДЗ приходилось решать заново.
-            // Обычная ISO-строка работает внутри массива без проблем.
             submittedAt: new Date().toISOString()
         };
         
-        // Обновляем userData.homeworkSubmissions
         if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
         const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentSolveHwId);
         if (existingIndex !== -1) {
@@ -1699,19 +1721,15 @@ async function submitHomework() {
             userData.homeworkSubmissions.push(submissionData);
         }
         
-        // Сохраняем в Firestore
         await db.collection("users").doc(currentUser.uid).update({ 
             homeworkSubmissions: userData.homeworkSubmissions 
         });
         
-        // Обновляем статус ДЗ (это поле верхнего уровня документа, а не внутри
-        // массива, поэтому serverTimestamp() здесь допустим и оставлен как был)
         await db.collection("homeworks").doc(currentSolveHwId).update({
             status: "submitted",
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // === ПЕРЕЗАГРУЖАЕМ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ИЗ FIRESTORE ===
         await refreshUserData();
         
         isSubmitted = true;
@@ -1720,15 +1738,12 @@ async function submitHomework() {
         btn.disabled = true;
         btn.className = "btn green";
         
-        // Обновляем статистику в дашборде
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
         showToast('✅ Задание отправлено на проверку!', "success");
         
-        // === ОБНОВЛЯЕМ КНОПКИ В МОДАЛКЕ С ЗАДАНИЯМИ ===
         setTimeout(() => {
             closeHwSolvePage();
-            // Если открыта модалка с ДЗ — обновляем её
             const hwModal = document.querySelector('.modal-overlay[style*="display:flex"]');
             if (hwModal && hwModal.id && hwModal.id.startsWith('homeworkModal_')) {
                 const courseId = hwModal.id.replace('homeworkModal_', '');
@@ -1802,8 +1817,14 @@ function openHwReviewPage(hwId, hw, submission) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
         const result = submission?.taskResults?.[i];
-        let cls = 'hw-dot submitted' + (i === 0 ? ' active' : '');
-        if (!isSecondPart && result) cls += result.isCorrect ? ' correct' : ' wrong';
+        let cls = 'hw-dot submitted';
+        if (i === 0) cls += ' active';
+        if (isSecondPart) {
+            cls += ' second-part';
+            if (result) cls += ' has-answer';
+        } else if (result) {
+            cls += result.isCorrect ? ' correct' : ' wrong';
+        }
         return `<div class="${cls}" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">${i + 1}</div>`;
     }).join('');
 
@@ -1838,11 +1859,26 @@ function openHwReviewPage(hwId, hw, submission) {
                     </div>
                 `;
             }
+            // === ПОКАЗ БАЛЛОВ ДЛЯ ВТОРОЙ ЧАСТИ ===
+            const maxScore = task.maxScore || 0;
+            const userScore = result ? (result.userScore || 0) : 0;
+            const isGraded = hw.status === 'graded';
+            
             answerHtml = `
                 <div style="margin-top:0.8rem;">
-                    <strong>Ваше решение:</strong>
-                    <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer) || "Нет текстового решения"}</div>
+                    ${userAnswer ? `
+                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer)}</div>
+                    ` : ''}
                     ${userFilesHtml}
+                    ${isGraded ? `
+                        <div class="task-result second-part-result" style="margin-top:0.8rem;">
+                            🏅 Баллы: <strong>${userScore}</strong> / ${maxScore}
+                        </div>
+                    ` : `
+                        <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text3);">
+                            ⏳ На проверке
+                        </div>
+                    `}
                 </div>
             `;
         } else {
@@ -1856,9 +1892,11 @@ function openHwReviewPage(hwId, hw, submission) {
             `;
         }
 
+        const contentClass = isSecondPart ? 'second-part submitted' : (isCorrect ? 'correct' : 'wrong');
+
         return `
             <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
-                <div class="task-content submitted ${!isSecondPart ? (isCorrect ? 'correct' : 'wrong') : ''}" id="taskcontent_${index}">
+                <div class="task-content ${contentClass}" id="taskcontent_${index}">
                     <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
                     <div class="task-condition">${task.condition || "Условие задачи не добавлено"}</div>
                     ${taskFilesHtml}
@@ -1877,10 +1915,12 @@ function openHwReviewPage(hwId, hw, submission) {
 
         <div class="hw-progress-bar" id="hwProgressBar">${dotsHtml}</div>
 
-        <div class="hw-counter" id="hwCounter">
-            <span>Верных ответов: <span class="score" id="hwScore">${correctCount}</span> из <span class="score-total">${gradedTasksCount}</span></span>
-            <span style="font-size:0.8rem;color:var(--text3);">${percent}%</span>
-        </div>
+        ${gradedTasksCount > 0 ? `
+            <div class="hw-counter" id="hwCounter">
+                <span>Верных ответов: <span class="score" id="hwScore">${correctCount}</span> из <span class="score-total">${gradedTasksCount}</span></span>
+                <span style="font-size:0.8rem;color:var(--text3);">${percent}%</span>
+            </div>
+        ` : ''}
 
         <div id="hwTasksContainer">${tasksHtml}</div>
 
@@ -1898,9 +1938,6 @@ function openHwReviewPage(hwId, hw, submission) {
     document.getElementById("hwSolveContent").innerHTML = html;
     openHwSolvePage();
     updateNavButtons();
-    // ИСПРАВЛЕНО: рендерим формулы только внутри hwSolveContent (с очисткой
-    // перед повторным тайпсеттингом), чтобы решения с LaTeX корректно
-    // отображались и на странице просмотра результатов/решений.
     setTimeout(() => renderMathInElement(document.getElementById('hwSolveContent')), 300);
 }
 
