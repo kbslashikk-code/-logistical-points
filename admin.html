@@ -166,7 +166,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
 .modal.active { display: flex; }
 .modal-content {
     background: var(--card); border-radius: 12px; padding: 1.5rem;
-    width: 90%; max-width: 800px; border: 1px solid var(--line);
+    width: 90%; max-width: 1000px; border: 1px solid var(--line);
     max-height: 90vh; overflow-y: auto;
 }
 .modal-header {
@@ -908,7 +908,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                 </div>
             </div>
 
-            <!-- ===== ИСПРАВЛЕННЫЙ БЛОК ДОБАВЛЕНИЯ ДЗ ===== -->
             <div id="addHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
                     <h3>Создать домашнее задание</h3>
@@ -942,24 +941,29 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     
                     <hr style="border-color:var(--line);margin:1rem 0;">
                     
-                    <!-- Первая часть (краткий ответ) -->
-                    <div id="firstPartSection">
+                    <div id="tasksSection">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                            <h4>📝 Задачи (краткий ответ)</h4>
-                            <button class="btn btn-secondary" onclick="addFirstPartTask()">+ Добавить задачу</button>
+                            <h4>Задачи (с кратким ответом)</h4>
+                            <button class="btn btn-secondary" onclick="addTask()">+ Добавить задачу</button>
                         </div>
-                        <div id="firstPartTasksContainer"></div>
+                        <div id="tasksContainer"></div>
                     </div>
                     
-                    <!-- Вторая часть (развёрнутые решения) -->
                     <div id="secondPartSection" style="display:none;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-                            <h4>📘 Задачи второй части (развёрнутые решения)</h4>
-                            <button class="btn btn-secondary" onclick="addSecondPartTask()">+ Добавить задачу</button>
+                        <div class="form-group">
+                            <label>Условие задачи (можно использовать LaTeX: \[...\] или $...$)</label>
+                            <textarea id="hwSecondPartCondition" rows="4" placeholder="Например: \[ \sqrt{(\sqrt{7} - 4)^2} + \sqrt{7} \]"></textarea>
                         </div>
-                        <div id="secondPartTasksContainer"></div>
-                        <div class="form-group" style="margin-top:1rem;">
-                            <label>Прикрепить общие файлы к заданию</label>
+                        <div class="form-group">
+                            <label>Решение задачи (можно использовать LaTeX)</label>
+                            <textarea id="hwSecondPartSolution" rows="4" placeholder="Решение для учеников после проверки..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Максимальный балл за задание</label>
+                            <input type="number" id="hwSecondPartMaxScore" value="10" min="1" placeholder="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Прикрепить файлы к заданию</label>
                             <div class="multi-file-zone" onclick="document.getElementById('hwFileInput').click()">
                                 <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
                             </div>
@@ -970,10 +974,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     
                     <hr style="border-color:var(--line);margin:1rem 0;">
                     
-                    <button class="btn btn-primary w-100" onclick="createHomework()">🚀 Создать задание</button>
+                    <button class="btn btn-primary w-100" onclick="createHomework()">Создать задание</button>
                 </div>
             </div>
-            <!-- ===== КОНЕЦ ИСПРАВЛЕННОГО БЛОКА ===== -->
 
             <div id="allHomeworkTab" class="tab-content" style="display: none;">
                 <div class="card">
@@ -1003,28 +1006,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <button class="modal-close" onclick="closeGradeModal()">&times;</button>
         </div>
         <div id="gradeModalContent"></div>
-        <div class="form-group" id="gradeMaxScoreGroup">
-            <label>Максимальный балл за задание</label>
-            <input type="number" id="gradeMaxScore" min="1" value="10" readonly style="background:var(--bg);color:var(--text2);">
-        </div>
-        <div class="form-group">
-            <label>Оценка ученика</label>
-            <input type="number" id="gradeValue" min="0" placeholder="Введите балл">
-        </div>
-        <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
-        <div class="form-group">
-            <label>Прикрепить файлы с правками (можно несколько, до 50 МБ)</label>
-            <div class="multi-file-zone" onclick="document.getElementById('gradeFileInput').click()">
-                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
-            </div>
-            <input type="file" id="gradeFileInput" accept="image/*,application/pdf" multiple style="display:none">
-            <div id="gradeFilePreview" class="files-list"></div>
-        </div>
-        <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
-            <button class="btn btn-success" onclick="submitGrade('graded')">Принять</button>
-            <button class="btn btn-danger" onclick="submitGrade('returned')">Вернуть на доработку</button>
-            <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
-        </div>
     </div>
 </div>
 
@@ -1214,13 +1195,8 @@ let currentHomeworkFiles = [];
 let currentGradeFiles = [];
 let currentAdminEmail = null;
 let currentAdminRole = 'full';
-let firstPartTaskCounter = 0;
-let secondPartTaskCounter = 0;
+let taskCounter = 0;
 let isSecondPart = false;
-
-// Переменные для файлов задач
-let firstTaskFiles = {};
-let secondTaskFiles = {};
 
 let analyticsHwCache = {};
 let analyticsStudentsCache = [];
@@ -1262,568 +1238,6 @@ function showToast(msg, type) {
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
-
-// ========== ЧАТ С ИИ-АГЕНТОМ ==========
-function openAIChat() {
-    const modal = document.getElementById("aiChatModal");
-    modal.classList.add("active");
-    document.getElementById("aiChatInput").focus();
-    aiGeneratedData = null;
-    document.getElementById("aiApplyBtn").style.display = "none";
-    
-    const messages = document.getElementById("aiChatMessages");
-    messages.innerHTML = `
-        <div class="ai-chat-message agent">
-            <span class="msg-label">ИИ-агент</span>
-            <div class="msg-content">
-                Привет! Опиши, какое домашнее задание нужно создать.<br>
-                <span style="color: var(--text3); font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса с решениями"</span>
-            </div>
-        </div>
-    `;
-}
-
-function closeAIChat() {
-    document.getElementById("aiChatModal").classList.remove("active");
-    aiGeneratedData = null;
-    document.getElementById("aiApplyBtn").style.display = "none";
-}
-
-function addAIMessage(type, content) {
-    const messages = document.getElementById("aiChatMessages");
-    const div = document.createElement("div");
-    div.className = `ai-chat-message ${type}`;
-    
-    const label = type === 'user' ? 'Вы' : 'ИИ-агент';
-    div.innerHTML = `
-        <span class="msg-label">${label}</span>
-        <div class="msg-content">${content}</div>
-    `;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-    
-    setTimeout(() => renderMath(), 200);
-}
-
-function formatAIGeneratedTask(data) {
-    let html = '<div style="padding: 0.5rem 0; margin-bottom: 0.5rem; font-weight: 600; color: var(--gold);">Задание сгенерировано!</div>';
-    html += `<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${escapeHtml(data.title || 'Домашнее задание')}</div>`;
-    
-    if (data.tasks && data.tasks.length > 0) {
-        data.tasks.forEach((task, i) => {
-            html += `
-                <div class="task-block">
-                    <div class="task-title">Задача ${i+1}</div>
-                    <div style="margin-bottom: 0.3rem;">${task.condition || ''}</div>
-                    <div style="font-size: 0.8rem; color: var(--text3);">Ответ: ${escapeHtml(task.correctAnswer || '')}</div>
-                    ${task.solution ? `<div style="font-size: 0.8rem; color: var(--text2);">Решение: ${escapeHtml(task.solution.substring(0, 150))}${task.solution.length > 150 ? '...' : ''}</div>` : ''}
-                </div>
-            `;
-        });
-    } else {
-        html += `<div style="padding: 0.5rem; background: var(--bg2); border-radius: 6px; color: var(--text3);">${JSON.stringify(data, null, 2)}</div>`;
-    }
-    
-    return html;
-}
-
-async function sendAIMessage() {
-    const input = document.getElementById("aiChatInput");
-    const message = input.value.trim();
-    if (!message) return;
-    
-    input.value = "";
-    
-    addAIMessage('user', message);
-    addAIMessage('agent', 'Генерирую задание...');
-    
-    try {
-        const generateHomework = firebase.functions().httpsCallable('generateHomework');
-        
-        const result = await generateHomework({
-            subject: document.getElementById("hwSubject").value || "math",
-            topic: message,
-            grade: "8",
-            taskCount: 5,
-            taskType: 'first',
-            difficulty: 'medium',
-            courseId: document.getElementById("hwCourse").value || "algebra",
-            target: document.getElementById("hwTarget").value || "all",
-            dueDate: document.getElementById("hwDueDate").value || "",
-            maxScore: 10
-        });
-        
-        const messages = document.getElementById("aiChatMessages");
-        messages.removeChild(messages.lastChild);
-        
-        const responseText = result.data.result;
-        let parsedData = null;
-        let displayText = responseText;
-        
-        try {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                parsedData = JSON.parse(jsonMatch[0]);
-                aiGeneratedData = parsedData;
-                displayText = formatAIGeneratedTask(parsedData);
-                document.getElementById("aiApplyBtn").style.display = 'inline-flex';
-            } else {
-                displayText = responseText;
-            }
-        } catch (e) {
-            displayText = responseText;
-        }
-        
-        addAIMessage('agent', displayText);
-        
-    } catch (error) {
-        const messages = document.getElementById("aiChatMessages");
-        messages.removeChild(messages.lastChild);
-        addAIMessage('agent', 'Ошибка: ' + error.message);
-    }
-}
-
-function applyAIGenerated() {
-    if (!aiGeneratedData) {
-        showToast("Нет данных для применения", "error");
-        return;
-    }
-    
-    try {
-        const data = aiGeneratedData;
-        
-        if (data.title) {
-            document.getElementById("hwTitle").value = data.title;
-        }
-        
-        if (data.tasks && data.tasks.length > 0) {
-            // Очищаем контейнеры
-            document.getElementById("firstPartTasksContainer").innerHTML = '';
-            document.getElementById("secondPartTasksContainer").innerHTML = '';
-            firstPartTaskCounter = 0;
-            secondPartTaskCounter = 0;
-            
-            // Определяем тип задач (первая или вторая часть)
-            // Если есть isSecondPart, используем его, иначе определяем по наличию correctAnswer
-            const isSecond = data.tasks.some(t => t.isSecondPart === true || !t.correctAnswer);
-            
-            if (isSecond) {
-                // Вторая часть
-                isSecondPart = true;
-                document.getElementById('hwTypeToggle').classList.add('active');
-                document.getElementById('firstPartSection').style.display = 'none';
-                document.getElementById('secondPartSection').style.display = 'block';
-                
-                data.tasks.forEach((task, index) => {
-                    const container = document.getElementById("secondPartTasksContainer");
-                    const id = secondPartTaskCounter++;
-                    const html = `
-                        <div class="task-editor" id="sptask_${id}">
-                            <div class="task-header">
-                                <span class="task-number">Задача ${id + 1}</span>
-                                <span class="remove-btn" onclick="removeSecondPartTask(${id})">Удалить задачу</span>
-                            </div>
-                            <div class="form-group">
-                                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                                <textarea id="spcondition_${id}" rows="4">${escapeHtml(task.condition || '')}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Правильное решение (можно использовать LaTeX)</label>
-                                <textarea id="spsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Максимальный балл за эту задачу</label>
-                                <input type="number" id="spmaxscore_${id}" value="10" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Прикрепить файлы к задаче</label>
-                                <div class="multi-file-zone" onclick="document.getElementById('spfileinput_${id}').click()"
-                                     style="border:2px dashed var(--line);border-radius:10px;padding:0.5rem;text-align:center;cursor:pointer;">
-                                    <div style="font-size:0.7rem;">Нажмите для выбора файлов</div>
-                                </div>
-                                <input type="file" id="spfileinput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleSecondPartFiles(this, ${id})">
-                                <div id="spfilepreview_${id}" class="files-list"></div>
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', html);
-                    if (!secondTaskFiles[id]) secondTaskFiles[id] = [];
-                });
-            } else {
-                // Первая часть
-                isSecondPart = false;
-                document.getElementById('hwTypeToggle').classList.remove('active');
-                document.getElementById('firstPartSection').style.display = 'block';
-                document.getElementById('secondPartSection').style.display = 'none';
-                
-                data.tasks.forEach((task, index) => {
-                    const container = document.getElementById("firstPartTasksContainer");
-                    const id = firstPartTaskCounter++;
-                    const html = `
-                        <div class="task-editor" id="fptask_${id}">
-                            <div class="task-header">
-                                <span class="task-number">Задача ${id + 1}</span>
-                                <span class="remove-btn" onclick="removeFirstPartTask(${id})">Удалить задачу</span>
-                            </div>
-                            <div class="form-group">
-                                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                                <textarea id="fpcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Правильный ответ</label>
-                                <input type="text" id="fpcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
-                            </div>
-                            <div class="form-group">
-                                <label>Решение задачи (можно использовать LaTeX)</label>
-                                <textarea id="fpsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Прикрепить файлы к задаче</label>
-                                <div class="multi-file-zone" onclick="document.getElementById('fpfileinput_${id}').click()"
-                                     style="border:2px dashed var(--line);border-radius:10px;padding:0.5rem;text-align:center;cursor:pointer;">
-                                    <div style="font-size:0.7rem;">Нажмите для выбора файлов</div>
-                                </div>
-                                <input type="file" id="fpfileinput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFirstPartFiles(this, ${id})">
-                                <div id="fpfilepreview_${id}" class="files-list"></div>
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', html);
-                    if (!firstTaskFiles[id]) firstTaskFiles[id] = [];
-                });
-            }
-        }
-        
-        closeAIChat();
-        showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
-        
-        setTimeout(() => renderMath(), 300);
-        
-    } catch (error) {
-        showToast("Ошибка: " + error.message, "error");
-    }
-}
-
-// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
-function toggleHomeworkType() {
-    const toggle = document.getElementById('hwTypeToggle');
-    isSecondPart = !isSecondPart;
-    toggle.classList.toggle('active', isSecondPart);
-    document.getElementById('firstPartSection').style.display = isSecondPart ? 'none' : 'block';
-    document.getElementById('secondPartSection').style.display = isSecondPart ? 'block' : 'none';
-    if (isSecondPart && document.getElementById('secondPartTasksContainer').children.length === 0) {
-        addSecondPartTask();
-    }
-    if (!isSecondPart && document.getElementById('firstPartTasksContainer').children.length === 0) {
-        addFirstPartTask();
-    }
-}
-
-// ========== STORAGE ФУНКЦИИ ==========
-async function uploadFileToStorage(file, folder) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
-    const snapshot = await fileRef.put(file);
-    const url = await snapshot.ref.getDownloadURL();
-    return { name: file.name, url: url, type: file.type };
-}
-
-async function uploadMultipleFiles(files, folder) {
-    const results = [];
-    for (const f of files) {
-        try {
-            const result = await uploadFileToStorage(f.file, folder);
-            results.push(result);
-        } catch(e) {
-            showToast(`Ошибка: ${f.file.name}`, "error");
-        }
-    }
-    return results;
-}
-
-function renderFilePreview(containerId, filesArray, removeFn) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    if (filesArray.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
-        return;
-    }
-    container.style.display = 'flex';
-    container.innerHTML = filesArray.map((file, idx) => `
-        <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
-            <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-// ========== ОБРАБОТЧИКИ ФАЙЛОВ ==========
-async function handleLessonFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentLessonFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentLessonFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
-    input.value = '';
-}
-window.removeLessonFile = function(idx) {
-    currentLessonFiles.splice(idx, 1);
-    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
-};
-
-async function handleHomeworkFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentHomeworkFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentHomeworkFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-    input.value = '';
-}
-window.removeHomeworkFile = function(idx) {
-    currentHomeworkFiles.splice(idx, 1);
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-};
-
-async function handleGradeFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentGradeFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentGradeFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
-    input.value = '';
-}
-window.removeGradeFile = function(idx) {
-    currentGradeFiles.splice(idx, 1);
-    renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
-};
-
-document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
-document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
-document.getElementById("gradeFileInput")?.addEventListener("change", function(e) { handleGradeFilesSelect(e.target); });
-
-// ========== ДОБАВЛЕНИЕ ЗАДАЧ ПЕРВОЙ ЧАСТИ ==========
-function addFirstPartTask() {
-    const container = document.getElementById('firstPartTasksContainer');
-    const id = firstPartTaskCounter++;
-    const html = `
-        <div class="task-editor" id="fptask_${id}">
-            <div class="task-header">
-                <span class="task-number">Задача ${id + 1}</span>
-                <button class="remove-btn" onclick="removeFirstPartTask(${id})">✕ Удалить</button>
-            </div>
-            <div class="form-group">
-                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                <textarea id="fpcondition_${id}" rows="3" placeholder="Например: Решите уравнение \\(x^2 - 4 = 0\\)"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Правильный ответ</label>
-                <input type="text" id="fpcorrect_${id}" placeholder="2, -2">
-            </div>
-            <div class="form-group">
-                <label>Решение задачи (можно использовать LaTeX)</label>
-                <textarea id="fpsolution_${id}" rows="4" placeholder="\\[x^2 - 4 = 0\\]\\[(x-2)(x+2) = 0\\]\\[x = \\pm 2\\]"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Прикрепить файлы к задаче</label>
-                <div class="multi-file-zone" onclick="document.getElementById('fpfileinput_${id}').click()"
-                     style="border:2px dashed var(--line);border-radius:10px;padding:0.5rem;text-align:center;cursor:pointer;">
-                    <div style="font-size:0.7rem;">Нажмите для выбора файлов</div>
-                </div>
-                <input type="file" id="fpfileinput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleFirstPartFiles(this, ${id})">
-                <div id="fpfilepreview_${id}" class="files-list"></div>
-            </div>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', html);
-    if (!firstTaskFiles[id]) firstTaskFiles[id] = [];
-    setTimeout(() => renderMath(), 200);
-}
-
-function removeFirstPartTask(id) {
-    const el = document.getElementById('fptask_' + id);
-    if (el) el.remove();
-    delete firstTaskFiles[id];
-    document.querySelectorAll('#firstPartTasksContainer .task-editor').forEach((el, i) => {
-        const numSpan = el.querySelector('.task-number');
-        if (numSpan) numSpan.textContent = 'Задача ' + (i + 1);
-    });
-}
-
-function handleFirstPartFiles(input, taskId) {
-    const files = Array.from(input.files);
-    if (!firstTaskFiles[taskId]) firstTaskFiles[taskId] = [];
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast('Файл ' + file.name + ' > 50 МБ', "error");
-            continue;
-        }
-        firstTaskFiles[taskId].push({ file: file, type: file.type.startsWith('image/') ? 'image' : 'pdf' });
-    }
-    renderFirstPartFilePreview(taskId);
-    input.value = '';
-}
-
-function renderFirstPartFilePreview(taskId) {
-    const container = document.getElementById('fpfilepreview_' + taskId);
-    if (!container) return;
-    const files = firstTaskFiles[taskId] || [];
-    if (files.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-    container.innerHTML = files.map((f, idx) => `
-        <div class="file-item">
-            ${f.type === 'image' ? '<img src="' + URL.createObjectURL(f.file) + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : ''}
-            <span>${escapeHtml(f.file.name)}</span>
-            <span style="color:var(--red);cursor:pointer;margin-left:0.3rem;" onclick="removeFirstPartFile(${taskId}, ${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-function removeFirstPartFile(taskId, idx) {
-    if (firstTaskFiles[taskId]) {
-        firstTaskFiles[taskId].splice(idx, 1);
-        renderFirstPartFilePreview(taskId);
-    }
-}
-
-// ========== ДОБАВЛЕНИЕ ЗАДАЧ ВТОРОЙ ЧАСТИ ==========
-function addSecondPartTask() {
-    const container = document.getElementById('secondPartTasksContainer');
-    const id = secondPartTaskCounter++;
-    const html = `
-        <div class="task-editor" id="sptask_${id}">
-            <div class="task-header">
-                <span class="task-number">Задача ${id + 1}</span>
-                <button class="remove-btn" onclick="removeSecondPartTask(${id})">✕ Удалить</button>
-            </div>
-            <div class="form-group">
-                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                <textarea id="spcondition_${id}" rows="4" placeholder="Например: \[ \\sqrt{(\\sqrt{7} - 4)^2} + \\sqrt{7} \]"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Правильное решение (можно использовать LaTeX)</label>
-                <textarea id="spsolution_${id}" rows="4" placeholder="Решение задачи"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Максимальный балл за эту задачу</label>
-                <input type="number" id="spmaxscore_${id}" value="10" min="1">
-            </div>
-            <div class="form-group">
-                <label>Прикрепить файлы к задаче</label>
-                <div class="multi-file-zone" onclick="document.getElementById('spfileinput_${id}').click()"
-                     style="border:2px dashed var(--line);border-radius:10px;padding:0.5rem;text-align:center;cursor:pointer;">
-                    <div style="font-size:0.7rem;">Нажмите для выбора файлов</div>
-                </div>
-                <input type="file" id="spfileinput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleSecondPartFiles(this, ${id})">
-                <div id="spfilepreview_${id}" class="files-list"></div>
-            </div>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', html);
-    if (!secondTaskFiles[id]) secondTaskFiles[id] = [];
-    setTimeout(() => renderMath(), 200);
-}
-
-function removeSecondPartTask(id) {
-    const el = document.getElementById('sptask_' + id);
-    if (el) el.remove();
-    delete secondTaskFiles[id];
-    document.querySelectorAll('#secondPartTasksContainer .task-editor').forEach((el, i) => {
-        const numSpan = el.querySelector('.task-number');
-        if (numSpan) numSpan.textContent = 'Задача ' + (i + 1);
-    });
-}
-
-function handleSecondPartFiles(input, taskId) {
-    const files = Array.from(input.files);
-    if (!secondTaskFiles[taskId]) secondTaskFiles[taskId] = [];
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast('Файл ' + file.name + ' > 50 МБ', "error");
-            continue;
-        }
-        secondTaskFiles[taskId].push({ file: file, type: file.type.startsWith('image/') ? 'image' : 'pdf' });
-    }
-    renderSecondPartFilePreview(taskId);
-    input.value = '';
-}
-
-function renderSecondPartFilePreview(taskId) {
-    const container = document.getElementById('spfilepreview_' + taskId);
-    if (!container) return;
-    const files = secondTaskFiles[taskId] || [];
-    if (files.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-    container.innerHTML = files.map((f, idx) => `
-        <div class="file-item">
-            ${f.type === 'image' ? '<img src="' + URL.createObjectURL(f.file) + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : ''}
-            <span>${escapeHtml(f.file.name)}</span>
-            <span style="color:var(--red);cursor:pointer;margin-left:0.3rem;" onclick="removeSecondPartFile(${taskId}, ${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-function removeSecondPartFile(taskId, idx) {
-    if (secondTaskFiles[taskId]) {
-        secondTaskFiles[taskId].splice(idx, 1);
-        renderSecondPartFilePreview(taskId);
-    }
-}
-
-// ========== ОБРАБОТЧИК ОБЩИХ ФАЙЛОВ ДЗ ==========
-document.getElementById('hwFileInput')?.addEventListener('change', function(e) {
-    const files = Array.from(e.target.files);
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast('Файл ' + file.name + ' > 50 МБ', "error");
-            continue;
-        }
-        currentHomeworkFiles.push({ file: file, type: file.type.startsWith('image/') ? 'image' : 'pdf' });
-        showToast('Добавлен: ' + file.name, "success");
-    }
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-    e.target.value = '';
-});
 
 // ========== АВТОРИЗАЦИЯ ==========
 async function adminLogin() {
@@ -3008,7 +2422,6 @@ function updateCourses() {
     courseSelect.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
 }
 
-// ========== СОЗДАНИЕ ДЗ (С ПОДДЕРЖКОЙ НЕСКОЛЬКИХ ЗАДАЧ ВТОРОЙ ЧАСТИ) ==========
 async function createHomework() {
     const subject = document.getElementById("hwSubject").value;
     
@@ -3043,48 +2456,17 @@ async function createHomework() {
         let tasks = [];
         
         if (isSecondPart) {
-            // === ВТОРАЯ ЧАСТЬ: НЕСКОЛЬКО ЗАДАЧ ===
-            const taskEditors = document.querySelectorAll('#secondPartTasksContainer .task-editor');
-            if (taskEditors.length === 0) {
-                showToast("Добавьте хотя бы одну задачу второй части", "error");
+            const condition = document.getElementById("hwSecondPartCondition").value.trim();
+            const solution = document.getElementById("hwSecondPartSolution").value.trim();
+            const maxScore = parseInt(document.getElementById("hwSecondPartMaxScore").value) || 10;
+            
+            if (!condition) {
+                showToast("Введите условие задачи", "error");
                 btn.textContent = originalText;
                 btn.disabled = false;
                 return;
             }
             
-            let totalMaxScore = 0;
-            
-            for (const editor of taskEditors) {
-                const id = editor.id.replace('sptask_', '');
-                const condition = document.getElementById('spcondition_' + id).value.trim();
-                const solution = document.getElementById('spsolution_' + id).value.trim();
-                const maxScore = parseInt(document.getElementById('spmaxscore_' + id).value) || 10;
-                
-                if (!condition) {
-                    showToast('Введите условие для задачи ' + (parseInt(id) + 1), "error");
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-                
-                let taskUploadedFiles = [];
-                if (secondTaskFiles[id] && secondTaskFiles[id].length > 0) {
-                    taskUploadedFiles = await uploadMultipleFiles(secondTaskFiles[id], "homeworks");
-                }
-                
-                tasks.push({
-                    id: 'task_' + Date.now() + '_' + id,
-                    condition: condition,
-                    solution: solution || 'Решение не добавлено',
-                    maxScore: maxScore,
-                    isSecondPart: true,
-                    files: taskUploadedFiles
-                });
-                
-                totalMaxScore += maxScore;
-            }
-            
-            // Загружаем общие файлы для ДЗ
             if (currentHomeworkFiles.length > 0) {
                 uploadedFiles = await uploadMultipleFiles(currentHomeworkFiles, "homeworks");
             }
@@ -3096,51 +2478,44 @@ async function createHomework() {
                 userEmail: target,
                 userName: target === "all" ? "Все ученики" : target,
                 dueDate: dueDate,
-                tasks: tasks,
+                condition: condition,
+                solution: solution || "Решение не добавлено",
                 files: uploadedFiles,
                 status: "pending",
                 isSecondPart: true,
                 isInteractive: false,
-                maxScore: totalMaxScore,
+                maxScore: maxScore,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            
         } else {
-            // === ПЕРВАЯ ЧАСТЬ: НЕСКОЛЬКО ЗАДАЧ ===
-            const taskEditors = document.querySelectorAll('#firstPartTasksContainer .task-editor');
-            if (taskEditors.length === 0) {
+            const taskEditors = document.querySelectorAll('.task-editor');
+            for (const editor of taskEditors) {
+                const id = editor.id.replace('teditor_', '');
+                const condition = document.getElementById(`tcondition_${id}`).value.trim();
+                const correctAnswer = document.getElementById(`tcorrect_${id}`).value.trim();
+                const solution = document.getElementById(`tsolution_${id}`).value.trim();
+                const files = taskFiles[id] || [];
+                
+                if (condition) {
+                    let taskUploadedFiles = [];
+                    if (files.length > 0) {
+                        taskUploadedFiles = await uploadMultipleFiles(files, "homeworks");
+                    }
+                    tasks.push({
+                        id: `task_${Date.now()}_${tasks.length}`,
+                        condition: condition,
+                        correctAnswer: correctAnswer || "",
+                        solution: solution || "Решение не добавлено",
+                        files: taskUploadedFiles
+                    });
+                }
+            }
+            
+            if (tasks.length === 0) {
                 showToast("Добавьте хотя бы одну задачу", "error");
                 btn.textContent = originalText;
                 btn.disabled = false;
                 return;
-            }
-            
-            for (const editor of taskEditors) {
-                const id = editor.id.replace('fptask_', '');
-                const condition = document.getElementById('fpcondition_' + id).value.trim();
-                const correctAnswer = document.getElementById('fpcorrect_' + id).value.trim();
-                const solution = document.getElementById('fpsolution_' + id).value.trim();
-                
-                if (!condition) {
-                    showToast('Введите условие для задачи ' + (parseInt(id) + 1), "error");
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-                
-                let taskUploadedFiles = [];
-                if (firstTaskFiles[id] && firstTaskFiles[id].length > 0) {
-                    taskUploadedFiles = await uploadMultipleFiles(firstTaskFiles[id], "homeworks");
-                }
-                
-                tasks.push({
-                    id: 'task_' + Date.now() + '_' + id,
-                    condition: condition,
-                    correctAnswer: correctAnswer || '',
-                    solution: solution || 'Решение не добавлено',
-                    isSecondPart: false,
-                    files: taskUploadedFiles
-                });
             }
             
             await db.collection("homeworks").add({
@@ -3158,36 +2533,34 @@ async function createHomework() {
             });
         }
         
-        showToast("✅ Задание создано!", "success");
+        showToast("Задание создано!", "success");
         
-        // Очищаем форму
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwSubject").value = "";
         document.getElementById("hwCourse").innerHTML = "";
         document.getElementById("hwTarget").value = "";
         document.getElementById("hwDueDate").value = "";
-        document.getElementById("firstPartTasksContainer").innerHTML = "";
-        document.getElementById("secondPartTasksContainer").innerHTML = "";
-        document.getElementById("hwFilePreview").innerHTML = "";
+        document.getElementById("hwSecondPartCondition").value = "";
+        document.getElementById("hwSecondPartSolution").value = "";
+        document.getElementById("hwSecondPartMaxScore").value = "10";
+        document.getElementById("hwFileInput").value = "";
+        document.getElementById("tasksContainer").innerHTML = "";
         currentHomeworkFiles = [];
-        firstTaskFiles = {};
-        secondTaskFiles = {};
-        firstPartTaskCounter = 0;
-        secondPartTaskCounter = 0;
+        taskCounter = 0;
+        for (const key in taskFiles) {
+            delete taskFiles[key];
+        }
+        renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
         
-        // Добавляем одну пустую задачу для удобства
-        if (isSecondPart) {
-            addSecondPartTask();
-        } else {
-            addFirstPartTask();
+        if (!isSecondPart) {
+            addTask();
         }
         
         loadDashboard();
         loadAllHomeworkHistory();
-        
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
     } finally {
         btn.textContent = originalText;
         btn.disabled = false;
@@ -3739,102 +3112,348 @@ async function loadAllHomeworkHistory() {
     }
 }
 
-// ========== МОДАЛКА ПРОВЕРКИ ДЗ ==========
+// ========== ПРОВЕРКА ДЗ (АДМИН) ==========
 async function openGradeModal(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
-    currentGradingHw = { id: hwId, ...doc.data() };
-    currentGradeFiles = [];
+    const hw = doc.data();
+    currentGradingHw = { id: hwId, ...hw };
     
-    const maxScore = currentGradingHw.maxScore || 10;
-    
-    let secondPartHtml = '';
-    if (currentGradingHw.isSecondPart) {
-        secondPartHtml = `<div class="solution" style="background: var(--blue3);"><strong>Задание второй части</strong>${currentGradingHw.condition ? `: ${currentGradingHw.condition}` : ''}</div>`;
+    // Получаем данные о submission ученика
+    let submissionData = null;
+    if (hw.userEmail && hw.userEmail !== 'all') {
+        const usersSnap = await db.collection("users").where("email", "==", hw.userEmail).get();
+        if (!usersSnap.empty) {
+            const userDoc = usersSnap.docs[0];
+            const user = userDoc.data();
+            submissionData = (user.homeworkSubmissions || []).find(s => s.id === hwId);
+        }
     }
     
-    let gradeFilesHtml = '';
-    if (currentGradingHw.gradeFiles && currentGradingHw.gradeFiles.length) {
-        gradeFilesHtml = `<div style="margin-top: 0.5rem;"><strong>Файлы с правками (уже прикреплены):</strong><div class="files-list">${currentGradingHw.gradeFiles.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
-    }
+    const tasks = hw.tasks || [];
+    const totalTasks = tasks.length;
+    const taskResults = submissionData?.taskResults || [];
     
-    let filesHtml = '';
-    if (currentGradingHw.files && currentGradingHw.files.length) {
-        filesHtml = `<div><strong>Файлы ученика:</strong><div class="files-list">${currentGradingHw.files.map(f => `<div class="file-item" onclick="window.open('${f.url}')">${f.type.startsWith('image') ? '' : ''} ${escapeHtml(f.name)}</div>`).join('')}</div></div>`;
-    }
-    
-    document.getElementById("gradeModalContent").innerHTML = `
-        <div><strong>${escapeHtml(currentGradingHw.title)}</strong></div>
-        <div class="meta">Ученик: ${escapeHtml(currentGradingHw.userName || currentGradingHw.userEmail)}</div>
-        ${secondPartHtml}
-        ${filesHtml}
-        ${gradeFilesHtml}
+    let html = `
+        <div style="margin-bottom:1.5rem;">
+            <div style="font-size:1.3rem;font-weight:700;color:var(--gold);">${escapeHtml(hw.title)}</div>
+            <div style="font-size:0.85rem;color:var(--text3);margin-top:0.3rem;">
+                Ученик: ${escapeHtml(hw.userName || hw.userEmail || 'Неизвестно')} · 
+                Курс: ${escapeHtml(hw.courseId)} · 
+                Задач: ${totalTasks}
+                ${hw.isSecondPart ? ' · 📘 Вторая часть' : ' · 📝 Краткий ответ'}
+            </div>
+            ${hw.dueDate ? `<div style="font-size:0.8rem;color:var(--text3);">Срок сдачи: ${escapeHtml(hw.dueDate)}</div>` : ''}
+            ${submissionData?.submittedAt ? `<div style="font-size:0.8rem;color:var(--text3);">Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
+        </div>
     `;
     
-    document.getElementById("gradeMaxScore").value = maxScore;
-    document.getElementById("gradeValue").value = currentGradingHw.grade || "";
-    document.getElementById("gradeFeedback").value = currentGradingHw.feedback || "";
-    document.getElementById("gradeFileInput").value = "";
-    document.getElementById("gradeFilePreview").innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
-    currentGradeFiles = [];
+    // Показываем каждую задачу
+    for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        const isSecondPart = task.isSecondPart || false;
+        const result = taskResults[i] || null;
+        const userAnswer = result ? result.userAnswer : '';
+        const userFiles = result ? (result.files || []) : [];
+        const isCorrect = result ? result.isCorrect : false;
+        const userScore = result ? (result.userScore || 0) : 0;
+        
+        // Определяем статус задачи
+        let statusBadge = '';
+        let statusColor = '';
+        if (isSecondPart) {
+            if (hw.status === 'graded') {
+                statusBadge = `✅ Проверено (${userScore}/${task.maxScore || 10})`;
+                statusColor = 'var(--green)';
+            } else if (hw.status === 'returned') {
+                statusBadge = '↩️ Возвращено на доработку';
+                statusColor = 'var(--red)';
+            } else {
+                statusBadge = '⏳ На проверке';
+                statusColor = 'var(--gold)';
+            }
+        } else {
+            statusBadge = isCorrect ? '✅ Правильно' : '❌ Неправильно';
+            statusColor = isCorrect ? 'var(--green)' : 'var(--red)';
+        }
+        
+        html += `
+            <div style="background:var(--bg2);border-radius:12px;padding:1.2rem;margin-bottom:1.2rem;border:1px solid var(--line);">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.8rem;">
+                    <div>
+                        <span style="font-weight:700;font-size:1.05rem;">Задача ${i + 1}</span>
+                        ${isSecondPart ? ' <span style="font-size:0.7rem;background:var(--gold3);color:var(--gold);padding:0.1rem 0.5rem;border-radius:4px;">Вторая часть</span>' : ''}
+                    </div>
+                    <span style="font-size:0.85rem;font-weight:600;color:${statusColor};">${statusBadge}</span>
+                </div>
+                
+                <!-- Условие задачи -->
+                <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;border-left:4px solid var(--gold);">
+                    <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📌 Условие:</div>
+                    <div style="line-height:1.8;">${task.condition || 'Нет условия'}</div>
+                </div>
+                
+                <!-- Ответ/Решение ученика -->
+                ${isSecondPart ? `
+                    <div style="margin-bottom:0.8rem;">
+                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📝 Решение ученика:</div>
+                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;white-space:pre-wrap;line-height:1.8;min-height:60px;border:1px solid var(--line);">
+                            ${userAnswer || 'Нет текстового решения'}
+                        </div>
+                    </div>
+                ` : `
+                    <div style="margin-bottom:0.8rem;">
+                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">✏️ Ответ ученика:</div>
+                        <div style="background:var(--bg);padding:0.5rem 0.8rem;border-radius:8px;border:1px solid var(--line);">
+                            ${userAnswer || 'Нет ответа'}
+                            ${!isSecondPart ? ` · Правильный ответ: <span style="font-weight:600;color:var(--green);">${escapeHtml(task.correctAnswer || '—')}</span>` : ''}
+                        </div>
+                    </div>
+                `}
+                
+                <!-- Файлы ученика -->
+                ${userFiles.length > 0 ? `
+                    <div style="margin-bottom:0.8rem;">
+                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📎 Файлы ученика (${userFiles.length}):</div>
+                        <div class="files-list">
+                            ${userFiles.map(f => `
+                                <div class="file-item" onclick="window.open('${f.url}')">
+                                    ${f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">' : '📄'}
+                                    ${escapeHtml(f.name)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <!-- Эталонное решение -->
+                ${task.solution ? `
+                    <div style="background:var(--gold3);padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;border-left:4px solid var(--gold);">
+                        <div style="font-size:0.7rem;color:var(--text3);margin-bottom:0.3rem;">📘 Эталонное решение:</div>
+                        <div style="line-height:1.8;">${task.solution}</div>
+                    </div>
+                ` : ''}
+                
+                <!-- Форма проверки (только для второй части) -->
+                ${isSecondPart ? `
+                    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--line);">
+                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+                            <div style="flex:1;min-width:120px;">
+                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Балл за задачу</div>
+                                <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" 
+                                       style="width:80px;padding:0.3rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);">
+                                <span style="font-size:0.75rem;color:var(--text3);">/ ${task.maxScore || 10}</span>
+                            </div>
+                            <div style="flex:2;min-width:200px;">
+                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Комментарий</div>
+                                <input type="text" id="feedback_task_${i}" placeholder="Комментарий к задаче..." 
+                                       style="width:100%;padding:0.3rem 0.5rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--text);">
+                            </div>
+                            <div style="flex:1;min-width:150px;">
+                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Файлы с правками</div>
+                                <div class="multi-file-zone" onclick="document.getElementById('gradeTaskFileInput_${i}').click()" 
+                                     style="padding:0.3rem;border:1px dashed var(--line);border-radius:4px;text-align:center;cursor:pointer;font-size:0.7rem;">
+                                    📎 Выбрать файлы
+                                </div>
+                                <input type="file" id="gradeTaskFileInput_${i}" accept="image/*,application/pdf" multiple style="display:none" 
+                                       onchange="handleGradeTaskFilesSelect(this, ${i})">
+                                <div id="gradeTaskFilePreview_${i}" class="files-list" style="margin-top:0.3rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                ` : `
+                    <!-- Для первой части - только информация -->
+                    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--text3);">
+                        ${isCorrect ? '✅ Задача решена верно' : '❌ Задача решена неверно'}
+                        ${task.correctAnswer ? ' · Правильный ответ: ' + escapeHtml(task.correctAnswer) : ''}
+                    </div>
+                `}
+            </div>
+        `;
+    }
     
+    // Кнопки действий
+    html += `
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="submitGrade('graded')">✅ Принять все задачи</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">↩️ Вернуть на доработку</button>
+            <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
+        </div>
+    `;
+    
+    document.getElementById("gradeModalContent").innerHTML = html;
     document.getElementById("gradeModal").classList.add("active");
-    setTimeout(() => renderMath(), 200);
+    setTimeout(() => renderMath(), 300);
 }
 
-function closeGradeModal() { 
-    document.getElementById("gradeModal").classList.remove("active"); 
-    currentGradingHw = null; 
-    currentGradeFiles = [];
+// ========== ОБРАБОТЧИК ФАЙЛОВ ДЛЯ ПРОВЕРКИ ==========
+let gradeTaskFiles = {};
+
+function handleGradeTaskFilesSelect(input, taskIndex) {
+    const files = Array.from(input.files);
+    if (!gradeTaskFiles[taskIndex]) gradeTaskFiles[taskIndex] = [];
+    
+    if (gradeTaskFiles[taskIndex].length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast('Файл ' + file.name + ' > 50 МБ', "error");
+            continue;
+        }
+        gradeTaskFiles[taskIndex].push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast('Добавлен: ' + file.name, "success");
+    }
+    renderGradeTaskFilePreview(taskIndex);
+    input.value = '';
 }
 
+function renderGradeTaskFilePreview(taskIndex) {
+    const container = document.getElementById('gradeTaskFilePreview_' + taskIndex);
+    if (!container) return;
+    const files = gradeTaskFiles[taskIndex] || [];
+    if (files.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = files.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? '<img src="' + URL.createObjectURL(file.file) + '" onclick="window.open(\'' + URL.createObjectURL(file.file) + '\')">' : ''}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="removeGradeTaskFile(${taskIndex}, ${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+function removeGradeTaskFile(taskIndex, idx) {
+    if (gradeTaskFiles[taskIndex]) {
+        gradeTaskFiles[taskIndex].splice(idx, 1);
+        renderGradeTaskFilePreview(taskIndex);
+    }
+}
+
+// ========== ОТПРАВКА ОЦЕНКИ ==========
 async function submitGrade(action) {
     if (!currentGradingHw) return;
     
-    const grade = document.getElementById("gradeValue").value;
-    const feedback = document.getElementById("gradeFeedback").value;
-    const maxScore = parseInt(document.getElementById("gradeMaxScore").value) || 10;
+    const hw = currentGradingHw;
+    const tasks = hw.tasks || [];
+    const isSecondPart = hw.isSecondPart || false;
     
-    if (currentGradingHw.isSecondPart) {
-        if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > maxScore)) {
-            showToast(`Оценка должна быть от 0 до ${maxScore}`, "error");
-            return;
-        }
-    } else {
-        if (grade && (parseFloat(grade) < 0 || parseFloat(grade) > 10)) {
-            showToast("Оценка должна быть от 0 до 10", "error");
-            return;
+    // Если это вторая часть, собираем оценки для каждой задачи
+    let taskGrades = [];
+    let taskFeedbacks = [];
+    let allGradeFiles = [];
+    let totalScore = 0;
+    let maxTotalScore = 0;
+    
+    if (isSecondPart) {
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            const gradeInput = document.getElementById('grade_task_' + i);
+            const feedbackInput = document.getElementById('feedback_task_' + i);
+            const files = gradeTaskFiles[i] || [];
+            
+            let uploadedFiles = [];
+            if (files.length > 0) {
+                uploadedFiles = await uploadMultipleFiles(files, 'grades');
+                allGradeFiles = allGradeFiles.concat(uploadedFiles);
+            }
+            
+            const score = gradeInput ? parseFloat(gradeInput.value) || 0 : 0;
+            const maxScore = task.maxScore || 10;
+            const feedback = feedbackInput ? feedbackInput.value.trim() : '';
+            
+            taskGrades.push({
+                taskIndex: i,
+                score: score,
+                maxScore: maxScore,
+                feedback: feedback,
+                files: uploadedFiles
+            });
+            
+            totalScore += score;
+            maxTotalScore += maxScore;
         }
     }
     
-    showToast("Отправка...", "info");
+    // Формируем общий комментарий
+    let overallFeedback = '';
+    if (isSecondPart) {
+        const feedbacks = taskGrades.filter(t => t.feedback).map(t => `Задача ${t.taskIndex + 1}: ${t.feedback}`);
+        if (feedbacks.length > 0) {
+            overallFeedback = feedbacks.join('; ');
+        }
+    } else {
+        overallFeedback = document.getElementById('gradeFeedback')?.value.trim() || '';
+    }
+    
+    // Проверяем, все ли задачи оценены
+    if (isSecondPart) {
+        for (let i = 0; i < taskGrades.length; i++) {
+            if (taskGrades[i].score < 0) {
+                showToast('Оценка не может быть отрицательной', "error");
+                return;
+            }
+        }
+    }
     
     try {
-        let uploadedGradeFiles = [];
-        if (currentGradeFiles.length > 0) {
-            const btn = document.querySelector('#gradeModal .btn-success');
-            if (btn) { btn.textContent = "Загрузка..."; btn.disabled = true; }
-            uploadedGradeFiles = await uploadMultipleFiles(currentGradeFiles, "grades");
-            showToast(`Загружено ${uploadedGradeFiles.length} файлов с правками`, "success");
-        }
-        
         const updateData = {
-            status: action === "graded" ? "graded" : "returned",
-            feedback: feedback || "",
-            gradeFiles: uploadedGradeFiles.length > 0 ? uploadedGradeFiles : (currentGradingHw.gradeFiles || []),
+            status: action,
             gradedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        if (action === "graded") {
-            if (grade !== undefined && grade !== null && grade !== '') {
-                updateData.grade = parseFloat(grade);
-                updateData.userScore = parseFloat(grade);
-                updateData.maxScore = maxScore;
+        if (action === 'graded') {
+            if (isSecondPart) {
+                updateData.grade = totalScore;
+                updateData.userScore = totalScore;
+                updateData.maxScore = maxTotalScore;
+                updateData.taskGrades = taskGrades;
+                updateData.feedback = overallFeedback;
+                updateData.gradeFiles = allGradeFiles.length > 0 ? allGradeFiles : (hw.gradeFiles || []);
+            } else {
+                const grade = parseFloat(document.getElementById('gradeValue')?.value) || 0;
+                const feedback = document.getElementById('gradeFeedback')?.value.trim() || '';
+                updateData.grade = grade;
+                updateData.userScore = grade;
+                updateData.maxScore = 10;
+                updateData.feedback = feedback;
+            }
+        } else {
+            // Returned
+            updateData.feedback = overallFeedback || 'Верните на доработку';
+            updateData.gradeFiles = allGradeFiles.length > 0 ? allGradeFiles : (hw.gradeFiles || []);
+        }
+        
+        await db.collection("homeworks").doc(hw.id).update(updateData);
+        
+        // Также обновляем submission в документе пользователя
+        if (hw.userEmail && hw.userEmail !== 'all') {
+            const usersSnap = await db.collection("users").where("email", "==", hw.userEmail).get();
+            if (!usersSnap.empty) {
+                const userDoc = usersSnap.docs[0];
+                const userData = userDoc.data();
+                const submissions = userData.homeworkSubmissions || [];
+                const subIndex = submissions.findIndex(s => s.id === hw.id);
+                if (subIndex !== -1) {
+                    submissions[subIndex].grade = totalScore || 0;
+                    submissions[subIndex].userScore = totalScore || 0;
+                    submissions[subIndex].taskGrades = taskGrades || [];
+                    submissions[subIndex].feedback = overallFeedback || '';
+                    await db.collection("users").doc(userDoc.id).update({
+                        homeworkSubmissions: submissions
+                    });
+                }
             }
         }
         
-        await db.collection("homeworks").doc(currentGradingHw.id).update(updateData);
-        showToast(action === "graded" ? "Задание проверено!" : "Задание возвращено на доработку", "success");
-        
+        showToast(action === 'graded' ? '✅ Задание проверено!' : '↩️ Задание возвращено на доработку', "success");
         closeGradeModal();
         loadAllHomework();
         loadAllHomeworkHistory();
@@ -3843,11 +3462,14 @@ async function submitGrade(action) {
         
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("Ошибка: " + error.message, "error");
-    } finally {
-        const btn = document.querySelector('#gradeModal .btn-success');
-        if (btn) { btn.textContent = "Принять"; btn.disabled = false; }
+        showToast("❌ Ошибка: " + error.message, "error");
     }
+}
+
+function closeGradeModal() {
+    document.getElementById("gradeModal").classList.remove("active");
+    currentGradingHw = null;
+    gradeTaskFiles = {};
 }
 
 async function deleteHomework(id) {
@@ -4013,6 +3635,382 @@ async function deleteScheduleItem(id) {
     }
 }
 
+// ========== ЧАТ С ИИ-АГЕНТОМ ==========
+function openAIChat() {
+    const modal = document.getElementById("aiChatModal");
+    modal.classList.add("active");
+    document.getElementById("aiChatInput").focus();
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+    
+    const messages = document.getElementById("aiChatMessages");
+    messages.innerHTML = `
+        <div class="ai-chat-message agent">
+            <span class="msg-label">ИИ-агент</span>
+            <div class="msg-content">
+                Привет! Опиши, какое домашнее задание нужно создать.<br>
+                <span style="color: var(--text3); font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса с решениями"</span>
+            </div>
+        </div>
+    `;
+}
+
+function closeAIChat() {
+    document.getElementById("aiChatModal").classList.remove("active");
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+}
+
+function addAIMessage(type, content) {
+    const messages = document.getElementById("aiChatMessages");
+    const div = document.createElement("div");
+    div.className = `ai-chat-message ${type}`;
+    
+    const label = type === 'user' ? 'Вы' : 'ИИ-агент';
+    div.innerHTML = `
+        <span class="msg-label">${label}</span>
+        <div class="msg-content">${content}</div>
+    `;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    
+    setTimeout(() => renderMath(), 200);
+}
+
+function formatAIGeneratedTask(data) {
+    let html = '<div style="padding: 0.5rem 0; margin-bottom: 0.5rem; font-weight: 600; color: var(--gold);">Задание сгенерировано!</div>';
+    html += `<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${escapeHtml(data.title || 'Домашнее задание')}</div>`;
+    
+    if (data.tasks && data.tasks.length > 0) {
+        data.tasks.forEach((task, i) => {
+            html += `
+                <div class="task-block">
+                    <div class="task-title">Задача ${i+1}</div>
+                    <div style="margin-bottom: 0.3rem;">${task.condition || ''}</div>
+                    <div style="font-size: 0.8rem; color: var(--text3);">Ответ: ${escapeHtml(task.correctAnswer || '')}</div>
+                    ${task.solution ? `<div style="font-size: 0.8rem; color: var(--text2);">Решение: ${escapeHtml(task.solution.substring(0, 150))}${task.solution.length > 150 ? '...' : ''}</div>` : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += `<div style="padding: 0.5rem; background: var(--bg2); border-radius: 6px; color: var(--text3);">${JSON.stringify(data, null, 2)}</div>`;
+    }
+    
+    return html;
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById("aiChatInput");
+    const message = input.value.trim();
+    if (!message) return;
+    
+    input.value = "";
+    
+    addAIMessage('user', message);
+    addAIMessage('agent', 'Генерирую задание...');
+    
+    try {
+        const generateHomework = firebase.functions().httpsCallable('generateHomework');
+        
+        const result = await generateHomework({
+            subject: document.getElementById("hwSubject").value || "math",
+            topic: message,
+            grade: "8",
+            taskCount: 5,
+            taskType: 'first',
+            difficulty: 'medium',
+            courseId: document.getElementById("hwCourse").value || "algebra",
+            target: document.getElementById("hwTarget").value || "all",
+            dueDate: document.getElementById("hwDueDate").value || "",
+            maxScore: 10
+        });
+        
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        
+        const responseText = result.data.result;
+        let parsedData = null;
+        let displayText = responseText;
+        
+        try {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                parsedData = JSON.parse(jsonMatch[0]);
+                aiGeneratedData = parsedData;
+                displayText = formatAIGeneratedTask(parsedData);
+                document.getElementById("aiApplyBtn").style.display = 'inline-flex';
+            } else {
+                displayText = responseText;
+            }
+        } catch (e) {
+            displayText = responseText;
+        }
+        
+        addAIMessage('agent', displayText);
+        
+    } catch (error) {
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        addAIMessage('agent', 'Ошибка: ' + error.message);
+    }
+}
+
+function applyAIGenerated() {
+    if (!aiGeneratedData) {
+        showToast("Нет данных для применения", "error");
+        return;
+    }
+    
+    try {
+        const data = aiGeneratedData;
+        
+        if (data.title) {
+            document.getElementById("hwTitle").value = data.title;
+        }
+        
+        if (data.tasks && data.tasks.length > 0) {
+            document.getElementById("tasksContainer").innerHTML = '';
+            taskCounter = 0;
+            
+            data.tasks.forEach((task, index) => {
+                const container = document.getElementById("tasksContainer");
+                const id = taskCounter++;
+                const html = `
+                    <div class="task-editor" id="teditor_${id}">
+                        <div class="task-header">
+                            <span class="task-number">Задача ${taskCounter}</span>
+                            <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
+                            <textarea id="tcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Правильный ответ</label>
+                            <input type="text" id="tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Решение задачи (можно использовать LaTeX)</label>
+                            <textarea id="tsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        closeAIChat();
+        showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
+        
+        setTimeout(() => renderMath(), 300);
+        
+    } catch (error) {
+        showToast("Ошибка: " + error.message, "error");
+    }
+}
+
+// ========== ДОБАВЛЕНИЕ ЗАДАЧ (АДМИН) ==========
+function addTask() {
+    const container = document.getElementById("tasksContainer");
+    const id = taskCounter++;
+    const html = `
+        <div class="task-editor" id="teditor_${id}">
+            <div class="task-header">
+                <span class="task-number">Задача ${taskCounter}</span>
+                <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+            </div>
+            <div class="form-group">
+                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
+                <textarea id="tcondition_${id}" rows="3" placeholder="Например: Решите уравнение \\(x^2 - 4 = 0\\)"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Правильный ответ</label>
+                <input type="text" id="tcorrect_${id}" placeholder="2, -2">
+            </div>
+            <div class="form-group">
+                <label>Решение задачи (можно использовать LaTeX)</label>
+                <textarea id="tsolution_${id}" rows="4" placeholder="\\[x^2 - 4 = 0\\]\\[(x-2)(x+2) = 0\\]\\[x = \\pm 2\\]"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Прикрепить файлы к задаче (можно несколько, до 50 МБ)</label>
+                <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${id}').click()">
+                    <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
+                </div>
+                <input type="file" id="taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskFilesSelect(this, ${id})">
+                <div id="taskFilePreview_${id}" class="files-list"></div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    setTimeout(() => renderMath(), 200);
+}
+
+function removeTask(id) {
+    const el = document.getElementById(`teditor_${id}`);
+    if (el) el.remove();
+}
+
+const taskFiles = {};
+
+async function handleTaskFilesSelect(input, taskId) {
+    const files = Array.from(input.files);
+    if (!taskFiles[taskId]) taskFiles[taskId] = [];
+    
+    if (taskFiles[taskId].length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        taskFiles[taskId].push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderTaskFilePreview(taskId);
+    input.value = '';
+}
+
+function renderTaskFilePreview(taskId) {
+    const container = document.getElementById(`taskFilePreview_${taskId}`);
+    if (!container) return;
+    const files = taskFiles[taskId] || [];
+    if (files.length === 0) {
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = files.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+function removeTaskFile(taskId, idx) {
+    if (taskFiles[taskId]) {
+        taskFiles[taskId].splice(idx, 1);
+        renderTaskFilePreview(taskId);
+    }
+}
+
+// ========== ОБРАБОТЧИКИ ФАЙЛОВ ==========
+async function uploadFileToStorage(file, folder) {
+    const fileName = `${Date.now()}_${file.name}`;
+    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
+    const snapshot = await fileRef.put(file);
+    const url = await snapshot.ref.getDownloadURL();
+    return { name: file.name, url: url, type: file.type };
+}
+
+async function uploadMultipleFiles(files, folder) {
+    const results = [];
+    for (const f of files) {
+        try {
+            const result = await uploadFileToStorage(f.file, folder);
+            results.push(result);
+        } catch(e) {
+            showToast(`Ошибка: ${f.file.name}`, "error");
+        }
+    }
+    return results;
+}
+
+function renderFilePreview(containerId, filesArray, removeFn) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (filesArray.length === 0) {
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = filesArray.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+// ========== ОБРАБОТЧИКИ ФАЙЛОВ ДЛЯ АДМИНА ==========
+async function handleLessonFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentLessonFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentLessonFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
+    input.value = '';
+}
+window.removeLessonFile = function(idx) {
+    currentLessonFiles.splice(idx, 1);
+    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
+};
+
+async function handleHomeworkFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentHomeworkFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentHomeworkFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
+    input.value = '';
+}
+window.removeHomeworkFile = function(idx) {
+    currentHomeworkFiles.splice(idx, 1);
+    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
+};
+
+document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
+document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
+
+// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
+function toggleHomeworkType() {
+    const toggle = document.getElementById('hwTypeToggle');
+    isSecondPart = !isSecondPart;
+    toggle.classList.toggle('active', isSecondPart);
+    document.getElementById('tasksSection').style.display = isSecondPart ? 'none' : 'block';
+    document.getElementById('secondPartSection').style.display = isSecondPart ? 'block' : 'none';
+    if (isSecondPart) {
+        document.getElementById('tasksContainer').innerHTML = '';
+        taskCounter = 0;
+    } else {
+        if (document.getElementById('tasksContainer').children.length === 0) {
+            addTask();
+        }
+    }
+}
+
 // ========== ИНИЦИАЛИЗАЦИЯ ==========
 function initAdminPanel() {
     const lessonSubject = document.getElementById("lessonSubject");
@@ -4083,14 +4081,9 @@ function initAdminPanel() {
     
     renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
     renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-    renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
     
-    // Добавляем по одной задаче по умолчанию
-    if (document.getElementById("firstPartTasksContainer") && document.getElementById("firstPartTasksContainer").children.length === 0) {
-        addFirstPartTask();
-    }
-    if (document.getElementById("secondPartTasksContainer") && document.getElementById("secondPartTasksContainer").children.length === 0) {
-        addSecondPartTask();
+    if (!isSecondPart && document.getElementById("tasksContainer")) {
+        addTask();
     }
     
     loadAnalytics();
