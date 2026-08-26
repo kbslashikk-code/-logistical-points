@@ -15,7 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 
     <style>
-        /* ===== ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg: #faf7f0; --bg2: #f2ece0; --bg3: #e8dfc8;
@@ -40,7 +39,6 @@
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: all 0.3s; overflow-x: hidden; }
 
-        /* Остальные стили (loader, btn, modal, etc.) — без изменений */
         .loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 10000;
@@ -204,7 +202,6 @@
             outline: 3px solid var(--gold);
             outline-offset: 2px;
         }
-        /* НОВЫЙ СТИЛЬ: для задач второй части — без цветов */
         .hw-dot.second-part {
             border-color: var(--line2);
             background: var(--card);
@@ -244,7 +241,6 @@
         .task-content.correct { border-color: var(--green); background: var(--green2); }
         .task-content.wrong { border-color: var(--red); background: var(--red2); }
         .task-content.submitted { opacity: 0.95; }
-        /* Для второй части — без подсветки */
         .task-content.second-part {
             border-color: var(--line);
             background: var(--card2);
@@ -297,7 +293,6 @@
             background: var(--red2);
             border-left: 4px solid var(--red);
         }
-        /* Результат для второй части */
         .task-result.second-part-result {
             color: var(--gold);
             background: var(--gold3);
@@ -541,7 +536,6 @@
 </head>
 <body>
 
-<!-- ===== ВЕСЬ HTML КОД ОСТАЁТСЯ БЕЗ ИЗМЕНЕНИЙ (до тега <script>) ===== -->
 <div class="toast-container" id="toastContainer"></div>
 
 <div class="loader-screen" id="loaderScreen">
@@ -782,6 +776,33 @@ function showToast(msg, type) {
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
+}
+
+// ========== ПАРСИНГ ИЗОБРАЖЕНИЙ В ТЕКСТЕ ==========
+function parseImagesInText(text) {
+    if (!text) return '';
+    
+    // Ищем теги [img:URL:ширина:подпись]
+    var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
+    var result = text;
+    var match;
+    while ((match = imgRegex.exec(text)) !== null) {
+        var fullMatch = match[0];
+        var url = match[1].trim();
+        var width = match[2].trim() || '80%';
+        var caption = match[3].trim() || '';
+        
+        var imgHtml = `
+            <div style="text-align:center;margin:0.8rem 0;">
+                <img src="${url}" style="max-width:${width};border-radius:8px;border:1px solid var(--line);" alt="${caption}">
+                ${caption ? `<div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem;">${caption}</div>` : ''}
+            </div>
+        `;
+        
+        result = result.replace(fullMatch, imgHtml);
+    }
+    
+    return result;
 }
 
 // ========== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX ==========
@@ -1350,7 +1371,7 @@ async function loadHomeworkByCourse(courseId) {
     }
 }
 
-// ========== ЗАПУСК ДЗ (ПОЛНОРАЗМЕРНАЯ СТРАНИЦА) ==========
+// ========== ЗАПУСК ДЗ (С ПОДДЕРЖКОЙ ИЗОБРАЖЕНИЙ) ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1392,24 +1413,32 @@ async function startHomework(hwId) {
             ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
                 const isSecondPart = task.isSecondPart || false;
                 
+                // === ПАРСИМ ИЗОБРАЖЕНИЯ В УСЛОВИИ ===
+                const conditionHtml = parseImagesInText(task.condition || "Условие задачи не добавлено");
+                
+                // === ФАЙЛЫ К ЗАДАЧЕ ===
                 let taskFilesHtml = '';
                 if (task.files && task.files.length > 0) {
                     taskFilesHtml = `
                         <div class="task-files">
-                            <div class="task-files-label">Файлы к задаче:</div>
-                            <div class="files-list">${task.files.map(f => 
-                                '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
-                            ).join('')}</div>
+                            <div class="task-files-label">Материалы к задаче:</div>
+                            <div class="files-list">
+                                ${task.files.map(f => `
+                                    <div class="file-item" onclick="window.open('${f.url}')">
+                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">` : 'Файл'}
+                                        ${escapeHtml(f.name)}
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
                     `;
                 }
                 
                 let answerHtml = '';
                 if (isSecondPart) {
-                    // === ВТОРАЯ ЧАСТЬ: кнопка "Прикрепить решение" ===
                     answerHtml = `
                         <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
-                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">📎 Задание с развернутым решением</div>
+                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
                             <div class="form-group">
                                 <label>Ваше текстовое решение (по желанию)</label>
                                 <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..."></textarea>
@@ -1427,7 +1456,6 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 } else {
-                    // === ПЕРВАЯ ЧАСТЬ: поле для ввода ответа ===
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}" 
@@ -1444,7 +1472,7 @@ async function startHomework(hwId) {
                         <div class="task-content ${contentClass}" id="taskcontent_${index}">
                             <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
                             <div class="task-condition">
-                                ${task.condition || "Условие задачи не добавлено"}
+                                ${conditionHtml}
                             </div>
                             ${taskFilesHtml}
                             ${answerHtml}
@@ -1463,7 +1491,7 @@ async function startHomework(hwId) {
         </div>
         
         <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
-            <button class="btn bg" id="submitBtn" onclick="submitHomework()">📤 Отправить на проверку</button>
+            <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
             <button class="btn bo" onclick="closeHwSolvePage()">Отмена</button>
         </div>
     `;
@@ -1577,7 +1605,6 @@ async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
     
-    // Проверка заполнения
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -1630,7 +1657,7 @@ async function submitHomework() {
                     taskIndex: i, 
                     userAnswer: userAnswer, 
                     files: uploadedFiles,
-                    isCorrect: true,  // для второй части всегда true, оценку ставит админ
+                    isCorrect: true,
                     isSecondPart: true
                 });
                 allFiles = allFiles.concat(uploadedFiles);
@@ -1660,7 +1687,7 @@ async function submitHomework() {
                 if (resultDiv) {
                     resultDiv.style.display = 'block';
                     resultDiv.className = 'task-result ' + (isCorrect ? 'correct' : 'wrong');
-                    resultDiv.textContent = isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + correctAnswer;
+                    resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
                 }
                 if (input) {
                     input.className = 'task-answer-input ' + (isCorrect ? 'correct' : 'wrong');
@@ -1675,14 +1702,13 @@ async function submitHomework() {
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
-                solutionDiv.innerHTML = '<strong>📘 Решение:</strong><br>' + (task.solution || "Решение не добавлено");
+                solutionDiv.innerHTML = '<strong>Решение:</strong><br>' + (task.solution || "Решение не добавлено");
             }
         }
         
         const total = tasks.length;
         const percent = Math.round(correctCount / total * 100);
         
-        // Обновляем счетчик только для первой части
         const firstPartTasks = tasks.filter(t => !t.isSecondPart).length;
         if (firstPartTasks > 0) {
             const counter = document.getElementById('hwCounter');
@@ -1695,10 +1721,8 @@ async function submitHomework() {
             }
         }
         
-        // Рендерим MathJax
         await renderMathInElement(document.getElementById('hwTasksContainer'));
         
-        // === СОХРАНЯЕМ ДЗ ===
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -1734,13 +1758,13 @@ async function submitHomework() {
         
         isSubmitted = true;
         
-        btn.textContent = "✅ Отправлено";
+        btn.textContent = "Отправлено";
         btn.disabled = true;
         btn.className = "btn green";
         
         document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
         
-        showToast('✅ Задание отправлено на проверку!', "success");
+        showToast('Задание отправлено на проверку!', "success");
         
         setTimeout(() => {
             closeHwSolvePage();
@@ -1754,7 +1778,7 @@ async function submitHomework() {
         
     } catch (error) {
         console.error(error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
         btn.textContent = "Отправить на проверку";
         btn.disabled = false;
     }
@@ -1859,7 +1883,6 @@ function openHwReviewPage(hwId, hw, submission) {
                     </div>
                 `;
             }
-            // === ПОКАЗ БАЛЛОВ ДЛЯ ВТОРОЙ ЧАСТИ ===
             const maxScore = task.maxScore || 0;
             const userScore = result ? (result.userScore || 0) : 0;
             const isGraded = hw.status === 'graded';
@@ -1872,11 +1895,11 @@ function openHwReviewPage(hwId, hw, submission) {
                     ${userFilesHtml}
                     ${isGraded ? `
                         <div class="task-result second-part-result" style="margin-top:0.8rem;">
-                            🏅 Баллы: <strong>${userScore}</strong> / ${maxScore}
+                            Баллы: <strong>${userScore}</strong> / ${maxScore}
                         </div>
                     ` : `
                         <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text3);">
-                            ⏳ На проверке
+                            На проверке
                         </div>
                     `}
                 </div>
@@ -1887,7 +1910,7 @@ function openHwReviewPage(hwId, hw, submission) {
                     <input type="text" class="task-answer-input ${isCorrect ? 'correct' : 'wrong'}" value="${escapeHtml(userAnswer) || '—'}" disabled>
                 </div>
                 <div class="task-result ${isCorrect ? 'correct' : 'wrong'}">
-                    ${isCorrect ? '✅ Правильно' : '❌ Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—')}
+                    ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—')}
                 </div>
             `;
         }
@@ -1901,7 +1924,7 @@ function openHwReviewPage(hwId, hw, submission) {
                     <div class="task-condition">${task.condition || "Условие задачи не добавлено"}</div>
                     ${taskFilesHtml}
                     ${answerHtml}
-                    <div class="task-solution"><strong>📘 Решение:</strong><br>${task.solution || "Решение не добавлено"}</div>
+                    <div class="task-solution"><strong>Решение:</strong><br>${task.solution || "Решение не добавлено"}</div>
                 </div>
             </div>
         `;
