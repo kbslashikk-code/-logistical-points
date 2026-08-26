@@ -894,6 +894,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     </div>
                     <div class="form-group"><label>Курс</label><select id="lessonCourse"></select></div>
                     <div class="form-group"><label>Содержание конспекта</label>
+                        <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('lessonContent')">Вставить изображение</button>
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('lessonContent')">Вставить из URL</button>
+                        </div>
                         <textarea id="lessonContent" rows="6" placeholder="Введите текст конспекта здесь. Можно использовать HTML теги..."></textarea>
                     </div>
                     <div class="form-group">
@@ -952,10 +956,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
                     <div id="secondPartSection" style="display:none;">
                         <div class="form-group">
                             <label>Условие задачи (можно использовать LaTeX: \[...\] или $...$)</label>
+                            <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('hwSecondPartCondition')">Вставить изображение</button>
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('hwSecondPartCondition')">Вставить из URL</button>
+                            </div>
                             <textarea id="hwSecondPartCondition" rows="4" placeholder="Например: \[ \sqrt{(\sqrt{7} - 4)^2} + \sqrt{7} \]"></textarea>
                         </div>
                         <div class="form-group">
                             <label>Решение задачи (можно использовать LaTeX)</label>
+                            <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('hwSecondPartSolution')">Вставить изображение</button>
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('hwSecondPartSolution')">Вставить из URL</button>
+                            </div>
                             <textarea id="hwSecondPartSolution" rows="4" placeholder="Решение для учеников после проверки..."></textarea>
                         </div>
                         <div class="form-group">
@@ -1006,6 +1018,28 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); }
             <button class="modal-close" onclick="closeGradeModal()">&times;</button>
         </div>
         <div id="gradeModalContent"></div>
+        <div class="form-group" id="gradeMaxScoreGroup">
+            <label>Максимальный балл за задание</label>
+            <input type="number" id="gradeMaxScore" min="1" value="10" readonly style="background:var(--bg);color:var(--text2);">
+        </div>
+        <div class="form-group">
+            <label>Оценка ученика</label>
+            <input type="number" id="gradeValue" min="0" placeholder="Введите балл">
+        </div>
+        <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
+        <div class="form-group">
+            <label>Прикрепить файлы с правками (можно несколько, до 50 МБ)</label>
+            <div class="multi-file-zone" onclick="document.getElementById('gradeFileInput').click()">
+                <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
+            </div>
+            <input type="file" id="gradeFileInput" accept="image/*,application/pdf" multiple style="display:none">
+            <div id="gradeFilePreview" class="files-list"></div>
+        </div>
+        <div class="flex" style="justify-content: flex-end; margin-top: 1rem;">
+            <button class="btn btn-success" onclick="submitGrade('graded')">Принять</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">Вернуть на доработку</button>
+            <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -1204,7 +1238,6 @@ let analyticsSortField = 'combined';
 let analyticsSortDir = 'desc';
 
 let aiGeneratedData = null;
-let gradeTaskFiles = {};
 
 // ========== ФУНКЦИЯ ПРИНУДИТЕЛЬНОГО РЕНДЕРИНГА MATHJAX ==========
 async function renderMath() {
@@ -1239,6 +1272,492 @@ function showToast(msg, type) {
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
 function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
+
+// ========== ВСТАВКА ИЗОБРАЖЕНИЯ ==========
+async function insertImageToContent(textareaId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        showToast('Загрузка изображения...', "info");
+        
+        try {
+            const result = await uploadFileToStorage(file, 'images');
+            const url = result.url;
+            
+            const caption = prompt('Введите описание к изображению (необязательно):', '') || '';
+            
+            let tag = '\n\n<img src="' + url + '" alt="' + caption + '" style="max-width:80%;border-radius:8px;border:1px solid var(--line);margin:0.5rem 0;">\n\n';
+            if (caption) {
+                tag += '<div style="text-align:center;font-size:0.7rem;color:var(--text3);">' + caption + '</div>\n\n';
+            }
+            
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) {
+                showToast('Поле не найдено', "error");
+                return;
+            }
+            
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            textarea.value = text.substring(0, start) + tag + text.substring(end);
+            
+            showToast('Изображение вставлено', "success");
+            
+        } catch (error) {
+            console.error(error);
+            showToast('Ошибка загрузки: ' + error.message, "error");
+        }
+    };
+    input.click();
+}
+
+function insertImageFromUrl(textareaId) {
+    const url = prompt('Введите URL изображения:', 'https://');
+    if (!url) return;
+    
+    const caption = prompt('Введите описание к изображению (необязательно):', '') || '';
+    
+    let tag = '\n\n<img src="' + url + '" alt="' + caption + '" style="max-width:80%;border-radius:8px;border:1px solid var(--line);margin:0.5rem 0;">\n\n';
+    if (caption) {
+        tag += '<div style="text-align:center;font-size:0.7rem;color:var(--text3);">' + caption + '</div>\n\n';
+    }
+    
+    const textarea = document.getElementById(textareaId);
+    if (!textarea) {
+        showToast('Поле не найдено', "error");
+        return;
+    }
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    textarea.value = text.substring(0, start) + tag + text.substring(end);
+    
+    showToast('Изображение вставлено', "success");
+}
+
+// ========== ЧАТ С ИИ-АГЕНТОМ ==========
+function openAIChat() {
+    const modal = document.getElementById("aiChatModal");
+    modal.classList.add("active");
+    document.getElementById("aiChatInput").focus();
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+    
+    const messages = document.getElementById("aiChatMessages");
+    messages.innerHTML = `
+        <div class="ai-chat-message agent">
+            <span class="msg-label">ИИ-агент</span>
+            <div class="msg-content">
+                Привет! Опиши, какое домашнее задание нужно создать.<br>
+                <span style="color: var(--text3); font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса с решениями"</span>
+            </div>
+        </div>
+    `;
+}
+
+function closeAIChat() {
+    document.getElementById("aiChatModal").classList.remove("active");
+    aiGeneratedData = null;
+    document.getElementById("aiApplyBtn").style.display = "none";
+}
+
+function addAIMessage(type, content) {
+    const messages = document.getElementById("aiChatMessages");
+    const div = document.createElement("div");
+    div.className = `ai-chat-message ${type}`;
+    
+    const label = type === 'user' ? 'Вы' : 'ИИ-агент';
+    div.innerHTML = `
+        <span class="msg-label">${label}</span>
+        <div class="msg-content">${content}</div>
+    `;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    
+    setTimeout(() => renderMath(), 200);
+}
+
+function formatAIGeneratedTask(data) {
+    let html = '<div style="padding: 0.5rem 0; margin-bottom: 0.5rem; font-weight: 600; color: var(--gold);">Задание сгенерировано!</div>';
+    html += `<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${escapeHtml(data.title || 'Домашнее задание')}</div>`;
+    
+    if (data.tasks && data.tasks.length > 0) {
+        data.tasks.forEach((task, i) => {
+            html += `
+                <div class="task-block">
+                    <div class="task-title">Задача ${i+1}</div>
+                    <div style="margin-bottom: 0.3rem;">${task.condition || ''}</div>
+                    <div style="font-size: 0.8rem; color: var(--text3);">Ответ: ${escapeHtml(task.correctAnswer || '')}</div>
+                    ${task.solution ? `<div style="font-size: 0.8rem; color: var(--text2);">Решение: ${escapeHtml(task.solution.substring(0, 150))}${task.solution.length > 150 ? '...' : ''}</div>` : ''}
+                </div>
+            `;
+        });
+    } else {
+        html += `<div style="padding: 0.5rem; background: var(--bg2); border-radius: 6px; color: var(--text3);">${JSON.stringify(data, null, 2)}</div>`;
+    }
+    
+    return html;
+}
+
+async function sendAIMessage() {
+    const input = document.getElementById("aiChatInput");
+    const message = input.value.trim();
+    if (!message) return;
+    
+    input.value = "";
+    
+    addAIMessage('user', message);
+    addAIMessage('agent', 'Генерирую задание...');
+    
+    try {
+        const generateHomework = firebase.functions().httpsCallable('generateHomework');
+        
+        const result = await generateHomework({
+            subject: document.getElementById("hwSubject").value || "math",
+            topic: message,
+            grade: "8",
+            taskCount: 5,
+            taskType: 'first',
+            difficulty: 'medium',
+            courseId: document.getElementById("hwCourse").value || "algebra",
+            target: document.getElementById("hwTarget").value || "all",
+            dueDate: document.getElementById("hwDueDate").value || "",
+            maxScore: 10
+        });
+        
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        
+        const responseText = result.data.result;
+        let parsedData = null;
+        let displayText = responseText;
+        
+        try {
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                parsedData = JSON.parse(jsonMatch[0]);
+                aiGeneratedData = parsedData;
+                displayText = formatAIGeneratedTask(parsedData);
+                document.getElementById("aiApplyBtn").style.display = 'inline-flex';
+            } else {
+                displayText = responseText;
+            }
+        } catch (e) {
+            displayText = responseText;
+        }
+        
+        addAIMessage('agent', displayText);
+        
+    } catch (error) {
+        const messages = document.getElementById("aiChatMessages");
+        messages.removeChild(messages.lastChild);
+        addAIMessage('agent', 'Ошибка: ' + error.message);
+    }
+}
+
+function applyAIGenerated() {
+    if (!aiGeneratedData) {
+        showToast("Нет данных для применения", "error");
+        return;
+    }
+    
+    try {
+        const data = aiGeneratedData;
+        
+        if (data.title) {
+            document.getElementById("hwTitle").value = data.title;
+        }
+        
+        if (data.tasks && data.tasks.length > 0) {
+            document.getElementById("tasksContainer").innerHTML = '';
+            taskCounter = 0;
+            
+            data.tasks.forEach((task, index) => {
+                const container = document.getElementById("tasksContainer");
+                const id = taskCounter++;
+                const html = `
+                    <div class="task-editor" id="teditor_${id}">
+                        <div class="task-header">
+                            <span class="task-number">Задача ${taskCounter}</span>
+                            <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
+                            <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('tcondition_${id}')">Вставить изображение</button>
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('tcondition_${id}')">Вставить из URL</button>
+                            </div>
+                            <textarea id="tcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Правильный ответ</label>
+                            <input type="text" id="tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
+                        </div>
+                        <div class="form-group">
+                            <label>Решение задачи (можно использовать LaTeX)</label>
+                            <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('tsolution_${id}')">Вставить изображение</button>
+                                <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('tsolution_${id}')">Вставить из URL</button>
+                            </div>
+                            <textarea id="tsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+        
+        closeAIChat();
+        showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
+        
+        setTimeout(() => renderMath(), 300);
+        
+    } catch (error) {
+        showToast("Ошибка: " + error.message, "error");
+    }
+}
+
+// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
+function toggleHomeworkType() {
+    const toggle = document.getElementById('hwTypeToggle');
+    isSecondPart = !isSecondPart;
+    toggle.classList.toggle('active', isSecondPart);
+    document.getElementById('tasksSection').style.display = isSecondPart ? 'none' : 'block';
+    document.getElementById('secondPartSection').style.display = isSecondPart ? 'block' : 'none';
+    if (isSecondPart) {
+        document.getElementById('tasksContainer').innerHTML = '';
+        taskCounter = 0;
+    } else {
+        if (document.getElementById('tasksContainer').children.length === 0) {
+            addTask();
+        }
+    }
+}
+
+// ========== STORAGE ФУНКЦИИ ==========
+async function uploadFileToStorage(file, folder) {
+    const fileName = `${Date.now()}_${file.name}`;
+    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
+    const snapshot = await fileRef.put(file);
+    const url = await snapshot.ref.getDownloadURL();
+    return { name: file.name, url: url, type: file.type };
+}
+
+async function uploadMultipleFiles(files, folder) {
+    const results = [];
+    for (const f of files) {
+        try {
+            const result = await uploadFileToStorage(f.file, folder);
+            results.push(result);
+        } catch(e) {
+            showToast(`Ошибка: ${f.file.name}`, "error");
+        }
+    }
+    return results;
+}
+
+function renderFilePreview(containerId, filesArray, removeFn) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (filesArray.length === 0) {
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = filesArray.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+// ========== ОБРАБОТЧИКИ ФАЙЛОВ ==========
+async function handleLessonFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentLessonFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentLessonFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
+    input.value = '';
+}
+window.removeLessonFile = function(idx) {
+    currentLessonFiles.splice(idx, 1);
+    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
+};
+
+async function handleHomeworkFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentHomeworkFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentHomeworkFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
+    input.value = '';
+}
+window.removeHomeworkFile = function(idx) {
+    currentHomeworkFiles.splice(idx, 1);
+    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
+};
+
+async function handleGradeFilesSelect(input) {
+    const files = Array.from(input.files);
+    if (currentGradeFiles.length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        currentGradeFiles.push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
+    input.value = '';
+}
+window.removeGradeFile = function(idx) {
+    currentGradeFiles.splice(idx, 1);
+    renderFilePreview('gradeFilePreview', currentGradeFiles, 'removeGradeFile');
+};
+
+document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
+document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
+document.getElementById("gradeFileInput")?.addEventListener("change", function(e) { handleGradeFilesSelect(e.target); });
+
+// ========== ДОБАВЛЕНИЕ ЗАДАЧ ==========
+function addTask() {
+    const container = document.getElementById("tasksContainer");
+    const id = taskCounter++;
+    const html = `
+        <div class="task-editor" id="teditor_${id}">
+            <div class="task-header">
+                <span class="task-number">Задача ${taskCounter}</span>
+                <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
+            </div>
+            <div class="form-group">
+                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('tcondition_${id}')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('tcondition_${id}')">Вставить из URL</button>
+                </div>
+                <textarea id="tcondition_${id}" rows="3" placeholder="Например: Решите уравнение \\(x^2 - 4 = 0\\)"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Правильный ответ</label>
+                <input type="text" id="tcorrect_${id}" placeholder="2, -2">
+            </div>
+            <div class="form-group">
+                <label>Решение задачи (можно использовать LaTeX)</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('tsolution_${id}')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('tsolution_${id}')">Вставить из URL</button>
+                </div>
+                <textarea id="tsolution_${id}" rows="4" placeholder="\\[x^2 - 4 = 0\\]\\[(x-2)(x+2) = 0\\]\\[x = \\pm 2\\]"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Прикрепить файлы к задаче (можно несколько, до 50 МБ)</label>
+                <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${id}').click()">
+                    <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
+                </div>
+                <input type="file" id="taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskFilesSelect(this, ${id})">
+                <div id="taskFilePreview_${id}" class="files-list"></div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+    setTimeout(() => renderMath(), 200);
+}
+
+function removeTask(id) {
+    const el = document.getElementById(`teditor_${id}`);
+    if (el) el.remove();
+}
+
+const taskFiles = {};
+
+async function handleTaskFilesSelect(input, taskId) {
+    const files = Array.from(input.files);
+    if (!taskFiles[taskId]) taskFiles[taskId] = [];
+    
+    if (taskFiles[taskId].length + files.length > 10) {
+        showToast("Можно прикрепить не более 10 файлов", "error");
+        return;
+    }
+    
+    for (const file of files) {
+        if (file.size > 50 * 1024 * 1024) {
+            showToast(`Файл ${file.name} > 50 МБ`, "error");
+            continue;
+        }
+        taskFiles[taskId].push({
+            file: file,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf'
+        });
+        showToast(`Добавлен: ${file.name}`, "success");
+    }
+    renderTaskFilePreview(taskId);
+    input.value = '';
+}
+
+function renderTaskFilePreview(taskId) {
+    const container = document.getElementById(`taskFilePreview_${taskId}`);
+    if (!container) return;
+    const files = taskFiles[taskId] || [];
+    if (files.length === 0) {
+        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
+        return;
+    }
+    container.style.display = 'flex';
+    container.innerHTML = files.map((file, idx) => `
+        <div class="file-item">
+            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
+            <span>${escapeHtml(file.file.name)}</span>
+            <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
+        </div>
+    `).join('');
+}
+
+function removeTaskFile(taskId, idx) {
+    if (taskFiles[taskId]) {
+        taskFiles[taskId].splice(idx, 1);
+        renderTaskFilePreview(taskId);
+    }
+}
 
 // ========== АВТОРИЗАЦИЯ ==========
 async function adminLogin() {
@@ -2637,6 +3156,10 @@ async function openEditHomeworkModal(hwId) {
                     </div>
                     <div class="form-group">
                         <label>Условие задачи</label>
+                        <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('edit_tcondition_${index}')">Вставить изображение</button>
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('edit_tcondition_${index}')">Вставить из URL</button>
+                        </div>
                         <textarea id="edit_tcondition_${index}" rows="3">${escapeHtml(task.condition || '')}</textarea>
                     </div>
                     <div class="form-group">
@@ -2645,6 +3168,10 @@ async function openEditHomeworkModal(hwId) {
                     </div>
                     <div class="form-group">
                         <label>Решение задачи</label>
+                        <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('edit_tsolution_${index}')">Вставить изображение</button>
+                            <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('edit_tsolution_${index}')">Вставить из URL</button>
+                        </div>
                         <textarea id="edit_tsolution_${index}" rows="4">${escapeHtml(task.solution || '')}</textarea>
                     </div>
                     <div class="form-group">
@@ -2679,10 +3206,18 @@ async function openEditHomeworkModal(hwId) {
         <div id="editSecondPartSection" style="${hw.isSecondPart ? '' : 'display:none;'}">
             <div class="form-group">
                 <label>Условие задачи</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('editSecondPartCondition')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('editSecondPartCondition')">Вставить из URL</button>
+                </div>
                 <textarea id="editSecondPartCondition" rows="4">${escapeHtml(hw.condition || '')}</textarea>
             </div>
             <div class="form-group">
                 <label>Решение задачи</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('editSecondPartSolution')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('editSecondPartSolution')">Вставить из URL</button>
+                </div>
                 <textarea id="editSecondPartSolution" rows="4">${escapeHtml(hw.solution || '')}</textarea>
             </div>
             <div class="form-group">
@@ -2759,6 +3294,10 @@ function addEditTask() {
             </div>
             <div class="form-group">
                 <label>Условие задачи</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('edit_tcondition_${id}')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('edit_tcondition_${id}')">Вставить из URL</button>
+                </div>
                 <textarea id="edit_tcondition_${id}" rows="3"></textarea>
             </div>
             <div class="form-group">
@@ -2767,6 +3306,10 @@ function addEditTask() {
             </div>
             <div class="form-group">
                 <label>Решение задачи</label>
+                <div style="display:flex;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageToContent('edit_tsolution_${id}')">Вставить изображение</button>
+                    <button class="btn btn-secondary btn-sm" onclick="insertImageFromUrl('edit_tsolution_${id}')">Вставить из URL</button>
+                </div>
                 <textarea id="edit_tsolution_${id}" rows="4"></textarea>
             </div>
             <div class="form-group">
@@ -3120,7 +3663,6 @@ async function openGradeModal(hwId) {
     const hw = doc.data();
     currentGradingHw = { id: hwId, ...hw };
     
-    // Получаем данные ученика и его решение
     let userDocData = null;
     let submissionData = null;
     if (hw.userEmail && hw.userEmail !== 'all') {
@@ -3139,24 +3681,23 @@ async function openGradeModal(hwId) {
     
     let html = `
         <div style="margin-bottom:1.5rem;border-bottom:1px solid var(--line);padding-bottom:1rem;">
-            <div style="font-size:1.3rem;font-weight:700;color:var(--gold);">📘 ${escapeHtml(hw.title)}</div>
+            <div style="font-size:1.3rem;font-weight:700;color:var(--gold);">${escapeHtml(hw.title)}</div>
             <div style="font-size:0.9rem;color:var(--text2);margin-top:0.3rem;">
-                👤 Ученик: <strong>${escapeHtml(userName)}</strong> 
+                Ученик: <strong>${escapeHtml(userName)}</strong> 
                 <span style="color:var(--text3);font-size:0.8rem;">(${escapeHtml(userEmail)})</span>
-                <span style="margin-left:1rem;">📚 Курс: ${escapeHtml(hw.courseId)}</span>
-                ${hw.isSecondPart ? ' · 📌 Вторая часть' : ' · 📝 Краткий ответ'}
+                <span style="margin-left:1rem;">Курс: ${escapeHtml(hw.courseId)}</span>
+                ${hw.isSecondPart ? ' · Вторая часть' : ' · Краткий ответ'}
             </div>
-            ${hw.dueDate ? `<div style="font-size:0.8rem;color:var(--text3);">📅 Срок сдачи: ${escapeHtml(hw.dueDate)}</div>` : ''}
-            ${submissionData?.submittedAt ? `<div style="font-size:0.8rem;color:var(--text3);">⏳ Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
+            ${hw.dueDate ? `<div style="font-size:0.8rem;color:var(--text3);">Срок сдачи: ${escapeHtml(hw.dueDate)}</div>` : ''}
+            ${submissionData?.submittedAt ? `<div style="font-size:0.8rem;color:var(--text3);">Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
             <div style="margin-top:0.5rem;">
                 <span class="badge ${hw.status === 'graded' ? 'badge-graded' : hw.status === 'returned' ? 'badge-returned' : 'badge-pending'}">
-                    ${hw.status === 'graded' ? '✅ Проверено' : hw.status === 'returned' ? '↩️ Возвращено' : '⏳ Ожидает проверки'}
+                    ${hw.status === 'graded' ? 'Проверено' : hw.status === 'returned' ? 'Возвращено' : 'Ожидает проверки'}
                 </span>
             </div>
         </div>
     `;
     
-    // Показываем каждую задачу
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
@@ -3170,17 +3711,17 @@ async function openGradeModal(hwId) {
         let statusColor = '';
         if (isSecondPart) {
             if (hw.status === 'graded') {
-                statusBadge = `✅ ${userScore}/${task.maxScore || 10}`;
+                statusBadge = `Проверено (${userScore}/${task.maxScore || 10})`;
                 statusColor = 'var(--green)';
             } else if (hw.status === 'returned') {
-                statusBadge = '↩️ На доработке';
+                statusBadge = 'На доработке';
                 statusColor = 'var(--red)';
             } else {
-                statusBadge = '⏳ На проверке';
+                statusBadge = 'На проверке';
                 statusColor = 'var(--gold)';
             }
         } else {
-            statusBadge = isCorrect ? '✅ Правильно' : '❌ Неправильно';
+            statusBadge = isCorrect ? 'Правильно' : 'Неправильно';
             statusColor = isCorrect ? 'var(--green)' : 'var(--red)';
         }
         
@@ -3194,44 +3735,51 @@ async function openGradeModal(hwId) {
                     <span style="font-size:0.85rem;font-weight:600;color:${statusColor};">${statusBadge}</span>
                 </div>
                 
-                <!-- Условие -->
                 <div style="background:var(--bg);padding:0.7rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
-                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📌 Условие</div>
+                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Условие</div>
                     <div style="line-height:1.8;font-size:0.95rem;">${task.condition || 'Нет условия'}</div>
+                    ${task.files && task.files.length > 0 ? `
+                        <div style="margin-top:0.5rem;">
+                            <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Материалы к задаче</div>
+                            <div class="files-list">
+                                ${task.files.map(f => `
+                                    <div class="file-item" onclick="window.open('${f.url}')" style="cursor:pointer;background:var(--bg2);border-radius:8px;padding:0.3rem 0.6rem;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;border:1px solid var(--line);">
+                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">` : 'Файл'}
+                                        ${escapeHtml(f.name)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
                 
-                <!-- Ответ ученика -->
                 <div style="margin-bottom:0.5rem;">
-                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">✏️ Ответ/Решение ученика</div>
+                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Ответ ученика</div>
                     <div style="background:var(--bg);padding:0.6rem;border-radius:6px;border:1px solid var(--line);white-space:pre-wrap;line-height:1.6;min-height:40px;">
                         ${userAnswer || '—'}
                     </div>
+                    ${userFiles.length > 0 ? `
+                        <div style="margin-top:0.3rem;">
+                            <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Файлы ученика (${userFiles.length})</div>
+                            <div class="files-list">
+                                ${userFiles.map(f => `
+                                    <div class="file-item" onclick="window.open('${f.url}')" style="cursor:pointer;background:var(--bg2);border-radius:8px;padding:0.3rem 0.6rem;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;border:1px solid var(--line);">
+                                        ${f.type && f.type.startsWith('image') ? `<img src="${f.url}" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">` : 'Файл'}
+                                        ${escapeHtml(f.name)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
                 
-                <!-- Файлы ученика -->
-                ${userFiles.length > 0 ? `
-                    <div style="margin-bottom:0.5rem;">
-                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📎 Файлы ученика (${userFiles.length})</div>
-                        <div class="files-list">
-                            ${userFiles.map(f => `
-                                <div class="file-item" onclick="window.open('${f.url}')">
-                                    ${f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '📄'}
-                                    ${escapeHtml(f.name)}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <!-- Эталонное решение -->
                 ${task.solution ? `
-                    <div style="background:var(--gold3);padding:0.7rem;border-radius:6px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
-                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">📘 Эталонное решение</div>
+                    <div style="background:var(--gold3);padding:0.7rem;border-radius:6px;border-left:3px solid var(--gold);">
+                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Эталонное решение</div>
                         <div style="line-height:1.8;font-size:0.9rem;">${task.solution}</div>
                     </div>
                 ` : ''}
                 
-                <!-- Форма для проверки (только для второй части) -->
                 ${isSecondPart ? `
                     <div style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px solid var(--line);">
                         <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
@@ -3252,7 +3800,7 @@ async function openGradeModal(hwId) {
                                 <div style="font-size:0.6rem;color:var(--text3);text-transform:uppercase;">Правки</div>
                                 <div class="multi-file-zone" onclick="document.getElementById('gradeTaskFileInput_${i}').click()" 
                                      style="padding:0.2rem;border:1px dashed var(--line);border-radius:4px;text-align:center;cursor:pointer;font-size:0.7rem;">
-                                    📎 Выбрать
+                                    Выбрать файлы
                                 </div>
                                 <input type="file" id="gradeTaskFileInput_${i}" accept="image/*,application/pdf" multiple style="display:none" 
                                        onchange="handleGradeTaskFilesSelect(this, ${i})">
@@ -3262,7 +3810,7 @@ async function openGradeModal(hwId) {
                     </div>
                 ` : `
                     <div style="font-size:0.8rem;color:var(--text3);padding-top:0.5rem;border-top:1px solid var(--line);">
-                        ${isCorrect ? '✅ Задача решена верно' : '❌ Задача решена неверно'}
+                        ${isCorrect ? 'Задача решена верно' : 'Задача решена неверно'}
                         ${task.correctAnswer ? ' · Правильный ответ: <strong style="color:var(--green);">' + escapeHtml(task.correctAnswer) + '</strong>' : ''}
                     </div>
                 `}
@@ -3270,11 +3818,10 @@ async function openGradeModal(hwId) {
         `;
     }
     
-    // Кнопки действий
     html += `
         <div style="display:flex;gap:0.5rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:1rem;">
-            <button class="btn btn-success" onclick="submitGrade('graded')">✅ Принять и проверить</button>
-            <button class="btn btn-danger" onclick="submitGrade('returned')">↩️ Вернуть на доработку</button>
+            <button class="btn btn-success" onclick="submitGrade('graded')">Принять и проверить</button>
+            <button class="btn btn-danger" onclick="submitGrade('returned')">Вернуть на доработку</button>
             <button class="btn btn-secondary" onclick="closeGradeModal()">Отмена</button>
         </div>
     `;
@@ -3417,7 +3964,6 @@ async function submitGrade(action) {
         
         await db.collection("homeworks").doc(hw.id).update(updateData);
         
-        // Обновляем submission в документе пользователя
         if (hw.userEmail && hw.userEmail !== 'all') {
             const usersSnap = await db.collection("users").where("email", "==", hw.userEmail).get();
             if (!usersSnap.empty) {
@@ -3437,7 +3983,7 @@ async function submitGrade(action) {
             }
         }
         
-        showToast(action === 'graded' ? '✅ Задание проверено!' : '↩️ Задание возвращено на доработку', "success");
+        showToast(action === 'graded' ? 'Задание проверено!' : 'Задание возвращено на доработку', "success");
         closeGradeModal();
         loadAllHomework();
         loadAllHomeworkHistory();
@@ -3446,7 +3992,7 @@ async function submitGrade(action) {
         
     } catch (error) {
         console.error("Ошибка:", error);
-        showToast("❌ Ошибка: " + error.message, "error");
+        showToast("Ошибка: " + error.message, "error");
     }
 }
 
@@ -3456,6 +4002,7 @@ function closeGradeModal() {
     gradeTaskFiles = {};
 }
 
+// ========== УДАЛЕНИЕ ДЗ ==========
 async function deleteHomework(id) {
     const doc = await db.collection("homeworks").doc(id).get();
     const hw = doc.data();
@@ -3616,382 +4163,6 @@ async function deleteScheduleItem(id) {
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
-    }
-}
-
-// ========== ЧАТ С ИИ-АГЕНТОМ ==========
-function openAIChat() {
-    const modal = document.getElementById("aiChatModal");
-    modal.classList.add("active");
-    document.getElementById("aiChatInput").focus();
-    aiGeneratedData = null;
-    document.getElementById("aiApplyBtn").style.display = "none";
-    
-    const messages = document.getElementById("aiChatMessages");
-    messages.innerHTML = `
-        <div class="ai-chat-message agent">
-            <span class="msg-label">ИИ-агент</span>
-            <div class="msg-content">
-                Привет! Опиши, какое домашнее задание нужно создать.<br>
-                <span style="color: var(--text3); font-size: 0.85rem;">Например: "Создай 5 задач по квадратным уравнениям для 8 класса с решениями"</span>
-            </div>
-        </div>
-    `;
-}
-
-function closeAIChat() {
-    document.getElementById("aiChatModal").classList.remove("active");
-    aiGeneratedData = null;
-    document.getElementById("aiApplyBtn").style.display = "none";
-}
-
-function addAIMessage(type, content) {
-    const messages = document.getElementById("aiChatMessages");
-    const div = document.createElement("div");
-    div.className = `ai-chat-message ${type}`;
-    
-    const label = type === 'user' ? 'Вы' : 'ИИ-агент';
-    div.innerHTML = `
-        <span class="msg-label">${label}</span>
-        <div class="msg-content">${content}</div>
-    `;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-    
-    setTimeout(() => renderMath(), 200);
-}
-
-function formatAIGeneratedTask(data) {
-    let html = '<div style="padding: 0.5rem 0; margin-bottom: 0.5rem; font-weight: 600; color: var(--gold);">Задание сгенерировано!</div>';
-    html += `<div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${escapeHtml(data.title || 'Домашнее задание')}</div>`;
-    
-    if (data.tasks && data.tasks.length > 0) {
-        data.tasks.forEach((task, i) => {
-            html += `
-                <div class="task-block">
-                    <div class="task-title">Задача ${i+1}</div>
-                    <div style="margin-bottom: 0.3rem;">${task.condition || ''}</div>
-                    <div style="font-size: 0.8rem; color: var(--text3);">Ответ: ${escapeHtml(task.correctAnswer || '')}</div>
-                    ${task.solution ? `<div style="font-size: 0.8rem; color: var(--text2);">Решение: ${escapeHtml(task.solution.substring(0, 150))}${task.solution.length > 150 ? '...' : ''}</div>` : ''}
-                </div>
-            `;
-        });
-    } else {
-        html += `<div style="padding: 0.5rem; background: var(--bg2); border-radius: 6px; color: var(--text3);">${JSON.stringify(data, null, 2)}</div>`;
-    }
-    
-    return html;
-}
-
-async function sendAIMessage() {
-    const input = document.getElementById("aiChatInput");
-    const message = input.value.trim();
-    if (!message) return;
-    
-    input.value = "";
-    
-    addAIMessage('user', message);
-    addAIMessage('agent', 'Генерирую задание...');
-    
-    try {
-        const generateHomework = firebase.functions().httpsCallable('generateHomework');
-        
-        const result = await generateHomework({
-            subject: document.getElementById("hwSubject").value || "math",
-            topic: message,
-            grade: "8",
-            taskCount: 5,
-            taskType: 'first',
-            difficulty: 'medium',
-            courseId: document.getElementById("hwCourse").value || "algebra",
-            target: document.getElementById("hwTarget").value || "all",
-            dueDate: document.getElementById("hwDueDate").value || "",
-            maxScore: 10
-        });
-        
-        const messages = document.getElementById("aiChatMessages");
-        messages.removeChild(messages.lastChild);
-        
-        const responseText = result.data.result;
-        let parsedData = null;
-        let displayText = responseText;
-        
-        try {
-            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-                parsedData = JSON.parse(jsonMatch[0]);
-                aiGeneratedData = parsedData;
-                displayText = formatAIGeneratedTask(parsedData);
-                document.getElementById("aiApplyBtn").style.display = 'inline-flex';
-            } else {
-                displayText = responseText;
-            }
-        } catch (e) {
-            displayText = responseText;
-        }
-        
-        addAIMessage('agent', displayText);
-        
-    } catch (error) {
-        const messages = document.getElementById("aiChatMessages");
-        messages.removeChild(messages.lastChild);
-        addAIMessage('agent', 'Ошибка: ' + error.message);
-    }
-}
-
-function applyAIGenerated() {
-    if (!aiGeneratedData) {
-        showToast("Нет данных для применения", "error");
-        return;
-    }
-    
-    try {
-        const data = aiGeneratedData;
-        
-        if (data.title) {
-            document.getElementById("hwTitle").value = data.title;
-        }
-        
-        if (data.tasks && data.tasks.length > 0) {
-            document.getElementById("tasksContainer").innerHTML = '';
-            taskCounter = 0;
-            
-            data.tasks.forEach((task, index) => {
-                const container = document.getElementById("tasksContainer");
-                const id = taskCounter++;
-                const html = `
-                    <div class="task-editor" id="teditor_${id}">
-                        <div class="task-header">
-                            <span class="task-number">Задача ${taskCounter}</span>
-                            <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
-                        </div>
-                        <div class="form-group">
-                            <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                            <textarea id="tcondition_${id}" rows="3">${escapeHtml(task.condition || '')}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Правильный ответ</label>
-                            <input type="text" id="tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
-                        </div>
-                        <div class="form-group">
-                            <label>Решение задачи (можно использовать LaTeX)</label>
-                            <textarea id="tsolution_${id}" rows="4">${escapeHtml(task.solution || '')}</textarea>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-        }
-        
-        closeAIChat();
-        showToast("Задание применено! Проверьте и нажмите 'Создать задание'", "success");
-        
-        setTimeout(() => renderMath(), 300);
-        
-    } catch (error) {
-        showToast("Ошибка: " + error.message, "error");
-    }
-}
-
-// ========== ДОБАВЛЕНИЕ ЗАДАЧ (АДМИН) ==========
-function addTask() {
-    const container = document.getElementById("tasksContainer");
-    const id = taskCounter++;
-    const html = `
-        <div class="task-editor" id="teditor_${id}">
-            <div class="task-header">
-                <span class="task-number">Задача ${taskCounter}</span>
-                <span class="remove-btn" onclick="removeTask(${id})">Удалить задачу</span>
-            </div>
-            <div class="form-group">
-                <label>Условие задачи (можно использовать LaTeX: \\(x^2\\) или $x^2$)</label>
-                <textarea id="tcondition_${id}" rows="3" placeholder="Например: Решите уравнение \\(x^2 - 4 = 0\\)"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Правильный ответ</label>
-                <input type="text" id="tcorrect_${id}" placeholder="2, -2">
-            </div>
-            <div class="form-group">
-                <label>Решение задачи (можно использовать LaTeX)</label>
-                <textarea id="tsolution_${id}" rows="4" placeholder="\\[x^2 - 4 = 0\\]\\[(x-2)(x+2) = 0\\]\\[x = \\pm 2\\]"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Прикрепить файлы к задаче (можно несколько, до 50 МБ)</label>
-                <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${id}').click()">
-                    <div style="font-size:0.8rem;">Нажмите для выбора файлов (до 10 файлов)</div>
-                </div>
-                <input type="file" id="taskFileInput_${id}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskFilesSelect(this, ${id})">
-                <div id="taskFilePreview_${id}" class="files-list"></div>
-            </div>
-        </div>
-    `;
-    container.insertAdjacentHTML('beforeend', html);
-    setTimeout(() => renderMath(), 200);
-}
-
-function removeTask(id) {
-    const el = document.getElementById(`teditor_${id}`);
-    if (el) el.remove();
-}
-
-const taskFiles = {};
-
-async function handleTaskFilesSelect(input, taskId) {
-    const files = Array.from(input.files);
-    if (!taskFiles[taskId]) taskFiles[taskId] = [];
-    
-    if (taskFiles[taskId].length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        taskFiles[taskId].push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderTaskFilePreview(taskId);
-    input.value = '';
-}
-
-function renderTaskFilePreview(taskId) {
-    const container = document.getElementById(`taskFilePreview_${taskId}`);
-    if (!container) return;
-    const files = taskFiles[taskId] || [];
-    if (files.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
-        return;
-    }
-    container.style.display = 'flex';
-    container.innerHTML = files.map((file, idx) => `
-        <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
-            <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="removeTaskFile(${taskId}, ${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-function removeTaskFile(taskId, idx) {
-    if (taskFiles[taskId]) {
-        taskFiles[taskId].splice(idx, 1);
-        renderTaskFilePreview(taskId);
-    }
-}
-
-// ========== ОБРАБОТЧИКИ ФАЙЛОВ ==========
-async function uploadFileToStorage(file, folder) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const fileRef = storage.ref(`${folder}/admin/${fileName}`);
-    const snapshot = await fileRef.put(file);
-    const url = await snapshot.ref.getDownloadURL();
-    return { name: file.name, url: url, type: file.type };
-}
-
-async function uploadMultipleFiles(files, folder) {
-    const results = [];
-    for (const f of files) {
-        try {
-            const result = await uploadFileToStorage(f.file, folder);
-            results.push(result);
-        } catch(e) {
-            showToast(`Ошибка: ${f.file.name}`, "error");
-        }
-    }
-    return results;
-}
-
-function renderFilePreview(containerId, filesArray, removeFn) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    if (filesArray.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет выбранных файлов</div>';
-        return;
-    }
-    container.style.display = 'flex';
-    container.innerHTML = filesArray.map((file, idx) => `
-        <div class="file-item">
-            ${file.type === 'image' ? `<img src="${URL.createObjectURL(file.file)}" onclick="window.open('${URL.createObjectURL(file.file)}')">` : ''}
-            <span>${escapeHtml(file.file.name)}</span>
-            <span class="remove-file" onclick="${removeFn}(${idx})">&times;</span>
-        </div>
-    `).join('');
-}
-
-// ========== ОБРАБОТЧИКИ ФАЙЛОВ ДЛЯ АДМИНА ==========
-async function handleLessonFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentLessonFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentLessonFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
-    input.value = '';
-}
-window.removeLessonFile = function(idx) {
-    currentLessonFiles.splice(idx, 1);
-    renderFilePreview('lessonFilePreview', currentLessonFiles, 'removeLessonFile');
-};
-
-async function handleHomeworkFilesSelect(input) {
-    const files = Array.from(input.files);
-    if (currentHomeworkFiles.length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast(`Файл ${file.name} > 50 МБ`, "error");
-            continue;
-        }
-        currentHomeworkFiles.push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
-        showToast(`Добавлен: ${file.name}`, "success");
-    }
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-    input.value = '';
-}
-window.removeHomeworkFile = function(idx) {
-    currentHomeworkFiles.splice(idx, 1);
-    renderFilePreview('hwFilePreview', currentHomeworkFiles, 'removeHomeworkFile');
-};
-
-document.getElementById("lessonFileInput")?.addEventListener("change", function(e) { handleLessonFilesSelect(e.target); });
-document.getElementById("hwFileInput")?.addEventListener("change", function(e) { handleHomeworkFilesSelect(e.target); });
-
-// ========== ПЕРЕКЛЮЧАТЕЛЬ ТИПА ДЗ ==========
-function toggleHomeworkType() {
-    const toggle = document.getElementById('hwTypeToggle');
-    isSecondPart = !isSecondPart;
-    toggle.classList.toggle('active', isSecondPart);
-    document.getElementById('tasksSection').style.display = isSecondPart ? 'none' : 'block';
-    document.getElementById('secondPartSection').style.display = isSecondPart ? 'block' : 'none';
-    if (isSecondPart) {
-        document.getElementById('tasksContainer').innerHTML = '';
-        taskCounter = 0;
-    } else {
-        if (document.getElementById('tasksContainer').children.length === 0) {
-            addTask();
-        }
     }
 }
 
