@@ -579,11 +579,150 @@
 
         footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2.2rem; text-align: center; font-family: var(--fs); font-weight: 700; }
 
+        /* ===================== ЛИЧНЫЙ КАБИНЕТ: НОВЫЕ БЛОКИ ===================== */
+        .accent-text { color: var(--gold); }
+        .menu-icon { display: inline-block; width: 22px; margin-right: 0.4rem; text-align: center; }
+
+        .pane-header { margin-bottom: 1.5rem; }
+        .pane-header h2 { font-family: var(--fs); font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
+        .pane-subtitle { color: var(--text2); font-size: 0.9rem; margin-top: 0.3rem; }
+
+        .section-block { margin-top: 2.2rem; }
+        .block-title { font-family: var(--fs); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+        .block-title-hint { font-family: var(--f); font-size: 0.75rem; font-weight: 500; color: var(--text3); }
+
+        /* --- Рекомендации --- */
+        .rec-list { display: flex; flex-direction: column; gap: 0.7rem; }
+        .rec-card {
+            display: flex; align-items: flex-start; gap: 0.8rem;
+            background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--line2);
+            border-radius: 14px; padding: 1rem 1.2rem; font-size: 0.9rem; color: var(--text2); line-height: 1.5;
+        }
+        .rec-card.level-high { border-left-color: var(--red); background: var(--red2); }
+        .rec-card.level-medium { border-left-color: var(--gold); background: var(--gold3); }
+        .rec-icon { font-size: 1.2rem; line-height: 1; }
+        .rec-text { color: var(--text); font-weight: 500; }
+        .rec-empty {
+            padding: 1.2rem; text-align: center; color: var(--text3);
+            background: var(--card2); border-radius: 14px; border: 1px dashed var(--line2); font-size: 0.9rem;
+        }
+
+        /* --- "Продолжить обучение" --- */
+        .continue-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem;
+        }
+        .continue-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+            padding: 1.1rem; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .continue-card:hover { transform: translateY(-3px); border-color: var(--gold); }
+        .continue-card .cc-icon {
+            width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, var(--gold3), var(--blue3)); font-size: 1.3rem; margin-bottom: 0.7rem;
+        }
+        .continue-card .cc-name { font-weight: 700; margin-bottom: 0.6rem; }
+        .continue-card .cc-progress-track { height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; }
+        .continue-card .cc-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--blue)); border-radius: 4px; }
+        .continue-card .cc-progress-label { font-size: 0.72rem; color: var(--text3); margin-bottom: 0.7rem; }
+
+        /* --- Вкладки курсов (ДЗ / Квизы) --- */
+        .course-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .course-tab {
+            padding: 0.6rem 1.1rem; border-radius: 11px; background: var(--card); border: 1.5px solid var(--line);
+            font-weight: 600; font-size: 0.88rem; color: var(--text2); cursor: pointer; transition: all 0.15s ease;
+        }
+        .course-tab:hover { border-color: var(--gold); color: var(--text); }
+        .course-tab.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+        /* --- КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ДЗ --- */
+        .hw-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.3rem; }
+        .hw-card-lg {
+            position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+            padding: 1.5rem; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .hw-card-lg:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+        .hw-card-lg::before {
+            content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
+            background: var(--line2);
+        }
+        .hw-card-lg.status-pending::before { background: linear-gradient(90deg, var(--blue), var(--blue2)); }
+        .hw-card-lg.status-review::before { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
+        .hw-card-lg.status-graded::before { background: linear-gradient(90deg, var(--green), #0ea86f); }
+        .hw-card-lg-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .hw-card-lg-icon {
+            width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; background: linear-gradient(135deg, var(--gold3), var(--blue3));
+        }
+        .hw-card-lg-status {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+            padding: 0.35rem 0.75rem; border-radius: 20px; white-space: nowrap;
+        }
+        .status-pending .hw-card-lg-status { background: var(--blue3); color: var(--blue2); }
+        .status-review .hw-card-lg-status { background: var(--gold3); color: var(--gold); }
+        .status-graded .hw-card-lg-status { background: var(--green2); color: var(--green); }
+        .hw-card-lg-subject { font-size: 0.78rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.03em; }
+        .hw-card-lg-title { font-family: var(--fs); font-size: 1.15rem; font-weight: 700; margin-top: 0.3rem; line-height: 1.35; }
+        .hw-card-lg-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+        .meta-chip {
+            background: var(--card2); border: 1px solid var(--line); border-radius: 10px;
+            padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--text2); font-weight: 500;
+        }
+        .meta-chip.grade { background: var(--green2); color: var(--green); border-color: transparent; font-weight: 700; }
+        .hw-card-lg-footer { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: auto; }
+        .hw-card-lg-btn { flex: 1; min-width: 140px; }
+
+        /* --- Квизы --- */
+        .quiz-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+        .quiz-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            display: flex; flex-direction: column; gap: 0.8rem;
+        }
+        .quiz-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--gold); }
+        .quiz-card-icon {
+            width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; background: linear-gradient(135deg, var(--blue3), var(--gold3));
+        }
+        .quiz-card-topic { font-size: 0.75rem; font-weight: 700; color: var(--blue2); text-transform: uppercase; letter-spacing: 0.03em; }
+        .quiz-card-title { font-family: var(--fs); font-weight: 700; font-size: 1.05rem; line-height: 1.3; }
+        .quiz-card-meta { font-size: 0.8rem; color: var(--text3); }
+        .quiz-card-best { font-size: 0.78rem; color: var(--green); font-weight: 600; }
+
+        .quiz-progress { height: 8px; background: var(--line); border-radius: 5px; overflow: hidden; margin-bottom: 0.6rem; }
+        .quiz-progress-bar { height: 100%; background: linear-gradient(90deg, var(--gold), var(--blue)); border-radius: 5px; transition: width 0.3s ease; }
+        .quiz-meta { text-align: center; font-size: 0.8rem; color: var(--text3); margin-bottom: 1.2rem; }
+        .quiz-question-card {
+            background: var(--card2); border: 2px solid var(--line); border-radius: 18px; padding: 1.6rem;
+            max-width: 640px; margin: 0 auto;
+        }
+        .quiz-question-text { font-size: 1.15rem; font-weight: 700; line-height: 1.6; margin-bottom: 1.4rem; text-align: center; }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.7rem; }
+        .quiz-option {
+            display: block; width: 100%; text-align: left; padding: 0.85rem 1.1rem;
+            border: 2px solid var(--line); border-radius: 12px; background: var(--card);
+            color: var(--text); font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease; font-family: var(--f);
+        }
+        .quiz-option:hover:not(.disabled) { border-color: var(--gold); transform: translateX(3px); }
+        .quiz-option.correct { border-color: var(--green); background: var(--green2); color: var(--green); }
+        .quiz-option.wrong { border-color: var(--red); background: var(--red2); color: var(--red); }
+        .quiz-option.disabled { cursor: default; pointer-events: none; }
+        .quiz-option.disabled:not(.correct):not(.wrong) { opacity: 0.5; }
+
+        /* --- VK кнопка / разделитель --- */
+        .auth-divider { display: flex; align-items: center; gap: 0.8rem; margin: 1.1rem 0; color: var(--text3); font-size: 0.78rem; }
+        .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+        .vk-btn { background: #0077ff; color: #fff; }
+        .vk-btn:hover { background: #0066dd; transform: translateY(-2px); }
+        .vk-logo { font-family: var(--fs); font-weight: 800; font-size: 0.85rem; letter-spacing: -0.02em; }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .sidebar { display: none; }
-            .main-content { margin-left: 0; }
+            .main-content { margin-left: 0; padding: 1.2rem; }
             .course-grid { grid-template-columns: 1fr; }
+            .hw-cards-grid, .quiz-cards-grid, .continue-grid { grid-template-columns: 1fr; }
             .modal { padding: 1rem; }
             .hw-progress-bar { gap: 0.3rem; }
             .hw-dot { width: 34px; height: 34px; font-size: 0.65rem; }
@@ -592,6 +731,7 @@
             .hw-solve-page { padding: 1rem; }
             .hw-solve-page .hw-header h2 { font-size: 1.3rem; }
             .teachers-grid { grid-template-columns: 1fr; }
+            .quiz-question-card { padding: 1.1rem; }
         }
     </style>
 </head>
@@ -620,6 +760,8 @@
             <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="......"></div>
             <button class="btn bg" style="width:100%" onclick="handleLogin()">Войти</button>
             <p style="text-align:center;margin-top:1rem;font-size:0.8rem"><span style="color:var(--gold);cursor:pointer" onclick="showResetPassword()">Забыли пароль?</span></p>
+            <div class="auth-divider"><span>или</span></div>
+            <button class="btn vk-btn" style="width:100%" onclick="handleVkLogin()"><span class="vk-logo">VK</span> Войти через VK</button>
         </div>
         <div id="registerPanel" class="tab-pane" style="display:none;">
             <div class="form-group"><label>Имя</label><input type="text" id="regName" placeholder="Иван Иванов"></div>
@@ -627,6 +769,8 @@
             <div class="form-group"><label>Класс</label><select id="regGrade"><option value="">Выберите класс</option><option value="1-4">1-4 класс</option><option value="5-6">5-6 класс</option><option value="7-8">7-8 класс</option><option value="9">9 класс (ОГЭ)</option><option value="10-11">10-11 класс (ЕГЭ)</option></select></div>
             <div class="form-group"><label>Пароль</label><input type="password" id="regPassword" placeholder="минимум 6 символов"></div>
             <button class="btn bg" style="width:100%" onclick="handleRegister()">Создать аккаунт</button>
+            <div class="auth-divider"><span>или</span></div>
+            <button class="btn vk-btn" style="width:100%" onclick="handleVkLogin()"><span class="vk-logo">VK</span> Продолжить через VK</button>
         </div>
     </div>
 </div>
@@ -743,45 +887,75 @@
                 <div class="user-grade" id="userGrade"></div>
             </div>
             <ul class="sidebar-menu">
-                <li data-pane="overview" class="active" onclick="switchPane('overview', this)">Обзор</li>
-                <li data-pane="courses" onclick="switchPane('courses', this)">Мои курсы</li>
-                <li data-pane="homework" onclick="switchPane('homework', this)">Домашние задания</li>
-                <li data-pane="schedule" onclick="switchPane('schedule', this)">Расписание</li>
-                <li data-pane="progress" onclick="switchPane('progress', this)">Прогресс</li>
+                <li data-pane="overview" class="active" onclick="switchPane('overview', this)"><span class="menu-icon">🏠</span>Обзор</li>
+                <li data-pane="courses" onclick="switchPane('courses', this)"><span class="menu-icon">📚</span>Мои курсы</li>
+                <li data-pane="homework" onclick="switchPane('homework', this)"><span class="menu-icon">📝</span>Домашние задания</li>
+                <li data-pane="quizzes" onclick="switchPane('quizzes', this)"><span class="menu-icon">🧠</span>Квизы</li>
+                <li data-pane="schedule" onclick="switchPane('schedule', this)"><span class="menu-icon">🗓️</span>Расписание</li>
+                <li data-pane="progress" onclick="switchPane('progress', this)"><span class="menu-icon">📈</span>Прогресс</li>
             </ul>
         </div>
         <div class="main-content">
             <div id="overviewPane" class="dashboard-pane active">
-                <h2 style="margin-bottom:1.5rem">Добро пожаловать, <span id="welcomeName" style="color:var(--gold)"></span>!</h2>
+                <div class="pane-header">
+                    <h2>Добро пожаловать, <span id="welcomeName" class="accent-text"></span>!</h2>
+                    <p class="pane-subtitle">Ваш прогресс и рекомендации на сегодня</p>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div>
                     <div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div>
                     <div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Конспектов</div></div>
                 </div>
-                <div><h3>Продолжить обучение</h3><div id="continueLearning"></div></div>
+                <div class="section-block">
+                    <h3 class="block-title">Рекомендации <span class="block-title-hint">на основе вашего прогресса</span></h3>
+                    <div class="rec-list" id="overviewRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
+                </div>
+                <div class="section-block">
+                    <h3 class="block-title">Продолжить обучение</h3>
+                    <div id="continueLearning" class="continue-grid"></div>
+                </div>
             </div>
             <div id="coursesPane" class="dashboard-pane" style="display:none;">
-                <h2>Мои курсы</h2>
-                <div id="myCoursesList"></div>
-                <h2 style="margin-top:1.5rem">Доступные курсы</h2>
-                <div id="availableCoursesList"></div>
+                <div class="pane-header"><h2>Мои курсы</h2><p class="pane-subtitle">Курсы, на которые вы записаны</p></div>
+                <div id="myCoursesList" class="course-grid"></div>
+                <div class="pane-header" style="margin-top:2rem"><h2>Доступные курсы</h2></div>
+                <div id="availableCoursesList" class="course-grid"></div>
             </div>
             <div id="homeworkPane" class="dashboard-pane" style="display:none;">
-                <h2>Домашние задания по курсам</h2>
-                <div id="homeworkCoursesList"></div>
+                <div class="pane-header"><h2>Домашние задания</h2><p class="pane-subtitle">Выполняйте задания вовремя, чтобы прогресс рос быстрее</p></div>
+                <div class="course-tabs" id="hwCourseTabs"></div>
+                <div class="hw-cards-grid" id="hwCardsGrid"></div>
+            </div>
+            <div id="quizzesPane" class="dashboard-pane" style="display:none;">
+                <div class="pane-header"><h2>Квизы на повторение</h2><p class="pane-subtitle">Отвечайте верно — ошиблись хоть раз, вопрос нужно закрыть двумя верными ответами в разных местах квиза</p></div>
+                <div class="course-tabs" id="quizCourseTabs"></div>
+                <div class="quiz-cards-grid" id="quizCardsGrid"></div>
             </div>
             <div id="schedulePane" class="dashboard-pane" style="display:none;">
-                <h2>Расписание занятий</h2>
+                <div class="pane-header"><h2>Расписание занятий</h2></div>
                 <div id="scheduleContainer">
                     <div class="schedule-empty">Загрузка расписания...</div>
                 </div>
             </div>
             <div id="progressPane" class="dashboard-pane" style="display:none;">
-                <h2>Прогресс по курсам</h2>
+                <div class="pane-header"><h2>Прогресс по курсам</h2><p class="pane-subtitle">Что уже пройдено и на что стоит обратить внимание</p></div>
+                <div class="section-block">
+                    <h3 class="block-title">Рекомендации</h3>
+                    <div class="rec-list" id="progressRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
+                </div>
                 <div id="progressList"></div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА КВИЗА -->
+<div class="hw-solve-page" id="quizPage">
+    <div class="hw-header">
+        <h2 id="quizPageTitle">Квиз</h2>
+        <button class="close-btn" onclick="closeQuizPage()">✕</button>
+    </div>
+    <div id="quizPageContent"></div>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
@@ -819,6 +993,44 @@ let userAnswers = {};
 let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
+
+// ==== Личный кабинет: домашние задания по вкладкам ====
+let hwActiveCourseId = null;
+
+// ==== Рекомендации на основе прогресса ====
+let lessonRecs = [];
+
+// ==== Квизы ====
+let quizActiveCourseId = null;
+let quizCache = {};
+let quizActive = null;
+
+// Демо-квиз показывается, если для курса ещё не добавлены реальные квизы в админке —
+// чтобы функционал можно было сразу продемонстрировать ученику.
+const DEMO_QUIZ = {
+    id: "demo-algebra-1",
+    courseId: "algebra",
+    topic: "Линейные уравнения",
+    title: "Демо-квиз: линейные уравнения",
+    isDemo: true,
+    questions: [
+        { question: "Чему равен $x$ в уравнении $2x + 4 = 10$?", options: ["2", "3", "4", "5"], correctIndex: 1 },
+        { question: "Решите уравнение $5x - 3 = 12$", options: ["x=2", "x=3", "x=4", "x=5"], correctIndex: 1 },
+        { question: "Найдите $x$: $3(x+2)=15$", options: ["x=1", "x=2", "x=3", "x=4"], correctIndex: 2 },
+        { question: "Решите: $\\frac{x}{2}+3=7$", options: ["x=6", "x=8", "x=10", "x=4"], correctIndex: 1 },
+        { question: "Найдите $x$: $7-x=2$", options: ["x=5", "x=9", "x=-5", "x=4"], correctIndex: 0 }
+    ]
+};
+
+// ==== Вход через VK ====
+// Firebase не умеет авторизовывать через VK "из коробки". Чтобы кнопка ниже заработала полностью, нужно:
+// 1) Создать VK-приложение (vk.com/apps?act=manage) и получить его client_id — подставить в VK_CLIENT_ID.
+// 2) Поднять небольшую серверную функцию (например, Firebase Cloud Function), которая примет код
+//    авторизации VK, обменяет его на access_token через VK API и создаст Firebase custom token
+//    через Admin SDK — её адрес указать в VK_AUTH_ENDPOINT.
+// Без этих двух шагов кнопка покажет понятное сообщение вместо ошибки.
+const VK_CLIENT_ID = "";
+const VK_AUTH_ENDPOINT = "";
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -974,6 +1186,52 @@ function handleRegister() {
 
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
+// ========== ВХОД ЧЕРЕЗ VK ==========
+function handleVkLogin() {
+    if (!VK_CLIENT_ID) {
+        showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID и серверная функция", "info");
+        return;
+    }
+    const redirectUri = window.location.origin + window.location.pathname;
+    const state = Math.random().toString(36).slice(2);
+    sessionStorage.setItem("vk_auth_state", state);
+    const authUrl = "https://id.vk.com/authorize?client_id=" + encodeURIComponent(VK_CLIENT_ID) +
+        "&redirect_uri=" + encodeURIComponent(redirectUri) +
+        "&response_type=code&state=" + state + "&scope=email";
+    window.location.href = authUrl;
+}
+
+async function handleVkCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const state = params.get("state");
+    if (!code) return;
+    if (state !== sessionStorage.getItem("vk_auth_state")) return;
+    sessionStorage.removeItem("vk_auth_state");
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (!VK_AUTH_ENDPOINT) {
+        showToast("Вход через VK: серверная функция не настроена", "error");
+        return;
+    }
+    try {
+        const resp = await fetch(VK_AUTH_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: code, redirectUri: window.location.origin + window.location.pathname })
+        });
+        const data = await resp.json();
+        if (data.firebaseToken) {
+            await auth.signInWithCustomToken(data.firebaseToken);
+            showToast("Вход через VK выполнен", "success");
+        } else {
+            showToast("Не удалось войти через VK", "error");
+        }
+    } catch (error) {
+        console.error("Ошибка VK-входа:", error);
+        showToast("Ошибка входа через VK", "error");
+    }
+}
+
 function updateUIAfterLogin() {
     document.getElementById("navButtons").innerHTML = '<span style="margin-right:0.5rem">' + userData.name + '</span><button class="btn brs" onclick="handleLogout()">Выйти</button>';
     document.getElementById("userName").textContent = userData.name;
@@ -992,6 +1250,8 @@ function updateUIAfterLogin() {
     updateLessonsCount();
     loadStudentSchedule();
     loadHomeworkCourses();
+    loadQuizCourses();
+    updateAllRecommendations();
     setTimeout(() => renderMath(), 500);
 }
 
@@ -1069,30 +1329,51 @@ function renderAvailableCourses() {
         </div>`).join("");
 }
 
-function renderContinueLearning() {
+async function renderContinueLearning() {
     const container = document.getElementById("continueLearning");
     if (!container) return;
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс чтобы начать.</p>"; return; }
-    container.innerHTML = enrolled.slice(0, 3).map(course => `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.8rem 0;border-bottom:1px solid var(--line);cursor:pointer" onclick="openCourseLessons('${course.id}')">
-            <div style="width:40px;height:40px;background:var(--gold3);border-radius:10px;display:flex;align-items:center;justify-content:center">${course.icon}</div>
-            <div style="flex:1"><div style="font-weight:700">${course.name}</div></div>
-            <button class="btn bg bsm">Продолжить</button>
-        </div>`).join("");
+    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс, чтобы начать.</p>"; return; }
+    const cards = [];
+    for (const course of enrolled.slice(0, 6)) {
+        let percent = 0;
+        try {
+            const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
+            const totalLessons = lessonsSnap.size;
+            const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
+            percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
+        } catch (e) { /* игнорируем, оставляем 0% */ }
+        cards.push(`
+            <div class="continue-card" onclick="openCourseLessons('${course.id}')">
+                <div class="cc-icon">${course.icon}</div>
+                <div class="cc-name">${escapeHtml(course.name)}</div>
+                <div class="cc-progress-track"><div class="cc-progress-fill" style="width:${percent}%"></div></div>
+                <div class="cc-progress-label">Пройдено ${percent}%</div>
+                <button class="btn bg bsm" style="width:100%">Продолжить</button>
+            </div>
+        `);
+    }
+    container.innerHTML = cards.join("");
 }
 
 async function renderProgress() {
     const container = document.getElementById("progressList");
     if (!container) return;
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; return; }
+    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; lessonRecs = []; updateAllRecommendations(); return; }
     container.innerHTML = "";
+    lessonRecs = [];
     for (const course of enrolled) {
         const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
         const totalLessons = lessonsSnap.size;
         const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
         const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
+        if (totalLessons > 0 && percent < 50) {
+            lessonRecs.push({
+                level: percent < 25 ? "high" : "medium",
+                text: 'Продолжите изучение конспектов по курсу «' + course.name + '» — пройдено всего ' + percent + '%.'
+            });
+        }
         container.innerHTML += '<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
                 '<div><strong>' + course.name + '</strong></div>' +
@@ -1104,6 +1385,7 @@ async function renderProgress() {
             '<div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ' + completedCount + ' из ' + totalLessons + '</div>' +
         '</div>';
     }
+    updateAllRecommendations();
 }
 
 async function openCourseLessons(courseId) {
@@ -1197,6 +1479,70 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
+// ========== РЕКОМЕНДАЦИИ НА ОСНОВЕ ПРОГРЕССА ==========
+function computeRecommendations() {
+    const recs = [];
+    const subs = (userData && userData.homeworkSubmissions) || [];
+    const byCourse = {};
+    subs.forEach(s => {
+        if (!byCourse[s.courseId]) byCourse[s.courseId] = { correct: 0, total: 0 };
+        byCourse[s.courseId].correct += s.correctCount || 0;
+        byCourse[s.courseId].total += (s.taskResults || []).filter(t => !t.isSecondPart).length;
+    });
+    Object.keys(byCourse).forEach(cid => {
+        const c = byCourse[cid];
+        if (c.total > 0) {
+            const pct = Math.round(c.correct / c.total * 100);
+            const course = COURSES.find(x => x.id === cid);
+            if (pct < 70 && course) {
+                recs.push({
+                    level: pct < 50 ? "high" : "medium",
+                    text: 'Повторите материал курса «' + course.name + '» — ' + pct + '% правильных ответов в домашних заданиях.'
+                });
+            }
+        }
+    });
+
+    const ts = (userData && userData.topicStats) || {};
+    Object.keys(ts).forEach(topic => {
+        const t = ts[topic];
+        const total = (t.correct || 0) + (t.wrong || 0);
+        if (total >= 3) {
+            const pct = Math.round((t.correct || 0) / total * 100);
+            if (pct < 60) {
+                recs.push({
+                    level: pct < 40 ? "high" : "medium",
+                    text: 'Стоит повторить тему «' + topic + '» — ' + pct + '% верных ответов в квизах.'
+                });
+            }
+        }
+    });
+
+    return recs.concat(lessonRecs || []);
+}
+
+function renderRecommendationsList(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !userData) return;
+    const recs = computeRecommendations();
+    if (recs.length === 0) {
+        container.innerHTML = '<div class="rec-empty">Пока всё хорошо — заметных пробелов не нашли. Продолжайте в том же духе!</div>';
+        return;
+    }
+    recs.sort((a, b) => (a.level === "high" ? 0 : 1) - (b.level === "high" ? 0 : 1));
+    container.innerHTML = recs.map(r => `
+        <div class="rec-card level-${r.level}">
+            <div class="rec-icon">${r.level === "high" ? "⚠️" : "💡"}</div>
+            <div class="rec-text">${r.text}</div>
+        </div>
+    `).join("");
+}
+
+function updateAllRecommendations() {
+    renderRecommendationsList("overviewRecs");
+    renderRecommendationsList("progressRecs");
+}
+
 function switchPane(paneId, el) {
     document.querySelectorAll(".dashboard-pane").forEach(p => p.style.display = "none");
     document.getElementById(paneId + 'Pane').style.display = "block";
@@ -1204,6 +1550,8 @@ function switchPane(paneId, el) {
     if (el) el.classList.add("active");
     if (paneId === 'homework') loadHomeworkCourses();
     if (paneId === 'schedule') loadStudentSchedule();
+    if (paneId === 'quizzes') loadQuizCourses();
+    if (paneId === 'overview' || paneId === 'progress') updateAllRecommendations();
 }
 
 function showHome() {
@@ -1313,18 +1661,29 @@ async function loadStudentSchedule() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ: КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ==========
 async function loadHomeworkCourses() {
-    const container = document.getElementById("homeworkCoursesList");
-    if (!container) return;
+    const tabsContainer = document.getElementById("hwCourseTabs");
+    const gridContainer = document.getElementById("hwCardsGrid");
+    if (!tabsContainer || !gridContainer) return;
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>У вас нет активных курсов</p>"; return; }
-    container.innerHTML = enrolled.map(course => `
-        <div class="course-card" onclick="loadHomeworkByCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg bsm">Показать задания</button></div>
-        </div>
+    if (enrolled.length === 0) {
+        tabsContainer.innerHTML = "";
+        gridContainer.innerHTML = '<div class="schedule-empty">У вас нет активных курсов. Запишитесь на курс, чтобы получать домашние задания.</div>';
+        return;
+    }
+    if (!hwActiveCourseId || !enrolled.find(c => c.id === hwActiveCourseId)) {
+        hwActiveCourseId = enrolled[0].id;
+    }
+    tabsContainer.innerHTML = enrolled.map(course => `
+        <div class="course-tab ${course.id === hwActiveCourseId ? 'active' : ''}" onclick="selectHwCourse('${course.id}')">${course.icon} ${escapeHtml(course.name)}</div>
     `).join("");
+    await renderHomeworkCards(hwActiveCourseId);
+}
+
+function selectHwCourse(courseId) {
+    hwActiveCourseId = courseId;
+    loadHomeworkCourses();
 }
 
 // ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
@@ -1341,14 +1700,16 @@ async function refreshUserData() {
     }
 }
 
-async function loadHomeworkByCourse(courseId) {
+async function renderHomeworkCards(courseId) {
+    const grid = document.getElementById("hwCardsGrid");
+    if (!grid) return;
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) { showToast("Курс не найден", "error"); return; }
-    if (!currentUser || !currentUser.email) { showToast("Ошибка авторизации", "error"); return; }
-    
+    if (!course) { grid.innerHTML = ""; return; }
+    if (!currentUser || !currentUser.email) { grid.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
+
+    grid.innerHTML = '<div class="schedule-empty">Загрузка заданий...</div>';
     await refreshUserData();
-    
-    showToast('Загрузка заданий для ' + course.name + '...', "info");
+
     try {
         const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
         const homeworks = [];
@@ -1358,77 +1719,69 @@ async function loadHomeworkByCourse(courseId) {
                 homeworks.push({ id: doc.id, ...data });
             }
         });
-        const submissions = userData?.homeworkSubmissions || [];
+        const submissions = (userData && userData.homeworkSubmissions) || [];
         if (homeworks.length === 0) {
-            showToast("Нет заданий для этого курса", "info");
+            grid.innerHTML = '<div class="schedule-empty">Нет заданий для этого курса</div>';
             return;
         }
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        const modalHtml = `
-            <div id="homeworkModal_${courseId}" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
-                <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
-                    <div style="max-width:800px;margin:0 auto;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
-                            <h2 style="font-family:var(--fs);font-size:1.8rem;">${course.name} - Домашние задания</h2>
-                            <button class="modal-close" onclick="document.getElementById('homeworkModal_${courseId}').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;">&times;</button>
-                        </div>
-                        <div id="homeworkListContainer">
-                            ${homeworks.map(hw => {
-                                const submitted = submissions.find(s => s.id === hw.id);
-                                const isGraded = hw.status === 'graded' || hw.status === 'returned';
-                                const statusText = submitted ? (isGraded ? "Проверено" : "На проверке") : "Ожидает";
-                                const statusColor = submitted ? (isGraded ? "var(--green)" : "var(--gold)") : "var(--text3)";
-                                
-                                let actionBtn = '';
-                                if (submitted) {
-                                    if (isGraded) {
-                                        actionBtn = `
-                                            <button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>
-                                            <button class="btn secondary bsm" onclick="event.stopPropagation(); viewHomeworkSolutions('${hw.id}')">Решения</button>
-                                        `;
-                                    } else {
-                                        actionBtn = `
-                                            <button class="btn green bsm" onclick="event.stopPropagation(); viewHomeworkResult('${hw.id}')">Результат</button>
-                                        `;
-                                    }
-                                } else {
-                                    actionBtn = `<button class="btn bg bsm" onclick="event.stopPropagation(); startHomework('${hw.id}')">Выполнить</button>`;
-                                }
-                                
-                                let tasksInfo = '';
-                                if (hw.tasks && hw.tasks.length > 0) {
-                                    tasksInfo = '<div style="font-size:0.7rem;color:var(--text3);margin-top:0.2rem;">' + hw.tasks.length + ' задач</div>';
-                                }
-                                
-                                return `
-                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);">
-                                        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
-                                            <div style="flex:1;">
-                                                <div style="font-weight:700;font-size:1.1rem;">${escapeHtml(hw.title)}</div>
-                                                <div style="font-size:0.8rem;color:var(--text3);margin-top:0.2rem;">Срок: ${hw.dueDate || "не указан"}</div>
-                                                ${tasksInfo}
-                                            </div>
-                                            <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
-                                                <span style="font-size:0.8rem;color:${statusColor};">${statusText}</span>
-                                                <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">${actionBtn}</div>
-                                            </div>
-                                        </div>
-                                        ${hw.grade ? '<div style="margin-top:0.8rem;padding-top:0.5rem;border-top:1px solid var(--line);font-size:0.8rem;color:var(--green);">Оценка: ' + hw.grade + '/' + (hw.maxScore || 10) + '</div>' : ''}
-                                    </div>
-                                `;
-                            }).join('')}
+
+        grid.innerHTML = homeworks.map(hw => {
+            const tasks = hw.tasks || [];
+            const hasSecondPart = tasks.some(t => t.isSecondPart);
+            const submitted = submissions.find(s => s.id === hw.id);
+            const isGraded = hw.status === 'graded' || hw.status === 'returned';
+
+            // Логика трёх состояний кнопки:
+            // 1) не сдано -> "Приступить к выполнению"
+            // 2) сдано, есть часть с проверкой преподавателем и она ещё не проверена -> "На проверке"
+            // 3) сдано и проверено (автоматически или преподавателем) -> "Посмотреть результат"
+            let statusKey, statusText, btnLabel, btnClass, btnOnclick, extraBtn = "";
+
+            if (!submitted) {
+                statusKey = "pending"; statusText = "Ожидает";
+                btnLabel = "Приступить к выполнению"; btnClass = "bg";
+                btnOnclick = "startHomework('" + hw.id + "')";
+            } else if (hasSecondPart && !isGraded) {
+                statusKey = "review"; statusText = "На проверке";
+                btnLabel = "На проверке"; btnClass = "secondary";
+                btnOnclick = "viewHomeworkResult('" + hw.id + "')";
+            } else {
+                statusKey = "graded"; statusText = "Проверено";
+                btnLabel = "Посмотреть результат"; btnClass = "green";
+                btnOnclick = "viewHomeworkResult('" + hw.id + "')";
+                if (hasSecondPart && isGraded) {
+                    extraBtn = '<button class="btn secondary bsm" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
+                }
+            }
+
+            const gradeChip = hw.grade ? '<div class="meta-chip grade">⭐ ' + hw.grade + '/' + (hw.maxScore || 10) + '</div>' : '';
+
+            return `
+                <div class="hw-card-lg status-${statusKey}">
+                    <div class="hw-card-lg-top">
+                        <div class="hw-card-lg-icon">${course.icon}</div>
+                        <span class="hw-card-lg-status">${statusText}</span>
+                    </div>
+                    <div>
+                        <div class="hw-card-lg-subject">${escapeHtml(course.name)}</div>
+                        <div class="hw-card-lg-title">${escapeHtml(hw.title)}</div>
+                        <div class="hw-card-lg-meta">
+                            <div class="meta-chip">📅 ${escapeHtml(hw.dueDate || "без срока")}</div>
+                            <div class="meta-chip">🧩 ${tasks.length} задач</div>
+                            ${gradeChip}
                         </div>
                     </div>
+                    <div class="hw-card-lg-footer">
+                        <button class="btn ${btnClass} hw-card-lg-btn" onclick="${btnOnclick}">${btnLabel}</button>
+                        ${extraBtn}
+                    </div>
                 </div>
-            </div>
-        `;
-        const oldModal = document.getElementById('homeworkModal_' + courseId);
-        if (oldModal) oldModal.remove();
-        document.body.insertAdjacentHTML("beforeend", modalHtml);
-        setTimeout(() => renderMath(), 300);
+            `;
+        }).join("");
     } catch (err) {
         console.error(err);
-        showToast("Ошибка загрузки заданий: " + err.message, "error");
+        grid.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий: ' + escapeHtml(err.message) + '</div>';
     }
 }
 
@@ -1829,12 +2182,8 @@ async function submitHomework() {
         
         setTimeout(() => {
             closeHwSolvePage();
-            const hwModal = document.querySelector('.modal-overlay[style*="display:flex"]');
-            if (hwModal && hwModal.id && hwModal.id.startsWith('homeworkModal_')) {
-                const courseId = hwModal.id.replace('homeworkModal_', '');
-                loadHomeworkByCourse(courseId);
-            }
-            loadHomeworkCourses();
+            if (hwActiveCourseId) renderHomeworkCards(hwActiveCourseId);
+            updateAllRecommendations();
         }, 500);
         
     } catch (error) {
@@ -2025,18 +2374,257 @@ function openHwReviewPage(hwId, hw, submission) {
     setTimeout(() => renderMathInElement(document.getElementById('hwSolveContent')), 300);
 }
 
+// ========================================================================
+// ========== КВИЗЫ НА ПОВТОРЕНИЕ ==========
+// Правила: выбрал верный ответ — вопрос считается пройденным (если ранее
+// по нему не было ошибок), иначе нужно ответить верно ДВАЖДЫ в разных
+// местах квиза. Если выбрал неверный ответ — вопрос уходит в конец
+// очереди (не подряд) и требование "верно дважды" включается.
+// ========================================================================
+
+function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+async function loadQuizCourses() {
+    const tabsContainer = document.getElementById("quizCourseTabs");
+    const gridContainer = document.getElementById("quizCardsGrid");
+    if (!tabsContainer || !gridContainer) return;
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) {
+        tabsContainer.innerHTML = "";
+        gridContainer.innerHTML = '<div class="schedule-empty">Запишитесь на курс, чтобы получить доступ к квизам.</div>';
+        return;
+    }
+    if (!quizActiveCourseId || !enrolled.find(c => c.id === quizActiveCourseId)) {
+        quizActiveCourseId = enrolled[0].id;
+    }
+    tabsContainer.innerHTML = enrolled.map(course => `
+        <div class="course-tab ${course.id === quizActiveCourseId ? 'active' : ''}" onclick="selectQuizCourse('${course.id}')">${course.icon} ${escapeHtml(course.name)}</div>
+    `).join("");
+    await renderQuizCards(quizActiveCourseId);
+}
+
+function selectQuizCourse(courseId) {
+    quizActiveCourseId = courseId;
+    loadQuizCourses();
+}
+
+async function renderQuizCards(courseId) {
+    const grid = document.getElementById("quizCardsGrid");
+    if (!grid) return;
+    const course = COURSES.find(c => c.id === courseId);
+    if (!course) { grid.innerHTML = ""; return; }
+
+    grid.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>';
+
+    let quizzes = [];
+    try {
+        const snapshot = await db.collection("quizzes").where("courseId", "==", courseId).get();
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            quizCache[data.id] = data;
+            quizzes.push(data);
+        });
+    } catch (e) {
+        console.warn("Квизы пока недоступны в базе:", e.message);
+    }
+
+    // Пока в админ-панели не добавлены реальные квизы — показываем демо-квиз, чтобы функционал был виден ученику.
+    if (quizzes.length === 0 && courseId === DEMO_QUIZ.courseId) {
+        quizCache[DEMO_QUIZ.id] = DEMO_QUIZ;
+        quizzes.push(DEMO_QUIZ);
+    }
+
+    if (quizzes.length === 0) {
+        grid.innerHTML = '<div class="schedule-empty">Квизов по этому курсу пока нет. Загляните позже!</div>';
+        return;
+    }
+
+    const completed = (userData && userData.quizzesCompleted) || [];
+
+    grid.innerHTML = quizzes.map(q => {
+        const attempts = completed.filter(c => c.id === q.id);
+        let bestLine = "";
+        if (attempts.length > 0) {
+            const best = attempts.reduce((a, b) => (b.score / b.total > a.score / a.total ? b : a));
+            const pct = Math.round(best.score / best.total * 100);
+            bestLine = '<div class="quiz-card-best">Лучший результат: ' + pct + '%</div>';
+        }
+        return `
+            <div class="quiz-card">
+                <div class="quiz-card-icon">🧠</div>
+                <div class="quiz-card-topic">${escapeHtml(q.topic || course.name)}</div>
+                <div class="quiz-card-title">${escapeHtml(q.title)}</div>
+                <div class="quiz-card-meta">${(q.questions || []).length} вопросов</div>
+                ${bestLine}
+                <button class="btn bg" style="width:100%;margin-top:0.4rem" onclick="startQuiz('${q.id}')">Пройти квиз</button>
+            </div>
+        `;
+    }).join("");
+}
+
+function openQuizPage() {
+    document.getElementById("quizPage").classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeQuizPage() {
+    document.getElementById("quizPage").classList.remove("active");
+    document.body.style.overflow = "auto";
+    quizActive = null;
+}
+
+function startQuiz(quizId) {
+    const quizData = quizCache[quizId];
+    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+        showToast("В этом квизе пока нет вопросов", "error");
+        return;
+    }
+    const questions = quizData.questions.map((q, i) => ({ ...q, qIndex: i, needed: 1, correct: 0 }));
+    const queue = shuffleArray(questions.map((_, i) => i));
+    quizActive = {
+        quizData: quizData,
+        questions: questions,
+        queue: queue,
+        totalUnique: questions.length,
+        correctFirstTry: 0,
+        everWrong: {}
+    };
+    document.getElementById("quizPageTitle").textContent = quizData.title;
+    openQuizPage();
+    renderCurrentQuizQuestion();
+}
+
+function insertSpaced(queue, qIdx, isWrong) {
+    if (queue.length === 0) { queue.push(qIdx); return; }
+    const spacing = isWrong ? Math.min(queue.length, 2 + Math.floor(Math.random() * 2)) : Math.min(queue.length, 1 + Math.floor(Math.random() * 2));
+    queue.splice(spacing, 0, qIdx);
+}
+
+function renderCurrentQuizQuestion() {
+    const content = document.getElementById("quizPageContent");
+    if (!content || !quizActive) return;
+    if (quizActive.queue.length === 0) { renderQuizComplete(); return; }
+
+    const qIdx = quizActive.queue[0];
+    const q = quizActive.questions[qIdx];
+    const doneCount = quizActive.totalUnique - new Set(quizActive.queue).size;
+    const progressPct = Math.round(doneCount / quizActive.totalUnique * 100);
+
+    content.innerHTML = `
+        <div class="quiz-progress"><div class="quiz-progress-bar" style="width:${progressPct}%"></div></div>
+        <div class="quiz-meta">Осталось вопросов в очереди: ${quizActive.queue.length} · Пройдено: ${doneCount} из ${quizActive.totalUnique}</div>
+        <div class="quiz-question-card">
+            <div class="quiz-question-text">${q.question}</div>
+            <div class="quiz-options" id="quizOptions">
+                ${q.options.map((opt, i) => `<button class="quiz-option" onclick="answerQuiz(${qIdx}, ${i})">${opt}</button>`).join("")}
+            </div>
+        </div>
+    `;
+    renderMathInElement(content);
+}
+
+function answerQuiz(qIdx, optionIdx) {
+    if (!quizActive) return;
+    const q = quizActive.questions[qIdx];
+    const isCorrect = optionIdx === q.correctIndex;
+
+    const optsEls = document.querySelectorAll("#quizOptions .quiz-option");
+    optsEls.forEach((el, i) => {
+        el.classList.add("disabled");
+        if (i === q.correctIndex) el.classList.add("correct");
+        else if (i === optionIdx) el.classList.add("wrong");
+    });
+
+    quizActive.queue.shift();
+
+    if (isCorrect) {
+        q.correct++;
+        if (q.correct >= q.needed) {
+            if (q.needed === 1) quizActive.correctFirstTry++;
+            // вопрос закрыт, обратно в очередь не возвращаем
+        } else {
+            insertSpaced(quizActive.queue, qIdx, false);
+        }
+    } else {
+        q.needed = 2;
+        q.correct = 0;
+        quizActive.everWrong[qIdx] = true;
+        insertSpaced(quizActive.queue, qIdx, true);
+    }
+
+    setTimeout(() => renderCurrentQuizQuestion(), 900);
+}
+
+function renderQuizComplete() {
+    const content = document.getElementById("quizPageContent");
+    if (!content || !quizActive) return;
+    const total = quizActive.totalUnique;
+    const pct = Math.round(quizActive.correctFirstTry / total * 100);
+    content.innerHTML = `
+        <div class="result-summary">
+            <div class="score">${pct}%</div>
+            <div class="label">правильных ответов с первой попытки (${quizActive.correctFirstTry} из ${total})</div>
+        </div>
+        <div style="text-align:center;margin-top:1rem;">
+            <button class="btn bg" onclick="closeQuizPage()">Готово</button>
+        </div>
+    `;
+    saveQuizResult();
+}
+
+async function saveQuizResult() {
+    if (!currentUser || !quizActive) return;
+    const topic = quizActive.quizData.topic || "Общее";
+    const total = quizActive.totalUnique;
+    const correctFirstTry = quizActive.correctFirstTry;
+
+    if (!userData.topicStats) userData.topicStats = {};
+    if (!userData.topicStats[topic]) userData.topicStats[topic] = { correct: 0, wrong: 0 };
+    userData.topicStats[topic].correct += correctFirstTry;
+    userData.topicStats[topic].wrong += (total - correctFirstTry);
+
+    if (!userData.quizzesCompleted) userData.quizzesCompleted = [];
+    userData.quizzesCompleted.push({
+        id: quizActive.quizData.id,
+        topic: topic,
+        score: correctFirstTry,
+        total: total,
+        completedAt: new Date().toISOString()
+    });
+
+    try {
+        await db.collection("users").doc(currentUser.uid).update({
+            topicStats: userData.topicStats,
+            quizzesCompleted: userData.quizzesCompleted
+        });
+    } catch (error) {
+        console.error("Ошибка сохранения результата квиза:", error);
+    }
+
+    updateAllRecommendations();
+    if (quizActiveCourseId) renderQuizCards(quizActiveCourseId);
+}
+
 // ========== ЗАПУСК ==========
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").textContent = "☀️"; }
     renderCoursesGrid();
     showLoader();
+    handleVkCallback();
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
                 if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
                 const doc = await db.collection("users").doc(user.uid).get();
-                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [] };
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
                 updateUIAfterLogin();
