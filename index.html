@@ -18,21 +18,24 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
+            /* белый фон с фиолетовым акцентом */
             --bg: #ffffff; --bg2: #f6f4fb; --bg3: #ece7f8;
             --card: #ffffff; --card2: #f9f8fc; --card3: #f1eefa;
             --line: #e5e1f2; --line2: #cec5e8;
+            /* "gold" role = основной фиолетовый акцент */
             --gold: #6c4fd1; --gold2: #573ead; --gold3: rgba(108,79,209,0.10);
+            /* "blue" role = тёплый акцент (для статусов/тегов) */
             --blue: #ff7a45; --blue2: #e8632f; --blue3: rgba(255,122,69,0.12);
             --green: #0e9488; --green2: rgba(14,148,136,0.1);
             --red: #d64545; --red2: rgba(214,69,69,0.1);
             --text: #1a1622; --text2: #574f68; --text3: #8f88a0;
-            --f: 'Inter', 'Segoe UI', Arial, sans-serif; 
-            --fs: 'Unbounded', 'Inter', sans-serif;
+            --f: 'Inter', 'Segoe UI', Arial, sans-serif; --fs: 'Unbounded', 'Inter', sans-serif;
             --fs-logo: 'Playfair Display', Georgia, serif;
             --shadow: 0 10px 30px -12px rgba(26,22,34,0.15);
             --brain-color: #14121a;
         }
         [data-theme="dark"] {
+            /* минималистичный нейтральный серый фон — без подкраски акцентным цветом */
             --bg: #121214; --bg2: #19191c; --bg3: #212125;
             --card: #1c1c20; --card2: #222226; --card3: #2a2a30;
             --line: #2d2d33; --line2: #3c3c44;
@@ -46,74 +49,24 @@
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: background 0.3s, color 0.3s; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* ========== ЭКРАН ЗАГРУЗКИ (только мозг) ========== */
         .loader-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg); z-index: 10000;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         .loader-screen.hide { opacity: 0; visibility: hidden; }
-        
-        .loader-wrapper {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .loader-content { text-align: center; }
+        .loader-logo { font-family: var(--fs-logo); font-size: 1.9rem; font-weight: 700; margin-bottom: 2rem; letter-spacing: 0; }
+        .loader-logo em { color: var(--gold); font-style: italic; }
+        .loader-brain-icon {
+            width: 128px; height: 128px; margin: 0 auto 1.4rem; display: block; color: var(--brain-color);
         }
+        .loader-brain-icon use { stroke-width: 15; }
+        .loader-text { color: var(--text2); font-size: 0.85rem; letter-spacing: 0.4px; }
+        .loader-progress { width: 200px; height: 3px; background: var(--gold3); margin: 1rem auto 0; border-radius: 3px; overflow: hidden; }
+        .loader-progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--gold), var(--blue)); transition: width 0.3s ease; }
 
-        .loader-svg-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        .loader-svg-container svg.brain-svg {
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-        }
-
-        .brain-path {
-            fill: none;
-            stroke: var(--brain-color);
-            stroke-width: 6;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 9999;
-            stroke-dashoffset: 9999;
-            transition: stroke-dashoffset 4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-        }
-
-        .brain-path.animated {
-            stroke-dashoffset: 0;
-        }
-
-        /* ========== ЛОГОТИП В НАВИГАЦИИ ========== */
-        .logo {
-            font-family: var(--fs-logo); 
-            font-size: 1.2rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            color: var(--text);
-            display: inline-flex; 
-            align-items: center; 
-            gap: 0.55rem; 
-            letter-spacing: 0;
-            flex-shrink: 0;
-        }
-        .logo-brain-icon {
-            width: 30px;
-            height: 30px;
-            flex-shrink: 0;
-            color: var(--brain-color);
-            display: block;
-        }
-        .logo-brain-icon use { stroke-width: 34; }
-        .logo em { color: var(--gold); font-style: italic; }
-
-        /* ========== ОСТАЛЬНЫЕ СТИЛИ ========== */
         .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             padding: 0.75rem 1.6rem; border-radius: 12px; border: none;
@@ -411,26 +364,33 @@
 
         nav {
             position: fixed; top: 0; left: 0; right: 0;
-            background: var(--card); 
-            background: color-mix(in srgb, var(--card) 92%, transparent);
+            background: var(--card); background: color-mix(in srgb, var(--card) 92%, transparent);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--line); 
-            z-index: 100;
-            height: 66px;
-            display: flex;
-            align-items: center;
+            border-bottom: 1px solid var(--line); z-index: 100;
         }
         .nav-container {
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 0 2rem;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            width: 100%;
+            max-width: 1200px; margin: 0 auto; padding: 0.9rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        
-        /* ========== ДЕКОРАТИВНЫЙ ФОН ========== */
+        .logo {
+            font-family: var(--fs-logo); font-size: 1.2rem; font-weight: 700; cursor: pointer; color: var(--text);
+            display: inline-flex; align-items: center; gap: 0.55rem; letter-spacing: 0;
+        }
+        .logo-brain-icon {
+            width: 30px; height: 30px; flex-shrink: 0; color: var(--brain-color);
+        }
+        .logo-brain-icon use { stroke-width: 34; }
+        .logo em { color: var(--gold); font-style: italic; }
+        .nav-links { display: flex; gap: 0.3rem; list-style: none; }
+        .nav-links a {
+            padding: 0.55rem 1.05rem; border-radius: 9px; color: var(--text2);
+            text-decoration: none; cursor: pointer; font-weight: 600; font-size: 0.92rem;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .nav-links a:hover { background: var(--card2); color: var(--text); }
+        .nav-buttons { display: flex; align-items: center; gap: 0.6rem; }
+
+        /* --- Декоративный фон: формулы и геометрия (минимализм, только публичная часть) --- */
         .bg-formulas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-f {
             position: absolute; color: var(--text3); opacity: 0.16;
@@ -640,7 +600,7 @@
 
         footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2.2rem; text-align: center; font-family: var(--fs-logo); font-weight: 700; }
 
-        /* ========== ЛИЧНЫЙ КАБИНЕТ ========== */
+        /* ===================== ЛИЧНЫЙ КАБИНЕТ: НОВЫЕ БЛОКИ ===================== */
         .accent-text { color: var(--gold); }
         .menu-icon { display: inline-block; width: 22px; margin-right: 0.4rem; text-align: center; }
 
@@ -652,6 +612,7 @@
         .block-title { font-family: var(--fs); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
         .block-title-hint { font-family: var(--f); font-size: 0.75rem; font-weight: 500; color: var(--text3); }
 
+        /* --- Рекомендации --- */
         .rec-list { display: flex; flex-direction: column; gap: 0.7rem; }
         .rec-card {
             display: flex; align-items: flex-start; gap: 0.8rem;
@@ -667,6 +628,7 @@
             background: var(--card2); border-radius: 14px; border: 1px dashed var(--line2); font-size: 0.9rem;
         }
 
+        /* --- "Продолжить обучение" --- */
         .continue-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem;
         }
@@ -684,6 +646,7 @@
         .continue-card .cc-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--blue)); border-radius: 4px; }
         .continue-card .cc-progress-label { font-size: 0.72rem; color: var(--text3); margin-bottom: 0.7rem; }
 
+        /* --- Вкладки курсов (ДЗ / Квизы) --- */
         .course-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .course-tab {
             padding: 0.6rem 1.1rem; border-radius: 11px; background: var(--card); border: 1.5px solid var(--line);
@@ -692,6 +655,7 @@
         .course-tab:hover { border-color: var(--gold); color: var(--text); }
         .course-tab.active { background: var(--gold); border-color: var(--gold); color: #fff; }
 
+        /* --- КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ДЗ --- */
         .hw-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.3rem; }
         .hw-card-lg {
             position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
@@ -730,6 +694,7 @@
         .hw-card-lg-footer { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: auto; }
         .hw-card-lg-btn { flex: 1; min-width: 140px; }
 
+        /* --- Квизы --- */
         .quiz-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
         .quiz-card {
             background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem;
@@ -767,12 +732,14 @@
         .quiz-option.disabled { cursor: default; pointer-events: none; }
         .quiz-option.disabled:not(.correct):not(.wrong) { opacity: 0.5; }
 
+        /* --- VK кнопка / разделитель --- */
         .auth-divider { display: flex; align-items: center; gap: 0.8rem; margin: 1.1rem 0; color: var(--text3); font-size: 0.78rem; }
         .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
         .vk-btn { background: #0077ff; color: #fff; }
         .vk-btn:hover { background: #0066dd; transform: translateY(-2px); }
         .vk-logo { font-family: var(--fs); font-weight: 800; font-size: 0.85rem; letter-spacing: -0.02em; }
 
+        /* --- Иконки (замена эмодзи) --- */
         .lp-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
         .icon-tile {
             display: inline-flex; align-items: center; justify-content: center;
@@ -800,47 +767,10 @@
             .hw-solve-page .hw-header h2 { font-size: 1.3rem; }
             .teachers-grid { grid-template-columns: 1fr; }
             .quiz-question-card { padding: 1.1rem; }
-            .nav-container { padding: 0 1rem; }
-            .logo { font-size: 1rem; }
-            .logo-brain-icon { width: 24px; height: 24px; }
         }
     </style>
 </head>
 <body>
-
-<!-- ========== ЭКРАН ЗАГРУЗКИ (ТОЛЬКО МОЗГ) ========== -->
-<div class="loader-screen" id="loaderScreen">
-    <div class="loader-wrapper">
-        <div class="loader-svg-container">
-            <svg class="brain-svg" viewBox="0 0 500 500">
-                <path id="brainPath" class="brain-path" d="
-                    M 280 490 
-                    C 305 460, 325 410, 310 365 
-                    C 295 320, 250 310, 260 270 
-                    C 270 230, 380 340, 420 280 
-                    C 445 240, 330 200, 300 240 
-                    C 270 280, 220 230, 205 285 
-                    C 190 340, 320 300, 390 310 
-                    C 435 315, 410 200, 330 180 
-                    C 280 165, 210 130, 180 180 
-                    C 150 230, 250 240, 310 180 
-                    C 370 120, 300 30, 230 70 
-                    C 180 100, 130 30, 80 80 
-                    C 40 120, 30 180, 70 220 
-                    C 100 250, 40 280, 80 310 
-                    C 120 340, 175 250, 195 240 
-                    C 220 230, 200 170, 130 180 
-                    C 70 190, 80 120, 130 100 
-                    C 180 80, 200 140, 230 120 
-                    C 260 100, 270 40, 330 30 
-                    C 390 20, 420 80, 380 130 
-                    C 350 170, 410 110, 430 160 
-                    C 450 210, 370 230, 340 200
-                " />
-            </svg>
-        </div>
-    </div>
-</div>
 
 <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
     <defs>
@@ -852,7 +782,15 @@
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ========== МОДАЛЬНЫЕ ОКНА ========== -->
+<div class="loader-screen" id="loaderScreen">
+    <div class="loader-content">
+        <svg class="loader-brain-icon" id="loaderBrainIcon" viewBox="6 7 601 609"><use href="#brainIconSymbol"></use></svg>
+        <div class="loader-logo">Logistical <em>Points</em></div>
+        <div class="loader-text" id="loaderText">Загрузка материалов...</div>
+        <div class="loader-progress"><div class="loader-progress-bar" id="loaderProgressBar"></div></div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <div class="modal-header"><h3 id="authTitle">Вход</h3><button class="modal-close" onclick="closeAuthModal()">&times;</button></div>
@@ -888,7 +826,7 @@
     </div>
 </div>
 
-<!-- ========== СТРАНИЦА РЕШЕНИЯ ДЗ ========== -->
+<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА РЕШЕНИЯ / ПРОСМОТРА ДЗ -->
 <div class="hw-solve-page" id="hwSolvePage">
     <div class="hw-header">
         <h2 id="hwSolveTitle">Решение домашнего задания</h2>
@@ -897,16 +835,6 @@
     <div id="hwSolveContent"></div>
 </div>
 
-<!-- ========== СТРАНИЦА КВИЗА ========== -->
-<div class="hw-solve-page" id="quizPage">
-    <div class="hw-header">
-        <h2 id="quizPageTitle">Квиз</h2>
-        <button class="close-btn" onclick="closeQuizPage()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12"/><path d="m18 6-12 12"/></svg></button>
-    </div>
-    <div id="quizPageContent"></div>
-</div>
-
-<!-- ========== ГЛАВНАЯ СТРАНИЦА ========== -->
 <div id="homePage">
     <div class="bg-formulas" aria-hidden="true">
         <span class="bg-f f1">E = mc²</span>
@@ -918,13 +846,9 @@
         <svg class="bg-f f6" viewBox="0 0 100 100" width="72" height="72"><polygon points="50,10 90,88 10,88" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
         <svg class="bg-f f7" viewBox="0 0 100 100" width="64" height="64"><circle cx="50" cy="50" r="34" fill="none" stroke="currentColor" stroke-width="2.5"/><line x1="50" y1="50" x2="84" y2="50" stroke="currentColor" stroke-width="2.5"/></svg>
     </div>
-
     <nav>
         <div class="nav-container">
-            <div class="logo" onclick="showHome()">
-                <svg class="logo-brain-icon" viewBox="6 7 601 609"><use href="#brainIconSymbol"></use></svg>
-                Logistical <em>Points</em>
-            </div>
+            <div class="logo" onclick="showHome()"><svg class="logo-brain-icon" viewBox="6 7 601 609"><use href="#brainIconSymbol"></use></svg>Logistical <em>Points</em></div>
             <ul class="nav-links">
                 <li><a onclick="scrollToSection('math')">Математика</a></li>
                 <li><a onclick="scrollToSection('physics')">Физика</a></li>
@@ -1001,14 +925,10 @@
     </footer>
 </div>
 
-<!-- ========== ЛИЧНЫЙ КАБИНЕТ ========== -->
 <div id="dashboard" class="dashboard">
     <nav>
         <div class="nav-container">
-            <div class="logo" onclick="showHome()">
-                <svg class="logo-brain-icon" viewBox="6 7 601 609"><use href="#brainIconSymbol"></use></svg>
-                Logistical <em>Points</em>
-            </div>
+            <div class="logo" onclick="showHome()"><svg class="logo-brain-icon" viewBox="6 7 601 609"><use href="#brainIconSymbol"></use></svg>Logistical <em>Points</em></div>
             <div class="nav-buttons"><button class="btn brs" onclick="handleLogout()">Выйти</button></div>
         </div>
     </nav>
@@ -1082,6 +1002,15 @@
     </div>
 </div>
 
+<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА КВИЗА -->
+<div class="hw-solve-page" id="quizPage">
+    <div class="hw-header">
+        <h2 id="quizPageTitle">Квиз</h2>
+        <button class="close-btn" onclick="closeQuizPage()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12"/><path d="m18 6-12 12"/></svg></button>
+    </div>
+    <div id="quizPageContent"></div>
+</div>
+
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn"><svg class="lp-icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -1090,7 +1019,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
 <script>
-// ========== FIREBASE ==========
 const firebaseConfig = {
     apiKey: "AIzaSyBleIVgdk6mecBGsGVMSniJes0x4czO6dI",
     authDomain: "logistical-points.firebaseapp.com",
@@ -1103,7 +1031,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// ========== БИБЛИОТЕКА ИКОНОК ==========
+// ========== БИБЛИОТЕКА ИКОНОК (замена эмодзи на векторные картинки) ==========
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
     graduationCap: '<path d="m2 9 10-5 10 5-10 5-10-5Z"/><path d="M6 11.5V17c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 9v6"/>',
@@ -1151,14 +1079,22 @@ let userAnswers = {};
 let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
+
+// ==== Личный кабинет: домашние задания по вкладкам ====
 let hwActiveCourseId = null;
-let hwCache = {};
-let quizListCache = {};
+let hwCache = {}; // courseId -> homeworks[] (устраняет повторные сетевые запросы и задержку открытия вкладки)
+let quizListCache = {}; // courseId -> quizzes[]
+
+// ==== Рекомендации на основе прогресса ====
 let lessonRecs = [];
+
+// ==== Квизы ====
 let quizActiveCourseId = null;
 let quizCache = {};
 let quizActive = null;
 
+// Демо-квиз показывается, если для курса ещё не добавлены реальные квизы в админке —
+// чтобы функционал можно было сразу продемонстрировать ученику.
 const DEMO_QUIZ = {
     id: "demo-algebra-1",
     courseId: "algebra",
@@ -1174,10 +1110,16 @@ const DEMO_QUIZ = {
     ]
 };
 
+// ==== Вход через VK ====
+// Firebase не умеет авторизовывать через VK "из коробки". Чтобы кнопка ниже заработала полностью, нужно:
+// 1) Создать VK-приложение (vk.com/apps?act=manage) и получить его client_id — подставить в VK_CLIENT_ID.
+// 2) Поднять небольшую серверную функцию (например, Firebase Cloud Function), которая примет код
+//    авторизации VK, обменяет его на access_token через VK API и создаст Firebase custom token
+//    через Admin SDK — её адрес указать в VK_AUTH_ENDPOINT.
+// Без этих двух шагов кнопка покажет понятное сообщение вместо ошибки.
 const VK_CLIENT_ID = "";
 const VK_AUTH_ENDPOINT = "";
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -1197,8 +1139,11 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 4000);
 }
 
+// ========== ПАРСИНГ ИЗОБРАЖЕНИЙ В ТЕКСТЕ ==========
 function parseImagesInText(text) {
     if (!text) return '';
+    
+    // Ищем теги [img:URL:ширина:подпись]
     var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
     var result = text;
     var match;
@@ -1207,20 +1152,28 @@ function parseImagesInText(text) {
         var url = match[1].trim();
         var width = match[2].trim() || '80%';
         var caption = match[3].trim() || '';
+        
         var imgHtml = `
             <div style="text-align:center;margin:0.8rem 0;">
                 <img src="${url}" style="max-width:${width};border-radius:8px;border:1px solid var(--line);" alt="${caption}">
                 ${caption ? `<div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem;">${caption}</div>` : ''}
             </div>
         `;
+        
         result = result.replace(fullMatch, imgHtml);
     }
+    
     return result;
 }
 
+// ========== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX ==========
 async function renderMath() {
     if (window.MathJax && MathJax.typesetPromise) {
-        try { await MathJax.typesetPromise(); } catch (e) { console.warn("MathJax error:", e); }
+        try {
+            await MathJax.typesetPromise();
+        } catch (e) {
+            console.warn("MathJax error:", e);
+        }
     }
 }
 
@@ -1230,43 +1183,61 @@ async function renderMathInElement(el) {
         try {
             if (MathJax.typesetClear) MathJax.typesetClear([el]);
             await MathJax.typesetPromise([el]);
-        } catch (e) { console.warn("MathJax error:", e); }
+        } catch (e) {
+            console.warn("MathJax error:", e);
+        }
     }
 }
 
-function shuffleArray(arr) {
-    const a = arr.slice();
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-}
+let loaderInterval = null;
 
-// ========== АНИМАЦИЯ ЗАГРУЗКИ ==========
-function startLoaderAnimation() {
-    const path = document.getElementById('brainPath');
+// ========== АНИМАЦИЯ "РИСОВАНИЯ" ЛОГОТИПА-МОЗГА ==========
+// Один общий <path> в скрытом SVG-спрайте переиспользуется через <use> и в шапке, и на
+// экране загрузки — анимируя его один раз, получаем эффект отрисовки одновременно везде,
+// где используется логотип.
+function playBrainDrawAnimation() {
+    const path = document.getElementById("brainStrokePath");
     if (!path) return;
-    
-    const totalLength = path.getTotalLength();
-    path.style.strokeDasharray = totalLength;
-    path.style.strokeDashoffset = totalLength;
-    
-    // Запускаем анимацию после небольшой задержки
-    setTimeout(() => {
-        path.classList.add('animated');
-    }, 300);
+    const length = path.getTotalLength();
+    path.style.transition = "none";
+    path.style.strokeDasharray = length;
+    path.style.strokeDashoffset = length;
+    path.getBoundingClientRect(); // форсируем reflow, чтобы transition сработал заново
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            path.style.transition = "stroke-dashoffset 2.6s cubic-bezier(0.65,0,0.35,1)";
+            path.style.strokeDashoffset = "0";
+        });
+    });
+}
+
+function showLoader() {
+    const loader = document.getElementById("loaderScreen");
+    const progressBar = document.getElementById("loaderProgressBar");
+    const loaderText = document.getElementById("loaderText");
+    playBrainDrawAnimation();
+    let progress = 0;
+    const steps = ["Загрузка материалов...", "Подготовка курсов...", "Настройка интерфейса...", "Почти готово..."];
+    loaderInterval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress > 92) progress = 92;
+        progressBar.style.width = progress + "%";
+        const stepIndex = Math.floor(progress / 25);
+        if (stepIndex < steps.length) loaderText.textContent = steps[stepIndex];
+    }, 200);
 }
 
 function hideLoader() {
+    if (loaderInterval) { clearInterval(loaderInterval); loaderInterval = null; }
     const loader = document.getElementById("loaderScreen");
-    loader.classList.add("hide");
+    const progressBar = document.getElementById("loaderProgressBar");
+    progressBar.style.width = "100%";
     setTimeout(() => {
-        loader.style.display = "none";
-    }, 800);
+        loader.classList.add("hide");
+        setTimeout(() => loader.style.display = "none", 500);
+    }, 200);
 }
 
-// ========== АВТОРИЗАЦИЯ ==========
 function openAuthModal() { document.getElementById("authModal").classList.add("active"); }
 function closeAuthModal() { document.getElementById("authModal").classList.remove("active"); }
 function openResetModal() { document.getElementById("resetModal").classList.add("active"); }
@@ -1324,9 +1295,10 @@ function handleRegister() {
 
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
+// ========== ВХОД ЧЕРЕЗ VK ==========
 function handleVkLogin() {
     if (!VK_CLIENT_ID) {
-        showToast("Вход через VK ещё не настроен", "info");
+        showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID и серверная функция", "info");
         return;
     }
     const redirectUri = window.location.origin + window.location.pathname;
@@ -1369,7 +1341,6 @@ async function handleVkCallback() {
     }
 }
 
-// ========== UI ОБНОВЛЕНИЕ ==========
 function updateUIAfterLogin() {
     document.getElementById("navButtons").innerHTML = '<span style="margin-right:0.5rem">' + userData.name + '</span><button class="btn brs" onclick="handleLogout()">Выйти</button>';
     document.getElementById("userName").textContent = userData.name;
@@ -1405,7 +1376,6 @@ async function updateLessonsCount() {
     document.getElementById("statLessons").textContent = totalLessons;
 }
 
-// ========== КУРСЫ ==========
 function renderCoursesGrid() {
     const mathContainer = document.getElementById("mathCourses");
     const physicsContainer = document.getElementById("physicsCourses");
@@ -1468,7 +1438,65 @@ function renderAvailableCourses() {
         </div>`).join("");
 }
 
-// ========== КОНСПЕКТЫ ==========
+async function renderContinueLearning() {
+    const container = document.getElementById("continueLearning");
+    if (!container) return;
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс, чтобы начать.</p>"; return; }
+    const cards = [];
+    for (const course of enrolled.slice(0, 6)) {
+        let percent = 0;
+        try {
+            const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
+            const totalLessons = lessonsSnap.size;
+            const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
+            percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
+        } catch (e) { /* игнорируем, оставляем 0% */ }
+        cards.push(`
+            <div class="continue-card" onclick="openCourseLessons('${course.id}')">
+                <div class="cc-icon">${course.icon}</div>
+                <div class="cc-name">${escapeHtml(course.name)}</div>
+                <div class="cc-progress-track"><div class="cc-progress-fill" style="width:${percent}%"></div></div>
+                <div class="cc-progress-label">Пройдено ${percent}%</div>
+                <button class="btn bg bsm" style="width:100%">Продолжить</button>
+            </div>
+        `);
+    }
+    container.innerHTML = cards.join("");
+}
+
+async function renderProgress() {
+    const container = document.getElementById("progressList");
+    if (!container) return;
+    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; lessonRecs = []; updateAllRecommendations(); return; }
+    container.innerHTML = "";
+    lessonRecs = [];
+    for (const course of enrolled) {
+        const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
+        const totalLessons = lessonsSnap.size;
+        const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
+        const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
+        if (totalLessons > 0 && percent < 50) {
+            lessonRecs.push({
+                level: percent < 25 ? "high" : "medium",
+                text: 'Продолжите изучение конспектов по курсу «' + course.name + '» — пройдено всего ' + percent + '%.'
+            });
+        }
+        container.innerHTML += '<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
+                '<div><strong>' + course.name + '</strong></div>' +
+                '<div style="font-size:1.2rem;font-weight:700;color:var(--gold)">' + percent + '%</div>' +
+            '</div>' +
+            '<div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">' +
+                '<div style="width:' + percent + '%;height:100%;background:var(--gold);border-radius:3px"></div>' +
+            '</div>' +
+            '<div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ' + completedCount + ' из ' + totalLessons + '</div>' +
+        '</div>';
+    }
+    updateAllRecommendations();
+}
+
 async function openCourseLessons(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     if (!course) return;
@@ -1560,68 +1588,7 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
-// ========== ПРОДОЛЖИТЬ ОБУЧЕНИЕ ==========
-async function renderContinueLearning() {
-    const container = document.getElementById("continueLearning");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс, чтобы начать.</p>"; return; }
-    const cards = [];
-    for (const course of enrolled.slice(0, 6)) {
-        let percent = 0;
-        try {
-            const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
-            const totalLessons = lessonsSnap.size;
-            const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
-            percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
-        } catch (e) { /* игнорируем */ }
-        cards.push(`
-            <div class="continue-card" onclick="openCourseLessons('${course.id}')">
-                <div class="cc-icon">${course.icon}</div>
-                <div class="cc-name">${escapeHtml(course.name)}</div>
-                <div class="cc-progress-track"><div class="cc-progress-fill" style="width:${percent}%"></div></div>
-                <div class="cc-progress-label">Пройдено ${percent}%</div>
-                <button class="btn bg bsm" style="width:100%">Продолжить</button>
-            </div>
-        `);
-    }
-    container.innerHTML = cards.join("");
-}
-
-// ========== ПРОГРЕСС ==========
-async function renderProgress() {
-    const container = document.getElementById("progressList");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; lessonRecs = []; updateAllRecommendations(); return; }
-    container.innerHTML = "";
-    lessonRecs = [];
-    for (const course of enrolled) {
-        const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
-        const totalLessons = lessonsSnap.size;
-        const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
-        const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
-        if (totalLessons > 0 && percent < 50) {
-            lessonRecs.push({
-                level: percent < 25 ? "high" : "medium",
-                text: 'Продолжите изучение конспектов по курсу «' + course.name + '» — пройдено всего ' + percent + '%.'
-            });
-        }
-        container.innerHTML += '<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
-                '<div><strong>' + course.name + '</strong></div>' +
-                '<div style="font-size:1.2rem;font-weight:700;color:var(--gold)">' + percent + '%</div>' +
-            '</div>' +
-            '<div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">' +
-                '<div style="width:' + percent + '%;height:100%;background:var(--gold);border-radius:3px"></div>' +
-            '</div>' +
-            '<div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ' + completedCount + ' из ' + totalLessons + '</div>' +
-        '</div>';
-    }
-    updateAllRecommendations();
-}
-
-// ========== РЕКОМЕНДАЦИИ ==========
+// ========== РЕКОМЕНДАЦИИ НА ОСНОВЕ ПРОГРЕССА ==========
 function computeRecommendations() {
     const recs = [];
     const subs = (userData && userData.homeworkSubmissions) || [];
@@ -1721,6 +1688,22 @@ function toggleTheme() {
     }
 }
 
+function openHwSolvePage() {
+    document.getElementById("hwSolvePage").classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeHwSolvePage() {
+    document.getElementById("hwSolvePage").classList.remove("active");
+    document.body.style.overflow = "auto";
+    currentSolveHwId = null;
+    currentSolveHwData = null;
+    userAnswers = {};
+    currentTaskIndex = 0;
+    isSubmitted = false;
+    taskSolveFiles = {};
+}
+
 // ========== РАСПИСАНИЕ ==========
 async function loadStudentSchedule() {
     const container = document.getElementById("scheduleContainer");
@@ -1730,7 +1713,7 @@ async function loadStudentSchedule() {
         const scheduleItems = [];
         snapshot.forEach(doc => scheduleItems.push({ id: doc.id, ...doc.data() }));
         if (scheduleItems.length === 0) {
-            container.innerHTML = '<div class="schedule-empty"><p>Расписание пока не составлено</p></div>';
+            container.innerHTML = '<div class="schedule-empty"><p>Расписание пока не составлено</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Следите за обновлениями</p></div>';
             return;
         }
         const enrolledCourses = userData.enrolledCourses || [];
@@ -1748,7 +1731,7 @@ async function loadStudentSchedule() {
         }
         const dateKeys = Object.keys(grouped).sort();
         if (dateKeys.length === 0) {
-            container.innerHTML = '<div class="schedule-empty"><p>Нет занятий по вашим курсам</p></div>';
+            container.innerHTML = '<div class="schedule-empty"><p>Нет занятий по вашим курсам</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Запишитесь на курсы, чтобы видеть расписание</p></div>';
             return;
         }
         let html = '';
@@ -1787,7 +1770,7 @@ async function loadStudentSchedule() {
     }
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ ==========
+// ========== ДОМАШНИЕ ЗАДАНИЯ: КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ==========
 async function loadHomeworkCourses() {
     const tabsContainer = document.getElementById("hwCourseTabs");
     const gridContainer = document.getElementById("hwCardsGrid");
@@ -1795,7 +1778,7 @@ async function loadHomeworkCourses() {
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
     if (enrolled.length === 0) {
         tabsContainer.innerHTML = "";
-        gridContainer.innerHTML = '<div class="schedule-empty">У вас нет активных курсов.</div>';
+        gridContainer.innerHTML = '<div class="schedule-empty">У вас нет активных курсов. Запишитесь на курс, чтобы получать домашние задания.</div>';
         return;
     }
     if (!hwActiveCourseId || !enrolled.find(c => c.id === hwActiveCourseId)) {
@@ -1812,6 +1795,7 @@ function selectHwCourse(courseId) {
     loadHomeworkCourses();
 }
 
+// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
 async function refreshUserData() {
     if (!currentUser) return;
     try {
@@ -1832,6 +1816,12 @@ async function renderHomeworkCards(courseId, forceRefresh) {
     if (!course) { grid.innerHTML = ""; return; }
     if (!currentUser || !currentUser.email) { grid.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
 
+    // Раньше здесь на каждое открытие вкладки/переключение курса делался лишний
+    // await refreshUserData() (отдельное чтение из Firestore) ПЕРЕД запросом заданий —
+    // из-за этого карточки всегда грузились с задержкой в два сетевых запроса подряд.
+    // userData и так поддерживается в актуальном состоянии локально (после enroll/submit),
+    // поэтому этот запрос убран. Дополнительно кэшируем список заданий по курсу,
+    // чтобы повторное открытие вкладки отображалось мгновенно, без похода в сеть.
     if (!forceRefresh && hwCache[courseId]) {
         renderHwCardsFromData(course, hwCache[courseId]);
         return;
@@ -1853,7 +1843,7 @@ async function renderHomeworkCards(courseId, forceRefresh) {
         renderHwCardsFromData(course, homeworks);
     } catch (err) {
         console.error(err);
-        grid.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий</div>';
+        grid.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий: ' + escapeHtml(err.message) + '</div>';
     }
 }
 
@@ -1872,6 +1862,10 @@ function renderHwCardsFromData(course, homeworks) {
         const submitted = submissions.find(s => s.id === hw.id);
         const isGraded = hw.status === 'graded' || hw.status === 'returned';
 
+        // Логика трёх состояний кнопки:
+        // 1) не сдано -> "Приступить к выполнению"
+        // 2) сдано, есть часть с проверкой преподавателем и она ещё не проверена -> "На проверке"
+        // 3) сдано и проверено (автоматически или преподавателем) -> "Посмотреть результат"
         let statusKey, statusText, btnLabel, btnClass, btnOnclick, extraBtn = "";
 
         if (!submitted) {
@@ -1917,7 +1911,7 @@ function renderHwCardsFromData(course, homeworks) {
     }).join("");
 }
 
-// ========== ЗАПУСК ДЗ ==========
+// ========== ЗАПУСК ДЗ (С ПОДДЕРЖКОЙ ИЗОБРАЖЕНИЙ) ==========
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -1958,8 +1952,11 @@ async function startHomework(hwId) {
         <div id="hwTasksContainer">
             ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
                 const isSecondPart = task.isSecondPart || false;
+                
+                // === ПАРСИМ ИЗОБРАЖЕНИЯ В УСЛОВИИ ===
                 const conditionHtml = parseImagesInText(task.condition || "Условие задачи не добавлено");
                 
+                // === ФАЙЛЫ К ЗАДАЧЕ ===
                 let taskFilesHtml = '';
                 if (task.files && task.files.length > 0) {
                     taskFilesHtml = `
@@ -2014,7 +2011,9 @@ async function startHomework(hwId) {
                     <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
                         <div class="task-content ${contentClass}" id="taskcontent_${index}">
                             <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
-                            <div class="task-condition">${conditionHtml}</div>
+                            <div class="task-condition">
+                                ${conditionHtml}
+                            </div>
                             ${taskFilesHtml}
                             ${answerHtml}
                             <div class="task-result" id="result_${index}" style="display:none;"></div>
@@ -2041,22 +2040,6 @@ async function startHomework(hwId) {
     openHwSolvePage();
     updateNavButtons();
     setTimeout(() => renderMath(), 300);
-}
-
-function openHwSolvePage() {
-    document.getElementById("hwSolvePage").classList.add("active");
-    document.body.style.overflow = "hidden";
-}
-
-function closeHwSolvePage() {
-    document.getElementById("hwSolvePage").classList.remove("active");
-    document.body.style.overflow = "auto";
-    currentSolveHwId = null;
-    currentSolveHwData = null;
-    userAnswers = {};
-    currentTaskIndex = 0;
-    isSubmitted = false;
-    taskSolveFiles = {};
 }
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
@@ -2108,6 +2091,7 @@ function removeTaskSolveFile(taskIndex, idx) {
     }
 }
 
+// ========== НАВИГАЦИЯ ПО ЗАДАЧАМ ==========
 function goToTask(index) {
     const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
     if (index < 0 || index >= totalTasks) return;
@@ -2519,7 +2503,23 @@ function openHwReviewPage(hwId, hw, submission) {
     setTimeout(() => renderMathInElement(document.getElementById('hwSolveContent')), 300);
 }
 
-// ========== КВИЗЫ ==========
+// ========================================================================
+// ========== КВИЗЫ НА ПОВТОРЕНИЕ ==========
+// Правила: выбрал верный ответ — вопрос считается пройденным (если ранее
+// по нему не было ошибок), иначе нужно ответить верно ДВАЖДЫ в разных
+// местах квиза. Если выбрал неверный ответ — вопрос уходит в конец
+// очереди (не подряд) и требование "верно дважды" включается.
+// ========================================================================
+
+function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 async function loadQuizCourses() {
     const tabsContainer = document.getElementById("quizCourseTabs");
     const gridContainer = document.getElementById("quizCardsGrid");
@@ -2566,6 +2566,7 @@ async function renderQuizCards(courseId) {
         } catch (e) {
             console.warn("Квизы пока недоступны в базе:", e.message);
         }
+        // Пока в админ-панели не добавлены реальные квизы — показываем демо-квиз, чтобы функционал был виден ученику.
         if (quizzes.length === 0 && courseId === DEMO_QUIZ.courseId) {
             quizCache[DEMO_QUIZ.id] = DEMO_QUIZ;
             quizzes.push(DEMO_QUIZ);
@@ -2584,7 +2585,7 @@ async function renderQuizCards(courseId) {
         const attempts = completed.filter(c => c.id === q.id);
         let bestLine = "";
         if (attempts.length > 0) {
-            const best = attempts.reduce((a, b) => (a.score / a.total > b.score / b.total ? a : b));
+            const best = attempts.reduce((a, b) => (b.score / b.total > a.score / a.total ? b : a));
             const pct = Math.round(best.score / best.total * 100);
             bestLine = '<div class="quiz-card-best">Лучший результат: ' + pct + '%</div>';
         }
@@ -2680,6 +2681,7 @@ function answerQuiz(qIdx, optionIdx) {
         q.correct++;
         if (q.correct >= q.needed) {
             if (q.needed === 1) quizActive.correctFirstTry++;
+            // вопрос закрыт, обратно в очередь не возвращаем
         } else {
             insertSpaced(quizActive.queue, qIdx, false);
         }
@@ -2743,42 +2745,24 @@ async function saveQuizResult() {
     if (quizActiveCourseId) { delete quizListCache[quizActiveCourseId]; renderQuizCards(quizActiveCourseId); }
 }
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ========== ЗАПУСК ==========
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
-    if (savedTheme === "dark") { 
-        document.documentElement.setAttribute("data-theme", "dark"); 
-        document.getElementById("themeBtn").innerHTML = iconSvg("sun", 19); 
-    }
+    if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").innerHTML = iconSvg("sun", 19); }
     renderCoursesGrid();
-    startLoaderAnimation();
+    showLoader();
     handleVkCallback();
-    
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
-                if (!user.emailVerified) { 
-                    showToast("Подтвердите email!", "error"); 
-                    await auth.signOut(); 
-                    return; 
-                }
+                if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
                 const doc = await db.collection("users").doc(user.uid).get();
-                userData = doc.exists ? doc.data() : { 
-                    name: user.email.split("@")[0], 
-                    email: user.email, 
-                    grade: "", 
-                    enrolledCourses: [], 
-                    completedLessons: [], 
-                    homeworkSubmissions: [], 
-                    topicStats: {}, 
-                    quizzesCompleted: [] 
-                };
+                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [] };
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
                 updateUIAfterLogin();
             } else {
-                currentUser = null; 
-                userData = null;
+                currentUser = null; userData = null;
                 document.getElementById("homePage").style.display = "block";
                 document.getElementById("dashboard").classList.remove("active");
             }
