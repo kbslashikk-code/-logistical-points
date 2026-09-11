@@ -18,29 +18,29 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            /* белый фон с фиолетовым акцентом */
-            --bg: #ffffff; --bg2: #f6f4fb; --bg3: #ece7f8;
-            --card: #ffffff; --card2: #f9f8fc; --card3: #f1eefa;
-            --line: #e5e1f2; --line2: #cec5e8;
-            /* "gold" role = основной фиолетовый акцент */
-            --gold: #6c4fd1; --gold2: #573ead; --gold3: rgba(108,79,209,0.10);
+            /* белый фон с мягким розовым акцентом (сакура) */
+            --bg: #ffffff; --bg2: #fdf3f5; --bg3: #fbe6ea;
+            --card: #ffffff; --card2: #fef8f9; --card3: #fceef1;
+            --line: #f5dde2; --line2: #edc3cd;
+            /* "gold" role = основной розовый акцент (сакура) */
+            --gold: #e8829d; --gold2: #d3617f; --gold3: rgba(232,130,157,0.12);
             /* "blue" role = тёплый акцент (для статусов/тегов) */
-            --blue: #ff7a45; --blue2: #e8632f; --blue3: rgba(255,122,69,0.12);
+            --blue: #ff9a76; --blue2: #e87d54; --blue3: rgba(255,154,118,0.14);
             --green: #0e9488; --green2: rgba(14,148,136,0.1);
             --red: #d64545; --red2: rgba(214,69,69,0.1);
-            --text: #1a1622; --text2: #574f68; --text3: #8f88a0;
+            --text: #241a1e; --text2: #6b555c; --text3: #a3888f;
             --f: 'Inter', 'Segoe UI', Arial, sans-serif; --fs: 'Unbounded', 'Inter', sans-serif;
             --fs-logo: 'Playfair Display', Georgia, serif;
-            --shadow: 0 10px 30px -12px rgba(26,22,34,0.15);
-            --brain-color: #14121a;
+            --shadow: 0 10px 30px -12px rgba(36,26,30,0.15);
+            --brain-color: #201a1d;
         }
         [data-theme="dark"] {
             /* минималистичный нейтральный серый фон — без подкраски акцентным цветом */
             --bg: #121214; --bg2: #19191c; --bg3: #212125;
             --card: #1c1c20; --card2: #222226; --card3: #2a2a30;
             --line: #2d2d33; --line2: #3c3c44;
-            --gold: #9d89f5; --gold2: #b3a2ff; --gold3: rgba(157,137,245,0.16);
-            --blue: #ff9466; --blue2: #ffab85; --blue3: rgba(255,148,102,0.16);
+            --gold: #ef9fb2; --gold2: #f4b6c5; --gold3: rgba(239,159,178,0.16);
+            --blue: #ffab85; --blue2: #ffc0a3; --blue3: rgba(255,171,133,0.16);
             --green: #2dd4b8; --green2: rgba(45,212,184,0.14);
             --red: #ff6b6b; --red2: rgba(255,107,107,0.14);
             --text: #f1f0f4; --text2: #a7a5b1; --text3: #6f6d78;
@@ -69,8 +69,8 @@
             padding: 0.75rem 1.6rem; border-radius: 12px; border: none;
             font-weight: 700; font-family: var(--f); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease; font-size: 0.95rem;
         }
-        .btn.bg { background: var(--gold); color: white; box-shadow: 0 6px 16px -6px rgba(108,79,209,0.5); }
-        .btn.bg:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 10px 22px -6px rgba(108,79,209,0.55); }
+        .btn.bg { background: var(--gold); color: white; box-shadow: 0 6px 16px -6px rgba(232,130,157,0.45); }
+        .btn.bg:hover { background: var(--gold2); transform: translateY(-2px); box-shadow: 0 10px 22px -6px rgba(232,130,157,0.5); }
         .btn.bo { background: transparent; border: 2px solid var(--line); color: var(--text); }
         .btn.bo:hover { border-color: var(--gold); color: var(--gold); }
         .btn.brs { background: var(--red2); color: var(--red); }
@@ -181,79 +181,41 @@
             border-radius: 14px;
             border: 1px solid var(--line);
         }
+        .quick-jump-bar {
+            position: sticky; top: 0; z-index: 50; background: var(--card);
+            border: 1px solid var(--line); border-radius: 14px; padding: 0.9rem 1rem;
+            margin-bottom: 1.3rem; box-shadow: var(--shadow);
+        }
+        .quick-jump-label { font-size: 0.78rem; font-weight: 700; color: var(--text2); margin-bottom: 0.6rem; }
+        .quick-jump-numbers { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.7rem; }
         .hw-dot {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 36px; height: 36px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.75rem; font-weight: 700;
             cursor: pointer; transition: all 0.2s;
-            border: 2px solid var(--line);
-            background: var(--card);
+            border: 1.5px solid var(--line);
+            background: var(--card2);
             color: var(--text2);
             position: relative;
             user-select: none;
         }
-        .hw-dot:hover { transform: translateY(-2px); border-color: var(--gold); }
-        .hw-dot.active { 
-            border-color: var(--gold); 
-            background: var(--gold3); 
-            color: var(--gold); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px -4px rgba(108,79,209,0.35);
-        }
-        .hw-dot.correct { 
-            background: var(--green); 
-            border-color: var(--green); 
-            color: white;
-            box-shadow: 0 6px 14px -4px rgba(18,135,90,0.4);
-        }
-        .hw-dot.wrong { 
-            background: var(--red); 
-            border-color: var(--red); 
-            color: white;
-            box-shadow: 0 6px 14px -4px rgba(209,58,58,0.4);
-        }
-        .hw-dot.has-answer { border-color: var(--gold); border-width: 3px; }
+        .hw-dot:hover { border-color: var(--gold); color: var(--gold); }
+        .hw-dot.correct { background: var(--green); border-color: var(--green); color: white; }
+        .hw-dot.wrong { background: var(--red); border-color: var(--red); color: white; }
+        .hw-dot.has-answer { border-color: var(--gold); border-width: 2px; }
         .hw-dot.submitted { cursor: default; opacity: 0.9; }
-        .hw-dot.active.correct, .hw-dot.active.wrong {
-            outline: 3px solid var(--gold);
-            outline-offset: 2px;
-        }
-        .hw-dot.second-part {
-            border-color: var(--line2);
-            border-radius: 50%;
-            background: var(--card);
-            color: var(--text2);
-        }
-        .hw-dot.second-part.has-answer { border-color: var(--gold); border-width: 3px; }
-        .hw-dot.second-part.submitted { background: var(--gold3); color: var(--gold); border-color: var(--gold); }
-
-        .hw-counter {
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 1rem; margin-bottom: 1rem;
-            font-size: 0.9rem; color: var(--text2);
-            padding: 0.6rem 1.1rem;
-            background: var(--card2);
-            border-radius: 12px;
-            border: 1px solid var(--line);
-        }
-        .hw-counter .score {
-            font-weight: 800; color: var(--gold);
-            font-size: 1.25rem;
-        }
-        .hw-counter .score-total {
-            font-weight: 700; color: var(--text2);
+        .hw-dot.second-part { border-radius: 50%; }
+        .quick-jump-goto-bookmark {
+            width: 100%; padding: 0.6rem; border-radius: 10px; border: 1.5px solid var(--line);
+            background: var(--card2); color: var(--text); font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; font-family: var(--f);
         }
 
-        .task-block {
-            display: none; animation: fadeIn 0.3s ease;
-        }
-        .task-block.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .task-block { margin-bottom: 1.3rem; }
 
         .task-content {
             background: var(--card2); border-radius: 18px; padding: 1.5rem;
             border: 2px solid var(--line); transition: border-color 0.3s, background 0.3s;
-            min-height: 250px;
         }
         .task-content.correct { border-color: var(--green); background: var(--green2); }
         .task-content.wrong { border-color: var(--red); background: var(--red2); }
@@ -267,7 +229,17 @@
             background: var(--gold3);
         }
 
-        .task-number { font-size: 0.8rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.6rem; }
+        .task-number { font-size: 0.8rem; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .task-id-tag { color: var(--text3); font-weight: 500; text-transform: none; }
+        .task-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.8rem; }
+        .badge-expert { background: var(--gold); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.8rem; border-radius: 8px; }
+        .badge-required { background: var(--card3); color: var(--text2); font-size: 0.75rem; font-weight: 600; padding: 0.35rem 0.8rem; border-radius: 8px; }
+        .task-bookmark-row { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+        .bookmark-btn {
+            padding: 0.5rem 0.9rem; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card);
+            color: var(--text2); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: var(--f);
+        }
+        .bookmark-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
         .task-condition { 
             font-weight: 600; 
             font-size: 1.05rem; 
@@ -324,12 +296,13 @@
         }
         .task-solution .math { font-size: 1rem; }
 
-        .task-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 1.5rem; gap: 1rem;
+        .file-upload-btn {
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            width: 100%; padding: 0.9rem; border-radius: 12px; border: none;
+            background: var(--gold); color: #fff; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            font-family: var(--f);
         }
-        .task-nav .nav-btn { padding: 0.5rem 1.2rem; }
-        .task-nav .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .file-upload-empty-hint { font-size: 0.8rem; color: var(--text3); font-style: italic; margin-top: 0.5rem; }
 
         .files-list {
             display: flex; flex-wrap: wrap; gap: 0.5rem;
@@ -511,39 +484,183 @@
         }
         .dashboard.active { display: block; }
         .dashboard-layout { display: flex; min-height: calc(100vh - 66px); }
-        .sidebar {
-            width: 250px; background: var(--bg2); border-right: 1px solid var(--line);
-            padding: 1.5rem;
-        }
-        .sidebar-user { text-align: center; padding-bottom: 1.2rem; border-bottom: 1px solid var(--line); margin-bottom: 1.2rem; }
+        .main-content { flex: 1; padding: 2rem; max-width: 820px; margin: 0 auto; width: 100%; }
+
         .user-avatar {
-            width: 52px; height: 52px; background: linear-gradient(135deg, var(--gold), var(--blue)); border-radius: 15px;
+            width: 44px; height: 44px; background: var(--gold); border-radius: 13px;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1.25rem; color: white; margin: 0 auto 0.6rem;
+            font-weight: 800; font-size: 1.1rem; color: white; flex-shrink: 0;
             font-family: var(--fs);
         }
-        .user-name { font-weight: 700; }
-        .user-grade { font-size: 0.72rem; color: var(--text3); margin-top: 0.15rem; }
-        .sidebar-menu { list-style: none; }
-        .sidebar-menu li {
-            padding: 0.7rem 0.85rem; border-radius: 11px; cursor: pointer;
-            margin-bottom: 0.25rem; color: var(--text2); font-weight: 600; font-size: 0.93rem;
-            transition: background 0.15s ease, color 0.15s ease;
-        }
-        .sidebar-menu li:hover { background: var(--card); color: var(--text); }
-        .sidebar-menu li.active { background: var(--gold); color: white; }
-        .main-content { flex: 1; padding: 2rem; max-width: 980px; }
+        .user-name { font-weight: 700; font-size: 0.92rem; }
+        .user-grade { font-size: 0.72rem; color: var(--text3); margin-top: 0.1rem; }
 
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem; margin-bottom: 2rem;
+        /* --- Гамбургер-меню --- */
+        .hamburger-btn {
+            width: 42px; height: 42px; border-radius: 11px; border: 1.5px solid var(--line);
+            background: var(--card); color: var(--text); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: border-color 0.15s ease;
         }
-        .stat-card {
+        .hamburger-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .hamburger-menu {
+            display: none; position: absolute; top: 52px; right: 0; z-index: 400;
             background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-            padding: 1.25rem; text-align: center;
+            box-shadow: var(--shadow); padding: 0.6rem; width: 260px;
         }
-        .stat-number { font-size: 1.9rem; font-weight: 800; color: var(--gold); font-family: var(--fs); }
-        .stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text3); margin-top: 0.25rem; }
+        .hamburger-menu.open { display: block; }
+        .hamburger-user { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0.6rem 0.9rem; border-bottom: 1px solid var(--line); margin-bottom: 0.5rem; }
+        .hamburger-item {
+            display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.6rem; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text); transition: background 0.15s ease;
+        }
+        .hamburger-item:hover { background: var(--card2); }
+        .hamburger-divider { height: 1px; background: var(--line); margin: 0.4rem 0.2rem; }
+
+        /* --- Карточки курсов-аккордеон в "Личном кабинете" --- */
+        .course-cabinet-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+        .course-cabinet-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+        .course-cabinet-card.minimized .course-cabinet-header { padding: 0.6rem 1.3rem; }
+        .course-cabinet-card.minimized .ccc-icon,
+        .course-cabinet-card.minimized .ccc-level,
+        .course-cabinet-card.minimized .ccc-controls { display: none; }
+        .course-cabinet-header {
+            display: flex; align-items: center; gap: 0.9rem; padding: 1.1rem 1.3rem;
+            transition: padding 0.15s ease;
+        }
+        .ccc-icon {
+            width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            background: var(--gold3); color: var(--gold); flex-shrink: 0; cursor: pointer;
+        }
+        .ccc-name-wrap { flex: 1; cursor: pointer; }
+        .ccc-tag {
+            display: inline-block; background: var(--gold3); color: var(--gold); font-size: 0.68rem; font-weight: 700;
+            padding: 0.2rem 0.6rem; border-radius: 20px; margin-bottom: 0.3rem;
+        }
+        .ccc-name { font-weight: 700; font-size: 1.02rem; }
+        .ccc-level { font-size: 0.75rem; color: var(--text3); margin-top: 0.15rem; }
+        .ccc-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+        .ccc-ctrl-btn {
+            width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--card2);
+            color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .ccc-ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .ccc-ctrl-btn.active-state { background: var(--gold); border-color: var(--gold); color: #fff; }
+        .course-cabinet-body { display: none; border-top: 1px solid var(--line); padding: 1.2rem 1.3rem 1.4rem; }
+        .course-cabinet-card.expanded .course-cabinet-body { display: block; }
+
+        .ccc-toggle-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            padding: 0.7rem 0.9rem; background: var(--card2); border-radius: 12px; margin-bottom: 1.2rem;
+        }
+        .ccc-toggle-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+        .ccc-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+        .ccc-switch input { opacity: 0; width: 0; height: 0; }
+        .ccc-switch-track {
+            position: absolute; inset: 0; background: var(--line2); border-radius: 20px; cursor: pointer; transition: background 0.2s ease;
+        }
+        .ccc-switch-track::before {
+            content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff;
+            border-radius: 50%; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+        .ccc-switch input:checked + .ccc-switch-track { background: var(--gold); }
+        .ccc-switch input:checked + .ccc-switch-track::before { transform: translateX(18px); }
+
+        .course-tabs-inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.2rem; }
+        .ctab {
+            display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 0.85rem; border-radius: 12px;
+            border: 1.5px solid var(--line); background: var(--card2);
+            color: var(--text2); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease;
+            font-family: var(--f); text-align: left;
+        }
+        .ctab .ctab-icon { color: var(--text3); flex-shrink: 0; display: flex; transition: color 0.15s ease; }
+        .ctab:hover { border-color: var(--gold); color: var(--text); }
+        .ctab:hover .ctab-icon { color: var(--gold); }
+        .ctab.active { background: var(--gold3); border-color: var(--gold); color: var(--gold); }
+        .ctab.active .ctab-icon { color: var(--gold); }
+        .course-tab-content { min-height: 80px; }
+
+        /* --- Прогресс: только средний балл по пробникам --- */
+        .progress-score-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+            padding: 1.8rem; text-align: center;
+        }
+        .progress-score-card .score-num { font-family: var(--fs); font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
+        .progress-score-card .score-label { font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; }
+
+        /* --- Список ДЗ (карточки в столбик, как в референсе) --- */
+        .hw-list { display: flex; flex-direction: column; gap: 1rem; }
+        .hw-list-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }
+        .hw-list-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
+        .hw-badge { background: var(--card3); color: var(--text2); font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 9px; }
+        .hw-type-tag { font-weight: 800; font-size: 0.85rem; color: var(--text); }
+        .hw-list-title { font-weight: 700; font-size: 1.08rem; line-height: 1.4; margin-bottom: 1.1rem; }
+        .hw-list-meta { display: flex; justify-content: space-between; font-size: 0.92rem; margin-bottom: 0.35rem; color: var(--text2); }
+        .hw-list-meta strong { color: var(--text); font-weight: 700; }
+        .hw-list-btn {
+            width: 100%; margin-top: 1rem; padding: 0.9rem; border-radius: 12px; border: 1.5px solid var(--line);
+            background: var(--card2); color: var(--text); font-weight: 700; font-size: 0.95rem; cursor: pointer;
+            font-family: var(--f);
+        }
+        .hw-list-btn:disabled { cursor: default; color: var(--text3); }
+
+        /* --- Материалы: папки (нейтральный дизайн, не в цвет платформы) --- */
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.4rem; }
+        .folder-card {
+            cursor: pointer; border-radius: 16px; overflow: hidden; background: var(--card);
+            border: 1px solid var(--line); transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .folder-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        .folder-banner {
+            position: relative; aspect-ratio: 16 / 11; overflow: hidden;
+            background: linear-gradient(160deg, #f4f4f6, #e5e5ea);
+        }
+        [data-theme="dark"] .folder-banner { background: linear-gradient(160deg, #292930, #1d1d22); }
+        .folder-wave {
+            position: absolute; inset: 0; opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.06' stroke-width='2'%3E%3Cpath d='M-10 20 Q 30 0 70 20 T 150 20'/%3E%3Cpath d='M-10 55 Q 30 35 70 55 T 150 55'/%3E%3Cpath d='M-10 90 Q 30 70 70 90 T 150 90'/%3E%3Cpath d='M-10 125 Q 30 105 70 125 T 150 125'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 160px 160px;
+        }
+        .folder-corner {
+            position: absolute; top: 0; right: 0; width: 42px; height: 42px;
+            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.07) 50%);
+        }
+        .folder-brain-logo {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: 38%; color: var(--text3); opacity: 0.55;
+        }
+        .folder-info { padding: 1rem 1.15rem 1.2rem; }
+        .folder-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; line-height: 1.3; }
+        .folder-meta { font-size: 0.78rem; color: var(--text3); }
+
+        /* --- Расписание: полноэкранный календарь --- */
+        .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; gap: 1rem; flex-wrap: wrap; }
+        .calendar-nav-btn {
+            width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--card);
+            color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .calendar-nav-btn:hover { border-color: var(--gold); color: var(--gold); }
+        .calendar-month-label { font-family: var(--fs); font-weight: 700; font-size: 1.15rem; text-transform: capitalize; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
+        .calendar-weekday { text-align: center; font-size: 0.75rem; font-weight: 700; color: var(--text3); text-transform: uppercase; padding-bottom: 0.4rem; }
+        .calendar-cell {
+            min-height: 92px; border: 1px solid var(--line); border-radius: 12px; padding: 0.5rem;
+            background: var(--card2); display: flex; flex-direction: column; gap: 0.25rem;
+        }
+        .calendar-cell.other-month { opacity: 0.4; }
+        .calendar-cell.today { border-color: var(--gold); background: var(--gold3); }
+        .calendar-day-num { font-size: 0.8rem; font-weight: 700; color: var(--text2); }
+        .calendar-cell.today .calendar-day-num { color: var(--gold); }
+        .calendar-lesson-chip {
+            background: var(--gold); color: #fff; font-size: 0.72rem; font-weight: 600;
+            padding: 0.25rem 0.4rem; border-radius: 6px; line-height: 1.3; cursor: pointer;
+        }
+        @media (max-width: 700px) {
+            .calendar-cell { min-height: 60px; font-size: 0.8rem; }
+            .calendar-lesson-chip { font-size: 0.62rem; }
+            .calendar-weekday { font-size: 0.62rem; }
+        }
+
 
         .dashboard-pane { display: none; }
         .dashboard-pane.active { display: block; }
@@ -638,24 +755,6 @@
             background: var(--card2); border-radius: 14px; border: 1px dashed var(--line2); font-size: 0.9rem;
         }
 
-        /* --- "Продолжить обучение" --- */
-        .continue-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem;
-        }
-        .continue-card {
-            background: var(--card); border: 1px solid var(--line); border-radius: 16px;
-            padding: 1.1rem; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;
-        }
-        .continue-card:hover { transform: translateY(-3px); border-color: var(--gold); }
-        .continue-card .cc-icon {
-            width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--gold3), var(--blue3)); color: var(--gold); margin-bottom: 0.7rem;
-        }
-        .continue-card .cc-name { font-weight: 700; margin-bottom: 0.6rem; }
-        .continue-card .cc-progress-track { height: 6px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; }
-        .continue-card .cc-progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--blue)); border-radius: 4px; }
-        .continue-card .cc-progress-label { font-size: 0.72rem; color: var(--text3); margin-bottom: 0.7rem; }
-
         /* --- Вкладки курсов (ДЗ / Квизы) --- */
         .course-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .course-tab {
@@ -664,45 +763,6 @@
         }
         .course-tab:hover { border-color: var(--gold); color: var(--text); }
         .course-tab.active { background: var(--gold); border-color: var(--gold); color: #fff; }
-
-        /* --- КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ДЗ --- */
-        .hw-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.3rem; }
-        .hw-card-lg {
-            position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 22px;
-            padding: 1.5rem; overflow: hidden; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-            display: flex; flex-direction: column; gap: 1rem;
-        }
-        .hw-card-lg:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-        .hw-card-lg::before {
-            content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
-            background: var(--line2);
-        }
-        .hw-card-lg.status-pending::before { background: linear-gradient(90deg, var(--blue), var(--blue2)); }
-        .hw-card-lg.status-review::before { background: linear-gradient(90deg, var(--gold), var(--gold2)); }
-        .hw-card-lg.status-graded::before { background: linear-gradient(90deg, var(--green), #0ea86f); }
-        .hw-card-lg-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .hw-card-lg-icon {
-            width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--gold3), var(--blue3)); color: var(--gold);
-        }
-        .hw-card-lg-status {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
-            padding: 0.35rem 0.75rem; border-radius: 20px; white-space: nowrap;
-        }
-        .status-pending .hw-card-lg-status { background: var(--blue3); color: var(--blue2); }
-        .status-review .hw-card-lg-status { background: var(--gold3); color: var(--gold); }
-        .status-graded .hw-card-lg-status { background: var(--green2); color: var(--green); }
-        .hw-card-lg-subject { font-size: 0.78rem; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.03em; }
-        .hw-card-lg-title { font-family: var(--fs); font-size: 1.15rem; font-weight: 700; margin-top: 0.3rem; line-height: 1.35; }
-        .hw-card-lg-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
-        .meta-chip {
-            background: var(--card2); border: 1px solid var(--line); border-radius: 10px;
-            padding: 0.35rem 0.65rem; font-size: 0.75rem; color: var(--text2); font-weight: 500;
-            display: inline-flex; align-items: center; gap: 0.3rem;
-        }
-        .meta-chip.grade { background: var(--green2); color: var(--green); border-color: transparent; font-weight: 700; }
-        .hw-card-lg-footer { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: auto; }
-        .hw-card-lg-btn { flex: 1; min-width: 140px; }
 
         /* --- Квизы --- */
         .quiz-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
@@ -767,7 +827,7 @@
             .sidebar { display: none; }
             .main-content { margin-left: 0; padding: 1.2rem; }
             .course-grid { grid-template-columns: 1fr; }
-            .hw-cards-grid, .quiz-cards-grid, .continue-grid { grid-template-columns: 1fr; }
+            .hw-cards-grid, .quiz-cards-grid { grid-template-columns: 1fr; }
             .modal { padding: 1rem; }
             .hw-progress-bar { gap: 0.3rem; }
             .hw-dot { width: 34px; height: 34px; font-size: 0.65rem; }
@@ -997,77 +1057,64 @@
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="showHome()"><svg class="logo-brain-icon" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>Logistical <em>Points</em></div>
-            <div class="nav-buttons"><button class="btn brs" onclick="handleLogout()">Выйти</button></div>
+            <div class="nav-buttons" style="position:relative;">
+                <button class="hamburger-btn" onclick="toggleHamburgerMenu()" id="hamburgerBtn" aria-label="Меню">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+                </button>
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <div class="hamburger-user">
+                        <div class="user-avatar" id="userAvatar">У</div>
+                        <div>
+                            <div class="user-name" id="userName"></div>
+                            <div class="user-grade" id="userGrade"></div>
+                        </div>
+                    </div>
+                    <div class="hamburger-item" onclick="closeHamburgerMenu(); scrollToCabinetTop();">
+                        <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg></span>
+                        Личный кабинет
+                    </div>
+                    <div class="hamburger-item" onclick="closeHamburgerMenu(); scrollToProgress();">
+                        <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M4 19V6"/><path d="m6.5 15 3.5-4 3 3 5-6"/></svg></span>
+                        Прогресс
+                    </div>
+                    <div class="hamburger-divider"></div>
+                    <div class="hamburger-item" onclick="handleLogout()">
+                        <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8"/><path d="M10 12h10"/><path d="m17 8 4 4-4 4"/></svg></span>
+                        Выйти из аккаунта
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
     <div class="dashboard-layout">
-        <div class="sidebar">
-            <div class="sidebar-user">
-                <div class="user-avatar" id="userAvatar">У</div>
-                <div class="user-name" id="userName"></div>
-                <div class="user-grade" id="userGrade"></div>
+        <div class="main-content" id="cabinetMain">
+            <div class="pane-header" id="cabinetTop">
+                <h2>Личный кабинет</h2>
+                <p class="pane-subtitle" id="cabinetCourseCount">Загрузка курсов...</p>
             </div>
-            <ul class="sidebar-menu">
-                <li data-pane="overview" class="active" onclick="switchPane('overview', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg></span>Обзор</li>
-                <li data-pane="courses" onclick="switchPane('courses', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m2 9 10-5 10 5-10 5-10-5Z"/><path d="M6 11.5V17c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 9v6"/></svg></span>Мои курсы</li>
-                <li data-pane="homework" onclick="switchPane('homework', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/><path d="M12 8h5"/><path d="M12 12h5"/><path d="M12 16h3"/></svg></span>Домашние задания</li>
-                <li data-pane="quizzes" onclick="switchPane('quizzes', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4a2.5 2.5 0 0 0-2.5 2.5v.2A2.8 2.8 0 0 0 5 9.3v1.4a2.8 2.8 0 0 0-1 2.2 2.8 2.8 0 0 0 2 2.7v.4A2.5 2.5 0 0 0 8.5 18.5 2.5 2.5 0 0 0 11 16V6.5A2.5 2.5 0 0 0 9 4Z"/><path d="M15 4a2.5 2.5 0 0 1 2.5 2.5v.2a2.8 2.8 0 0 1 1.5 2.6v1.4a2.8 2.8 0 0 1 1 2.2 2.8 2.8 0 0 1-2 2.7v.4A2.5 2.5 0 0 1 15.5 18.5 2.5 2.5 0 0 1 13 16V6.5A2.5 2.5 0 0 1 15 4Z"/></svg></span>Квизы</li>
-                <li data-pane="schedule" onclick="switchPane('schedule', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3.5 10h17"/><circle cx="8.5" cy="14.5" r="1"/><circle cx="12" cy="14.5" r="1"/><circle cx="15.5" cy="14.5" r="1"/></svg></span>Расписание</li>
-                <li data-pane="progress" onclick="switchPane('progress', this)"><span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M4 19V6"/><path d="m6.5 15 3.5-4 3 3 5-6"/></svg></span>Прогресс</li>
-            </ul>
-        </div>
-        <div class="main-content">
-            <div id="overviewPane" class="dashboard-pane active">
-                <div class="pane-header">
-                    <h2>Добро пожаловать, <span id="welcomeName" class="accent-text"></span>!</h2>
-                    <p class="pane-subtitle">Ваш прогресс и рекомендации на сегодня</p>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number" id="statCourses">0</div><div class="stat-label">Курсов</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statHomework">0</div><div class="stat-label">ДЗ сдано</div></div>
-                    <div class="stat-card"><div class="stat-number" id="statLessons">0</div><div class="stat-label">Конспектов</div></div>
-                </div>
-                <div class="section-block">
-                    <h3 class="block-title">Рекомендации <span class="block-title-hint">на основе вашего прогресса</span></h3>
-                    <div class="rec-list" id="overviewRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
-                </div>
-                <div class="section-block">
-                    <h3 class="block-title">Продолжить обучение</h3>
-                    <div id="continueLearning" class="continue-grid"></div>
-                </div>
+
+            <div id="courseCabinetList" class="course-cabinet-list"></div>
+
+            <div class="section-block">
+                <h3 class="block-title">Рекомендации <span class="block-title-hint">на основе вашего прогресса</span></h3>
+                <div class="rec-list" id="overviewRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
             </div>
-            <div id="coursesPane" class="dashboard-pane" style="display:none;">
-                <div class="pane-header"><h2>Мои курсы</h2><p class="pane-subtitle">Курсы, на которые вы записаны</p></div>
-                <div id="myCoursesList" class="course-grid"></div>
-                <div class="pane-header" style="margin-top:2rem"><h2>Доступные курсы</h2></div>
-                <div id="availableCoursesList" class="course-grid"></div>
-            </div>
-            <div id="homeworkPane" class="dashboard-pane" style="display:none;">
-                <div class="pane-header"><h2>Домашние задания</h2><p class="pane-subtitle">Выполняйте задания вовремя, чтобы прогресс рос быстрее</p></div>
-                <div class="course-tabs" id="hwCourseTabs"></div>
-                <div class="hw-cards-grid" id="hwCardsGrid"></div>
-            </div>
-            <div id="quizzesPane" class="dashboard-pane" style="display:none;">
-                <div class="pane-header"><h2>Квизы на повторение</h2><p class="pane-subtitle">Отвечайте верно — ошиблись хоть раз, вопрос нужно закрыть двумя верными ответами в разных местах квиза</p></div>
-                <div class="course-tabs" id="quizCourseTabs"></div>
-                <div class="quiz-cards-grid" id="quizCardsGrid"></div>
-            </div>
-            <div id="schedulePane" class="dashboard-pane" style="display:none;">
-                <div class="pane-header"><h2>Расписание занятий</h2></div>
-                <div id="scheduleContainer">
-                    <div class="schedule-empty">Загрузка расписания...</div>
-                </div>
-            </div>
-            <div id="progressPane" class="dashboard-pane" style="display:none;">
-                <div class="pane-header"><h2>Прогресс по курсам</h2><p class="pane-subtitle">Что уже пройдено и на что стоит обратить внимание</p></div>
-                <div class="section-block">
-                    <h3 class="block-title">Рекомендации</h3>
-                    <div class="rec-list" id="progressRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
-                </div>
-                <div id="progressList"></div>
+
+            <div class="section-block" id="progressSection">
+                <h3 class="block-title">Прогресс</h3>
+                <div class="progress-score-card" id="progressScoreCard"></div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- ПОЛНОРАЗМЕРНОЕ РАСПИСАНИЕ (КАЛЕНДАРЬ) -->
+<div class="hw-solve-page" id="calendarPage">
+    <div class="hw-header">
+        <h2 id="calendarPageTitle">Расписание</h2>
+        <button class="close-btn" onclick="closeCalendarPage()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12"/><path d="m18 6-12 12"/></svg></button>
+    </div>
+    <div id="calendarPageContent"></div>
 </div>
 
 <!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА КВИЗА -->
@@ -1102,6 +1149,7 @@ const storage = firebase.storage();
 // ========== БИБЛИОТЕКА ИКОНОК (замена эмодзи на векторные картинки) ==========
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
+    folder: '<path d="M4 6.5a1.5 1.5 0 0 1 1.5-1.5H10l2 2.2h6.5A1.5 1.5 0 0 1 20 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/>',
     graduationCap: '<path d="m2 9 10-5 10 5-10 5-10-5Z"/><path d="M6 11.5V17c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/><path d="M22 9v6"/>',
     notebook: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v18"/><path d="M12 8h5"/><path d="M12 12h5"/><path d="M12 16h3"/>',
     brain: '<path d="M9 4a2.5 2.5 0 0 0-2.5 2.5v.2A2.8 2.8 0 0 0 5 9.3v1.4a2.8 2.8 0 0 0-1 2.2 2.8 2.8 0 0 0 2 2.7v.4A2.5 2.5 0 0 0 8.5 18.5 2.5 2.5 0 0 0 11 16V6.5A2.5 2.5 0 0 0 9 4Z"/><path d="M15 4a2.5 2.5 0 0 1 2.5 2.5v.2a2.8 2.8 0 0 1 1.5 2.6v1.4a2.8 2.8 0 0 1 1 2.2 2.8 2.8 0 0 1-2 2.7v.4A2.5 2.5 0 0 1 15.5 18.5 2.5 2.5 0 0 1 13 16V6.5A2.5 2.5 0 0 1 15 4Z"/>',
@@ -1133,11 +1181,50 @@ function tileIcon(name, size) {
 }
 
 const COURSES = [
-    { id: "algebra", name: "Алгебра", icon: iconSvg("sigma", 26), level: "5-11 класс", desc: "Уравнения, неравенства, прогрессии, многочлены.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Многочлены"], subject: "math" },
-    { id: "geometry", name: "Геометрия", icon: iconSvg("triangleRuler", 26), level: "7-11 класс", desc: "Треугольники, окружности, тела вращения.", topics: ["Треугольники", "Окружности", "Четырехугольники", "Стереометрия"], subject: "math" },
-    { id: "physics", name: "Физика", icon: iconSvg("atom", 26), level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics" },
-    { id: "olymp", name: "Олимпиадная математика", icon: iconSvg("trophy", 26), level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math" }
+    { id: "math", name: "Математика", tag: "ЕГЭ / ОГЭ · Математика", icon: iconSvg("sigma", 26), level: "5-11 класс", desc: "Алгебра и геометрия: уравнения, неравенства, прогрессии, многочлены, планиметрия и стереометрия.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Треугольники", "Окружности", "Стереометрия"], subject: "math", legacyIds: ["algebra", "geometry"] },
+    { id: "physics", name: "Физика", tag: "ЕГЭ / ОГЭ · Физика", icon: iconSvg("atom", 26), level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics", legacyIds: [] },
+    { id: "olymp", name: "Олимпиадная математика", tag: "Олимпиады · Математика", icon: iconSvg("trophy", 26), level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math", legacyIds: [] }
 ];
+
+// Возвращает id курса + все "старые" id, под которыми в Firestore ещё могут храниться
+// домашки/конспекты/квизы/расписание (например, отдельные "algebra" и "geometry" до
+// объединения в один курс "Математика"). Использовать во ВСЕХ запросах по courseId,
+// иначе после объединения курсов старые данные "потеряются" из вида.
+function getCourseQueryIds(courseId) {
+    const course = COURSES.find(c => c.id === courseId);
+    const ids = [courseId];
+    if (course && course.legacyIds) ids.push(...course.legacyIds);
+    return ids;
+}
+
+// Firestore "in" принимает максимум 10 значений и не работает с пустым массивом —
+// оборачиваем where("courseId","==",id) в OR по нескольким id через несколько запросов,
+// чтобы не зависеть от версии SDK, поддерживающей where(...,"in",[...]) для compat-режима.
+async function queryByCourseIds(collectionName, courseId, extraWhere) {
+    const ids = getCourseQueryIds(courseId);
+    const results = [];
+    for (const cid of ids) {
+        let ref = db.collection(collectionName).where("courseId", "==", cid);
+        const snap = await ref.get();
+        snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+    }
+    return results;
+}
+
+
+// Папки с материалами по курсам (пока создаются вручную в коде — в админ-панели
+// конструктор папок ещё не готов, но сам функционал на сайте ученика уже рабочий).
+const MATERIAL_FOLDERS = {
+    math: [{ id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", courseIds: ["algebra", "geometry", "math"] }],
+    physics: [{ id: "physics-ege-2027", name: "Физика. ЕГЭ 2027", courseIds: ["physics"] }],
+    olymp: []
+};
+
+// Курс, который был развёрнут последним (для логики "один открытый курс за раз").
+let expandedCourseId = null;
+// Активная вкладка (Расписание/ДЗ/Квизы/Материалы) для каждого курса.
+let activeCourseTab = {};
+
 
 let currentUser = null;
 let userData = null;
@@ -1154,7 +1241,7 @@ let hwCache = {}; // courseId -> homeworks[] (устраняет повторн�
 let quizListCache = {}; // courseId -> quizzes[]
 
 // ==== Рекомендации на основе прогресса ====
-let lessonRecs = [];
+
 
 // ==== Квизы ====
 let quizActiveCourseId = null;
@@ -1165,7 +1252,7 @@ let quizActive = null;
 // чтобы функционал можно было сразу продемонстрировать ученику.
 const DEMO_QUIZ = {
     id: "demo-algebra-1",
-    courseId: "algebra",
+    courseId: "math",
     topic: "Линейные уравнения",
     title: "Демо-квиз: линейные уравнения",
     isDemo: true,
@@ -1365,7 +1452,7 @@ function handleLogin() {
         const user = userCredential.user;
         if (!user.emailVerified) { showToast("Подтвердите email. Проверьте почту!", "error"); auth.signOut(); return; }
         const doc = await db.collection("users").doc(user.uid).get();
-        userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [] };
+        userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
         if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
         currentUser = user;
         updateUIAfterLogin();
@@ -1436,38 +1523,17 @@ async function handleVkCallback() {
 }
 
 function updateUIAfterLogin() {
-    document.getElementById("navButtons").innerHTML = '<span style="margin-right:0.5rem">' + userData.name + '</span><button class="btn brs" onclick="handleLogout()">Выйти</button>';
     document.getElementById("userName").textContent = userData.name;
     document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
     document.getElementById("userAvatar").textContent = userData.name[0].toUpperCase();
-    document.getElementById("welcomeName").textContent = userData.name;
-    document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
-    document.getElementById("statHomework").textContent = (userData.homeworkSubmissions || []).length;
     document.getElementById("homePage").style.display = "none";
     document.getElementById("dashboard").classList.add("active");
     renderCoursesGrid();
-    renderMyCourses();
-    renderAvailableCourses();
-    renderContinueLearning();
-    renderProgress();
-    updateLessonsCount();
-    loadStudentSchedule();
+    renderCourseCabinet();
+    renderProgressScore();
     loadHomeworkCourses();
-    loadQuizCourses();
     updateAllRecommendations();
     setTimeout(() => renderMath(), 500);
-}
-
-async function updateLessonsCount() {
-    const lessonsSnap = await db.collection("lessons").get();
-    let totalLessons = 0;
-    lessonsSnap.forEach(doc => {
-        const lesson = doc.data();
-        if (userData.enrolledCourses.includes(lesson.courseId)) {
-            totalLessons++;
-        }
-    });
-    document.getElementById("statLessons").textContent = totalLessons;
 }
 
 function renderCoursesGrid() {
@@ -1496,121 +1562,233 @@ function enrollCourse(courseId) {
         userData.enrolledCourses.push(courseId);
         db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
         showToast("Вы записаны на курс!", "success");
-        renderMyCourses();
-        renderAvailableCourses();
-        renderContinueLearning();
-        renderProgress();
-        updateLessonsCount();
-        document.getElementById("statCourses").textContent = userData.enrolledCourses.length;
-        loadStudentSchedule();
+        renderCourseCabinet();
         loadHomeworkCourses();
     }
 }
 
-function renderMyCourses() {
-    const container = document.getElementById("myCoursesList");
-    if (!container) return;
+// ========== ЛИЧНЫЙ КАБИНЕТ: КАРТОЧКИ КУРСОВ (АККОРДЕОН) ==========
+function renderCourseCabinet() {
+    const list = document.getElementById("courseCabinetList");
+    const countEl = document.getElementById("cabinetCourseCount");
+    if (!list) return;
     const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Вы ещё не записаны ни на один курс.</p>"; return; }
-    container.innerHTML = enrolled.map(course => `
-        <div class="course-card" onclick="openCourseLessons('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Продолжить</button></div>
-        </div>
-    `).join("");
-}
+    if (countEl) {
+        const n = enrolled.length;
+        const word = n === 1 ? "курс" : (n >= 2 && n <= 4 ? "курса" : "курсов");
+        countEl.textContent = n === 0 ? "У вас пока нет подключённых курсов" : "Подключено курсов: " + n + " " + word;
+    }
+    if (enrolled.length === 0) {
+        list.innerHTML = '<div class="schedule-empty">Запишитесь на курс на главной странице, чтобы он появился здесь.</div>';
+        return;
+    }
+    if (!userData.courseEnabled) userData.courseEnabled = {};
 
-function renderAvailableCourses() {
-    const container = document.getElementById("availableCoursesList");
-    if (!container) return;
-    const available = COURSES.filter(c => !userData.enrolledCourses.includes(c.id));
-    if (available.length === 0) { container.innerHTML = "<p>Вы записаны на все курсы!</p>"; return; }
-    container.innerHTML = available.map(course => `
-        <div class="course-card" onclick="enrollCourse('${course.id}')">
-            <div class="course-icon">${course.icon}</div>
-            <div class="course-info"><div class="course-name">${course.name}</div><div class="course-desc">${course.desc}</div><button class="btn bg">Записаться</button></div>
-        </div>`).join("");
-}
-
-async function renderContinueLearning() {
-    const container = document.getElementById("continueLearning");
-    if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Запишитесь на курс, чтобы начать.</p>"; return; }
-    const cards = [];
-    for (const course of enrolled.slice(0, 6)) {
-        let percent = 0;
-        try {
-            const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
-            const totalLessons = lessonsSnap.size;
-            const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
-            percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
-        } catch (e) { /* игнорируем, оставляем 0% */ }
-        cards.push(`
-            <div class="continue-card" onclick="openCourseLessons('${course.id}')">
-                <div class="cc-icon">${course.icon}</div>
-                <div class="cc-name">${escapeHtml(course.name)}</div>
-                <div class="cc-progress-track"><div class="cc-progress-fill" style="width:${percent}%"></div></div>
-                <div class="cc-progress-label">Пройдено ${percent}%</div>
-                <button class="btn bg bsm" style="width:100%">Продолжить</button>
+    list.innerHTML = enrolled.map((course) => {
+        const isEnabled = userData.courseEnabled[course.id] !== false;
+        return `
+        <div class="course-cabinet-card ${course.id === expandedCourseId ? 'expanded' : ''}" id="cabCard_${course.id}">
+            <div class="course-cabinet-header">
+                <div class="ccc-icon" onclick="toggleCourseCard('${course.id}')">${course.icon}</div>
+                <div class="ccc-name-wrap" onclick="toggleCourseCard('${course.id}')">
+                    <span class="ccc-tag">${escapeHtml(course.tag || course.name)}</span>
+                    <div class="ccc-name">${escapeHtml(course.name)}</div>
+                    <div class="ccc-level">${escapeHtml(course.level)}</div>
+                </div>
+                <div class="ccc-controls">
+                    <button class="ccc-ctrl-btn" title="Развернуть" onclick="expandCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+                    <button class="ccc-ctrl-btn" title="Свернуть" onclick="collapseCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+                    <button class="ccc-ctrl-btn" title="Свернуть до названия" onclick="minimizeCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>
+                </div>
             </div>
-        `);
+            <div class="course-cabinet-body">
+                <div class="ccc-toggle-row">
+                    <span class="ccc-toggle-label">Курс включён</span>
+                    <label class="ccc-switch">
+                        <input type="checkbox" ${isEnabled ? "checked" : ""} onchange="toggleCourseEnabled('${course.id}', this.checked)">
+                        <span class="ccc-switch-track"></span>
+                    </label>
+                </div>
+                <div class="course-tabs-inner">
+                    <button class="ctab" data-tab="schedule" onclick="switchCourseTab('${course.id}','schedule', this)"><span class="ctab-icon">${iconSvg('calendar', 18)}</span>Расписание</button>
+                    <button class="ctab" data-tab="homework" onclick="switchCourseTab('${course.id}','homework', this)"><span class="ctab-icon">${iconSvg('notebook', 18)}</span>Домашние задания</button>
+                    <button class="ctab" data-tab="quizzes" onclick="switchCourseTab('${course.id}','quizzes', this)"><span class="ctab-icon">${iconSvg('brain', 18)}</span>Квизы</button>
+                    <button class="ctab" data-tab="materials" onclick="switchCourseTab('${course.id}','materials', this)"><span class="ctab-icon">${iconSvg('folder', 18)}</span>Материалы</button>
+                </div>
+                <div class="course-tab-content" id="courseContent_${course.id}"></div>
+            </div>
+        </div>
+    `;
+    }).join("");
+    // если ранее был открыт курс — сразу отрисуем его сохранённую вкладку
+    if (expandedCourseId && enrolled.find(c => c.id === expandedCourseId)) {
+        const tab = activeCourseTab[expandedCourseId] || "homework";
+        renderCourseTabButtons(expandedCourseId, tab);
+        renderCourseTabContent(expandedCourseId, tab);
     }
-    container.innerHTML = cards.join("");
 }
 
-async function renderProgress() {
-    const container = document.getElementById("progressList");
+function toggleCourseEnabled(courseId, checked) {
+    if (!userData.courseEnabled) userData.courseEnabled = {};
+    userData.courseEnabled[courseId] = checked;
+    if (currentUser) db.collection("users").doc(currentUser.uid).update({ courseEnabled: userData.courseEnabled }).catch(() => {});
+}
+
+// Три независимые кнопки управления карточкой курса:
+// ▾ — развернуть (показать вкладки и содержимое)
+// ▴ — свернуть (оставить только шапку курса)
+// — — свернуть до одной строки с названием (самый компактный вид)
+function expandCourseCard(courseId) {
+    if (expandedCourseId && expandedCourseId !== courseId) {
+        const prevCard = document.getElementById("cabCard_" + expandedCourseId);
+        if (prevCard) prevCard.classList.remove("expanded");
+    }
+    expandedCourseId = courseId;
+    const card = document.getElementById("cabCard_" + courseId);
+    if (!card) return;
+    card.classList.remove("minimized");
+    card.classList.add("expanded");
+    const tab = activeCourseTab[courseId] || "homework";
+    renderCourseTabButtons(courseId, tab);
+    renderCourseTabContent(courseId, tab);
+    setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150);
+}
+
+function collapseCourseCard(courseId) {
+    const card = document.getElementById("cabCard_" + courseId);
+    if (!card) return;
+    card.classList.remove("expanded");
+    card.classList.remove("minimized");
+    if (expandedCourseId === courseId) expandedCourseId = null;
+}
+
+function minimizeCourseCard(courseId) {
+    const card = document.getElementById("cabCard_" + courseId);
+    if (!card) return;
+    card.classList.remove("expanded");
+    card.classList.add("minimized");
+    if (expandedCourseId === courseId) expandedCourseId = null;
+}
+
+function toggleCourseCard(courseId) {
+    const card = document.getElementById("cabCard_" + courseId);
+    if (!card) return;
+    if (card.classList.contains("expanded")) {
+        collapseCourseCard(courseId);
+    } else {
+        expandCourseCard(courseId);
+    }
+}
+
+function renderCourseTabButtons(courseId, activeTab) {
+    const card = document.getElementById("cabCard_" + courseId);
+    if (!card) return;
+    card.querySelectorAll(".ctab").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("data-tab") === activeTab);
+    });
+}
+
+function switchCourseTab(courseId, tab, el) {
+    activeCourseTab[courseId] = tab;
+    renderCourseTabButtons(courseId, tab);
+    if (tab === "schedule") {
+        openCalendarPage(courseId);
+        return; // расписание — отдельная полноэкранная страница, инлайн-контент не меняем
+    }
+    renderCourseTabContent(courseId, tab);
+}
+
+function renderCourseTabContent(courseId, tab) {
+    const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) { container.innerHTML = "<p>Нет данных о прогрессе.</p>"; lessonRecs = []; updateAllRecommendations(); return; }
-    container.innerHTML = "";
-    lessonRecs = [];
-    for (const course of enrolled) {
-        const lessonsSnap = await db.collection("lessons").where("courseId", "==", course.id).get();
-        const totalLessons = lessonsSnap.size;
-        const completedCount = (userData.completedLessons || []).filter(l => l.startsWith(course.id)).length;
-        const percent = totalLessons > 0 ? Math.round(completedCount / totalLessons * 100) : 0;
-        if (totalLessons > 0 && percent < 50) {
-            lessonRecs.push({
-                level: percent < 25 ? "high" : "medium",
-                text: 'Продолжите изучение конспектов по курсу «' + course.name + '» — пройдено всего ' + percent + '%.'
-            });
-        }
-        container.innerHTML += '<div style="background:var(--card);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border:1px solid var(--line)">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
-                '<div><strong>' + course.name + '</strong></div>' +
-                '<div style="font-size:1.2rem;font-weight:700;color:var(--gold)">' + percent + '%</div>' +
-            '</div>' +
-            '<div style="height:6px;background:var(--line);border-radius:3px;margin-top:0.8rem;overflow:hidden">' +
-                '<div style="width:' + percent + '%;height:100%;background:var(--gold);border-radius:3px"></div>' +
-            '</div>' +
-            '<div style="font-size:0.75rem;margin-top:0.5rem">Пройдено конспектов: ' + completedCount + ' из ' + totalLessons + '</div>' +
-        '</div>';
+    if (tab === "homework") {
+        renderHomeworkTabContent(courseId);
+    } else if (tab === "quizzes") {
+        container.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>';
+        renderQuizCards(courseId);
+    } else if (tab === "materials") {
+        renderMaterialsTabContent(courseId);
+    } else {
+        container.innerHTML = '<div class="schedule-empty">Нажмите «Расписание», чтобы открыть календарь занятий.</div>';
     }
-    updateAllRecommendations();
 }
 
-async function openCourseLessons(courseId) {
-    const course = COURSES.find(c => c.id === courseId);
-    if (!course) return;
-    const lessonsSnap = await db.collection("lessons").where("courseId", "==", courseId).get();
+// ========== МАТЕРИАЛЫ: ПАПКИ ==========
+async function renderMaterialsTabContent(courseId) {
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
+    const folders = MATERIAL_FOLDERS[courseId] || [];
+    if (folders.length === 0) {
+        container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>';
+        return;
+    }
+    container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
+        <div class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
+            <div class="folder-banner">
+                <div class="folder-wave"></div>
+                <div class="folder-corner"></div>
+                <svg class="folder-brain-logo" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>
+            </div>
+            <div class="folder-info">
+                <div class="folder-name">${escapeHtml(folder.name)}</div>
+                <div class="folder-meta" id="folderMeta_${folder.id}">Загрузка...</div>
+            </div>
+        </div>
+    `).join("") + '</div>';
+
+    // считаем реальное число конспектов и ДЗ в папке
+    for (const folder of folders) {
+        try {
+            const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
+            let lessonsCount = 0, hwCount = 0;
+            for (const cid of legacyIds) {
+                const lessonsSnap = await db.collection("lessons").where("courseId", "==", cid).get();
+                lessonsCount += lessonsSnap.size;
+                const hwSnap = await db.collection("homeworks").where("courseId", "==", cid).get();
+                hwCount += hwSnap.size;
+            }
+            const metaEl = document.getElementById("folderMeta_" + folder.id);
+            if (metaEl) metaEl.textContent = lessonsCount + " " + pluralizeRu(lessonsCount, "урок", "урока", "уроков") + " / " + hwCount + " ДЗ";
+        } catch (e) {
+            const metaEl = document.getElementById("folderMeta_" + folder.id);
+            if (metaEl) metaEl.textContent = "";
+        }
+    }
+}
+
+function pluralizeRu(n, one, few, many) {
+    const mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return one;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+    return many;
+}
+
+async function openMaterialFolder(folderId, courseId) {
+    const folders = MATERIAL_FOLDERS[courseId] || [];
+    const folder = folders.find(f => f.id === folderId);
+    if (!folder) return;
+    const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
     const lessons = [];
-    lessonsSnap.forEach(doc => lessons.push({ id: doc.id, ...doc.data() }));
+    try {
+        for (const cid of legacyIds) {
+            const snap = await db.collection("lessons").where("courseId", "==", cid).get();
+            snap.forEach(doc => lessons.push({ id: doc.id, folderCourseId: cid, ...doc.data() }));
+        }
+    } catch (e) { console.error(e); }
     const modalHtml = `
         <div id="lessonsModal" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
             <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
                 <div style="max-width:800px;margin:0 auto;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
-                        <h2 style="font-family:var(--fs);font-size:1.8rem;">${course.name} - Конспекты (${lessons.length})</h2>
+                        <h2 style="font-family:var(--fs);font-size:1.6rem;">${escapeHtml(folder.name)} (${lessons.length})</h2>
                         <button class="modal-close" onclick="document.getElementById('lessonsModal').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;color:var(--text2);">&times;</button>
                     </div>
                     <div>
-                        ${lessons.length === 0 ? '<div style="padding:3rem;text-align:center;font-size:1.2rem;color:var(--text3);">Конспектов пока нет.</div>' : 
+                        ${lessons.length === 0 ? '<div style="padding:3rem;text-align:center;font-size:1.2rem;color:var(--text3);">В этой папке пока пусто.</div>' :
                             lessons.map(lesson => {
-                                const isCompleted = (userData.completedLessons || []).includes(courseId + '_' + lesson.id);
+                                const isCompleted = (userData.completedLessons || []).includes(lesson.folderCourseId + '_' + lesson.id);
                                 return `
-                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;cursor:pointer;" onclick="viewLesson('${lesson.id}','${courseId}','${escapeHtml(lesson.title)}')">
+                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;cursor:pointer;" onclick="viewLesson('${lesson.id}','${lesson.folderCourseId}','${escapeHtml(lesson.title)}')">
                                         <div style="flex:1;">
                                             <div style="display:flex;align-items:center;gap:0.8rem;">
                                                 <div style="width:12px;height:12px;border-radius:50%;background:${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
@@ -1677,9 +1855,20 @@ async function markLessonCompleted(lessonId, courseId) {
         await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons });
         showToast("Конспект отмечен как пройденный!", "success");
         document.getElementById("lessonDetailModal").remove();
-        renderProgress();
-        updateLessonsCount();
     }
+}
+
+// ========== ПРОГРЕСС: СРЕДНИЙ БАЛЛ ПО ПРОБНИКАМ ==========
+function renderProgressScore() {
+    const container = document.getElementById("progressScoreCard");
+    if (!container || !userData) return;
+    const scores = userData.mockExamScores || [];
+    if (scores.length === 0) {
+        container.innerHTML = '<div class="score-num">—</div><div class="score-label">Пробников пока не было — балл появится после первого пробного экзамена.</div>';
+        return;
+    }
+    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    container.innerHTML = '<div class="score-num">' + avg + '</div><div class="score-label">Средний балл по пробникам (' + scores.length + ')</div>';
 }
 
 // ========== РЕКОМЕНДАЦИИ НА ОСНОВЕ ПРОГРЕССА ==========
@@ -1721,7 +1910,7 @@ function computeRecommendations() {
         }
     });
 
-    return recs.concat(lessonRecs || []);
+    return recs;
 }
 
 function renderRecommendationsList(containerId) {
@@ -1743,18 +1932,30 @@ function renderRecommendationsList(containerId) {
 
 function updateAllRecommendations() {
     renderRecommendationsList("overviewRecs");
-    renderRecommendationsList("progressRecs");
 }
 
-function switchPane(paneId, el) {
-    document.querySelectorAll(".dashboard-pane").forEach(p => p.style.display = "none");
-    document.getElementById(paneId + 'Pane').style.display = "block";
-    document.querySelectorAll(".sidebar-menu li").forEach(li => li.classList.remove("active"));
-    if (el) el.classList.add("active");
-    if (paneId === 'homework') loadHomeworkCourses();
-    if (paneId === 'schedule') loadStudentSchedule();
-    if (paneId === 'quizzes') loadQuizCourses();
-    if (paneId === 'overview' || paneId === 'progress') updateAllRecommendations();
+// ========== ГАМБУРГЕР-МЕНЮ ==========
+function toggleHamburgerMenu() {
+    document.getElementById("hamburgerMenu").classList.toggle("open");
+}
+function closeHamburgerMenu() {
+    document.getElementById("hamburgerMenu").classList.remove("open");
+}
+document.addEventListener("click", function (e) {
+    const menu = document.getElementById("hamburgerMenu");
+    const btn = document.getElementById("hamburgerBtn");
+    if (!menu || !menu.classList.contains("open")) return;
+    if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+        menu.classList.remove("open");
+    }
+});
+function scrollToCabinetTop() {
+    const el = document.getElementById("cabinetTop");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+}
+function scrollToProgress() {
+    const el = document.getElementById("progressSection");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
 }
 
 function showHome() {
@@ -1798,95 +1999,118 @@ function closeHwSolvePage() {
     taskSolveFiles = {};
 }
 
-// ========== РАСПИСАНИЕ ==========
-async function loadStudentSchedule() {
-    const container = document.getElementById("scheduleContainer");
-    if (!container) return;
+// ========== РАСПИСАНИЕ: ПОЛНОЭКРАННЫЙ КАЛЕНДАРЬ ==========
+let calendarCourseId = null;
+let calendarViewYear = null;
+let calendarViewMonth = null; // 0-11
+let calendarItemsCache = null;
+
+const CAL_MONTH_NAMES = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
+const CAL_WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+function openCalendarPage(courseId) {
+    calendarCourseId = courseId;
+    const now = new Date();
+    calendarViewYear = now.getFullYear();
+    calendarViewMonth = now.getMonth();
+    const course = COURSES.find(c => c.id === courseId);
+    document.getElementById("calendarPageTitle").textContent = "Расписание" + (course ? " — " + course.name : "");
+    document.getElementById("calendarPage").classList.add("active");
+    document.body.style.overflow = "hidden";
+    loadCalendarData();
+}
+
+function closeCalendarPage() {
+    document.getElementById("calendarPage").classList.remove("active");
+    document.body.style.overflow = "auto";
+}
+
+function calendarPrevMonth() {
+    calendarViewMonth--;
+    if (calendarViewMonth < 0) { calendarViewMonth = 11; calendarViewYear--; }
+    renderCalendarMonth();
+}
+function calendarNextMonth() {
+    calendarViewMonth++;
+    if (calendarViewMonth > 11) { calendarViewMonth = 0; calendarViewYear++; }
+    renderCalendarMonth();
+}
+
+async function loadCalendarData() {
+    const content = document.getElementById("calendarPageContent");
+    content.innerHTML = '<div class="schedule-empty">Загрузка расписания...</div>';
     try {
-        const snapshot = await db.collection("schedule").get();
-        const scheduleItems = [];
-        snapshot.forEach(doc => scheduleItems.push({ id: doc.id, ...doc.data() }));
-        if (scheduleItems.length === 0) {
-            container.innerHTML = '<div class="schedule-empty"><p>Расписание пока не составлено</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Следите за обновлениями</p></div>';
-            return;
-        }
-        const enrolledCourses = userData.enrolledCourses || [];
-        let filteredItems = scheduleItems.filter(item => enrolledCourses.includes(item.courseId));
-        if (filteredItems.length === 0) filteredItems = scheduleItems;
-        filteredItems.sort((a, b) => {
-            if (a.date !== b.date) return a.date.localeCompare(b.date);
-            return (a.time || '00:00').localeCompare(b.time || '00:00');
-        });
-        const grouped = {};
-        const today = new Date().toISOString().split('T')[0];
-        for (const item of filteredItems) {
-            if (!grouped[item.date]) grouped[item.date] = [];
-            grouped[item.date].push(item);
-        }
-        const dateKeys = Object.keys(grouped).sort();
-        if (dateKeys.length === 0) {
-            container.innerHTML = '<div class="schedule-empty"><p>Нет занятий по вашим курсам</p><p style="font-size:0.8rem;color:var(--text3);margin-top:0.5rem;">Запишитесь на курсы, чтобы видеть расписание</p></div>';
-            return;
-        }
-        let html = '';
-        for (const dateKey of dateKeys) {
-            const items = grouped[dateKey];
-            const dateObj = new Date(dateKey + 'T00:00:00');
-            const dayName = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'][dateObj.getDay()];
-            const formattedDate = dateObj.getDate() + ' ' + ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][dateObj.getMonth()] + ' ' + dateObj.getFullYear();
-            const isToday = dateKey === today;
-            html += `
-                <div class="schedule-day-card ${isToday ? 'today' : ''}">
-                    <div class="day-header">
-                        <div class="day-name ${isToday ? 'today' : ''}">${isToday ? iconSvg('star', 15) + ' ' : ''}${dayName}, ${formattedDate}</div>
-                        <div style="font-size:0.75rem;color:var(--text3);">${items.length} занятий</div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:0.5rem;">
-                        ${items.map(item => {
-                            const course = COURSES.find(c => c.id === item.courseId);
-                            return `
-                                <div class="lesson-item-schedule">
-                                    <div class="time">${escapeHtml(item.time || '')}</div>
-                                    <div class="lesson-name">${escapeHtml(item.name)}</div>
-                                    <div class="course-name">${course ? escapeHtml(course.name) : escapeHtml(item.courseId)}</div>
-                                    ${item.link ? '<a href="' + escapeHtml(item.link) + '" target="_blank" class="join-link">Присоединиться</a>' : ''}
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                </div>
-            `;
-        }
-        container.innerHTML = html;
-    } catch (error) {
-        console.error("Ошибка загрузки расписания:", error);
-        container.innerHTML = '<div class="schedule-empty"><p style="color:var(--red);">Ошибка загрузки расписания</p></div>';
+        calendarItemsCache = await queryByCourseIds("schedule", calendarCourseId);
+    } catch (e) {
+        console.error(e);
+        calendarItemsCache = [];
     }
+    renderCalendarMonth();
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ: КРУПНЫЕ ИНТЕРАКТИВНЫЕ КАРТОЧКИ ==========
+function renderCalendarMonth() {
+    const content = document.getElementById("calendarPageContent");
+    if (!content) return;
+    const items = calendarItemsCache || [];
+    const byDate = {};
+    items.forEach(item => {
+        if (!byDate[item.date]) byDate[item.date] = [];
+        byDate[item.date].push(item);
+    });
+
+    const firstOfMonth = new Date(calendarViewYear, calendarViewMonth, 1);
+    const startWeekday = (firstOfMonth.getDay() + 6) % 7; // понедельник = 0
+    const daysInMonth = new Date(calendarViewYear, calendarViewMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calendarViewYear, calendarViewMonth, 0).getDate();
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    let cells = "";
+    for (let i = 0; i < startWeekday; i++) {
+        const d = daysInPrevMonth - startWeekday + i + 1;
+        cells += `<div class="calendar-cell other-month"><div class="calendar-day-num">${d}</div></div>`;
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = calendarViewYear + "-" + String(calendarViewMonth + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+        const dayItems = (byDate[dateStr] || []).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+        const isToday = dateStr === todayStr;
+        cells += `
+            <div class="calendar-cell ${isToday ? 'today' : ''}">
+                <div class="calendar-day-num">${d}</div>
+                ${dayItems.map(item => `<div class="calendar-lesson-chip" title="${escapeHtml(item.name || '')}">${escapeHtml(item.time || '')} ${escapeHtml(item.name || '')}</div>`).join("")}
+            </div>`;
+    }
+    const totalCells = startWeekday + daysInMonth;
+    const trailing = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= trailing; i++) {
+        cells += `<div class="calendar-cell other-month"><div class="calendar-day-num">${i}</div></div>`;
+    }
+
+    content.innerHTML = `
+        <div class="calendar-toolbar">
+            <button class="calendar-nav-btn" onclick="calendarPrevMonth()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+            <div class="calendar-month-label">${CAL_MONTH_NAMES[calendarViewMonth]} ${calendarViewYear}</div>
+            <button class="calendar-nav-btn" onclick="calendarNextMonth()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
+        <div class="calendar-grid">
+            ${CAL_WEEKDAYS.map(w => `<div class="calendar-weekday">${w}</div>`).join("")}
+            ${cells}
+        </div>
+    `;
+}
+
+// ========== ДОМАШНИЕ ЗАДАНИЯ: СПИСОК КАРТОЧЕК ПО ВКЛАДКАМ ==========
+// Вкладки с домашками создаёт преподаватель в админке. Пока их конструктор не готов,
+// используем одну вкладку по умолчанию — сама логика вкладок уже рабочая.
+const HOMEWORK_TABS = { default: [{ id: "all", name: "Все задания" }] };
+let activeHwTabByCourse = {};
+
 async function loadHomeworkCourses() {
-    const tabsContainer = document.getElementById("hwCourseTabs");
-    const gridContainer = document.getElementById("hwCardsGrid");
-    if (!tabsContainer || !gridContainer) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) {
-        tabsContainer.innerHTML = "";
-        gridContainer.innerHTML = '<div class="schedule-empty">У вас нет активных курсов. Запишитесь на курс, чтобы получать домашние задания.</div>';
-        return;
+    // Совместимость: раньше эта функция обновляла общий грид ДЗ по всем курсам.
+    // Теперь домашки рендерятся внутри вкладки конкретного курса в личном кабинете —
+    // здесь просто прогреваем кэш для уже развёрнутого курса, если он есть.
+    if (expandedCourseId && activeCourseTab[expandedCourseId] === "homework") {
+        renderHomeworkTabContent(expandedCourseId);
     }
-    if (!hwActiveCourseId || !enrolled.find(c => c.id === hwActiveCourseId)) {
-        hwActiveCourseId = enrolled[0].id;
-    }
-    tabsContainer.innerHTML = enrolled.map(course => `
-        <div class="course-tab ${course.id === hwActiveCourseId ? 'active' : ''}" onclick="selectHwCourse('${course.id}')">${course.icon} ${escapeHtml(course.name)}</div>
-    `).join("");
-    await renderHomeworkCards(hwActiveCourseId);
-}
-
-function selectHwCourse(courseId) {
-    hwActiveCourseId = courseId;
-    loadHomeworkCourses();
 }
 
 // ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
@@ -1894,118 +2118,129 @@ async function refreshUserData() {
     if (!currentUser) return;
     try {
         const doc = await db.collection("users").doc(currentUser.uid).get();
-        if (doc.exists) {
-            userData = doc.data();
-            document.getElementById("statHomework").textContent = (userData.homeworkSubmissions || []).length;
-        }
+        if (doc.exists) userData = doc.data();
     } catch (error) {
         console.error("Ошибка обновления данных:", error);
     }
 }
 
-async function renderHomeworkCards(courseId, forceRefresh) {
-    const grid = document.getElementById("hwCardsGrid");
-    if (!grid) return;
-    const course = COURSES.find(c => c.id === courseId);
-    if (!course) { grid.innerHTML = ""; return; }
-    if (!currentUser || !currentUser.email) { grid.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
+async function renderHomeworkTabContent(courseId, forceRefresh) {
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
+    if (!currentUser || !currentUser.email) { container.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
 
-    // Раньше здесь на каждое открытие вкладки/переключение курса делался лишний
-    // await refreshUserData() (отдельное чтение из Firestore) ПЕРЕД запросом заданий —
-    // из-за этого карточки всегда грузились с задержкой в два сетевых запроса подряд.
-    // userData и так поддерживается в актуальном состоянии локально (после enroll/submit),
-    // поэтому этот запрос убран. Дополнительно кэшируем список заданий по курсу,
-    // чтобы повторное открытие вкладки отображалось мгновенно, без похода в сеть.
     if (!forceRefresh && hwCache[courseId]) {
-        renderHwCardsFromData(course, hwCache[courseId]);
+        renderHwTabsAndList(courseId, hwCache[courseId]);
         return;
     }
 
-    grid.innerHTML = '<div class="schedule-empty">Загрузка заданий...</div>';
-
+    container.innerHTML = '<div class="schedule-empty">Загрузка заданий...</div>';
     try {
-        const snapshot = await db.collection("homeworks").where("courseId", "==", courseId).get();
-        const homeworks = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.userEmail === "all" || data.userEmail === currentUser.email) {
-                homeworks.push({ id: doc.id, ...data });
-            }
-        });
+        const rawHomeworks = await queryByCourseIds("homeworks", courseId);
+        const homeworks = rawHomeworks.filter(data => data.userEmail === "all" || data.userEmail === currentUser.email);
         homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         hwCache[courseId] = homeworks;
-        renderHwCardsFromData(course, homeworks);
+        renderHwTabsAndList(courseId, homeworks);
     } catch (err) {
         console.error(err);
-        grid.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий: ' + escapeHtml(err.message) + '</div>';
+        container.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий: ' + escapeHtml(err.message) + '</div>';
     }
 }
 
-function renderHwCardsFromData(course, homeworks) {
-    const grid = document.getElementById("hwCardsGrid");
-    if (!grid) return;
+function renderHwTabsAndList(courseId, homeworks) {
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
+    const tabs = HOMEWORK_TABS[courseId] || HOMEWORK_TABS.default;
+    if (!activeHwTabByCourse[courseId]) activeHwTabByCourse[courseId] = tabs[0].id;
+    const activeTab = activeHwTabByCourse[courseId];
+    // Пока задания не размечены по вкладкам преподавателем — вся вкладка показывает все задания курса.
+    const filtered = homeworks.filter(hw => !hw.hwTabId || hw.hwTabId === activeTab);
+
+    const tabsHtml = tabs.length > 1 ? '<div class="course-tabs-inner" style="margin-bottom:1rem;">' + tabs.map(t => `
+        <button class="ctab ${t.id === activeTab ? 'active' : ''}" onclick="selectHwTab('${courseId}','${t.id}')">${escapeHtml(t.name)}</button>
+    `).join("") + '</div>' : '';
+
+    container.innerHTML = tabsHtml + '<div class="hw-list" id="hwList_' + courseId + '"></div>';
+    renderHwListCards(courseId, filtered);
+}
+
+function selectHwTab(courseId, tabId) {
+    activeHwTabByCourse[courseId] = tabId;
+    renderHwTabsAndList(courseId, hwCache[courseId] || []);
+}
+
+function formatRuDate(value) {
+    if (!value) return "";
+    // поддерживаем и готовую строку из админки, и ISO-дату
+    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+        const d = new Date(value);
+        if (!isNaN(d)) {
+            const months = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+            return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+        }
+    }
+    return value;
+}
+
+function renderHwListCards(courseId, homeworks) {
+    const list = document.getElementById("hwList_" + courseId);
+    if (!list) return;
     const submissions = (userData && userData.homeworkSubmissions) || [];
     if (homeworks.length === 0) {
-        grid.innerHTML = '<div class="schedule-empty">Нет заданий для этого курса</div>';
+        list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>';
         return;
     }
 
-    grid.innerHTML = homeworks.map(hw => {
+    list.innerHTML = homeworks.map(hw => {
         const tasks = hw.tasks || [];
         const hasSecondPart = tasks.some(t => t.isSecondPart);
         const submitted = submissions.find(s => s.id === hw.id);
         const isGraded = hw.status === 'graded' || hw.status === 'returned';
 
-        // Логика трёх состояний кнопки:
+        // Три состояния кнопки (кнопка всегда нейтральная, меняется только подпись):
         // 1) не сдано -> "Приступить к выполнению"
-        // 2) сдано, есть часть с проверкой преподавателем и она ещё не проверена -> "На проверке"
-        // 3) сдано и проверено (автоматически или преподавателем) -> "Посмотреть результат"
-        let statusKey, statusText, btnLabel, btnClass, btnOnclick, extraBtn = "";
-
+        // 2) сдано, часть с ручной проверкой ещё не проверена -> "На проверке"
+        // 3) сдано и проверено -> "Посмотреть результат"
+        let badgeText, btnLabel, btnOnclick, btnDisabled = "", extraBtn = "";
         if (!submitted) {
-            statusKey = "pending"; statusText = "Ожидает";
-            btnLabel = "Приступить к выполнению"; btnClass = "bg";
+            badgeText = "Выдано";
+            btnLabel = "Приступить к выполнению";
             btnOnclick = "startHomework('" + hw.id + "')";
         } else if (hasSecondPart && !isGraded) {
-            statusKey = "review"; statusText = "На проверке";
-            btnLabel = "На проверке"; btnClass = "secondary";
+            badgeText = "На проверке";
+            btnLabel = "На проверке";
             btnOnclick = "viewHomeworkResult('" + hw.id + "')";
         } else {
-            statusKey = "graded"; statusText = "Проверено";
-            btnLabel = "Посмотреть результат"; btnClass = "green";
+            badgeText = "Проверено";
+            btnLabel = "Посмотреть результат";
             btnOnclick = "viewHomeworkResult('" + hw.id + "')";
             if (hasSecondPart && isGraded) {
-                extraBtn = '<button class="btn secondary bsm" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
+                extraBtn = '<button class="hw-list-btn" style="margin-top:0.6rem" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
             }
         }
 
-        const gradeChip = hw.grade ? '<div class="meta-chip grade">' + iconSvg('star', 14) + ' ' + hw.grade + '/' + (hw.maxScore || 10) + '</div>' : '';
+        const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
+        const deadlineText = hw.deadlineText || formatRuDate(hw.dueDate) || "не указан";
 
         return `
-            <div class="hw-card-lg status-${statusKey}">
-                <div class="hw-card-lg-top">
-                    <div class="hw-card-lg-icon">${course.icon}</div>
-                    <span class="hw-card-lg-status">${statusText}</span>
+            <div class="hw-list-card">
+                <div class="hw-list-top">
+                    <span class="hw-badge">${badgeText}</span>
+                    <span class="hw-type-tag">ДЗ</span>
                 </div>
-                <div>
-                    <div class="hw-card-lg-subject">${escapeHtml(course.name)}</div>
-                    <div class="hw-card-lg-title">${escapeHtml(hw.title)}</div>
-                    <div class="hw-card-lg-meta">
-                        <div class="meta-chip">${iconSvg('calendar', 14)} ${escapeHtml(hw.dueDate || "без срока")}</div>
-                        <div class="meta-chip">${iconSvg('tasks', 14)} ${tasks.length} задач</div>
-                        ${gradeChip}
-                    </div>
-                </div>
-                <div class="hw-card-lg-footer">
-                    <button class="btn ${btnClass} hw-card-lg-btn" onclick="${btnOnclick}">${btnLabel}</button>
-                    ${extraBtn}
-                </div>
+                <div class="hw-list-title">${escapeHtml(hw.title)}</div>
+                <div class="hw-list-meta"><span>Выдано:</span> <strong>${issuedDate || "не указано"}</strong></div>
+                <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(deadlineText)}</strong></div>
+                <button class="hw-list-btn" onclick="${btnOnclick}">${btnLabel}</button>
+                ${extraBtn}
             </div>
         `;
     }).join("");
 }
 
 // ========== ЗАПУСК ДЗ (С ПОДДЕРЖКОЙ ИЗОБРАЖЕНИЙ) ==========
+let taskBookmarks = {}; // taskIndex -> 'know' | 'stopped' (личные пометки ученика, не отправляются преподавателю)
+
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -2015,41 +2250,41 @@ async function startHomework(hwId) {
     currentTaskIndex = 0;
     isSubmitted = false;
     taskSolveFiles = {};
-    
+    taskBookmarks = {};
+
     const totalTasks = hw.tasks ? hw.tasks.length : 0;
-    
+
     document.getElementById("hwSolveTitle").textContent = hw.title;
-    
+
     let html = `
         <div style="margin-bottom:1rem;color:var(--text2);">
-            <p>Курс: ${escapeHtml(hw.courseId)}</p>
             <p>Задач: ${totalTasks}</p>
         </div>
-        
-        <div class="hw-progress-bar" id="hwProgressBar">
-            ${Array.from({ length: totalTasks }, (_, i) => {
-                const isSecondPart = hw.tasks[i]?.isSecondPart || false;
-                const dotClass = isSecondPart ? 'second-part' : '';
-                return `
-                    <div class="hw-dot ${dotClass}" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">
-                        ${i + 1}
-                    </div>
-                `;
-            }).join('')}
+
+        <div class="quick-jump-bar" id="hwProgressBar">
+            <div class="quick-jump-label">Быстрый переход к задаче</div>
+            <div class="quick-jump-numbers">
+                ${Array.from({ length: totalTasks }, (_, i) => {
+                    const isSecondPart = hw.tasks[i]?.isSecondPart || false;
+                    const dotClass = isSecondPart ? 'second-part' : '';
+                    return `<div class="hw-dot ${dotClass}" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">${i + 1}</div>`;
+                }).join('')}
+            </div>
+            <button class="quick-jump-goto-bookmark" onclick="goToBookmark()">Перейти к закладке</button>
         </div>
-        
+
         <div class="hw-counter" id="hwCounter" style="display:none;">
             <span>Верных ответов: <span class="score" id="hwScore">0</span> из <span class="score-total">${totalTasks}</span></span>
             <span style="font-size:0.8rem;color:var(--text3);">0%</span>
         </div>
-        
+
         <div id="hwTasksContainer">
             ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
                 const isSecondPart = task.isSecondPart || false;
-                
+
                 // === ПАРСИМ ИЗОБРАЖЕНИЯ В УСЛОВИИ ===
                 const conditionHtml = parseImagesInText(task.condition || "Условие задачи не добавлено");
-                
+
                 // === ФАЙЛЫ К ЗАДАЧЕ ===
                 let taskFilesHtml = '';
                 if (task.files && task.files.length > 0) {
@@ -2067,26 +2302,23 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 }
-                
+
+                // Задачи с экспертной (преподавательской) проверкой принимаются ТОЛЬКО файлом решения —
+                // без текстового поля. Задачи с кратким ответом проверяются платформой автоматически
+                // (правильный ответ задаётся в админ-панели).
                 let answerHtml = '';
                 if (isSecondPart) {
                     answerHtml = `
-                        <div style="margin-top:0.8rem;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--line);">
-                            <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;">Задание с развернутым решением</div>
-                            <div class="form-group">
-                                <label>Ваше текстовое решение (по желанию)</label>
-                                <textarea id="answer_text_${index}" rows="4" placeholder="Напишите ваше решение здесь..."></textarea>
+                        <div style="margin-top:0.8rem;">
+                            <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${index}').click()">
+                                <div style="display:flex;justify-content:center;color:var(--gold);margin-bottom:0.3rem;">${iconSvg('upload', 26)}</div>
+                                <div style="font-size:0.8rem;">Нажмите, чтобы прикрепить решение</div>
+                                <div style="font-size:0.7rem;color:var(--text3);">Поддерживаются изображения и PDF, до 10 файлов</div>
                             </div>
-                            <div class="form-group">
-                                <label>Прикрепить файлы с решением (до 10 файлов)</label>
-                                <div class="multi-file-zone" onclick="document.getElementById('taskFileInput_${index}').click()">
-                                    <div style="display:flex;justify-content:center;color:var(--gold);margin-bottom:0.3rem;">${iconSvg('upload', 26)}</div>
-                                    <div style="font-size:0.8rem;">Нажмите, чтобы прикрепить решение</div>
-                                    <div style="font-size:0.7rem;color:var(--text3);">Поддерживаются изображения и PDF</div>
-                                </div>
-                                <input type="file" id="taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskSolveFilesSelect(this, ${index})">
-                                <div id="taskFilePreview_${index}" class="files-list"></div>
-                            </div>
+                            <input type="file" id="taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskSolveFilesSelect(this, ${index})">
+                            <button class="file-upload-btn" onclick="document.getElementById('taskFileInput_${index}').click()">${iconSvg('upload', 18)} Загрузить решение</button>
+                            <div id="taskFilePreview_${index}" class="files-list"></div>
+                            <div class="file-upload-empty-hint" id="taskFileEmptyHint_${index}">Файлы отсутствуют</div>
                         </div>
                     `;
                 } else {
@@ -2098,13 +2330,22 @@ async function startHomework(hwId) {
                         </div>
                     `;
                 }
-                
+
                 const contentClass = isSecondPart ? 'second-part' : '';
-                
+                const taskCode = (hw.id || hwId || "").slice(0, 5).toUpperCase() + (index + 1);
+
                 return `
-                    <div class="task-block ${index === 0 ? 'active' : ''}" id="taskblock_${index}" data-index="${index}">
+                    <div class="task-block" id="taskblock_${index}" data-index="${index}">
                         <div class="task-content ${contentClass}" id="taskcontent_${index}">
-                            <div class="task-number">Задача ${index + 1} из ${totalTasks}</div>
+                            <div class="task-number">Задача ${index + 1} <span class="task-id-tag">#${taskCode}</span></div>
+                            <div class="task-badges">
+                                ${isSecondPart ? '<span class="badge-expert">Экспертная проверка</span>' : ''}
+                                <span class="badge-required">Обязательное</span>
+                            </div>
+                            <div class="task-bookmark-row">
+                                <button class="bookmark-btn" id="bookmarkKnow_${index}" onclick="setTaskBookmark(${index}, 'know')">Умею решать</button>
+                                <button class="bookmark-btn" id="bookmarkStopped_${index}" onclick="setTaskBookmark(${index}, 'stopped')">Остановился тут</button>
+                            </div>
                             <div class="task-condition">
                                 ${conditionHtml}
                             </div>
@@ -2117,24 +2358,41 @@ async function startHomework(hwId) {
                 `;
             }).join('') : '<div style="padding:2rem;text-align:center;color:var(--text3);">В этом задании нет задач</div>'}
         </div>
-        
-        <div class="task-nav">
-            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)">Назад</button>
-            <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
-            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
-        </div>
-        
+
         <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
             <button class="btn bg" id="submitBtn" onclick="submitHomework()">Отправить на проверку</button>
             <button class="btn bo" onclick="closeHwSolvePage()">Отмена</button>
         </div>
     `;
-    
+
     document.getElementById("hwSolveContent").innerHTML = html;
     openHwSolvePage();
-    updateNavButtons();
     setTimeout(() => renderMath(), 300);
 }
+
+// Личные пометки ученика по задаче (не влияют на проверку, только для навигации по себе)
+function setTaskBookmark(index, kind) {
+    taskBookmarks[index] = taskBookmarks[index] === kind ? null : kind;
+    const knowBtn = document.getElementById("bookmarkKnow_" + index);
+    const stoppedBtn = document.getElementById("bookmarkStopped_" + index);
+    if (knowBtn) knowBtn.classList.toggle("active", taskBookmarks[index] === "know");
+    if (stoppedBtn) stoppedBtn.classList.toggle("active", taskBookmarks[index] === "stopped");
+}
+
+function goToBookmark() {
+    const idx = Object.keys(taskBookmarks).find(i => taskBookmarks[i] === "stopped");
+    if (idx === undefined) {
+        showToast("Закладка «Остановился тут» ещё не поставлена", "info");
+        return;
+    }
+    goToTask(parseInt(idx, 10));
+}
+
+function goToTask(index) {
+    const target = document.getElementById("taskblock_" + index);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 
 function handleTaskSolveFilesSelect(input, taskIndex) {
     const files = Array.from(input.files);
@@ -2163,11 +2421,14 @@ function handleTaskSolveFilesSelect(input, taskIndex) {
 function renderTaskSolveFilePreview(taskIndex) {
     const container = document.getElementById('taskFilePreview_' + taskIndex);
     if (!container) return;
+    const hint = document.getElementById('taskFileEmptyHint_' + taskIndex);
     const files = taskSolveFiles[taskIndex] || [];
     if (files.length === 0) {
-        container.innerHTML = '<div style="color: var(--text3); font-size: 0.8rem;">Нет прикрепленных файлов</div>';
+        container.innerHTML = '';
+        if (hint) hint.style.display = 'block';
         return;
     }
+    if (hint) hint.style.display = 'none';
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
         <div class="file-item">
@@ -2183,44 +2444,6 @@ function removeTaskSolveFile(taskIndex, idx) {
         taskSolveFiles[taskIndex].splice(idx, 1);
         renderTaskSolveFilePreview(taskIndex);
     }
-}
-
-// ========== НАВИГАЦИЯ ПО ЗАДАЧАМ ==========
-function goToTask(index) {
-    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
-    if (index < 0 || index >= totalTasks) return;
-    
-    document.querySelectorAll('.task-block').forEach(el => el.classList.remove('active'));
-    const target = document.getElementById('taskblock_' + index);
-    if (target) target.classList.add('active');
-    
-    currentTaskIndex = index;
-    updateNavButtons();
-    updateActiveDot(index);
-}
-
-function changeTask(direction) {
-    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
-    const newIndex = currentTaskIndex + direction;
-    if (newIndex < 0 || newIndex >= totalTasks) return;
-    goToTask(newIndex);
-}
-
-function updateNavButtons() {
-    const totalTasks = currentSolveHwData.tasks ? currentSolveHwData.tasks.length : 0;
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const counter = document.getElementById('taskCounter');
-    
-    if (prevBtn) prevBtn.disabled = currentTaskIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentTaskIndex >= totalTasks - 1;
-    if (counter) counter.textContent = (currentTaskIndex + 1) + ' / ' + totalTasks;
-}
-
-function updateActiveDot(index) {
-    document.querySelectorAll('.hw-dot').forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-    });
 }
 
 function saveAnswer(index, value) {
@@ -2244,14 +2467,13 @@ async function submitHomework() {
         const isSecondPart = task.isSecondPart || false;
         
         if (isSecondPart) {
-            const textAnswer = document.getElementById('answer_text_' + i)?.value.trim() || '';
             const files = taskSolveFiles[i] || [];
-            if (!textAnswer && files.length === 0) {
-                showToast('Прикрепите решение или файлы для задачи ' + (i + 1), "error");
+            if (files.length === 0) {
+                showToast('Прикрепите файл с решением для задачи ' + (i + 1), "error");
                 goToTask(i);
                 return;
             }
-            userAnswers[i] = { text: textAnswer, files: files };
+            userAnswers[i] = { text: "", files: files };
         } else {
             const answerInput = document.getElementById('answer_' + i);
             const answer = answerInput ? answerInput.value.trim() : '';
@@ -2394,17 +2616,16 @@ async function submitHomework() {
         
         btn.textContent = "Отправлено";
         btn.disabled = true;
-        btn.className = "btn green";
-        
-        document.getElementById("statHomework").textContent = userData.homeworkSubmissions.length;
+        btn.className = "btn bg";
         
         showToast('Задание отправлено на проверку!', "success");
         
         setTimeout(() => {
+            const cid = currentSolveHwData ? currentSolveHwData.courseId : null;
             closeHwSolvePage();
-            if (hwActiveCourseId) {
-                delete hwCache[hwActiveCourseId];
-                renderHomeworkCards(hwActiveCourseId, true);
+            if (cid) {
+                delete hwCache[cid];
+                renderHomeworkTabContent(cid, true);
             }
             updateAllRecommendations();
         }, 500);
@@ -2565,11 +2786,13 @@ function openHwReviewPage(hwId, hw, submission) {
 
     const html = `
         <div style="margin-bottom:1rem;color:var(--text2);">
-            <p>Курс: ${escapeHtml(hw.courseId)}</p>
             <p>Задач: ${totalTasks}</p>
         </div>
 
-        <div class="hw-progress-bar" id="hwProgressBar">${dotsHtml}</div>
+        <div class="quick-jump-bar" id="hwProgressBar">
+            <div class="quick-jump-label">Быстрый переход к задаче</div>
+            <div class="quick-jump-numbers">${dotsHtml}</div>
+        </div>
 
         ${gradedTasksCount > 0 ? `
             <div class="hw-counter" id="hwCounter">
@@ -2580,12 +2803,6 @@ function openHwReviewPage(hwId, hw, submission) {
 
         <div id="hwTasksContainer">${tasksHtml}</div>
 
-        <div class="task-nav">
-            <button class="btn secondary nav-btn" id="prevBtn" onclick="changeTask(-1)">Назад</button>
-            <span style="color:var(--text3);font-size:0.9rem;" id="taskCounter">1 / ${totalTasks}</span>
-            <button class="btn secondary nav-btn" id="nextBtn" onclick="changeTask(1)">Вперёд</button>
-        </div>
-
         <div style="display:flex;gap:1rem;margin-top:1.5rem;justify-content:center;">
             <button class="btn bo" onclick="closeHwSolvePage()">Закрыть</button>
         </div>
@@ -2593,7 +2810,6 @@ function openHwReviewPage(hwId, hw, submission) {
 
     document.getElementById("hwSolveContent").innerHTML = html;
     openHwSolvePage();
-    updateNavButtons();
     setTimeout(() => renderMathInElement(document.getElementById('hwSolveContent')), 300);
 }
 
@@ -2614,46 +2830,21 @@ function shuffleArray(arr) {
     return a;
 }
 
-async function loadQuizCourses() {
-    const tabsContainer = document.getElementById("quizCourseTabs");
-    const gridContainer = document.getElementById("quizCardsGrid");
-    if (!tabsContainer || !gridContainer) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
-    if (enrolled.length === 0) {
-        tabsContainer.innerHTML = "";
-        gridContainer.innerHTML = '<div class="schedule-empty">Запишитесь на курс, чтобы получить доступ к квизам.</div>';
-        return;
-    }
-    if (!quizActiveCourseId || !enrolled.find(c => c.id === quizActiveCourseId)) {
-        quizActiveCourseId = enrolled[0].id;
-    }
-    tabsContainer.innerHTML = enrolled.map(course => `
-        <div class="course-tab ${course.id === quizActiveCourseId ? 'active' : ''}" onclick="selectQuizCourse('${course.id}')">${course.icon} ${escapeHtml(course.name)}</div>
-    `).join("");
-    await renderQuizCards(quizActiveCourseId);
-}
-
-function selectQuizCourse(courseId) {
-    quizActiveCourseId = courseId;
-    loadQuizCourses();
-}
-
 async function renderQuizCards(courseId) {
-    const grid = document.getElementById("quizCardsGrid");
-    if (!grid) return;
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) { grid.innerHTML = ""; return; }
+    if (!course) { container.innerHTML = ""; return; }
 
     let quizzes;
     if (quizListCache[courseId]) {
         quizzes = quizListCache[courseId];
     } else {
-        grid.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>';
+        container.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>';
         quizzes = [];
         try {
-            const snapshot = await db.collection("quizzes").where("courseId", "==", courseId).get();
-            snapshot.forEach(doc => {
-                const data = { id: doc.id, ...doc.data() };
+            const rawQuizzes = await queryByCourseIds("quizzes", courseId);
+            rawQuizzes.forEach(data => {
                 quizCache[data.id] = data;
                 quizzes.push(data);
             });
@@ -2669,13 +2860,13 @@ async function renderQuizCards(courseId) {
     }
 
     if (quizzes.length === 0) {
-        grid.innerHTML = '<div class="schedule-empty">Квизов по этому курсу пока нет. Загляните позже!</div>';
+        container.innerHTML = '<div class="schedule-empty">Квизов по этому курсу пока нет. Загляните позже!</div>';
         return;
     }
 
     const completed = (userData && userData.quizzesCompleted) || [];
 
-    grid.innerHTML = quizzes.map(q => {
+    container.innerHTML = '<div class="quiz-cards-grid">' + quizzes.map(q => {
         const attempts = completed.filter(c => c.id === q.id);
         let bestLine = "";
         if (attempts.length > 0) {
@@ -2693,7 +2884,7 @@ async function renderQuizCards(courseId) {
                 <button class="btn bg" style="width:100%;margin-top:0.4rem" onclick="startQuiz('${q.id}')">Пройти квиз</button>
             </div>
         `;
-    }).join("");
+    }).join("") + '</div>';
 }
 
 function openQuizPage() {
@@ -2836,7 +3027,8 @@ async function saveQuizResult() {
     }
 
     updateAllRecommendations();
-    if (quizActiveCourseId) { delete quizListCache[quizActiveCourseId]; renderQuizCards(quizActiveCourseId); }
+    const cid = quizActive.quizData.courseId;
+    if (cid) { delete quizListCache[cid]; renderQuizCards(cid); }
 }
 
 // ========== ЗАПУСК ==========
@@ -2851,7 +3043,7 @@ function init() {
             if (user) {
                 if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
                 const doc = await db.collection("users").doc(user.uid).get();
-                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [] };
+                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
                 updateUIAfterLogin();
