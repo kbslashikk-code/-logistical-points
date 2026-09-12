@@ -1202,12 +1202,6 @@ const COURSES = [
     { id: "olymp", name: "Олимпиадная математика", tag: "Олимпиады · Математика", icon: iconSvg("trophy", 26), level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math", legacyIds: [] }
 ];
 
-// Возвращает id курса + все "старые" id, под которыми в Firestore ещё могут храниться
-// домашки/конспекты/квизы/расписание (например, отдельные "algebra" и "geometry" до
-// Раньше ученики были записаны на отдельные "algebra"/"geometry" — после объединения
-// курсов в "math" эти старые id больше не существуют в COURSES, и без преобразования
-// курс "Математика" просто пропадает из личного кабинета (enrolledCourses хранит id,
-// которого больше нет). Эта функция подставляет актуальный id вместо старого.
 function resolveCourseId(rawId) {
     const direct = COURSES.find(c => c.id === rawId);
     if (direct) return direct.id;
@@ -1227,8 +1221,6 @@ function normalizeEnrolledCourses() {
     }
 }
 
-// объединения в один курс "Математика"). Использовать во ВСЕХ запросах по courseId,
-// иначе после объединения курсов старые данные "потеряются" из вида.
 function getCourseQueryIds(courseId) {
     const course = COURSES.find(c => c.id === courseId);
     const ids = [courseId];
@@ -1236,9 +1228,6 @@ function getCourseQueryIds(courseId) {
     return ids;
 }
 
-// Firestore "in" принимает максимум 10 значений и не работает с пустым массивом —
-// оборачиваем where("courseId","==",id) в OR по нескольким id через несколько запросов,
-// чтобы не зависеть от версии SDK, поддерживающей where(...,"in",[...]) для compat-режима.
 async function queryByCourseIds(collectionName, courseId, extraWhere) {
     const ids = getCourseQueryIds(courseId);
     const results = [];
@@ -1251,17 +1240,13 @@ async function queryByCourseIds(collectionName, courseId, extraWhere) {
 }
 
 
-// Папки с материалами по курсам (пока создаются вручную в коде — в админ-панели
-// конструктор папок ещё не готов, но сам функционал на сайте ученика уже рабочий).
 const MATERIAL_FOLDERS = {
     math: [{ id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", courseIds: ["algebra", "geometry", "math"] }],
     physics: [{ id: "physics-ege-2027", name: "Физика. ЕГЭ 2027", courseIds: ["physics"] }],
     olymp: []
 };
 
-// Курс, который был развёрнут последним (для логики "один открытый курс за раз").
 let expandedCourseId = null;
-// Активная вкладка (Расписание/ДЗ/Квизы/Материалы) для каждого курса.
 let activeCourseTab = {};
 
 
@@ -1274,21 +1259,14 @@ let currentTaskIndex = 0;
 let isSubmitted = false;
 let taskSolveFiles = {};
 
-// ==== Личный кабинет: домашние задания по вкладкам ====
 let hwActiveCourseId = null;
-let hwCache = {}; // courseId -> homeworks[] (устраняет повторные сетевые запросы и задержку открытия вкладки)
-let quizListCache = {}; // courseId -> quizzes[]
+let hwCache = {};
+let quizListCache = {};
 
-// ==== Рекомендации на основе прогресса ====
-
-
-// ==== Квизы ====
 let quizActiveCourseId = null;
 let quizCache = {};
 let quizActive = null;
 
-// Демо-квиз показывается, если для курса ещё не добавлены реальные квизы в админке —
-// чтобы функционал можно было сразу продемонстрировать ученику.
 const DEMO_QUIZ = {
     id: "demo-algebra-1",
     courseId: "math",
@@ -1304,15 +1282,27 @@ const DEMO_QUIZ = {
     ]
 };
 
-// ==== Вход через VK ====
-// Firebase не умеет авторизовывать через VK "из коробки". Чтобы кнопка ниже заработала полностью, нужно:
-// 1) Создать VK-приложение (vk.com/apps?act=manage) и получить его client_id — подставить в VK_CLIENT_ID.
-// 2) Поднять небольшую серверную функцию (например, Firebase Cloud Function), которая примет код
-//    авторизации VK, обменяет его на access_token через VK API и создаст Firebase custom token
-//    через Admin SDK — её адрес указать в VK_AUTH_ENDPOINT.
-// Без этих двух шагов кнопка покажет понятное сообщение вместо ошибки.
-const VK_CLIENT_ID = "";
-const VK_AUTH_ENDPOINT = "";
+// ========== ВХОД ЧЕРЕЗ VK ==========
+// Настройки для входа через VK ID (PKCE flow).
+// VK_CLIENT_ID — публичный ID приложения (можно держать в коде страницы).
+// VK_AUTH_ENDPOINT — URL Cloud Function, которая обменивает код на Firebase custom token.
+const VK_CLIENT_ID = "54768486";
+const VK_AUTH_ENDPOINT = "https://us-central1-logistical-points.cloudfunctions.net/vkAuth";
+
+// --- PKCE helpers ---
+function base64UrlEncode(buffer) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function generateRandomString(len) {
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, b => ('0' + b.toString(16)).slice(-2)).join('');
+}
+async function sha256(str) {
+    const buf = new TextEncoder().encode(str);
+    return await crypto.subtle.digest('SHA-256', buf);
+}
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -1337,7 +1327,6 @@ function showToast(msg, type) {
 function parseImagesInText(text) {
     if (!text) return '';
     
-    // Ищем теги [img:URL:ширина:подпись]
     var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
     var result = text;
     var match;
@@ -1386,21 +1375,11 @@ async function renderMathInElement(el) {
 let loaderActive = false;
 let loaderAuthResolved = false;
 
-// ========== АНИМАЦИЯ "РИСОВАНИЯ" ЛОГОТИПА-МОЗГА ==========
-// Один общий <path> в скрытом SVG-спрайте переиспользуется через <use> и в шапке, и на
-// экране загрузки — анимируя его один раз, получаем эффект отрисовки одновременно везде,
-// где используется логотип. Каждый цикл начинается с полностью чистого контура.
-const BRAIN_DRAW_DURATION = 2800; // мс
+const BRAIN_DRAW_DURATION = 2800;
 
 function playBrainDrawAnimation() {
     const segments = Array.from(document.querySelectorAll(".brain-seg"));
     if (!segments.length) return;
-    // Контур состоит из 39 отдельных кусков (в оригинале линия отрывается от "холста"
-    // и продолжается в другом месте). Браузер сбрасывает фазу штриха на каждом таком
-    // разрыве, поэтому один общий stroke-dashoffset на весь путь не даёт эффекта
-    // постепенной отрисовки — весь контур проявляется почти сразу. Вместо этого каждый
-    // кусок анимируется отдельно, друг за другом, пропорционально своей длине, что и
-    // даёт плавное "ведение линии" от начала до конца.
     const lengths = segments.map((seg) => seg.getTotalLength());
     const total = lengths.reduce((a, b) => a + b, 0) || 1;
     segments.forEach((seg, i) => {
@@ -1408,7 +1387,7 @@ function playBrainDrawAnimation() {
         seg.style.strokeDasharray = lengths[i];
         seg.style.strokeDashoffset = lengths[i];
     });
-    segments[0].getBoundingClientRect(); // форсируем reflow, чтобы transition сработал заново
+    segments[0].getBoundingClientRect();
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             let elapsed = 0;
@@ -1425,9 +1404,6 @@ function playBrainDrawAnimation() {
     });
 }
 
-// Пока реальная загрузка (Firebase/auth) не завершилась, мозг рисуется заново по кругу:
-// сначала полностью чистый контур, затем плавная отрисовка целиком, короткая пауза —
-// и повтор. Как только данные готовы, текущий цикл дорисовывается до конца и экран закрывается.
 function runLoaderDrawCycle() {
     if (!loaderActive) return;
     playBrainDrawAnimation();
@@ -1517,17 +1493,26 @@ function handleRegister() {
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
 // ========== ВХОД ЧЕРЕЗ VK ==========
-function handleVkLogin() {
+async function handleVkLogin() {
     if (!VK_CLIENT_ID) {
-        showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID и серверная функция", "info");
+        showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID", "info");
         return;
     }
     const redirectUri = window.location.origin + window.location.pathname;
-    const state = Math.random().toString(36).slice(2);
+    const state = generateRandomString(16);
+    const codeVerifier = generateRandomString(64);
+    const codeChallenge = base64UrlEncode(await sha256(codeVerifier));
+
     sessionStorage.setItem("vk_auth_state", state);
+    sessionStorage.setItem("vk_code_verifier", codeVerifier);
+
     const authUrl = "https://id.vk.com/authorize?client_id=" + encodeURIComponent(VK_CLIENT_ID) +
         "&redirect_uri=" + encodeURIComponent(redirectUri) +
-        "&response_type=code&state=" + state + "&scope=email";
+        "&response_type=code" +
+        "&state=" + encodeURIComponent(state) +
+        "&code_challenge=" + encodeURIComponent(codeChallenge) +
+        "&code_challenge_method=S256" +
+        "&scope=email";
     window.location.href = authUrl;
 }
 
@@ -1535,27 +1520,42 @@ async function handleVkCallback() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
     const state = params.get("state");
+    const deviceId = params.get("device_id");
     if (!code) return;
-    if (state !== sessionStorage.getItem("vk_auth_state")) return;
+
+    if (state !== sessionStorage.getItem("vk_auth_state")) {
+        console.warn("VK state mismatch");
+        return;
+    }
+    const codeVerifier = sessionStorage.getItem("vk_code_verifier");
     sessionStorage.removeItem("vk_auth_state");
+    sessionStorage.removeItem("vk_code_verifier");
     window.history.replaceState({}, document.title, window.location.pathname);
+
     if (!VK_AUTH_ENDPOINT) {
         showToast("Вход через VK: серверная функция не настроена", "error");
         return;
     }
+
     try {
         const resp = await fetch(VK_AUTH_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code: code, redirectUri: window.location.origin + window.location.pathname })
+            body: JSON.stringify({
+                code: code,
+                codeVerifier: codeVerifier,
+                deviceId: deviceId,
+                redirectUri: window.location.origin + window.location.pathname
+            })
         });
         const data = await resp.json();
-        if (data.firebaseToken) {
-            await auth.signInWithCustomToken(data.firebaseToken);
-            showToast("Вход через VK выполнен", "success");
-        } else {
-            showToast("Не удалось войти через VK", "error");
+        if (!resp.ok || !data.firebaseToken) {
+            console.error("VK auth error:", data);
+            showToast(data.error || "Не удалось войти через VK", "error");
+            return;
         }
+        await auth.signInWithCustomToken(data.firebaseToken);
+        showToast("Вход через VK выполнен", "success");
     } catch (error) {
         console.error("Ошибка VK-входа:", error);
         showToast("Ошибка входа через VK", "error");
@@ -1607,7 +1607,6 @@ function enrollCourse(courseId) {
     }
 }
 
-// ========== ЛИЧНЫЙ КАБИНЕТ: КАРТОЧКИ КУРСОВ (АККОРДЕОН) ==========
 function renderCourseCabinet() {
     const list = document.getElementById("courseCabinetList");
     const countEl = document.getElementById("cabinetCourseCount");
@@ -1660,7 +1659,6 @@ function renderCourseCabinet() {
         </div>
     `;
     }).join("");
-    // если ранее был открыт курс — сразу отрисуем его сохранённую вкладку
     if (expandedCourseId && enrolled.find(c => c.id === expandedCourseId)) {
         const tab = activeCourseTab[expandedCourseId] || "homework";
         renderCourseTabButtons(expandedCourseId, tab);
@@ -1674,10 +1672,6 @@ function toggleCourseEnabled(courseId, checked) {
     if (currentUser) db.collection("users").doc(currentUser.uid).update({ courseEnabled: userData.courseEnabled }).catch(() => {});
 }
 
-// Три независимые кнопки управления карточкой курса:
-// ▾ — развернуть (показать вкладки и содержимое)
-// ▴ — свернуть (оставить только шапку курса)
-// — — свернуть до одной строки с названием (самый компактный вид)
 function expandCourseCard(courseId) {
     if (expandedCourseId && expandedCourseId !== courseId) {
         const prevCard = document.getElementById("cabCard_" + expandedCourseId);
@@ -1733,7 +1727,7 @@ function switchCourseTab(courseId, tab, el) {
     renderCourseTabButtons(courseId, tab);
     if (tab === "schedule") {
         openCalendarPage(courseId);
-        return; // расписание — отдельная полноэкранная страница, инлайн-контент не меняем
+        return;
     }
     renderCourseTabContent(courseId, tab);
 }
@@ -1753,7 +1747,6 @@ function renderCourseTabContent(courseId, tab) {
     }
 }
 
-// ========== МАТЕРИАЛЫ: ПАПКИ ==========
 async function renderMaterialsTabContent(courseId) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
@@ -1780,7 +1773,6 @@ async function renderMaterialsTabContent(courseId) {
         </div>
     `).join("") + '</div>';
 
-    // считаем реальное число конспектов и ДЗ в папке
     for (const folder of folders) {
         try {
             const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
@@ -1902,7 +1894,6 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
-// ========== ПРОГРЕСС: СРЕДНИЙ БАЛЛ ПО ПРОБНИКАМ ==========
 function renderProgressScore() {
     const container = document.getElementById("progressScoreCard");
     if (!container || !userData) return;
@@ -1915,7 +1906,6 @@ function renderProgressScore() {
     container.innerHTML = '<div class="score-num">' + avg + '</div><div class="score-label">Средний балл по пробникам (' + scores.length + ')</div>';
 }
 
-// ========== РЕКОМЕНДАЦИИ НА ОСНОВЕ ПРОГРЕССА ==========
 function computeRecommendations() {
     const recs = [];
     const subs = (userData && userData.homeworkSubmissions) || [];
@@ -1978,7 +1968,6 @@ function updateAllRecommendations() {
     renderRecommendationsList("overviewRecs");
 }
 
-// ========== ГАМБУРГЕР-МЕНЮ ==========
 function toggleHamburgerMenu() {
     document.getElementById("hamburgerMenu").classList.toggle("open");
 }
@@ -2043,10 +2032,9 @@ function closeHwSolvePage() {
     taskSolveFiles = {};
 }
 
-// ========== РАСПИСАНИЕ: ПОЛНОЭКРАННЫЙ КАЛЕНДАРЬ ==========
 let calendarCourseId = null;
 let calendarViewYear = null;
-let calendarViewMonth = null; // 0-11
+let calendarViewMonth = null;
 let calendarItemsCache = null;
 
 const CAL_MONTH_NAMES = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
@@ -2103,7 +2091,7 @@ function renderCalendarMonth() {
     });
 
     const firstOfMonth = new Date(calendarViewYear, calendarViewMonth, 1);
-    const startWeekday = (firstOfMonth.getDay() + 6) % 7; // понедельник = 0
+    const startWeekday = (firstOfMonth.getDay() + 6) % 7;
     const daysInMonth = new Date(calendarViewYear, calendarViewMonth + 1, 0).getDate();
     const daysInPrevMonth = new Date(calendarViewYear, calendarViewMonth, 0).getDate();
     const todayStr = new Date().toISOString().split("T")[0];
@@ -2142,22 +2130,15 @@ function renderCalendarMonth() {
     `;
 }
 
-// ========== ДОМАШНИЕ ЗАДАНИЯ: СПИСОК КАРТОЧЕК ПО ВКЛАДКАМ ==========
-// Вкладки с домашками создаёт преподаватель в админке. Пока их конструктор не готов,
-// используем одну вкладку по умолчанию — сама логика вкладок уже рабочая.
 const HOMEWORK_TABS = { default: [{ id: "all", name: "Все задания" }] };
 let activeHwTabByCourse = {};
 
 async function loadHomeworkCourses() {
-    // Совместимость: раньше эта функция обновляла общий грид ДЗ по всем курсам.
-    // Теперь домашки рендерятся внутри вкладки конкретного курса в личном кабинете —
-    // здесь просто прогреваем кэш для уже развёрнутого курса, если он есть.
     if (expandedCourseId && activeCourseTab[expandedCourseId] === "homework") {
         renderHomeworkTabContent(expandedCourseId);
     }
 }
 
-// ========== ПЕРЕЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ==========
 async function refreshUserData() {
     if (!currentUser) return;
     try {
@@ -2197,7 +2178,6 @@ function renderHwTabsAndList(courseId, homeworks) {
     const tabs = HOMEWORK_TABS[courseId] || HOMEWORK_TABS.default;
     if (!activeHwTabByCourse[courseId]) activeHwTabByCourse[courseId] = tabs[0].id;
     const activeTab = activeHwTabByCourse[courseId];
-    // Пока задания не размечены по вкладкам преподавателем — вся вкладка показывает все задания курса.
     const filtered = homeworks.filter(hw => !hw.hwTabId || hw.hwTabId === activeTab);
 
     const tabsHtml = tabs.length > 1 ? '<div class="course-tabs-inner" style="margin-bottom:1rem;">' + tabs.map(t => `
@@ -2215,7 +2195,6 @@ function selectHwTab(courseId, tabId) {
 
 function formatRuDate(value) {
     if (!value) return "";
-    // поддерживаем и готовую строку из админки, и ISO-дату
     if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
         const d = new Date(value);
         if (!isNaN(d)) {
@@ -2241,10 +2220,6 @@ function renderHwListCards(courseId, homeworks) {
         const submitted = submissions.find(s => s.id === hw.id);
         const isGraded = hw.status === 'graded' || hw.status === 'returned';
 
-        // Три состояния кнопки (кнопка всегда нейтральная, меняется только подпись):
-        // 1) не сдано -> "Приступить к выполнению"
-        // 2) сдано, часть с ручной проверкой ещё не проверена -> "На проверке"
-        // 3) сдано и проверено -> "Посмотреть результат"
         let badgeText, btnLabel, btnOnclick, btnDisabled = "", extraBtn = "";
         if (!submitted) {
             badgeText = "Выдано";
@@ -2282,8 +2257,7 @@ function renderHwListCards(courseId, homeworks) {
     }).join("");
 }
 
-// ========== ЗАПУСК ДЗ (С ПОДДЕРЖКОЙ ИЗОБРАЖЕНИЙ) ==========
-let taskBookmarks = {}; // taskIndex -> 'know' | 'stopped' (личные пометки ученика, не отправляются преподавателю)
+let taskBookmarks = {};
 
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
@@ -2325,11 +2299,8 @@ async function startHomework(hwId) {
         <div id="hwTasksContainer">
             ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
                 const isSecondPart = task.isSecondPart || false;
-
-                // === ПАРСИМ ИЗОБРАЖЕНИЯ В УСЛОВИИ ===
                 const conditionHtml = parseImagesInText(task.condition || "Условие задачи не добавлено");
 
-                // === ФАЙЛЫ К ЗАДАЧЕ ===
                 let taskFilesHtml = '';
                 if (task.files && task.files.length > 0) {
                     taskFilesHtml = `
@@ -2347,9 +2318,6 @@ async function startHomework(hwId) {
                     `;
                 }
 
-                // Задачи с экспертной (преподавательской) проверкой принимаются ТОЛЬКО файлом решения —
-                // без текстового поля. Задачи с кратким ответом проверяются платформой автоматически
-                // (правильный ответ задаётся в админ-панели).
                 let answerHtml = '';
                 if (isSecondPart) {
                     answerHtml = `
@@ -2414,7 +2382,6 @@ async function startHomework(hwId) {
     setTimeout(() => renderMath(), 300);
 }
 
-// Личные пометки ученика по задаче (не влияют на проверку, только для навигации по себе)
 function setTaskBookmark(index, kind) {
     taskBookmarks[index] = taskBookmarks[index] === kind ? null : kind;
     const knowBtn = document.getElementById("bookmarkKnow_" + index);
@@ -2501,7 +2468,6 @@ function saveAnswer(index, value) {
     }
 }
 
-// ========== ОТПРАВКА ДЗ ==========
 async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
@@ -2703,7 +2669,6 @@ async function uploadStudentFiles(files, homeworkId) {
     return results;
 }
 
-// ========== ПРОСМОТР РЕЗУЛЬТАТА ==========
 async function viewHomeworkResult(hwId) {
     const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
     if (!submission) { showToast("Результат не найден", "error"); return; }
@@ -2857,14 +2822,6 @@ function openHwReviewPage(hwId, hw, submission) {
     setTimeout(() => renderMathInElement(document.getElementById('hwSolveContent')), 300);
 }
 
-// ========================================================================
-// ========== КВИЗЫ НА ПОВТОРЕНИЕ ==========
-// Правила: выбрал верный ответ — вопрос считается пройденным (если ранее
-// по нему не было ошибок), иначе нужно ответить верно ДВАЖДЫ в разных
-// местах квиза. Если выбрал неверный ответ — вопрос уходит в конец
-// очереди (не подряд) и требование "верно дважды" включается.
-// ========================================================================
-
 function shuffleArray(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -2895,7 +2852,6 @@ async function renderQuizCards(courseId) {
         } catch (e) {
             console.warn("Квизы пока недоступны в базе:", e.message);
         }
-        // Пока в админ-панели не добавлены реальные квизы — показываем демо-квиз, чтобы функционал был виден ученику.
         if (quizzes.length === 0 && courseId === DEMO_QUIZ.courseId) {
             quizCache[DEMO_QUIZ.id] = DEMO_QUIZ;
             quizzes.push(DEMO_QUIZ);
@@ -3010,7 +2966,6 @@ function answerQuiz(qIdx, optionIdx) {
         q.correct++;
         if (q.correct >= q.needed) {
             if (q.needed === 1) quizActive.correctFirstTry++;
-            // вопрос закрыт, обратно в очередь не возвращаем
         } else {
             insertSpaced(quizActive.queue, qIdx, false);
         }
@@ -3075,7 +3030,6 @@ async function saveQuizResult() {
     if (cid) { delete quizListCache[cid]; renderQuizCards(cid); }
 }
 
-// ========== ЗАПУСК ==========
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").innerHTML = iconSvg("sun", 19); }
@@ -3085,9 +3039,13 @@ function init() {
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
-                if (!user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
+                // VK-пользователи входят через custom token — у них может не быть email
+                // или emailVerified, поэтому проверяем только email-провайдера.
+                const isCustomToken = user.providerData.length === 0 ||
+                    user.providerData.some(p => p.providerId === "custom");
+                if (!isCustomToken && !user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
                 const doc = await db.collection("users").doc(user.uid).get();
-                userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
+                userData = doc.exists ? doc.data() : { name: (user.email ? user.email.split("@")[0] : (user.displayName || "Ученик")), email: user.email || "", grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
                 normalizeEnrolledCourses();
@@ -3106,9 +3064,6 @@ function init() {
     });
 }
 
-// ========== СМЕНА ФОНОВЫХ ФОРМУЛ ПРИ ПРОКРУТКЕ ==========
-// У каждой секции свой набор формул (.bg-formulas внутри hero/math/physics/teachers).
-// При прокрутке набор текущей секции проявляется, а предыдущий — плавно исчезает.
 function initScrollFormulas() {
     const layers = document.querySelectorAll(".bg-formulas");
     if (!layers.length || !("IntersectionObserver" in window)) return;
