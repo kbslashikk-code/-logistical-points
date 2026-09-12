@@ -33,6 +33,7 @@
             --fs-logo: 'Playfair Display', Georgia, serif;
             --shadow: 0 10px 30px -12px rgba(36,26,30,0.15);
             --brain-color: #201a1d;
+            --folder-tab: #e9eaec; --folder-back: #eef0f2; --folder-papers: #ffffff; --folder-front: #dde0e4; --folder-border: #d7dade;
         }
         [data-theme="dark"] {
             /* минималистичный нейтральный серый фон — без подкраски акцентным цветом */
@@ -46,6 +47,7 @@
             --text: #f1f0f4; --text2: #a7a5b1; --text3: #6f6d78;
             --shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
             --brain-color: #f1f0f4;
+            --folder-tab: #2b2b30; --folder-back: #313136; --folder-papers: #3d3d43; --folder-front: #232327; --folder-border: #3a3a40;
         }
         body { background: var(--bg); color: var(--text); font-family: var(--f); transition: background 0.3s, color 0.3s; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
@@ -604,32 +606,46 @@
         }
         .hw-list-btn:disabled { cursor: default; color: var(--text3); }
 
-        /* --- Материалы: папки (нейтральный дизайн, не в цвет платформы) --- */
-        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.4rem; }
-        .folder-card {
-            cursor: pointer; border-radius: 16px; overflow: hidden; background: var(--card);
-            border: 1px solid var(--line); transition: transform 0.15s ease, box-shadow 0.15s ease;
+        /* --- Материалы: папки (настоящая форма папки, нейтральный дизайн — не в цвет платформы) --- */
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.6rem; }
+        .folder-card { cursor: pointer; }
+        .folder-shape {
+            position: relative; width: 100%; aspect-ratio: 4 / 3; margin-bottom: 0.8rem;
+            transition: transform 0.15s ease;
         }
-        .folder-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-        .folder-banner {
-            position: relative; aspect-ratio: 16 / 11; overflow: hidden;
-            background: linear-gradient(160deg, #f4f4f6, #e5e5ea);
+        .folder-card:hover .folder-shape { transform: translateY(-3px); }
+        .folder-tab {
+            position: absolute; top: 2%; left: 6%; width: 38%; height: 13%;
+            background: var(--folder-tab); border: 1px solid var(--folder-border); border-bottom: none;
+            border-radius: 8px 10px 0 0;
         }
-        [data-theme="dark"] .folder-banner { background: linear-gradient(160deg, #292930, #1d1d22); }
+        .folder-back {
+            position: absolute; inset: 11% 0 0 0; overflow: hidden;
+            background: var(--folder-back); border: 1px solid var(--folder-border);
+            border-radius: 3px 18px 18px 18px;
+        }
         .folder-wave {
-            position: absolute; inset: 0; opacity: 0.5;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.06' stroke-width='2'%3E%3Cpath d='M-10 20 Q 30 0 70 20 T 150 20'/%3E%3Cpath d='M-10 55 Q 30 35 70 55 T 150 55'/%3E%3Cpath d='M-10 90 Q 30 70 70 90 T 150 90'/%3E%3Cpath d='M-10 125 Q 30 105 70 125 T 150 125'/%3E%3C/g%3E%3C/svg%3E");
-            background-size: 160px 160px;
-        }
-        .folder-corner {
-            position: absolute; top: 0; right: 0; width: 42px; height: 42px;
-            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.07) 50%);
+            position: absolute; inset: 0; opacity: 0.6;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.07' stroke-width='2'%3E%3Cpath d='M-10 20 Q 30 0 70 20 T 150 20'/%3E%3Cpath d='M-10 55 Q 30 35 70 55 T 150 55'/%3E%3Cpath d='M-10 90 Q 30 70 70 90 T 150 90'/%3E%3Cpath d='M-10 125 Q 30 105 70 125 T 150 125'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 140px 140px;
         }
         .folder-brain-logo {
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            width: 38%; color: var(--text3); opacity: 0.55;
+            position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+            width: 32%; color: #8a8d92; opacity: 0.5;
         }
-        .folder-info { padding: 1rem 1.15rem 1.2rem; }
+        [data-theme="dark"] .folder-brain-logo { color: #6f7075; }
+        .folder-papers {
+            position: absolute; left: 9%; right: 9%; top: 24%; height: 54%;
+            background: var(--folder-papers); border-radius: 6px 6px 3px 3px;
+            box-shadow: 0 -4px 0 -1px var(--folder-front), 0 -8px 0 -2px var(--folder-border), 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .folder-front {
+            position: absolute; left: -1.5%; right: -1.5%; bottom: -3%; height: 44%;
+            background: var(--folder-front); border: 1px solid var(--folder-border);
+            border-radius: 3px 18px 18px 18px;
+            box-shadow: 0 8px 16px -8px rgba(0,0,0,0.3);
+        }
+        .folder-info { padding: 0 0.2rem; }
         .folder-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; line-height: 1.3; }
         .folder-meta { font-size: 0.78rem; color: var(--text3); }
 
@@ -1188,6 +1204,29 @@ const COURSES = [
 
 // Возвращает id курса + все "старые" id, под которыми в Firestore ещё могут храниться
 // домашки/конспекты/квизы/расписание (например, отдельные "algebra" и "geometry" до
+// Раньше ученики были записаны на отдельные "algebra"/"geometry" — после объединения
+// курсов в "math" эти старые id больше не существуют в COURSES, и без преобразования
+// курс "Математика" просто пропадает из личного кабинета (enrolledCourses хранит id,
+// которого больше нет). Эта функция подставляет актуальный id вместо старого.
+function resolveCourseId(rawId) {
+    const direct = COURSES.find(c => c.id === rawId);
+    if (direct) return direct.id;
+    const viaLegacy = COURSES.find(c => c.legacyIds && c.legacyIds.includes(rawId));
+    return viaLegacy ? viaLegacy.id : rawId;
+}
+
+function normalizeEnrolledCourses() {
+    if (!userData || !userData.enrolledCourses) return;
+    const resolved = userData.enrolledCourses.map(resolveCourseId);
+    const deduped = Array.from(new Set(resolved));
+    const changed = deduped.length !== userData.enrolledCourses.length ||
+        deduped.some((id, i) => id !== userData.enrolledCourses[i]);
+    userData.enrolledCourses = deduped;
+    if (changed && currentUser) {
+        db.collection("users").doc(currentUser.uid).update({ enrolledCourses: deduped }).catch(() => {});
+    }
+}
+
 // объединения в один курс "Математика"). Использовать во ВСЕХ запросах по courseId,
 // иначе после объединения курсов старые данные "потеряются" из вида.
 function getCourseQueryIds(courseId) {
@@ -1455,6 +1494,7 @@ function handleLogin() {
         userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
         if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
         currentUser = user;
+        normalizeEnrolledCourses();
         updateUIAfterLogin();
         closeAuthModal();
         showToast("Добро пожаловать!", "success");
@@ -1724,10 +1764,14 @@ async function renderMaterialsTabContent(courseId) {
     }
     container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
         <div class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
-            <div class="folder-banner">
-                <div class="folder-wave"></div>
-                <div class="folder-corner"></div>
-                <svg class="folder-brain-logo" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>
+            <div class="folder-shape">
+                <div class="folder-tab"></div>
+                <div class="folder-back">
+                    <div class="folder-wave"></div>
+                    <svg class="folder-brain-logo" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>
+                </div>
+                <div class="folder-papers"></div>
+                <div class="folder-front"></div>
             </div>
             <div class="folder-info">
                 <div class="folder-name">${escapeHtml(folder.name)}</div>
@@ -3046,6 +3090,7 @@ function init() {
                 userData = doc.exists ? doc.data() : { name: user.email.split("@")[0], email: user.email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
+                normalizeEnrolledCourses();
                 updateUIAfterLogin();
             } else {
                 currentUser = null; userData = null;
