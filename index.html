@@ -6,7 +6,7 @@
     <title>Logistical Points - Образовательная платформа</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Unbounded:wght@500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+
     <script>
         MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
@@ -18,13 +18,10 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            /* белый фон с мягким розовым акцентом (сакура) */
             --bg: #ffffff; --bg2: #fdf3f5; --bg3: #fbe6ea;
             --card: #ffffff; --card2: #fef8f9; --card3: #fceef1;
             --line: #f5dde2; --line2: #edc3cd;
-            /* "gold" role = основной розовый акцент (сакура) */
             --gold: #e8829d; --gold2: #d3617f; --gold3: rgba(232,130,157,0.12);
-            /* "blue" role = тёплый акцент (для статусов/тегов) */
             --blue: #ff9a76; --blue2: #e87d54; --blue3: rgba(255,154,118,0.14);
             --green: #0e9488; --green2: rgba(14,148,136,0.1);
             --red: #d64545; --red2: rgba(214,69,69,0.1);
@@ -239,10 +236,10 @@
             color: var(--text2); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: var(--f);
         }
         .bookmark-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
-        .task-condition { 
-            font-weight: 600; 
-            font-size: 1.05rem; 
-            margin-bottom: 1rem; 
+        .task-condition {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
             line-height: 1.8;
             padding: 1.1rem 1.2rem;
             background: var(--bg);
@@ -263,9 +260,9 @@
         .task-files { margin-top: 0.8rem; }
         .task-files-label { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.3rem; }
 
-        .task-result { 
-            margin-top: 0.5rem; 
-            font-size: 0.9rem; 
+        .task-result {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
             font-weight: 600;
             padding: 0.55rem 0.9rem;
             border-radius: 10px;
@@ -350,7 +347,6 @@
         .nav-links a:hover { background: var(--card2); color: var(--text); }
         .nav-buttons { display: flex; align-items: center; gap: 0.6rem; }
 
-        /* --- Декоративный фон: формулы и геометрия (минимализм, только публичная часть) --- */
         .bg-formulas { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-f {
             position: absolute; color: var(--text3); --ty: 16px; --rot: 0deg;
@@ -483,7 +479,6 @@
         .user-name { font-weight: 700; font-size: 0.92rem; }
         .user-grade { font-size: 0.72rem; color: var(--text3); margin-top: 0.1rem; }
 
-        /* --- Гамбургер-меню --- */
         .hamburger-btn {
             width: 42px; height: 42px; border-radius: 11px; border: 1.5px solid var(--line);
             background: var(--card); color: var(--text); cursor: pointer;
@@ -504,7 +499,6 @@
         .hamburger-item:hover { background: var(--card2); }
         .hamburger-divider { height: 1px; background: var(--line); margin: 0.4rem 0.2rem; }
 
-        /* --- Карточки курсов-аккордеон в "Личном кабинете" --- */
         .course-cabinet-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
         .course-cabinet-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
         .course-cabinet-card.minimized .course-cabinet-header { padding: 0.6rem 1.3rem; }
@@ -568,7 +562,51 @@
         .ctab.active .ctab-icon { color: var(--gold); }
         .course-tab-content { min-height: 80px; }
 
-        /* --- Прогресс: только средний балл по пробникам --- */
+        /* FIX: стили для блока "Доступные курсы" в личном кабинете */
+        .available-courses-block {
+            margin-top: 1.5rem;
+            padding: 1.3rem;
+            background: var(--card2);
+            border: 1px dashed var(--line2);
+            border-radius: 18px;
+        }
+        .available-courses-block h3 {
+            font-family: var(--fs);
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.4rem;
+        }
+        .available-courses-block p {
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-bottom: 1rem;
+        }
+        .available-courses-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 0.8rem;
+        }
+        .available-course-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            padding: 1rem;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+        .available-course-item .aci-icon {
+            width: 38px; height: 38px; border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--gold3); color: var(--gold);
+        }
+        .available-course-item .aci-name {
+            font-weight: 700; font-size: 0.95rem;
+        }
+        .available-course-item .aci-meta {
+            font-size: 0.75rem; color: var(--text3);
+        }
+
         .progress-score-card {
             background: var(--card); border: 1px solid var(--line); border-radius: 18px;
             padding: 1.8rem; text-align: center;
@@ -576,7 +614,6 @@
         .progress-score-card .score-num { font-family: var(--fs); font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
         .progress-score-card .score-label { font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; }
 
-        /* --- Список ДЗ (карточки в столбик) --- */
         .hw-list { display: flex; flex-direction: column; gap: 1rem; }
         .hw-list-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }
         .hw-list-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
@@ -592,7 +629,6 @@
         }
         .hw-list-btn:disabled { cursor: default; color: var(--text3); }
 
-        /* --- Материалы: папки (плоская карточка-баннер) --- */
         .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.4rem; }
         .folder-card {
             cursor: pointer; border-radius: 16px; overflow: hidden; background: var(--card);
@@ -620,7 +656,6 @@
         .folder-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; line-height: 1.3; }
         .folder-meta { font-size: 0.78rem; color: var(--text3); }
 
-        /* --- Расписание: полноэкранный календарь --- */
         .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; gap: 1rem; flex-wrap: wrap; }
         .calendar-nav-btn {
             width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--card);
@@ -714,7 +749,6 @@
 
         footer { background: var(--bg2); border-top: 1px solid var(--line); padding: 2.2rem; text-align: center; font-family: var(--fs-logo); font-weight: 700; }
 
-        /* ===================== ЛИЧНЫЙ КАБИНЕТ: НОВЫЕ БЛОКИ ===================== */
         .accent-text { color: var(--gold); }
         .menu-icon { display: inline-block; width: 22px; margin-right: 0.4rem; text-align: center; }
 
@@ -726,7 +760,6 @@
         .block-title { font-family: var(--fs); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
         .block-title-hint { font-family: var(--f); font-size: 0.75rem; font-weight: 500; color: var(--text3); }
 
-        /* --- Рекомендации --- */
         .rec-list { display: flex; flex-direction: column; gap: 0.7rem; }
         .rec-card {
             display: flex; align-items: flex-start; gap: 0.8rem;
@@ -742,7 +775,6 @@
             background: var(--card2); border-radius: 14px; border: 1px dashed var(--line2); font-size: 0.9rem;
         }
 
-        /* --- Вкладки курсов (ДЗ / Квизы) --- */
         .course-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .course-tab {
             padding: 0.6rem 1.1rem; border-radius: 11px; background: var(--card); border: 1.5px solid var(--line);
@@ -751,7 +783,6 @@
         .course-tab:hover { border-color: var(--gold); color: var(--text); }
         .course-tab.active { background: var(--gold); border-color: var(--gold); color: #fff; }
 
-        /* --- Квизы --- */
         .quiz-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
         .quiz-card {
             background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem;
@@ -789,14 +820,12 @@
         .quiz-option.disabled { cursor: default; pointer-events: none; }
         .quiz-option.disabled:not(.correct):not(.wrong) { opacity: 0.5; }
 
-        /* --- VK кнопка / разделитель --- */
         .auth-divider { display: flex; align-items: center; gap: 0.8rem; margin: 1.1rem 0; color: var(--text3); font-size: 0.78rem; }
         .auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
         .vk-btn { background: #0077ff; color: #fff; }
         .vk-btn:hover { background: #0066dd; transform: translateY(-2px); }
         .vk-logo { font-family: var(--fs); font-weight: 800; font-size: 0.85rem; letter-spacing: -0.02em; }
 
-        /* --- Иконки (замена эмодзи) --- */
         .lp-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
         .icon-tile {
             display: inline-flex; align-items: center; justify-content: center;
@@ -921,7 +950,6 @@
     </div>
 </div>
 
-<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА РЕШЕНИЯ / ПРОСМОТРА ДЗ -->
 <div class="hw-solve-page" id="hwSolvePage">
     <div class="hw-header">
         <h2 id="hwSolveTitle">Решение домашнего задания</h2>
@@ -1080,6 +1108,9 @@
                 <p class="pane-subtitle" id="cabinetCourseCount">Загрузка курсов...</p>
             </div>
 
+            <!-- FIX: блок доступных курсов для подключения -->
+            <div id="availableCoursesBlock"></div>
+
             <div id="courseCabinetList" class="course-cabinet-list"></div>
 
             <div class="section-block">
@@ -1095,7 +1126,6 @@
     </div>
 </div>
 
-<!-- ПОЛНОРАЗМЕРНОЕ РАСПИСАНИЕ (КАЛЕНДАРЬ) -->
 <div class="hw-solve-page" id="calendarPage">
     <div class="hw-header">
         <h2 id="calendarPageTitle">Расписание</h2>
@@ -1104,7 +1134,6 @@
     <div id="calendarPageContent"></div>
 </div>
 
-<!-- ПОЛНОРАЗМЕРНАЯ СТРАНИЦА КВИЗА -->
 <div class="hw-solve-page" id="quizPage">
     <div class="hw-header">
         <h2 id="quizPageTitle">Квиз</h2>
@@ -1133,7 +1162,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// ========== БИБЛИОТЕКА ИКОНОК (замена эмодзи на векторные картинки) ==========
+// ========== ИКОНКИ ==========
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
     folder: '<path d="M4 6.5a1.5 1.5 0 0 1 1.5-1.5H10l2 2.2h6.5A1.5 1.5 0 0 1 20 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/>',
@@ -1155,7 +1184,8 @@ const ICON_PATHS = {
     moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
     sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2"/><path d="M12 19.3v2.2"/><path d="m4.9 4.9 1.6 1.6"/><path d="m17.5 17.5 1.6 1.6"/><path d="M2.5 12h2.2"/><path d="M19.3 12h2.2"/><path d="m4.9 19.1 1.6-1.6"/><path d="m17.5 6.5 1.6-1.6"/>',
     person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5"/>',
-    close: '<path d="m6 6 12 12"/><path d="m18 6-12 12"/>'
+    close: '<path d="m6 6 12 12"/><path d="m18 6-12 12"/>',
+    plus: '<path d="M12 5v14"/><path d="M5 12h14"/>'
 };
 
 function iconSvg(name, size) {
@@ -1221,7 +1251,6 @@ const MATERIAL_FOLDERS = {
 let expandedCourseId = null;
 let activeCourseTab = {};
 
-
 let currentUser = null;
 let userData = null;
 let currentSolveHwId = null;
@@ -1254,17 +1283,10 @@ const DEMO_QUIZ = {
     ]
 };
 
-// ========== ВХОД ЧЕРЕЗ VK ==========
-// Вход через VK ID (OAuth 2.0 + PKCE). Firebase не умеет VK "из коробки", поэтому:
-// 1) фронт уводит пользователя на id.vk.com с code_challenge,
-// 2) VK возвращает code + state на redirect_uri,
-// 3) handleVkCallback отправляет code+codeVerifier в Cloud Function,
-// 4) функция меняет code на access_token VK, получает профиль, создаёт/находит
-//    Firebase-пользователя с uid = "vk_<id>" и возвращает custom token.
+// ========== VK OAuth ==========
 const VK_CLIENT_ID = "54768486";
 const VK_AUTH_ENDPOINT = "https://us-central1-logistical-points.cloudfunctions.net/vkAuth";
 
-// --- PKCE helpers ---
 function base64UrlEncode(buffer) {
     return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -1281,10 +1303,11 @@ async function sha256(str) {
 
 function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
+    return String(str).replace(/[&<>"]/g, function(m) {
         if (m === '&') return '&amp;';
         if (m === '<') return '&lt;';
         if (m === '>') return '&gt;';
+        if (m === '"') return '&quot;';
         return m;
     });
 }
@@ -1298,10 +1321,8 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 4000);
 }
 
-// ========== ПАРСИНГ ИЗОБРАЖЕНИЙ В ТЕКСТЕ ==========
 function parseImagesInText(text) {
     if (!text) return '';
-    
     var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
     var result = text;
     var match;
@@ -1310,28 +1331,20 @@ function parseImagesInText(text) {
         var url = match[1].trim();
         var width = match[2].trim() || '80%';
         var caption = match[3].trim() || '';
-        
         var imgHtml = `
             <div style="text-align:center;margin:0.8rem 0;">
-                <img src="${url}" style="max-width:${width};border-radius:8px;border:1px solid var(--line);" alt="${caption}">
-                ${caption ? `<div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem;">${caption}</div>` : ''}
+                <img src="${url}" style="max-width:${width};border-radius:8px;border:1px solid var(--line);" alt="${escapeHtml(caption)}">
+                ${caption ? `<div style="font-size:0.7rem;color:var(--text3);margin-top:0.3rem;">${escapeHtml(caption)}</div>` : ''}
             </div>
         `;
-        
         result = result.replace(fullMatch, imgHtml);
     }
-    
     return result;
 }
 
-// ========== ПРИНУДИТЕЛЬНЫЙ РЕНДЕРИНГ MATHJAX ==========
 async function renderMath() {
     if (window.MathJax && MathJax.typesetPromise) {
-        try {
-            await MathJax.typesetPromise();
-        } catch (e) {
-            console.warn("MathJax error:", e);
-        }
+        try { await MathJax.typesetPromise(); } catch (e) { console.warn("MathJax error:", e); }
     }
 }
 
@@ -1341,15 +1354,12 @@ async function renderMathInElement(el) {
         try {
             if (MathJax.typesetClear) MathJax.typesetClear([el]);
             await MathJax.typesetPromise([el]);
-        } catch (e) {
-            console.warn("MathJax error:", e);
-        }
+        } catch (e) { console.warn("MathJax error:", e); }
     }
 }
 
 let loaderActive = false;
 let loaderAuthResolved = false;
-
 const BRAIN_DRAW_DURATION = 2800;
 
 function playBrainDrawAnimation() {
@@ -1384,11 +1394,8 @@ function runLoaderDrawCycle() {
     playBrainDrawAnimation();
     setTimeout(() => {
         if (!loaderActive) return;
-        if (loaderAuthResolved) {
-            hideLoader();
-        } else {
-            setTimeout(runLoaderDrawCycle, 450);
-        }
+        if (loaderAuthResolved) hideLoader();
+        else setTimeout(runLoaderDrawCycle, 450);
     }, BRAIN_DRAW_DURATION + 150);
 }
 
@@ -1397,11 +1404,7 @@ function showLoader() {
     loaderAuthResolved = false;
     runLoaderDrawCycle();
 }
-
-function markLoaderDataReady() {
-    loaderAuthResolved = true;
-}
-
+function markLoaderDataReady() { loaderAuthResolved = true; }
 function hideLoader() {
     loaderActive = false;
     const loader = document.getElementById("loaderScreen");
@@ -1467,20 +1470,14 @@ function handleRegister() {
 
 function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
-// ========== ВХОД ЧЕРЕЗ VK ==========
 async function handleVkLogin() {
-    if (!VK_CLIENT_ID) {
-        showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID", "info");
-        return;
-    }
+    if (!VK_CLIENT_ID) { showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID", "info"); return; }
     const redirectUri = window.location.origin + window.location.pathname;
     const state = generateRandomString(16);
     const codeVerifier = generateRandomString(64);
     const codeChallenge = base64UrlEncode(await sha256(codeVerifier));
-
     sessionStorage.setItem("vk_auth_state", state);
     sessionStorage.setItem("vk_code_verifier", codeVerifier);
-
     const authUrl = "https://id.vk.com/authorize?client_id=" + encodeURIComponent(VK_CLIENT_ID) +
         "&redirect_uri=" + encodeURIComponent(redirectUri) +
         "&response_type=code" +
@@ -1497,38 +1494,20 @@ async function handleVkCallback() {
     const state = params.get("state");
     const deviceId = params.get("device_id");
     if (!code) return;
-
-    if (state !== sessionStorage.getItem("vk_auth_state")) {
-        console.warn("VK state mismatch");
-        return;
-    }
+    if (state !== sessionStorage.getItem("vk_auth_state")) { console.warn("VK state mismatch"); return; }
     const codeVerifier = sessionStorage.getItem("vk_code_verifier");
     sessionStorage.removeItem("vk_auth_state");
     sessionStorage.removeItem("vk_code_verifier");
     window.history.replaceState({}, document.title, window.location.pathname);
-
-    if (!VK_AUTH_ENDPOINT) {
-        showToast("Вход через VK: серверная функция не настроена", "error");
-        return;
-    }
-
+    if (!VK_AUTH_ENDPOINT) { showToast("Вход через VK: серверная функция не настроена", "error"); return; }
     try {
         const resp = await fetch(VK_AUTH_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                code: code,
-                codeVerifier: codeVerifier,
-                deviceId: deviceId,
-                redirectUri: window.location.origin + window.location.pathname
-            })
+            body: JSON.stringify({ code: code, codeVerifier: codeVerifier, deviceId: deviceId, redirectUri: window.location.origin + window.location.pathname })
         });
         const data = await resp.json();
-        if (!resp.ok || !data.firebaseToken) {
-            console.error("VK auth error:", data);
-            showToast(data.error || "Не удалось войти через VK", "error");
-            return;
-        }
+        if (!resp.ok || !data.firebaseToken) { console.error("VK auth error:", data); showToast(data.error || "Не удалось войти через VK", "error"); return; }
         await auth.signInWithCustomToken(data.firebaseToken);
         showToast("Вход через VK выполнен", "success");
     } catch (error) {
@@ -1545,6 +1524,7 @@ function updateUIAfterLogin() {
     document.getElementById("dashboard").classList.add("active");
     renderCoursesGrid();
     renderCourseCabinet();
+    renderAvailableCoursesBlock();
     renderProgressScore();
     loadHomeworkCourses();
     updateAllRecommendations();
@@ -1573,27 +1553,73 @@ function renderCoursesGrid() {
 
 function enrollCourse(courseId) {
     if (!currentUser) { openAuthModal(); return; }
+    if (!userData.enrolledCourses) userData.enrolledCourses = [];
     if (!userData.enrolledCourses.includes(courseId)) {
         userData.enrolledCourses.push(courseId);
-        db.collection("users").doc(currentUser.uid).update({ enrolledCourses: userData.enrolledCourses });
-        showToast("Вы записаны на курс!", "success");
+        if (!userData.courseEnabled) userData.courseEnabled = {};
+        if (userData.courseEnabled[courseId] === undefined) userData.courseEnabled[courseId] = true;
+        db.collection("users").doc(currentUser.uid).update({
+            enrolledCourses: userData.enrolledCourses,
+            courseEnabled: userData.courseEnabled
+        }).then(() => {
+            showToast("Курс подключён!", "success");
+        }).catch((e) => {
+            showToast("Не удалось сохранить курс: " + e.message, "error");
+        });
+        // FIX: сразу обновляем UI и локальные кэши
         renderCourseCabinet();
+        renderAvailableCoursesBlock();
         loadHomeworkCourses();
+    } else {
+        // Уже записан — просто раскрываем карточку
+        expandCourseCard(courseId);
     }
+}
+
+// FIX: рендер блока доступных курсов для подключения
+function renderAvailableCoursesBlock() {
+    const container = document.getElementById("availableCoursesBlock");
+    if (!container) return;
+    if (!currentUser || !userData) { container.innerHTML = ""; return; }
+
+    const enrolled = userData.enrolledCourses || [];
+    const available = COURSES.filter(c => !enrolled.includes(c.id));
+
+    if (available.length === 0) {
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="available-courses-block">
+            <h3>Доступные курсы</h3>
+            <p>Подключите курс, чтобы начать заниматься — здесь появятся домашние задания, квизы и расписание.</p>
+            <div class="available-courses-list">
+                ${available.map(course => `
+                    <div class="available-course-item">
+                        <div class="aci-icon">${course.icon}</div>
+                        <div class="aci-name">${escapeHtml(course.name)}</div>
+                        <div class="aci-meta">${escapeHtml(course.level)} · ${escapeHtml(course.tag)}</div>
+                        <button class="btn bg bsm" onclick="enrollCourse('${course.id}')">${iconSvg('plus', 16)} Подключить</button>
+                    </div>
+                `).join("")}
+            </div>
+        </div>
+    `;
 }
 
 function renderCourseCabinet() {
     const list = document.getElementById("courseCabinetList");
     const countEl = document.getElementById("cabinetCourseCount");
     if (!list) return;
-    const enrolled = userData.enrolledCourses.map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    const enrolled = (userData.enrolledCourses || []).map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
     if (countEl) {
         const n = enrolled.length;
         const word = n === 1 ? "курс" : (n >= 2 && n <= 4 ? "курса" : "курсов");
         countEl.textContent = n === 0 ? "У вас пока нет подключённых курсов" : "Подключено курсов: " + n + " " + word;
     }
     if (enrolled.length === 0) {
-        list.innerHTML = '<div class="schedule-empty">Запишитесь на курс на главной странице, чтобы он появился здесь.</div>';
+        list.innerHTML = '<div class="schedule-empty">Выберите курс выше и нажмите «Подключить», чтобы он появился здесь.</div>';
         return;
     }
     if (!userData.courseEnabled) userData.courseEnabled = {};
@@ -1682,11 +1708,8 @@ function minimizeCourseCard(courseId) {
 function toggleCourseCard(courseId) {
     const card = document.getElementById("cabCard_" + courseId);
     if (!card) return;
-    if (card.classList.contains("expanded")) {
-        collapseCourseCard(courseId);
-    } else {
-        expandCourseCard(courseId);
-    }
+    if (card.classList.contains("expanded")) collapseCourseCard(courseId);
+    else expandCourseCard(courseId);
 }
 
 function renderCourseTabButtons(courseId, activeTab) {
@@ -1700,36 +1723,24 @@ function renderCourseTabButtons(courseId, activeTab) {
 function switchCourseTab(courseId, tab, el) {
     activeCourseTab[courseId] = tab;
     renderCourseTabButtons(courseId, tab);
-    if (tab === "schedule") {
-        openCalendarPage(courseId);
-        return;
-    }
+    if (tab === "schedule") { openCalendarPage(courseId); return; }
     renderCourseTabContent(courseId, tab);
 }
 
 function renderCourseTabContent(courseId, tab) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
-    if (tab === "homework") {
-        renderHomeworkTabContent(courseId);
-    } else if (tab === "quizzes") {
-        container.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>';
-        renderQuizCards(courseId);
-    } else if (tab === "materials") {
-        renderMaterialsTabContent(courseId);
-    } else {
-        container.innerHTML = '<div class="schedule-empty">Нажмите «Расписание», чтобы открыть календарь занятий.</div>';
-    }
+    if (tab === "homework") renderHomeworkTabContent(courseId);
+    else if (tab === "quizzes") { container.innerHTML = '<div class="schedule-empty">Загрузка квизов...</div>'; renderQuizCards(courseId); }
+    else if (tab === "materials") renderMaterialsTabContent(courseId);
+    else container.innerHTML = '<div class="schedule-empty">Нажмите «Расписание», чтобы открыть календарь занятий.</div>';
 }
 
 async function renderMaterialsTabContent(courseId) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
     const folders = MATERIAL_FOLDERS[courseId] || [];
-    if (folders.length === 0) {
-        container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>';
-        return;
-    }
+    if (folders.length === 0) { container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>'; return; }
     container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
         <div class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
             <div class="folder-banner">
@@ -1827,7 +1838,7 @@ async function viewLesson(lessonId, courseId, title) {
             <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
                 <div style="max-width:800px;margin:0 auto;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
-                        <h2 style="font-family:var(--fs);font-size:1.8rem;">${title}</h2>
+                        <h2 style="font-family:var(--fs);font-size:1.8rem;">${escapeHtml(title)}</h2>
                         <button class="modal-close" onclick="document.getElementById('lessonDetailModal').remove();" style="font-size:2rem;background:none;border:none;cursor:pointer;color:var(--text2);">&times;</button>
                     </div>
                     <div style="background:var(--card);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;border:1px solid var(--line);">
@@ -1835,7 +1846,7 @@ async function viewLesson(lessonId, courseId, title) {
                         ${lesson.files && lesson.files.length > 0 ? `
                             <div style="margin-top:1rem;">
                                 <div style="font-size:0.8rem;color:var(--text3);margin-bottom:0.3rem;">Прикреплённые файлы:</div>
-                                <div class="files-list">${lesson.files.map(f => 
+                                <div class="files-list">${lesson.files.map(f =>
                                     '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '" style="width:20px;height:20px;object-fit:cover;border-radius:4px;">' : '') + ' ' + escapeHtml(f.name) + '</div>'
                                 ).join('')}</div>
                             </div>
@@ -1890,12 +1901,9 @@ function computeRecommendations() {
         const c = byCourse[cid];
         if (c.total > 0) {
             const pct = Math.round(c.correct / c.total * 100);
-            const course = COURSES.find(x => x.id === cid);
+            const course = COURSES.find(x => x.id === cid) || COURSES.find(x => x.legacyIds && x.legacyIds.includes(cid));
             if (pct < 70 && course) {
-                recs.push({
-                    level: pct < 50 ? "high" : "medium",
-                    text: 'Повторите материал курса «' + course.name + '» — ' + pct + '% правильных ответов в домашних заданиях.'
-                });
+                recs.push({ level: pct < 50 ? "high" : "medium", text: 'Повторите материал курса «' + course.name + '» — ' + pct + '% правильных ответов в домашних заданиях.' });
             }
         }
     });
@@ -1906,12 +1914,7 @@ function computeRecommendations() {
         const total = (t.correct || 0) + (t.wrong || 0);
         if (total >= 3) {
             const pct = Math.round((t.correct || 0) / total * 100);
-            if (pct < 60) {
-                recs.push({
-                    level: pct < 40 ? "high" : "medium",
-                    text: 'Стоит повторить тему «' + topic + '» — ' + pct + '% верных ответов в квизах.'
-                });
-            }
+            if (pct < 60) recs.push({ level: pct < 40 ? "high" : "medium", text: 'Стоит повторить тему «' + topic + '» — ' + pct + '% верных ответов в квизах.' });
         }
     });
 
@@ -1922,45 +1925,28 @@ function renderRecommendationsList(containerId) {
     const container = document.getElementById(containerId);
     if (!container || !userData) return;
     const recs = computeRecommendations();
-    if (recs.length === 0) {
-        container.innerHTML = '<div class="rec-empty">Пока всё хорошо — заметных пробелов не нашли. Продолжайте в том же духе!</div>';
-        return;
-    }
+    if (recs.length === 0) { container.innerHTML = '<div class="rec-empty">Пока всё хорошо — заметных пробелов не нашли. Продолжайте в том же духе!</div>'; return; }
     recs.sort((a, b) => (a.level === "high" ? 0 : 1) - (b.level === "high" ? 0 : 1));
     container.innerHTML = recs.map(r => `
         <div class="rec-card level-${r.level}">
             <div class="rec-icon">${r.level === "high" ? iconSvg("warning", 20) : iconSvg("bulb", 20)}</div>
-            <div class="rec-text">${r.text}</div>
+            <div class="rec-text">${escapeHtml(r.text)}</div>
         </div>
     `).join("");
 }
 
-function updateAllRecommendations() {
-    renderRecommendationsList("overviewRecs");
-}
+function updateAllRecommendations() { renderRecommendationsList("overviewRecs"); }
 
-function toggleHamburgerMenu() {
-    document.getElementById("hamburgerMenu").classList.toggle("open");
-}
-function closeHamburgerMenu() {
-    document.getElementById("hamburgerMenu").classList.remove("open");
-}
+function toggleHamburgerMenu() { document.getElementById("hamburgerMenu").classList.toggle("open"); }
+function closeHamburgerMenu() { document.getElementById("hamburgerMenu").classList.remove("open"); }
 document.addEventListener("click", function (e) {
     const menu = document.getElementById("hamburgerMenu");
     const btn = document.getElementById("hamburgerBtn");
     if (!menu || !menu.classList.contains("open")) return;
-    if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
-        menu.classList.remove("open");
-    }
+    if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) menu.classList.remove("open");
 });
-function scrollToCabinetTop() {
-    const el = document.getElementById("cabinetTop");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-}
-function scrollToProgress() {
-    const el = document.getElementById("progressSection");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-}
+function scrollToCabinetTop() { const el = document.getElementById("cabinetTop"); if (el) el.scrollIntoView({ behavior: "smooth" }); }
+function scrollToProgress() { const el = document.getElementById("progressSection"); if (el) el.scrollIntoView({ behavior: "smooth" }); }
 
 function showHome() {
     if (currentUser) {
@@ -2028,26 +2014,14 @@ function closeCalendarPage() {
     document.body.style.overflow = "auto";
 }
 
-function calendarPrevMonth() {
-    calendarViewMonth--;
-    if (calendarViewMonth < 0) { calendarViewMonth = 11; calendarViewYear--; }
-    renderCalendarMonth();
-}
-function calendarNextMonth() {
-    calendarViewMonth++;
-    if (calendarViewMonth > 11) { calendarViewMonth = 0; calendarViewYear++; }
-    renderCalendarMonth();
-}
+function calendarPrevMonth() { calendarViewMonth--; if (calendarViewMonth < 0) { calendarViewMonth = 11; calendarViewYear--; } renderCalendarMonth(); }
+function calendarNextMonth() { calendarViewMonth++; if (calendarViewMonth > 11) { calendarViewMonth = 0; calendarViewYear++; } renderCalendarMonth(); }
 
 async function loadCalendarData() {
     const content = document.getElementById("calendarPageContent");
     content.innerHTML = '<div class="schedule-empty">Загрузка расписания...</div>';
-    try {
-        calendarItemsCache = await queryByCourseIds("schedule", calendarCourseId);
-    } catch (e) {
-        console.error(e);
-        calendarItemsCache = [];
-    }
+    try { calendarItemsCache = await queryByCourseIds("schedule", calendarCourseId); }
+    catch (e) { console.error(e); calendarItemsCache = []; }
     renderCalendarMonth();
 }
 
@@ -2056,10 +2030,7 @@ function renderCalendarMonth() {
     if (!content) return;
     const items = calendarItemsCache || [];
     const byDate = {};
-    items.forEach(item => {
-        if (!byDate[item.date]) byDate[item.date] = [];
-        byDate[item.date].push(item);
-    });
+    items.forEach(item => { if (!byDate[item.date]) byDate[item.date] = []; byDate[item.date].push(item); });
 
     const firstOfMonth = new Date(calendarViewYear, calendarViewMonth, 1);
     const startWeekday = (firstOfMonth.getDay() + 6) % 7;
@@ -2084,9 +2055,7 @@ function renderCalendarMonth() {
     }
     const totalCells = startWeekday + daysInMonth;
     const trailing = (7 - (totalCells % 7)) % 7;
-    for (let i = 1; i <= trailing; i++) {
-        cells += `<div class="calendar-cell other-month"><div class="calendar-day-num">${i}</div></div>`;
-    }
+    for (let i = 1; i <= trailing; i++) cells += `<div class="calendar-cell other-month"><div class="calendar-day-num">${i}</div></div>`;
 
     content.innerHTML = `
         <div class="calendar-toolbar">
@@ -2106,7 +2075,7 @@ let activeHwTabByCourse = {};
 
 async function loadHomeworkCourses() {
     if (expandedCourseId && activeCourseTab[expandedCourseId] === "homework") {
-        renderHomeworkTabContent(expandedCourseId);
+        renderHomeworkTabContent(expandedCourseId, true);
     }
 }
 
@@ -2115,9 +2084,23 @@ async function refreshUserData() {
     try {
         const doc = await db.collection("users").doc(currentUser.uid).get();
         if (doc.exists) userData = doc.data();
-    } catch (error) {
-        console.error("Ошибка обновления данных:", error);
-    }
+    } catch (error) { console.error("Ошибка обновления данных:", error); }
+}
+
+// FIX: нормализуем courseId у сабмишена, чтобы независимо от legacy-имени
+// сабмишен находился по новому id курса.
+function normalizeSubmission(s) {
+    if (!s) return s;
+    return Object.assign({}, s, { courseId: resolveCourseId(s.courseId) });
+}
+
+// FIX: главный критерий "отправлено" — наличие сабмишена с этим hw.id
+// в userData.homeworkSubmissions. Никаких чтений status из документа
+// homeworks — этот документ общий для всех учеников.
+function getSubmissionForHw(hwId) {
+    const subs = (userData && userData.homeworkSubmissions) || [];
+    const found = subs.find(s => s.id === hwId);
+    return found ? normalizeSubmission(found) : null;
 }
 
 async function renderHomeworkTabContent(courseId, forceRefresh) {
@@ -2133,8 +2116,8 @@ async function renderHomeworkTabContent(courseId, forceRefresh) {
     container.innerHTML = '<div class="schedule-empty">Загрузка заданий...</div>';
     try {
         const rawHomeworks = await queryByCourseIds("homeworks", courseId);
-        const homeworks = rawHomeworks.filter(data => data.userEmail === "all" || data.userEmail === currentUser.email);
-        homeworks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const homeworks = rawHomeworks.filter(data => !data.userEmail || data.userEmail === "all" || data.userEmail === currentUser.email);
+        homeworks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         hwCache[courseId] = homeworks;
         renderHwTabsAndList(courseId, homeworks);
     } catch (err) {
@@ -2150,11 +2133,9 @@ function renderHwTabsAndList(courseId, homeworks) {
     if (!activeHwTabByCourse[courseId]) activeHwTabByCourse[courseId] = tabs[0].id;
     const activeTab = activeHwTabByCourse[courseId];
     const filtered = homeworks.filter(hw => !hw.hwTabId || hw.hwTabId === activeTab);
-
     const tabsHtml = tabs.length > 1 ? '<div class="course-tabs-inner" style="margin-bottom:1rem;">' + tabs.map(t => `
         <button class="ctab ${t.id === activeTab ? 'active' : ''}" onclick="selectHwTab('${courseId}','${t.id}')">${escapeHtml(t.name)}</button>
     `).join("") + '</div>' : '';
-
     container.innerHTML = tabsHtml + '<div class="hw-list" id="hwList_' + courseId + '"></div>';
     renderHwListCards(courseId, filtered);
 }
@@ -2179,20 +2160,21 @@ function formatRuDate(value) {
 function renderHwListCards(courseId, homeworks) {
     const list = document.getElementById("hwList_" + courseId);
     if (!list) return;
-    const submissions = (userData && userData.homeworkSubmissions) || [];
-    if (homeworks.length === 0) {
-        list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>';
-        return;
-    }
+    if (homeworks.length === 0) { list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>'; return; }
 
     list.innerHTML = homeworks.map(hw => {
         const tasks = hw.tasks || [];
         const hasSecondPart = tasks.some(t => t.isSecondPart);
-        const submitted = submissions.find(s => s.id === hw.id);
-        const isGraded = hw.status === 'graded' || hw.status === 'returned';
+        // FIX: сабмишен ищем всегда по hw.id в данных пользователя
+        const submission = getSubmissionForHw(hw.id);
+        // FIX: "проверено" — это флаг конкретного сабмишена пользователя,
+        // а не статус общего документа homeworks. Ставим graded=true только
+        // тогда, когда преподаватель проставил баллы. Пока не проставлены —
+        // считаем «на проверке» (если есть вторая часть).
+        const isGraded = !!(submission && submission.graded);
 
-        let badgeText, btnLabel, btnOnclick, btnDisabled = "", extraBtn = "";
-        if (!submitted) {
+        let badgeText, btnLabel, btnOnclick, extraBtn = "";
+        if (!submission) {
             badgeText = "Выдано";
             btnLabel = "Приступить к выполнению";
             btnOnclick = "startHomework('" + hw.id + "')";
@@ -2200,13 +2182,15 @@ function renderHwListCards(courseId, homeworks) {
             badgeText = "На проверке";
             btnLabel = "На проверке";
             btnOnclick = "viewHomeworkResult('" + hw.id + "')";
+        } else if (!hasSecondPart) {
+            badgeText = "Проверено";
+            btnLabel = "Посмотреть результат";
+            btnOnclick = "viewHomeworkResult('" + hw.id + "')";
         } else {
             badgeText = "Проверено";
             btnLabel = "Посмотреть результат";
             btnOnclick = "viewHomeworkResult('" + hw.id + "')";
-            if (hasSecondPart && isGraded) {
-                extraBtn = '<button class="hw-list-btn" style="margin-top:0.6rem" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
-            }
+            extraBtn = '<button class="hw-list-btn" style="margin-top:0.6rem" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
         }
 
         const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
@@ -2219,7 +2203,7 @@ function renderHwListCards(courseId, homeworks) {
                     <span class="hw-type-tag">ДЗ</span>
                 </div>
                 <div class="hw-list-title">${escapeHtml(hw.title)}</div>
-                <div class="hw-list-meta"><span>Выдано:</span> <strong>${issuedDate || "не указано"}</strong></div>
+                <div class="hw-list-meta"><span>Выдано:</span> <strong>${escapeHtml(issuedDate || "не указано")}</strong></div>
                 <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(deadlineText)}</strong></div>
                 <button class="hw-list-btn" onclick="${btnOnclick}">${btnLabel}</button>
                 ${extraBtn}
@@ -2233,6 +2217,7 @@ let taskBookmarks = {};
 async function startHomework(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
+    if (!hw) { showToast("Задание не найдено", "error"); return; }
     currentSolveHwId = hwId;
     currentSolveHwData = hw;
     userAnswers = {};
@@ -2242,7 +2227,6 @@ async function startHomework(hwId) {
     taskBookmarks = {};
 
     const totalTasks = hw.tasks ? hw.tasks.length : 0;
-
     document.getElementById("hwSolveTitle").textContent = hw.title;
 
     let html = `
@@ -2271,7 +2255,6 @@ async function startHomework(hwId) {
             ${hw.tasks && hw.tasks.length > 0 ? hw.tasks.map((task, index) => {
                 const isSecondPart = task.isSecondPart || false;
                 const conditionHtml = parseImagesInText(task.condition || "Условие задачи не добавлено");
-
                 let taskFilesHtml = '';
                 if (task.files && task.files.length > 0) {
                     taskFilesHtml = `
@@ -2302,8 +2285,8 @@ async function startHomework(hwId) {
                 } else {
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
-                            <input type="text" class="task-answer-input" id="answer_${index}" 
-                                   placeholder="Введите ваш ответ..." 
+                            <input type="text" class="task-answer-input" id="answer_${index}"
+                                   placeholder="Введите ваш ответ..."
                                    oninput="saveAnswer(${index}, this.value)">
                         </div>
                     `;
@@ -2324,9 +2307,7 @@ async function startHomework(hwId) {
                                 <button class="bookmark-btn" id="bookmarkKnow_${index}" onclick="setTaskBookmark(${index}, 'know')">Умею решать</button>
                                 <button class="bookmark-btn" id="bookmarkStopped_${index}" onclick="setTaskBookmark(${index}, 'stopped')">Остановился тут</button>
                             </div>
-                            <div class="task-condition">
-                                ${conditionHtml}
-                            </div>
+                            <div class="task-condition">${conditionHtml}</div>
                             ${taskFilesHtml}
                             ${answerHtml}
                             <div class="task-result" id="result_${index}" style="display:none;"></div>
@@ -2358,10 +2339,7 @@ function setTaskBookmark(index, kind) {
 
 function goToBookmark() {
     const idx = Object.keys(taskBookmarks).find(i => taskBookmarks[i] === "stopped");
-    if (idx === undefined) {
-        showToast("Закладка «Остановился тут» ещё не поставлена", "info");
-        return;
-    }
+    if (idx === undefined) { showToast("Закладка «Остановился тут» ещё не поставлена", "info"); return; }
     goToTask(parseInt(idx, 10));
 }
 
@@ -2370,25 +2348,13 @@ function goToTask(index) {
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-
 function handleTaskSolveFilesSelect(input, taskIndex) {
     const files = Array.from(input.files);
     if (!taskSolveFiles[taskIndex]) taskSolveFiles[taskIndex] = [];
-    
-    if (taskSolveFiles[taskIndex].length + files.length > 10) {
-        showToast("Можно прикрепить не более 10 файлов", "error");
-        return;
-    }
-    
+    if (taskSolveFiles[taskIndex].length + files.length > 10) { showToast("Можно прикрепить не более 10 файлов", "error"); return; }
     for (const file of files) {
-        if (file.size > 50 * 1024 * 1024) {
-            showToast('Файл ' + file.name + ' > 50 МБ', "error");
-            continue;
-        }
-        taskSolveFiles[taskIndex].push({
-            file: file,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf'
-        });
+        if (file.size > 50 * 1024 * 1024) { showToast('Файл ' + file.name + ' > 50 МБ', "error"); continue; }
+        taskSolveFiles[taskIndex].push({ file: file, type: file.type.startsWith('image/') ? 'image' : 'pdf' });
         showToast('Добавлен: ' + file.name, "success");
     }
     renderTaskSolveFilePreview(taskIndex);
@@ -2400,11 +2366,7 @@ function renderTaskSolveFilePreview(taskIndex) {
     if (!container) return;
     const hint = document.getElementById('taskFileEmptyHint_' + taskIndex);
     const files = taskSolveFiles[taskIndex] || [];
-    if (files.length === 0) {
-        container.innerHTML = '';
-        if (hint) hint.style.display = 'block';
-        return;
-    }
+    if (files.length === 0) { container.innerHTML = ''; if (hint) hint.style.display = 'block'; return; }
     if (hint) hint.style.display = 'none';
     container.style.display = 'flex';
     container.innerHTML = files.map((file, idx) => `
@@ -2417,130 +2379,119 @@ function renderTaskSolveFilePreview(taskIndex) {
 }
 
 function removeTaskSolveFile(taskIndex, idx) {
-    if (taskSolveFiles[taskIndex]) {
-        taskSolveFiles[taskIndex].splice(idx, 1);
-        renderTaskSolveFilePreview(taskIndex);
-    }
+    if (taskSolveFiles[taskIndex]) { taskSolveFiles[taskIndex].splice(idx, 1); renderTaskSolveFilePreview(taskIndex); }
 }
 
 function saveAnswer(index, value) {
     if (isSubmitted) return;
     userAnswers[index] = value;
     const dot = document.getElementById('hwdot_' + index);
-    if (dot && value.trim() !== '') {
-        dot.classList.add('has-answer');
-    } else if (dot) {
-        dot.classList.remove('has-answer');
-    }
+    if (dot && value.trim() !== '') dot.classList.add('has-answer');
+    else if (dot) dot.classList.remove('has-answer');
 }
 
+// FIX: главная переработка submitHomework
+//  - сначала сохраняем сабмишен ЛОКАЛЬНО (в userData),
+//  - затем пишем в Firestore и дожидаемся ответа,
+//  - НЕ трогаем документ homeworks (status в нём общий для всех),
+//  - после успеха обновляем UI (точки, результаты, кэш списка).
 async function submitHomework() {
     if (isSubmitted) return;
     const tasks = currentSolveHwData.tasks || [];
-    
+
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
-        
         if (isSecondPart) {
             const files = taskSolveFiles[i] || [];
-            if (files.length === 0) {
-                showToast('Прикрепите файл с решением для задачи ' + (i + 1), "error");
-                goToTask(i);
-                return;
-            }
+            if (files.length === 0) { showToast('Прикрепите файл с решением для задачи ' + (i + 1), "error"); goToTask(i); return; }
             userAnswers[i] = { text: "", files: files };
         } else {
             const answerInput = document.getElementById('answer_' + i);
             const answer = answerInput ? answerInput.value.trim() : '';
-            if (answer === '') {
-                showToast('Ответьте на задачу ' + (i + 1), "error");
-                goToTask(i);
-                return;
-            }
+            if (answer === '') { showToast('Ответьте на задачу ' + (i + 1), "error"); goToTask(i); return; }
             userAnswers[i] = answer;
         }
     }
-    
+
     const btn = document.getElementById('submitBtn');
     if (!btn) { showToast("Кнопка отправки не найдена", "error"); return; }
-    
     btn.textContent = "Отправка...";
     btn.disabled = true;
-    
+
     try {
         let correctCount = 0;
         const taskResults = [];
         let allFiles = [];
-        
+
         for (let i = 0; i < tasks.length; i++) {
             const task = tasks[i];
             const isSecondPart = task.isSecondPart || false;
             let userAnswer = '';
             let uploadedFiles = [];
-            
+
             if (isSecondPart) {
                 const answerData = userAnswers[i] || { text: '', files: [] };
                 userAnswer = answerData.text || '';
                 if (answerData.files && answerData.files.length > 0) {
                     uploadedFiles = await uploadStudentFiles(answerData.files, currentSolveHwId + '_task_' + i);
                 }
-                taskResults.push({ 
-                    taskIndex: i, 
-                    userAnswer: userAnswer, 
+                taskResults.push({
+                    taskIndex: i,
+                    userAnswer: userAnswer,
                     files: uploadedFiles,
                     isCorrect: true,
-                    isSecondPart: true
+                    isSecondPart: true,
+                    userScore: 0,
+                    maxScore: task.maxScore || 0
                 });
                 allFiles = allFiles.concat(uploadedFiles);
+
+                // Обновим кружок, чтобы было видно, что ответ прикреплён
+                const dot = document.getElementById('hwdot_' + i);
+                if (dot) { dot.classList.remove('has-answer'); dot.classList.add('submitted'); }
+                const content = document.getElementById('taskcontent_' + i);
+                if (content) content.classList.add('submitted');
             } else {
-                const correctAnswer = task.correctAnswer || '';
-                const userAnswerText = userAnswers[i] || '';
+                const correctAnswer = (task.correctAnswer || '').toString();
+                const userAnswerText = (userAnswers[i] || '').toString();
                 const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
                 if (isCorrect) correctCount++;
-                taskResults.push({ 
-                    taskIndex: i, 
-                    userAnswer: userAnswerText, 
+                taskResults.push({
+                    taskIndex: i,
+                    userAnswer: userAnswerText,
                     isCorrect: isCorrect,
                     isSecondPart: false
                 });
-                
                 const dot = document.getElementById('hwdot_' + i);
                 if (dot) {
                     dot.classList.remove('active', 'has-answer');
                     dot.classList.add(isCorrect ? 'correct' : 'wrong');
                     dot.classList.add('submitted');
                 }
-                
                 const resultDiv = document.getElementById('result_' + i);
                 const input = document.getElementById('answer_' + i);
                 const content = document.getElementById('taskcontent_' + i);
-                
                 if (resultDiv) {
                     resultDiv.style.display = 'block';
                     resultDiv.className = 'task-result';
                     resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
                 }
-                if (input) {
-                    input.className = 'task-answer-input' + (isCorrect ? '' : ' wrong');
-                    input.disabled = true;
-                }
-                if (content) {
-                    content.classList.add('submitted');
-                }
+                if (input) { input.className = 'task-answer-input' + (isCorrect ? '' : ' wrong'); input.disabled = true; }
+                if (content) content.classList.add('submitted');
             }
-            
+
             const solutionDiv = document.getElementById('solution_' + i);
             if (solutionDiv) {
                 solutionDiv.style.display = 'block';
                 solutionDiv.innerHTML = '<strong>Решение:</strong><br>' + (task.solution || "Решение не добавлено");
             }
         }
-        
+
         const total = tasks.length;
-        const percent = Math.round(correctCount / total * 100);
-        
         const firstPartTasks = tasks.filter(t => !t.isSecondPart).length;
+        const percent = firstPartTasks > 0 ? Math.round(correctCount / firstPartTasks * 100) : 0;
+
         if (firstPartTasks > 0) {
             const counter = document.getElementById('hwCounter');
             if (counter) {
@@ -2551,13 +2502,18 @@ async function submitHomework() {
                 if (percentEl) percentEl.textContent = percent + '%';
             }
         }
-        
         await renderMathInElement(document.getElementById('hwTasksContainer'));
-        
+
+        const hasSecondPart = tasks.some(t => t.isSecondPart);
+
+        // FIX: строим сабмишен и СНАЧАЛА обновляем локальный userData,
+        // чтобы UI сразу видел его даже если Firestore отвалится.
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
-            courseId: currentSolveHwData.courseId,
+            // FIX: сохраняем нормализованный courseId, чтобы сабмишен
+            // всегда находился по актуальному id курса.
+            courseId: resolveCourseId(currentSolveHwData.courseId),
             taskResults: taskResults,
             correctCount: correctCount,
             total: total,
@@ -2565,46 +2521,47 @@ async function submitHomework() {
             files: allFiles,
             userName: userData.name,
             userEmail: currentUser.email,
-            submittedAt: new Date().toISOString()
+            submittedAt: new Date().toISOString(),
+            // FIX: флаг "проверено преподавателем". Сначала false —
+            // ставим true позже, когда преподаватель выставит баллы.
+            graded: !hasSecondPart
         };
-        
+
         if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
         const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentSolveHwId);
-        if (existingIndex !== -1) {
-            userData.homeworkSubmissions[existingIndex] = submissionData;
-        } else {
-            userData.homeworkSubmissions.push(submissionData);
+        if (existingIndex !== -1) userData.homeworkSubmissions[existingIndex] = submissionData;
+        else userData.homeworkSubmissions.push(submissionData);
+
+        // Пишем в Firestore. Если упадёт — откатим локальные изменения.
+        try {
+            await db.collection("users").doc(currentUser.uid).update({
+                homeworkSubmissions: userData.homeworkSubmissions
+            });
+        } catch (dbErr) {
+            // откат
+            if (existingIndex !== -1) {
+                // не откатываем (не знаем прошлое состояние) — просто сообщаем
+            } else {
+                userData.homeworkSubmissions = userData.homeworkSubmissions.filter(s => s.id !== currentSolveHwId);
+            }
+            throw dbErr;
         }
-        
-        await db.collection("users").doc(currentUser.uid).update({ 
-            homeworkSubmissions: userData.homeworkSubmissions 
-        });
-        
-        await db.collection("homeworks").doc(currentSolveHwId).update({
-            status: "submitted",
-            submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        await refreshUserData();
-        
+
         isSubmitted = true;
-        
         btn.textContent = "Отправлено";
         btn.disabled = true;
         btn.className = "btn bg";
-        
+
         showToast('Задание отправлено на проверку!', "success");
-        
-        setTimeout(() => {
-            const cid = currentSolveHwData ? currentSolveHwData.courseId : null;
-            closeHwSolvePage();
-            if (cid) {
-                delete hwCache[cid];
-                renderHomeworkTabContent(cid, true);
-            }
-            updateAllRecommendations();
-        }, 500);
-        
+
+        // FIX: обновляем кэш ДЗ по курсу и перерисовываем карточку
+        const cid = resolveCourseId(currentSolveHwData.courseId);
+        delete hwCache[cid];
+        renderHomeworkTabContent(cid, true);
+        updateAllRecommendations();
+
+        setTimeout(() => { closeHwSolvePage(); }, 700);
+
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
@@ -2627,15 +2584,13 @@ async function uploadStudentFiles(files, homeworkId) {
         try {
             const result = await uploadStudentFileToStorage(f.file, homeworkId);
             results.push(result);
-        } catch(e) {
-            showToast('Ошибка: ' + f.file.name, "error");
-        }
+        } catch(e) { showToast('Ошибка: ' + f.file.name, "error"); }
     }
     return results;
 }
 
 async function viewHomeworkResult(hwId) {
-    const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
+    const submission = getSubmissionForHw(hwId);
     if (!submission) { showToast("Результат не найден", "error"); return; }
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -2645,7 +2600,7 @@ async function viewHomeworkResult(hwId) {
 async function viewHomeworkSolutions(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
-    const submission = (userData.homeworkSubmissions || []).find(s => s.id === hwId);
+    const submission = getSubmissionForHw(hwId);
     openHwReviewPage(hwId, hw, submission);
 }
 
@@ -2691,7 +2646,7 @@ function openHwReviewPage(hwId, hw, submission) {
             taskFilesHtml = `
                 <div class="task-files">
                     <div class="task-files-label">Файлы к задаче:</div>
-                    <div class="files-list">${task.files.map(f => 
+                    <div class="files-list">${task.files.map(f =>
                         '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '">' : '') + ' ' + escapeHtml(f.name) + '</div>'
                     ).join('')}</div>
                 </div>
@@ -2705,7 +2660,7 @@ function openHwReviewPage(hwId, hw, submission) {
                 userFilesHtml = `
                     <div class="task-files">
                         <div class="task-files-label">Ваши файлы:</div>
-                        <div class="files-list">${result.files.map(f => 
+                        <div class="files-list">${result.files.map(f =>
                             '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '">' : '') + ' ' + escapeHtml(f.name) + '</div>'
                         ).join('')}</div>
                     </div>
@@ -2713,8 +2668,9 @@ function openHwReviewPage(hwId, hw, submission) {
             }
             const maxScore = task.maxScore || 0;
             const userScore = result ? (result.userScore || 0) : 0;
-            const isGraded = hw.status === 'graded';
-            
+            // FIX: смотрим на флаг конкретного сабмишена, не на статус homeworks
+            const isGraded = !!(submission && submission.graded);
+
             answerHtml = `
                 <div style="margin-top:0.8rem;">
                     ${userAnswer ? `
@@ -2814,9 +2770,7 @@ async function renderQuizCards(courseId) {
                 quizCache[data.id] = data;
                 quizzes.push(data);
             });
-        } catch (e) {
-            console.warn("Квизы пока недоступны в базе:", e.message);
-        }
+        } catch (e) { console.warn("Квизы пока недоступны в базе:", e.message); }
         if (quizzes.length === 0 && courseId === DEMO_QUIZ.courseId) {
             quizCache[DEMO_QUIZ.id] = DEMO_QUIZ;
             quizzes.push(DEMO_QUIZ);
@@ -2824,10 +2778,7 @@ async function renderQuizCards(courseId) {
         quizListCache[courseId] = quizzes;
     }
 
-    if (quizzes.length === 0) {
-        container.innerHTML = '<div class="schedule-empty">Квизов по этому курсу пока нет. Загляните позже!</div>';
-        return;
-    }
+    if (quizzes.length === 0) { container.innerHTML = '<div class="schedule-empty">Квизов по этому курсу пока нет. Загляните позже!</div>'; return; }
 
     const completed = (userData && userData.quizzesCompleted) || [];
 
@@ -2852,33 +2803,15 @@ async function renderQuizCards(courseId) {
     }).join("") + '</div>';
 }
 
-function openQuizPage() {
-    document.getElementById("quizPage").classList.add("active");
-    document.body.style.overflow = "hidden";
-}
-
-function closeQuizPage() {
-    document.getElementById("quizPage").classList.remove("active");
-    document.body.style.overflow = "auto";
-    quizActive = null;
-}
+function openQuizPage() { document.getElementById("quizPage").classList.add("active"); document.body.style.overflow = "hidden"; }
+function closeQuizPage() { document.getElementById("quizPage").classList.remove("active"); document.body.style.overflow = "auto"; quizActive = null; }
 
 function startQuiz(quizId) {
     const quizData = quizCache[quizId];
-    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
-        showToast("В этом квизе пока нет вопросов", "error");
-        return;
-    }
+    if (!quizData || !quizData.questions || quizData.questions.length === 0) { showToast("В этом квизе пока нет вопросов", "error"); return; }
     const questions = quizData.questions.map((q, i) => ({ ...q, qIndex: i, needed: 1, correct: 0 }));
     const queue = shuffleArray(questions.map((_, i) => i));
-    quizActive = {
-        quizData: quizData,
-        questions: questions,
-        queue: queue,
-        totalUnique: questions.length,
-        correctFirstTry: 0,
-        everWrong: {}
-    };
+    quizActive = { quizData: quizData, questions: questions, queue: queue, totalUnique: questions.length, correctFirstTry: 0, everWrong: {} };
     document.getElementById("quizPageTitle").textContent = quizData.title;
     openQuizPage();
     renderCurrentQuizQuestion();
@@ -2894,12 +2827,10 @@ function renderCurrentQuizQuestion() {
     const content = document.getElementById("quizPageContent");
     if (!content || !quizActive) return;
     if (quizActive.queue.length === 0) { renderQuizComplete(); return; }
-
     const qIdx = quizActive.queue[0];
     const q = quizActive.questions[qIdx];
     const doneCount = quizActive.totalUnique - new Set(quizActive.queue).size;
     const progressPct = Math.round(doneCount / quizActive.totalUnique * 100);
-
     content.innerHTML = `
         <div class="quiz-progress"><div class="quiz-progress-bar" style="width:${progressPct}%"></div></div>
         <div class="quiz-meta">Осталось вопросов в очереди: ${quizActive.queue.length} · Пройдено: ${doneCount} из ${quizActive.totalUnique}</div>
@@ -2917,30 +2848,21 @@ function answerQuiz(qIdx, optionIdx) {
     if (!quizActive) return;
     const q = quizActive.questions[qIdx];
     const isCorrect = optionIdx === q.correctIndex;
-
     const optsEls = document.querySelectorAll("#quizOptions .quiz-option");
     optsEls.forEach((el, i) => {
         el.classList.add("disabled");
         if (i === q.correctIndex) el.classList.add("correct");
         else if (i === optionIdx) el.classList.add("wrong");
     });
-
     quizActive.queue.shift();
-
     if (isCorrect) {
         q.correct++;
-        if (q.correct >= q.needed) {
-            if (q.needed === 1) quizActive.correctFirstTry++;
-        } else {
-            insertSpaced(quizActive.queue, qIdx, false);
-        }
+        if (q.correct >= q.needed) { if (q.needed === 1) quizActive.correctFirstTry++; }
+        else insertSpaced(quizActive.queue, qIdx, false);
     } else {
-        q.needed = 2;
-        q.correct = 0;
-        quizActive.everWrong[qIdx] = true;
+        q.needed = 2; q.correct = 0; quizActive.everWrong[qIdx] = true;
         insertSpaced(quizActive.queue, qIdx, true);
     }
-
     setTimeout(() => renderCurrentQuizQuestion(), 900);
 }
 
@@ -2966,30 +2888,15 @@ async function saveQuizResult() {
     const topic = quizActive.quizData.topic || "Общее";
     const total = quizActive.totalUnique;
     const correctFirstTry = quizActive.correctFirstTry;
-
     if (!userData.topicStats) userData.topicStats = {};
     if (!userData.topicStats[topic]) userData.topicStats[topic] = { correct: 0, wrong: 0 };
     userData.topicStats[topic].correct += correctFirstTry;
     userData.topicStats[topic].wrong += (total - correctFirstTry);
-
     if (!userData.quizzesCompleted) userData.quizzesCompleted = [];
-    userData.quizzesCompleted.push({
-        id: quizActive.quizData.id,
-        topic: topic,
-        score: correctFirstTry,
-        total: total,
-        completedAt: new Date().toISOString()
-    });
-
+    userData.quizzesCompleted.push({ id: quizActive.quizData.id, topic: topic, score: correctFirstTry, total: total, completedAt: new Date().toISOString() });
     try {
-        await db.collection("users").doc(currentUser.uid).update({
-            topicStats: userData.topicStats,
-            quizzesCompleted: userData.quizzesCompleted
-        });
-    } catch (error) {
-        console.error("Ошибка сохранения результата квиза:", error);
-    }
-
+        await db.collection("users").doc(currentUser.uid).update({ topicStats: userData.topicStats, quizzesCompleted: userData.quizzesCompleted });
+    } catch (error) { console.error("Ошибка сохранения результата квиза:", error); }
     updateAllRecommendations();
     const cid = quizActive.quizData.courseId;
     if (cid) { delete quizListCache[cid]; renderQuizCards(cid); }
@@ -3004,22 +2911,18 @@ function init() {
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
-                // VK-пользователи входят через custom token: у них нет email-провайдера
-                // и/или email может быть не подтверждён. Не выкидываем их.
-                const isCustomToken = user.providerData.length === 0 ||
-                    user.providerData.some(p => p.providerId === "custom");
-                if (!isCustomToken && !user.emailVerified) {
-                    showToast("Подтвердите email!", "error");
-                    await auth.signOut();
-                    return;
-                }
+                const isCustomToken = user.providerData.length === 0 || user.providerData.some(p => p.providerId === "custom");
+                if (!isCustomToken && !user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
                 const doc = await db.collection("users").doc(user.uid).get();
                 userData = doc.exists ? doc.data() : {
                     name: (user.email ? user.email.split("@")[0] : (user.displayName || "Ученик")),
-                    email: user.email || "",
-                    grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [],
+                    email: user.email || "", grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [],
                     topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {}
                 };
+                // FIX: гарантируем наличие полей на случай старых записей
+                if (!userData.enrolledCourses) userData.enrolledCourses = [];
+                if (!userData.courseEnabled) userData.courseEnabled = {};
+                if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
                 if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
                 currentUser = user;
                 normalizeEnrolledCourses();
@@ -3032,9 +2935,7 @@ function init() {
         } catch (err) {
             console.error("Ошибка инициализации:", err);
             showToast("Ошибка загрузки данных. Обновите страницу.", "error");
-        } finally {
-            markLoaderDataReady();
-        }
+        } finally { markLoaderDataReady(); }
     });
 }
 
@@ -3042,9 +2943,7 @@ function initScrollFormulas() {
     const layers = document.querySelectorAll(".bg-formulas");
     if (!layers.length || !("IntersectionObserver" in window)) return;
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            entry.target.classList.toggle("in-view", entry.isIntersecting);
-        });
+        entries.forEach((entry) => { entry.target.classList.toggle("in-view", entry.isIntersecting); });
     }, { threshold: 0.2 });
     layers.forEach((el) => observer.observe(el));
 }
