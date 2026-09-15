@@ -562,7 +562,6 @@
         .ctab.active .ctab-icon { color: var(--gold); }
         .course-tab-content { min-height: 80px; }
 
-        /* FIX: стили для блока "Доступные курсы" в личном кабинете */
         .available-courses-block {
             margin-top: 1.5rem;
             padding: 1.3rem;
@@ -1108,7 +1107,6 @@
                 <p class="pane-subtitle" id="cabinetCourseCount">Загрузка курсов...</p>
             </div>
 
-            <!-- FIX: блок доступных курсов для подключения -->
             <div id="availableCoursesBlock"></div>
 
             <div id="courseCabinetList" class="course-cabinet-list"></div>
@@ -1240,7 +1238,6 @@ async function queryByCourseIds(collectionName, courseId, extraWhere) {
     }
     return results;
 }
-
 
 const MATERIAL_FOLDERS = {
     math: [{ id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", courseIds: ["algebra", "geometry", "math"] }],
@@ -1488,6 +1485,57 @@ async function handleVkLogin() {
     window.location.href = authUrl;
 }
 
+// FIX 2: гарантируем создание документа users/{uid} сразу после VK-входа,
+// чтобы даже при первом входе Firestore-документ существовал с полным набором полей.
+// Иначе onAuthStateChanged создаёт userData "в памяти", но у VK-пользователя
+// email может быть пустым, и проверка `!currentUser.email` в других местах
+// ошибочно решает, что авторизация не прошла.
+async function ensureUserDoc(user, extraFields) {
+    const ref = db.collection("users").doc(user.uid);
+    const doc = await ref.get();
+    if (!doc.exists) {
+        const base = {
+            name: extraFields && extraFields.name
+                ? extraFields.name
+                : (user.displayName || (user.email ? user.email.split("@")[0] : "Ученик")),
+            email: user.email || "",
+            grade: (extraFields && extraFields.grade) || "",
+            enrolledCourses: [],
+            completedLessons: [],
+            homeworkSubmissions: [],
+            topicStats: {},
+            quizzesCompleted: [],
+            mockExamScores: [],
+            courseEnabled: {},
+            createdAt: new Date().toISOString()
+        };
+        await ref.set(base);
+        return base;
+    }
+    // Гарантируем, что все поля-массивы/объекты есть, даже если документ старый.
+    const data = doc.data();
+    let changed = false;
+    if (!Array.isArray(data.enrolledCourses)) { data.enrolledCourses = []; changed = true; }
+    if (!Array.isArray(data.completedLessons)) { data.completedLessons = []; changed = true; }
+    if (!Array.isArray(data.homeworkSubmissions)) { data.homeworkSubmissions = []; changed = true; }
+    if (!Array.isArray(data.quizzesCompleted)) { data.quizzesCompleted = []; changed = true; }
+    if (!Array.isArray(data.mockExamScores)) { data.mockExamScores = []; changed = true; }
+    if (!data.topicStats || typeof data.topicStats !== "object") { data.topicStats = {}; changed = true; }
+    if (!data.courseEnabled || typeof data.courseEnabled !== "object") { data.courseEnabled = {}; changed = true; }
+    if (changed) {
+        try { await ref.update({
+            enrolledCourses: data.enrolledCourses,
+            completedLessons: data.completedLessons,
+            homeworkSubmissions: data.homeworkSubmissions,
+            quizzesCompleted: data.quizzesCompleted,
+            mockExamScores: data.mockExamScores,
+            topicStats: data.topicStats,
+            courseEnabled: data.courseEnabled
+        }); } catch (e) { console.warn("Не удалось нормализовать документ user:", e); }
+    }
+    return data;
+}
+
 async function handleVkCallback() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
@@ -1509,6 +1557,16 @@ async function handleVkCallback() {
         const data = await resp.json();
         if (!resp.ok || !data.firebaseToken) { console.error("VK auth error:", data); showToast(data.error || "Не удалось войти через VK", "error"); return; }
         await auth.signInWithCustomToken(data.firebaseToken);
+        // FIX 2: сразу создаём/нормализуем документ users/{uid}
+        const u = auth.currentUser;
+        if (u) {
+            try {
+                const merged = await ensureUserDoc(u, { name: data.vkName || undefined });
+                userData = merged;
+            } catch (e) {
+                console.warn("Не удалось инициализировать userData после VK:", e);
+            }
+        }
         showToast("Вход через VK выполнен", "success");
     } catch (error) {
         console.error("Ошибка VK-входа:", error);
@@ -1517,9 +1575,9 @@ async function handleVkCallback() {
 }
 
 function updateUIAfterLogin() {
-    document.getElementById("userName").textContent = userData.name;
+    document.getElementById("userName").textContent = userData.name || "Ученик";
     document.getElementById("userGrade").textContent = userData.grade || "Класс не выбран";
-    document.getElementById("userAvatar").textContent = userData.name[0].toUpperCase();
+    document.getElementById("userAvatar").textContent = (userData.name || "У")[0].toUpperCase();
     document.getElementById("homePage").style.display = "none";
     document.getElementById("dashboard").classList.add("active");
     renderCoursesGrid();
@@ -1566,17 +1624,14 @@ function enrollCourse(courseId) {
         }).catch((e) => {
             showToast("Не удалось сохранить курс: " + e.message, "error");
         });
-        // FIX: сразу обновляем UI и локальные кэши
         renderCourseCabinet();
         renderAvailableCoursesBlock();
         loadHomeworkCourses();
     } else {
-        // Уже записан — просто раскрываем карточку
         expandCourseCard(courseId);
     }
 }
 
-// FIX: рендер блока доступных курсов для подключения
 function renderAvailableCoursesBlock() {
     const container = document.getElementById("availableCoursesBlock");
     if (!container) return;
@@ -1585,10 +1640,7 @@ function renderAvailableCoursesBlock() {
     const enrolled = userData.enrolledCourses || [];
     const available = COURSES.filter(c => !enrolled.includes(c.id));
 
-    if (available.length === 0) {
-        container.innerHTML = "";
-        return;
-    }
+    if (available.length === 0) { container.innerHTML = ""; return; }
 
     container.innerHTML = `
         <div class="available-courses-block">
@@ -2087,26 +2139,36 @@ async function refreshUserData() {
     } catch (error) { console.error("Ошибка обновления данных:", error); }
 }
 
-// FIX: нормализуем courseId у сабмишена, чтобы независимо от legacy-имени
-// сабмишен находился по новому id курса.
 function normalizeSubmission(s) {
     if (!s) return s;
     return Object.assign({}, s, { courseId: resolveCourseId(s.courseId) });
 }
 
-// FIX: главный критерий "отправлено" — наличие сабмишена с этим hw.id
-// в userData.homeworkSubmissions. Никаких чтений status из документа
-// homeworks — этот документ общий для всех учеников.
 function getSubmissionForHw(hwId) {
     const subs = (userData && userData.homeworkSubmissions) || [];
     const found = subs.find(s => s.id === hwId);
     return found ? normalizeSubmission(found) : null;
 }
 
+// FIX 2: устойчивый фильтр доступности ДЗ. Учитываем:
+//   - общие ДЗ (userEmail === "all" или отсутствует);
+//   - ДЗ, адресованные текущему uid (на будущее, если появится targetUid);
+//   - ДЗ, адресованные email текущего пользователя (если он есть).
+function isHomeworkAvailableForCurrentUser(hw) {
+    if (!currentUser) return false;
+    const em = hw.userEmail;
+    if (!em || em === "all") return true;
+    if (hw.targetUid && hw.targetUid === currentUser.uid) return true;
+    if (currentUser.email && em === currentUser.email) return true;
+    return false;
+}
+
+// FIX 2: больше НЕ проверяем currentUser.email — только uid.
+// Для VK-пользователей email может быть пустым — это нормально.
 async function renderHomeworkTabContent(courseId, forceRefresh) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
-    if (!currentUser || !currentUser.email) { container.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
+    if (!currentUser || !currentUser.uid) { container.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
 
     if (!forceRefresh && hwCache[courseId]) {
         renderHwTabsAndList(courseId, hwCache[courseId]);
@@ -2116,7 +2178,7 @@ async function renderHomeworkTabContent(courseId, forceRefresh) {
     container.innerHTML = '<div class="schedule-empty">Загрузка заданий...</div>';
     try {
         const rawHomeworks = await queryByCourseIds("homeworks", courseId);
-        const homeworks = rawHomeworks.filter(data => !data.userEmail || data.userEmail === "all" || data.userEmail === currentUser.email);
+        const homeworks = rawHomeworks.filter(isHomeworkAvailableForCurrentUser);
         homeworks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         hwCache[courseId] = homeworks;
         renderHwTabsAndList(courseId, homeworks);
@@ -2147,12 +2209,18 @@ function selectHwTab(courseId, tabId) {
 
 function formatRuDate(value) {
     if (!value) return "";
-    if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
         const d = new Date(value);
         if (!isNaN(d)) {
             const months = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
             return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
         }
+    }
+    // Firestore Timestamp
+    if (value && typeof value.toDate === "function") {
+        const d = value.toDate();
+        const months = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
+        return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
     }
     return value;
 }
@@ -2165,12 +2233,7 @@ function renderHwListCards(courseId, homeworks) {
     list.innerHTML = homeworks.map(hw => {
         const tasks = hw.tasks || [];
         const hasSecondPart = tasks.some(t => t.isSecondPart);
-        // FIX: сабмишен ищем всегда по hw.id в данных пользователя
         const submission = getSubmissionForHw(hw.id);
-        // FIX: "проверено" — это флаг конкретного сабмишена пользователя,
-        // а не статус общего документа homeworks. Ставим graded=true только
-        // тогда, когда преподаватель проставил баллы. Пока не проставлены —
-        // считаем «на проверке» (если есть вторая часть).
         const isGraded = !!(submission && submission.graded);
 
         let badgeText, btnLabel, btnOnclick, extraBtn = "";
@@ -2203,8 +2266,8 @@ function renderHwListCards(courseId, homeworks) {
                     <span class="hw-type-tag">ДЗ</span>
                 </div>
                 <div class="hw-list-title">${escapeHtml(hw.title)}</div>
-                <div class="hw-list-meta"><span>Выдано:</span> <strong>${escapeHtml(issuedDate || "не указано")}</strong></div>
-                <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(deadlineText)}</strong></div>
+                <div class="hw-list-meta"><span>Выдано:</span> <strong>${escapeHtml(String(issuedDate || "не указано"))}</strong></div>
+                <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(String(deadlineText))}</strong></div>
                 <button class="hw-list-btn" onclick="${btnOnclick}">${btnLabel}</button>
                 ${extraBtn}
             </div>
@@ -2390,13 +2453,9 @@ function saveAnswer(index, value) {
     else if (dot) dot.classList.remove('has-answer');
 }
 
-// FIX: главная переработка submitHomework
-//  - сначала сохраняем сабмишен ЛОКАЛЬНО (в userData),
-//  - затем пишем в Firestore и дожидаемся ответа,
-//  - НЕ трогаем документ homeworks (status в нём общий для всех),
-//  - после успеха обновляем UI (точки, результаты, кэш списка).
 async function submitHomework() {
     if (isSubmitted) return;
+    if (!currentUser || !currentUser.uid) { showToast("Ошибка авторизации", "error"); return; }
     const tasks = currentSolveHwData.tasks || [];
 
     for (let i = 0; i < tasks.length; i++) {
@@ -2446,8 +2505,6 @@ async function submitHomework() {
                     maxScore: task.maxScore || 0
                 });
                 allFiles = allFiles.concat(uploadedFiles);
-
-                // Обновим кружок, чтобы было видно, что ответ прикреплён
                 const dot = document.getElementById('hwdot_' + i);
                 if (dot) { dot.classList.remove('has-answer'); dot.classList.add('submitted'); }
                 const content = document.getElementById('taskcontent_' + i);
@@ -2506,24 +2563,21 @@ async function submitHomework() {
 
         const hasSecondPart = tasks.some(t => t.isSecondPart);
 
-        // FIX: строим сабмишен и СНАЧАЛА обновляем локальный userData,
-        // чтобы UI сразу видел его даже если Firestore отвалится.
+        // FIX 2: пишем и uid, и userEmail (если он есть). Так фильтр по
+        // isHomeworkAvailableForCurrentUser всегда найдёт сабмишен.
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
-            // FIX: сохраняем нормализованный courseId, чтобы сабмишен
-            // всегда находился по актуальному id курса.
             courseId: resolveCourseId(currentSolveHwData.courseId),
             taskResults: taskResults,
             correctCount: correctCount,
             total: total,
             percent: percent,
             files: allFiles,
-            userName: userData.name,
-            userEmail: currentUser.email,
+            userName: userData.name || "Ученик",
+            userEmail: currentUser.email || "",
+            userUid: currentUser.uid,
             submittedAt: new Date().toISOString(),
-            // FIX: флаг "проверено преподавателем". Сначала false —
-            // ставим true позже, когда преподаватель выставит баллы.
             graded: !hasSecondPart
         };
 
@@ -2532,16 +2586,12 @@ async function submitHomework() {
         if (existingIndex !== -1) userData.homeworkSubmissions[existingIndex] = submissionData;
         else userData.homeworkSubmissions.push(submissionData);
 
-        // Пишем в Firestore. Если упадёт — откатим локальные изменения.
         try {
             await db.collection("users").doc(currentUser.uid).update({
                 homeworkSubmissions: userData.homeworkSubmissions
             });
         } catch (dbErr) {
-            // откат
-            if (existingIndex !== -1) {
-                // не откатываем (не знаем прошлое состояние) — просто сообщаем
-            } else {
+            if (existingIndex === -1) {
                 userData.homeworkSubmissions = userData.homeworkSubmissions.filter(s => s.id !== currentSolveHwId);
             }
             throw dbErr;
@@ -2554,7 +2604,6 @@ async function submitHomework() {
 
         showToast('Задание отправлено на проверку!', "success");
 
-        // FIX: обновляем кэш ДЗ по курсу и перерисовываем карточку
         const cid = resolveCourseId(currentSolveHwData.courseId);
         delete hwCache[cid];
         renderHomeworkTabContent(cid, true);
@@ -2668,7 +2717,6 @@ function openHwReviewPage(hwId, hw, submission) {
             }
             const maxScore = task.maxScore || 0;
             const userScore = result ? (result.userScore || 0) : 0;
-            // FIX: смотрим на флаг конкретного сабмишена, не на статус homeworks
             const isGraded = !!(submission && submission.graded);
 
             answerHtml = `
@@ -2911,20 +2959,26 @@ function init() {
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
-                const isCustomToken = user.providerData.length === 0 || user.providerData.some(p => p.providerId === "custom");
-                if (!isCustomToken && !user.emailVerified) { showToast("Подтвердите email!", "error"); await auth.signOut(); return; }
-                const doc = await db.collection("users").doc(user.uid).get();
-                userData = doc.exists ? doc.data() : {
-                    name: (user.email ? user.email.split("@")[0] : (user.displayName || "Ученик")),
-                    email: user.email || "", grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [],
-                    topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {}
-                };
-                // FIX: гарантируем наличие полей на случай старых записей
+                // FIX 2: для custom token (VK) НЕ проверяем emailVerified.
+                // Проверяем только для провайдера password.
+                const isPasswordProvider = user.providerData.some(p => p.providerId === "password");
+                if (isPasswordProvider && !user.emailVerified) {
+                    showToast("Подтвердите email!", "error");
+                    await auth.signOut();
+                    return;
+                }
+                // FIX 2: единая точка создания/нормализации документа users/{uid}
+                const data = await ensureUserDoc(user);
+                userData = data;
+                currentUser = user;
+                // Проверим, что у userData есть все нужные поля — если нет, добавим
                 if (!userData.enrolledCourses) userData.enrolledCourses = [];
                 if (!userData.courseEnabled) userData.courseEnabled = {};
                 if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-                if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
-                currentUser = user;
+                if (!userData.completedLessons) userData.completedLessons = [];
+                if (!userData.quizzesCompleted) userData.quizzesCompleted = [];
+                if (!userData.mockExamScores) userData.mockExamScores = [];
+                if (!userData.topicStats) userData.topicStats = {};
                 normalizeEnrolledCourses();
                 updateUIAfterLogin();
             } else {
