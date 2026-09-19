@@ -209,7 +209,6 @@
             cursor: pointer; font-family: var(--f);
         }
 
-        /* ===== FIX: блок задачи не обрезает содержимое ===== */
         .task-block {
             margin-bottom: 1.3rem;
             overflow: visible;
@@ -218,7 +217,6 @@
         .task-content {
             background: var(--card2); border-radius: 18px; padding: 1.5rem;
             border: 2px solid var(--line); transition: border-color 0.3s, background 0.3s;
-            /* FIX: гарантируем, что блок не обрезает контент */
             height: auto !important;
             max-height: none !important;
             overflow: visible !important;
@@ -245,7 +243,6 @@
         }
         .bookmark-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
 
-        /* ===== FIX: условие сохраняет переносы строк и адаптируется под текст ===== */
         .task-condition {
             font-weight: 600;
             font-size: 1.05rem;
@@ -255,22 +252,20 @@
             background: var(--bg);
             border-radius: 12px;
             border-left: 4px solid var(--gold);
-            white-space: pre-wrap;      /* сохраняем \n и пробелы */
-            word-break: break-word;     /* длинные слова не рвут layout */
+            white-space: pre-wrap;
+            word-break: break-word;
             overflow-wrap: anywhere;
             min-height: 0;
             max-height: none;
             height: auto;
             overflow: visible;
         }
-        /* FIX: картинки и MathJax внутри условия не должны ломать layout */
         .task-condition img,
         .task-condition svg,
         .task-condition mjx-container {
             max-width: 100%;
             height: auto;
         }
-        /* FIX: вложенные блоки от parseImagesInText тоже переносятся корректно */
         .task-condition > div {
             white-space: pre-wrap;
             word-break: break-word;
@@ -304,7 +299,6 @@
             border-left: 4px solid var(--gold);
         }
 
-        /* ===== FIX: решение тоже сохраняет переносы ===== */
         .task-solution {
             margin-top: 0.8rem; padding: 1.1rem 1.2rem;
             background: var(--bg); border-radius: 12px;
@@ -1348,15 +1342,9 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 4000);
 }
 
-// ===== FIX: сохраняем переводы строк, превращая их в <br>. =====
-// Работает и для чистого текста, и для смешанного с HTML — превью в
-// textarea из админки теперь корректно отображается.
 function parseImagesInText(text) {
     if (!text) return '';
-
-    // Сначала — заменяем \n на <br>, чтобы переносы гарантированно сохранились.
     let processed = String(text).replace(/\n/g, '<br>');
-
     var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
     var result = processed;
     var match;
@@ -1479,7 +1467,7 @@ function handleLogin() {
         const user = userCredential.user;
         if (!user.emailVerified) { showToast("Подтвердите email. Проверьте почту!", "error"); auth.signOut(); return; }
         const doc = await db.collection("users").doc(user.uid).get();
-        userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], homeworkSubmissions: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
+        userData = doc.exists ? doc.data() : { name: email.split("@")[0], email: email, grade: "", enrolledCourses: [], completedLessons: [], topicStats: {}, quizzesCompleted: [], mockExamScores: [], courseEnabled: {} };
         if (!doc.exists) await db.collection("users").doc(user.uid).set(userData);
         currentUser = user;
         normalizeEnrolledCourses();
@@ -1534,7 +1522,6 @@ async function ensureUserDoc(user, extraFields) {
             grade: (extraFields && extraFields.grade) || "",
             enrolledCourses: [],
             completedLessons: [],
-            homeworkSubmissions: [],
             topicStats: {},
             quizzesCompleted: [],
             mockExamScores: [],
@@ -1548,7 +1535,6 @@ async function ensureUserDoc(user, extraFields) {
     let changed = false;
     if (!Array.isArray(data.enrolledCourses)) { data.enrolledCourses = []; changed = true; }
     if (!Array.isArray(data.completedLessons)) { data.completedLessons = []; changed = true; }
-    if (!Array.isArray(data.homeworkSubmissions)) { data.homeworkSubmissions = []; changed = true; }
     if (!Array.isArray(data.quizzesCompleted)) { data.quizzesCompleted = []; changed = true; }
     if (!Array.isArray(data.mockExamScores)) { data.mockExamScores = []; changed = true; }
     if (!data.topicStats || typeof data.topicStats !== "object") { data.topicStats = {}; changed = true; }
@@ -1557,7 +1543,6 @@ async function ensureUserDoc(user, extraFields) {
         try { await ref.update({
             enrolledCourses: data.enrolledCourses,
             completedLessons: data.completedLessons,
-            homeworkSubmissions: data.homeworkSubmissions,
             quizzesCompleted: data.quizzesCompleted,
             mockExamScores: data.mockExamScores,
             topicStats: data.topicStats,
@@ -1972,24 +1957,6 @@ function renderProgressScore() {
 
 function computeRecommendations() {
     const recs = [];
-    const subs = (userData && userData.homeworkSubmissions) || [];
-    const byCourse = {};
-    subs.forEach(s => {
-        if (!byCourse[s.courseId]) byCourse[s.courseId] = { correct: 0, total: 0 };
-        byCourse[s.courseId].correct += s.correctCount || 0;
-        byCourse[s.courseId].total += (s.taskResults || []).filter(t => !t.isSecondPart).length;
-    });
-    Object.keys(byCourse).forEach(cid => {
-        const c = byCourse[cid];
-        if (c.total > 0) {
-            const pct = Math.round(c.correct / c.total * 100);
-            const course = COURSES.find(x => x.id === cid) || COURSES.find(x => x.legacyIds && x.legacyIds.includes(cid));
-            if (pct < 70 && course) {
-                recs.push({ level: pct < 50 ? "high" : "medium", text: 'Повторите материал курса «' + course.name + '» — ' + pct + '% правильных ответов в домашних заданиях.' });
-            }
-        }
-    });
-
     const ts = (userData && userData.topicStats) || {};
     Object.keys(ts).forEach(topic => {
         const t = ts[topic];
@@ -1999,7 +1966,6 @@ function computeRecommendations() {
             if (pct < 60) recs.push({ level: pct < 40 ? "high" : "medium", text: 'Стоит повторить тему «' + topic + '» — ' + pct + '% верных ответов в квизах.' });
         }
     });
-
     return recs;
 }
 
@@ -2174,10 +2140,19 @@ function normalizeSubmission(s) {
     return Object.assign({}, s, { courseId: resolveCourseId(s.courseId) });
 }
 
-function getSubmissionForHw(hwId) {
-    const subs = (userData && userData.homeworkSubmissions) || [];
-    const found = subs.find(s => s.id === hwId);
-    return found ? normalizeSubmission(found) : null;
+// ===== FIX: сабмишены теперь в коллекции submissions =====
+// id документа: {uid}_{hwId} — одна запись на ученика по одному ДЗ.
+async function getSubmissionForHw(hwId) {
+    if (!currentUser) return null;
+    const submissionId = currentUser.uid + '_' + hwId;
+    try {
+        const doc = await db.collection("submissions").doc(submissionId).get();
+        if (!doc.exists) return null;
+        return normalizeSubmission({ id: hwId, ...doc.data() });
+    } catch (e) {
+        console.warn("Не удалось получить сабмишен:", e);
+        return null;
+    }
 }
 
 function isHomeworkAvailableForCurrentUser(hw) {
@@ -2195,7 +2170,7 @@ async function renderHomeworkTabContent(courseId, forceRefresh) {
     if (!currentUser || !currentUser.uid) { container.innerHTML = '<div class="schedule-empty">Ошибка авторизации</div>'; return; }
 
     if (!forceRefresh && hwCache[courseId]) {
-        renderHwTabsAndList(courseId, hwCache[courseId]);
+        await renderHwTabsAndList(courseId, hwCache[courseId]);
         return;
     }
 
@@ -2205,14 +2180,14 @@ async function renderHomeworkTabContent(courseId, forceRefresh) {
         const homeworks = rawHomeworks.filter(isHomeworkAvailableForCurrentUser);
         homeworks.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         hwCache[courseId] = homeworks;
-        renderHwTabsAndList(courseId, homeworks);
+        await renderHwTabsAndList(courseId, homeworks);
     } catch (err) {
         console.error(err);
         container.innerHTML = '<div class="schedule-empty" style="color:var(--red)">Ошибка загрузки заданий: ' + escapeHtml(err.message) + '</div>';
     }
 }
 
-function renderHwTabsAndList(courseId, homeworks) {
+async function renderHwTabsAndList(courseId, homeworks) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
     const tabs = HOMEWORK_TABS[courseId] || HOMEWORK_TABS.default;
@@ -2223,7 +2198,7 @@ function renderHwTabsAndList(courseId, homeworks) {
         <button class="ctab ${t.id === activeTab ? 'active' : ''}" onclick="selectHwTab('${courseId}','${t.id}')">${escapeHtml(t.name)}</button>
     `).join("") + '</div>' : '';
     container.innerHTML = tabsHtml + '<div class="hw-list" id="hwList_' + courseId + '"></div>';
-    renderHwListCards(courseId, filtered);
+    await renderHwListCards(courseId, filtered);
 }
 
 function selectHwTab(courseId, tabId) {
@@ -2248,15 +2223,21 @@ function formatRuDate(value) {
     return value;
 }
 
-function renderHwListCards(courseId, homeworks) {
+async function renderHwListCards(courseId, homeworks) {
     const list = document.getElementById("hwList_" + courseId);
     if (!list) return;
     if (homeworks.length === 0) { list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>'; return; }
 
+    // Сначала подтянем все сабмишены пользователя по этому списку ДЗ
+    const submissionsMap = {};
+    for (const hw of homeworks) {
+        submissionsMap[hw.id] = await getSubmissionForHw(hw.id);
+    }
+
     list.innerHTML = homeworks.map(hw => {
         const tasks = hw.tasks || [];
         const hasSecondPart = tasks.some(t => t.isSecondPart);
-        const submission = getSubmissionForHw(hw.id);
+        const submission = submissionsMap[hw.id];
         const isGraded = !!(submission && submission.graded);
 
         let badgeText, btnLabel, btnOnclick, extraBtn = "";
@@ -2586,8 +2567,11 @@ async function submitHomework() {
 
         const hasSecondPart = tasks.some(t => t.isSecondPart);
 
+        // FIX: сохраняем сабмишен в отдельную коллекцию submissions.
+        // id документа: {uid}_{hwId} — одна запись на ученика по одному ДЗ.
         const submissionData = {
-            id: currentSolveHwId,
+            userId: currentUser.uid,
+            hwId: currentSolveHwId,
             title: currentSolveHwData.title,
             courseId: resolveCourseId(currentSolveHwData.courseId),
             taskResults: taskResults,
@@ -2597,26 +2581,12 @@ async function submitHomework() {
             files: allFiles,
             userName: userData.name || "Ученик",
             userEmail: currentUser.email || "",
-            userUid: currentUser.uid,
             submittedAt: new Date().toISOString(),
             graded: !hasSecondPart
         };
 
-        if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
-        const existingIndex = userData.homeworkSubmissions.findIndex(s => s.id === currentSolveHwId);
-        if (existingIndex !== -1) userData.homeworkSubmissions[existingIndex] = submissionData;
-        else userData.homeworkSubmissions.push(submissionData);
-
-        try {
-            await db.collection("users").doc(currentUser.uid).update({
-                homeworkSubmissions: userData.homeworkSubmissions
-            });
-        } catch (dbErr) {
-            if (existingIndex === -1) {
-                userData.homeworkSubmissions = userData.homeworkSubmissions.filter(s => s.id !== currentSolveHwId);
-            }
-            throw dbErr;
-        }
+        const submissionId = currentUser.uid + '_' + currentSolveHwId;
+        await db.collection("submissions").doc(submissionId).set(submissionData, { merge: true });
 
         isSubmitted = true;
         btn.textContent = "Отправлено";
@@ -2627,7 +2597,7 @@ async function submitHomework() {
 
         const cid = resolveCourseId(currentSolveHwData.courseId);
         delete hwCache[cid];
-        renderHomeworkTabContent(cid, true);
+        await renderHomeworkTabContent(cid, true);
         updateAllRecommendations();
 
         setTimeout(() => { closeHwSolvePage(); }, 700);
@@ -2660,7 +2630,7 @@ async function uploadStudentFiles(files, homeworkId) {
 }
 
 async function viewHomeworkResult(hwId) {
-    const submission = getSubmissionForHw(hwId);
+    const submission = await getSubmissionForHw(hwId);
     if (!submission) { showToast("Результат не найден", "error"); return; }
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
@@ -2670,7 +2640,7 @@ async function viewHomeworkResult(hwId) {
 async function viewHomeworkSolutions(hwId) {
     const doc = await db.collection("homeworks").doc(hwId).get();
     const hw = doc.data();
-    const submission = getSubmissionForHw(hwId);
+    const submission = await getSubmissionForHw(hwId);
     openHwReviewPage(hwId, hw, submission);
 }
 
@@ -2991,7 +2961,6 @@ function init() {
                 currentUser = user;
                 if (!userData.enrolledCourses) userData.enrolledCourses = [];
                 if (!userData.courseEnabled) userData.courseEnabled = {};
-                if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
                 if (!userData.completedLessons) userData.completedLessons = [];
                 if (!userData.quizzesCompleted) userData.quizzesCompleted = [];
                 if (!userData.mockExamScores) userData.mockExamScores = [];
