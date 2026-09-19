@@ -71,11 +71,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
 .lp-icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
-.icon-tile {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 34px; height: 34px; border-radius: 10px; background: var(--card2);
-    color: var(--text2); flex-shrink: 0;
-}
 
 .login-container {
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -748,7 +743,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                     <div class="hw-type-toggle" style="flex-direction:column;align-items:stretch;gap:0.8rem;">
                         <div>
                             <div class="toggle-label">Быстрое создание задач</div>
-                            <div class="toggle-desc">Укажите количество — столько пустых блоков появится ниже. У каждой задачи свой тип (1-я или 2-я часть), можно переключить внутри.</div>
+                            <div class="toggle-desc">Укажите количество — столько пустых блоков появится ниже. У каждой задачи свой тип (1-я или 2-я часть).</div>
                         </div>
                         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
                             <input type="number" id="bulkTaskCount" value="1" min="1" max="50"
@@ -1002,14 +997,10 @@ const COURSES = [
 ];
 
 const ADMINS = {
-    'kb.slash@mail.ru':       { role: 'full',      name: 'Главный администратор' },
-    'perederin_dima@mail.ru': { role: 'physics',   name: 'Администратор физики' },
-    'liza.klebbe@bk.ru':      { role: 'languages', name: 'Администратор языкового курса' }
+    'kb.slash@mail.ru':       { role: 'full',    name: 'Главный администратор', uid: 'jh39OePH1Yek64jhk6RIlAjF3Si2' },
+    'perederin_dima@mail.ru': { role: 'physics', name: 'Администратор физики',  uid: 'ZNfoeERX7KeHUPVe9jN61DmQvyl2' }
 };
 
-// Fallback-папки, соответствующие MATERIAL_FOLDERS в ученике.
-// Нужны, чтобы уже существующие папки отобразились в админке и их можно
-// было отредактировать/перенести в Firestore.
 const DEFAULT_FOLDERS = [
     { id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", subject: "math",    courseId: "math",    legacyCourseIds: ["algebra","geometry","math"] },
     { id: "physics-ege-2027", name: "Физика. ЕГЭ 2027",  subject: "physics", courseId: "physics", legacyCourseIds: ["physics"] }
@@ -1035,9 +1026,8 @@ let editHwFiles = [];
 let taskCounter = 0;
 let editTaskCounter = 0;
 
-// Хранилища типов задач
-const taskMeta = {};          // для формы создания
-const editTaskMeta = {};      // для формы редактирования
+const taskMeta = {};
+const editTaskMeta = {};
 
 let analyticsData = null;
 let analyticsHwCache = {};
@@ -1074,7 +1064,6 @@ function pluralizeRu(n, one, few, many) {
 }
 function isFullAdmin() { return currentAdminRole === 'full'; }
 function isPhysicsAdmin() { return currentAdminRole === 'physics'; }
-function isLanguagesAdmin() { return currentAdminRole === 'languages'; }
 
 function toggleTheme() {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
@@ -1191,7 +1180,6 @@ function showAdminPanel() {
     if (roleEl) {
         if (isFullAdmin()) roleEl.textContent = 'Полный доступ';
         else if (isPhysicsAdmin()) roleEl.textContent = 'Физика';
-        else if (isLanguagesAdmin()) roleEl.textContent = 'Языки';
     }
     loadDashboard();
     initAdminPanel();
@@ -1214,39 +1202,40 @@ async function loadDashboard() {
         const users = [];
         usersSnap.forEach(d => users.push(d.data()));
 
-        let totalEnrollments = 0, physicsEnrollments = 0, languagesEnrollments = 0;
+        let totalEnrollments = 0, physicsEnrollments = 0;
         users.forEach(u => {
             const courses = u.enrolledCourses || [];
             totalEnrollments += courses.length;
             if (courses.includes('physics')) physicsEnrollments++;
-            if (courses.some(c => ['english', 'german', 'french'].includes(c))) languagesEnrollments++;
         });
 
-        const homeworksSnap = await db.collection("homeworks").get();
-        let pending = 0, physicsPending = 0, languagesPending = 0;
+        // FIX: считаем "на проверке" из коллекции submissions
+        const subsSnap = await db.collection("submissions").get();
+        let pending = 0, physicsPending = 0;
         const pendingArr = [];
-        homeworksSnap.forEach(doc => {
-            const hw = doc.data();
-            // На проверку идут только ДЗ, где есть хотя бы одна задача 2 части.
-            // Определяем по наличию второй части в tasks[] или по флагу.
-            const hasSecond = (hw.tasks || []).some(t => t.isSecondPart) || hw.isSecondPart === true;
-            if (hw.status === "submitted" && hasSecond) {
-                pending++;
-                if (hw.subject === 'physics') physicsPending++;
-                if (hw.subject === 'languages') languagesPending++;
-                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
-                    pendingArr.push({ id: doc.id, ...hw });
-                }
-            }
+        const hwMap = {};
+        const hwSnap = await db.collection("homeworks").get();
+        hwSnap.forEach(d => { hwMap[d.id] = d.data(); });
+
+        subsSnap.forEach(doc => {
+            const s = doc.data();
+            const hw = hwMap[s.hwId];
+            if (!hw) return;
+            const hasSecond = (hw.tasks || []).some(t => t.isSecondPart);
+            if (!hasSecond) return;
+            if (s.graded === true) return;
+            if (isPhysicsAdmin() && hw.subject !== 'physics') return;
+            pending++;
+            if (hw.subject === 'physics') physicsPending++;
+            pendingArr.push({ id: doc.id, submissionId: doc.id, ...s, _hw: hw });
         });
 
         const lessonsSnap = await db.collection("lessons").get();
-        let totalLessons = 0, physicsLessons = 0, languagesLessons = 0;
+        let totalLessons = 0, physicsLessons = 0;
         lessonsSnap.forEach(doc => {
             const l = doc.data();
             totalLessons++;
             if (l.subject === 'physics') physicsLessons++;
-            if (l.subject === 'languages') languagesLessons++;
         });
 
         if (isFullAdmin()) {
@@ -1259,28 +1248,23 @@ async function loadDashboard() {
             document.getElementById("statCourses").textContent = physicsEnrollments;
             document.getElementById("statHomeworkPending").textContent = physicsPending;
             document.getElementById("statLessons").textContent = physicsLessons;
-        } else if (isLanguagesAdmin()) {
-            document.getElementById("statStudents").textContent = users.filter(u => (u.enrolledCourses || []).some(c => ['english','german','french'].includes(c))).length;
-            document.getElementById("statCourses").textContent = languagesEnrollments;
-            document.getElementById("statHomeworkPending").textContent = languagesPending;
-            document.getElementById("statLessons").textContent = languagesLessons;
         }
 
         const recent = document.getElementById("recentHomeworkList");
         if (pendingArr.length === 0) {
             recent.innerHTML = '<div class="empty-state">Нет ДЗ на проверке</div>';
         } else {
-            recent.innerHTML = pendingArr.slice(0, 5).map(hw => `
+            recent.innerHTML = pendingArr.slice(0, 5).map(s => `
                 <div class="item-card">
                     <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
                         <div>
-                            <div class="item-title">${escapeHtml(hw.title)}</div>
+                            <div class="item-title">${escapeHtml(s._hw.title)}</div>
                             <div class="item-meta">
-                                <span>${escapeHtml(hw.userName || hw.userEmail)}</span>
-                                <span>Курс: ${escapeHtml(hw.courseId)}</span>
+                                <span>${escapeHtml(s.userName || s.userEmail)}</span>
+                                <span>Курс: ${escapeHtml(s._hw.courseId)}</span>
                             </div>
                         </div>
-                        <button class="btn bg bsm" onclick="openGradeModal('${hw.id}')">Проверить</button>
+                        <button class="btn bg bsm" onclick="openGradeModal('${s.submissionId}')">Проверить</button>
                     </div>
                 </div>
             `).join('');
@@ -1301,19 +1285,28 @@ async function loadStudents() {
 
         let filtered = users;
         if (isPhysicsAdmin()) filtered = users.filter(u => (u.enrolledCourses || []).includes('physics'));
-        else if (isLanguagesAdmin()) filtered = users.filter(u => (u.enrolledCourses || []).some(c => ['english','german','french'].includes(c)));
 
         if (filtered.length === 0) {
             container.innerHTML = '<div class="empty-state">Учеников пока нет</div>';
             return;
         }
+
+        // Посчитаем кол-во сдач из submissions
+        const subsSnap = await db.collection("submissions").get();
+        const subsCount = {};
+        subsSnap.forEach(doc => {
+            const s = doc.data();
+            if (!s.userId) return;
+            subsCount[s.userId] = (subsCount[s.userId] || 0) + 1;
+        });
+
         let html = '<table class="table"><thead><tr><th>Ученик</th><th>Email</th><th>Класс</th><th>Курсы</th><th>ДЗ сдано</th></tr></thead><tbody>';
         for (const u of filtered) {
             const name = u.name || (u.email ? u.email.split('@')[0] : 'Без имени');
             const email = u.email || '—';
             const grade = u.grade || '—';
             const courses = (u.enrolledCourses || []).join(', ') || '—';
-            const submissions = (u.homeworkSubmissions || []).length;
+            const submissions = subsCount[u.id] || 0;
             html += `<tr>
                 <td><strong>${escapeHtml(name)}</strong></td>
                 <td style="color:var(--text3);font-size:0.82rem;">${escapeHtml(email)}</td>
@@ -1337,7 +1330,7 @@ async function loadLessons() {
         const lessons = [];
         snap.forEach(doc => {
             const data = doc.data();
-            if (isFullAdmin() || (isPhysicsAdmin() && data.subject === 'physics') || (isLanguagesAdmin() && data.subject === 'languages')) {
+            if (isFullAdmin() || (isPhysicsAdmin() && data.subject === 'physics')) {
                 lessons.push({ id: doc.id, ...data });
             }
         });
@@ -1411,7 +1404,6 @@ async function createLesson() {
 
     if (!title || !subject || !courseId) { showToast("Заполните название, предмет и курс", "error"); return; }
     if (isPhysicsAdmin() && subject !== 'physics') { showToast("Доступ только к физике!", "error"); return; }
-    if (isLanguagesAdmin() && subject !== 'languages') { showToast("Доступ только к языкам!", "error"); return; }
 
     showToast("Создание конспекта...", "info");
     try {
@@ -1434,7 +1426,7 @@ async function viewLesson(id) {
     if (!doc.exists) return;
     const lesson = doc.data();
     document.getElementById("viewLessonTitle").textContent = lesson.title || '';
-    let content = `<div style="line-height:1.7;">${lesson.content || 'Нет содержания'}</div>`;
+    let content = `<div style="line-height:1.7;white-space:pre-wrap;">${lesson.content || 'Нет содержания'}</div>`;
     if (lesson.files && lesson.files.length) {
         content += `<div class="files-list">${lesson.files.map(f => `
             <div class="file-item" onclick="window.open('${f.url}')">
@@ -1454,7 +1446,6 @@ async function editLesson(id) {
     if (!doc.exists) return;
     const lesson = doc.data();
     if (isPhysicsAdmin() && lesson.subject !== 'physics') { showToast("Нет прав", "error"); return; }
-    if (isLanguagesAdmin() && lesson.subject !== 'languages') { showToast("Нет прав", "error"); return; }
     currentEditLessonId = id;
     document.getElementById("editLessonTitle").value = lesson.title || '';
     document.getElementById("editLessonDescription").value = lesson.description || '';
@@ -1509,7 +1500,6 @@ async function deleteLesson(id) {
     const doc = await db.collection("lessons").doc(id).get();
     const lesson = doc.data();
     if (isPhysicsAdmin() && lesson.subject !== 'physics') { showToast("Нет прав", "error"); return; }
-    if (isLanguagesAdmin() && lesson.subject !== 'languages') { showToast("Нет прав", "error"); return; }
     if (!confirm("Удалить конспект?")) return;
     await db.collection("lessons").doc(id).delete();
     showToast("Конспект удалён", "success");
@@ -1858,7 +1848,6 @@ async function addScheduleItem() {
 
     if (!date || !time || !name || !subject || !courseId) { showToast("Заполните все поля", "error"); return; }
     if (isPhysicsAdmin() && subject !== 'physics') { showToast("Доступ только к физике!", "error"); return; }
-    if (isLanguagesAdmin() && subject !== 'languages') { showToast("Доступ только к языкам!", "error"); return; }
 
     try {
         await db.collection("schedule").add({
@@ -1884,7 +1873,7 @@ async function loadSchedule() {
         const items = [];
         snap.forEach(doc => {
             const data = doc.data();
-            if (isFullAdmin() || (isPhysicsAdmin() && data.subject === 'physics') || (isLanguagesAdmin() && data.subject === 'languages')) {
+            if (isFullAdmin() || (isPhysicsAdmin() && data.subject === 'physics')) {
                 items.push({ id: doc.id, ...data });
             }
         });
@@ -1933,7 +1922,6 @@ function updateCourses() {
     if (available.length === 0) sel.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
-// Универсальная функция создания одной задачи.
 function addTask(type) {
     const container = document.getElementById("tasksContainer");
     const id = taskCounter++;
@@ -2116,7 +2104,6 @@ async function createHomework() {
 
     if (!title || !subject || !courseId) { showToast("Заполните название, предмет и курс", "error"); return; }
     if (isPhysicsAdmin() && subject !== 'physics') { showToast("Доступ только к физике!", "error"); return; }
-    if (isLanguagesAdmin() && subject !== 'languages') { showToast("Доступ только к языкам!", "error"); return; }
 
     const btn = document.querySelector('#addHomeworkTab .btn.bg');
     const originalText = btn.textContent;
@@ -2190,7 +2177,6 @@ async function createHomework() {
 
         showToast("Задание создано!", "success");
 
-        // Сброс формы
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwSubject").value = "";
         document.getElementById("hwCourse").innerHTML = "";
@@ -2214,43 +2200,50 @@ async function createHomework() {
     }
 }
 
-/* ============ ДЗ НА ПРОВЕРКУ / ИСТОРИЯ ============ */
+/* ============ ДЗ НА ПРОВЕРКУ ============ */
+// FIX: loadAllHomework теперь читает submissions, а не homeworks.status
 async function loadAllHomework() {
     try {
-        const snap = await db.collection("homeworks").get();
-        const homeworks = [];
-        snap.forEach(doc => {
-            const hw = doc.data();
-            const hasSecond = (hw.tasks || []).some(t => t.isSecondPart) || hw.isSecondPart === true;
-            if (hw.status === "submitted" && hasSecond) {
-                if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
-                    homeworks.push({ id: doc.id, ...hw });
-                }
-            }
+        const subsSnap = await db.collection("submissions").get();
+        const hwSnap = await db.collection("homeworks").get();
+        const hwMap = {};
+        hwSnap.forEach(d => { hwMap[d.id] = d.data(); });
+
+        const pending = [];
+        subsSnap.forEach(doc => {
+            const s = doc.data();
+            const hw = hwMap[s.hwId];
+            if (!hw) return;
+            const secondTasks = (hw.tasks || []).filter(t => t.isSecondPart);
+            if (secondTasks.length === 0) return;
+            if (s.graded === true) return;
+            if (isPhysicsAdmin() && hw.subject !== 'physics') return;
+            pending.push({ submissionId: doc.id, ...s, _hw: hw });
         });
+
         const container = document.getElementById("pendingHomeworkList");
-        if (homeworks.length === 0) {
+        if (pending.length === 0) {
             container.innerHTML = '<div class="empty-state">Нет ДЗ на проверке</div>';
             return;
         }
-        container.innerHTML = homeworks.map(hw => {
-            const secondCount = (hw.tasks || []).filter(t => t.isSecondPart).length;
-            const firstCount = (hw.tasks || []).length - secondCount;
+        container.innerHTML = pending.map(s => {
+            const secondCount = (s._hw.tasks || []).filter(t => t.isSecondPart).length;
+            const firstCount = (s._hw.tasks || []).length - secondCount;
             return `
                 <div class="item-card">
                     <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center;">
                         <div style="flex:1;min-width:0;">
-                            <div class="item-title">${escapeHtml(hw.title)}</div>
+                            <div class="item-title">${escapeHtml(s._hw.title)}</div>
                             <div class="item-meta">
-                                <span>${escapeHtml(hw.userName || hw.userEmail || 'Ученик')}</span>
-                                <span>Курс: ${escapeHtml(hw.courseId)}</span>
-                                <span class="tag gold">2 часть: ${secondCount}</span>
+                                <span>${escapeHtml(s.userName || s.userEmail || 'Ученик')}</span>
+                                <span>Курс: ${escapeHtml(s._hw.courseId)}</span>
+                                ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
                                 ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
                             </div>
                         </div>
                         <div class="actions-row">
-                            <button class="btn bg bsm" onclick="openGradeModal('${hw.id}')">Проверить</button>
-                            <button class="btn secondary bsm" onclick="openEditHomeworkModal('${hw.id}')">Ред.</button>
+                            <button class="btn bg bsm" onclick="openGradeModal('${s.submissionId}')">Проверить</button>
+                            <button class="btn secondary bsm" onclick="openEditHomeworkModal('${s.hwId}')">Ред.</button>
                         </div>
                     </div>
                 </div>
@@ -2265,7 +2258,7 @@ async function loadAllHomeworkHistory() {
         const homeworks = [];
         snap.forEach(doc => {
             const hw = doc.data();
-            if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics') || (isLanguagesAdmin() && hw.subject === 'languages')) {
+            if (isFullAdmin() || (isPhysicsAdmin() && hw.subject === 'physics')) {
                 homeworks.push({ id: doc.id, ...hw });
             }
         });
@@ -2289,13 +2282,11 @@ async function loadAllHomeworkHistory() {
                             <div class="item-meta">
                                 <span>${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail || '')}</span>
                                 <span>Курс: ${escapeHtml(hw.courseId)}</span>
-                                <span class="tag ${tagClass}">${statusMap[hw.status] || hw.status}</span>
                                 ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
                                 ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
                             </div>
                         </div>
                         <div class="actions-row">
-                            ${hw.status === "submitted" && secondCount > 0 ? `<button class="btn bg bsm" onclick="openGradeModal('${hw.id}')">Проверить</button>` : ''}
                             <button class="btn secondary bsm" onclick="openEditHomeworkModal('${hw.id}')">Ред.</button>
                             <button class="btn brs bsm" onclick="deleteHomework('${hw.id}')">Удалить</button>
                         </div>
@@ -2309,7 +2300,6 @@ async function deleteHomework(id) {
     const doc = await db.collection("homeworks").doc(id).get();
     const hw = doc.data();
     if (isPhysicsAdmin() && hw.subject !== 'physics') { showToast("Нет прав", "error"); return; }
-    if (isLanguagesAdmin() && hw.subject !== 'languages') { showToast("Нет прав", "error"); return; }
     if (!confirm("Удалить задание?")) return;
     await db.collection("homeworks").doc(id).delete();
     showToast("Задание удалено", "success");
@@ -2318,26 +2308,21 @@ async function deleteHomework(id) {
 }
 
 /* ============ МОДАЛКА ПРОВЕРКИ ДЗ ============ */
-async function openGradeModal(hwId) {
-    const doc = await db.collection("homeworks").doc(hwId).get();
-    if (!doc.exists) return;
-    const hw = doc.data();
-    currentGradingHw = { id: hwId, ...hw };
+// FIX: openGradeModal теперь принимает submissionId и читает из submissions
+async function openGradeModal(submissionId) {
+    const subDoc = await db.collection("submissions").doc(submissionId).get();
+    if (!subDoc.exists) { showToast("Сабмишен не найден", "error"); return; }
+    const s = subDoc.data();
+    const hwDoc = await db.collection("homeworks").doc(s.hwId).get();
+    if (!hwDoc.exists) { showToast("ДЗ не найдено", "error"); return; }
+    const hw = hwDoc.data();
 
-    let userDocData = null, submissionData = null;
-    if (hw.userEmail && hw.userEmail !== 'all') {
-        const snap = await db.collection("users").where("email", "==", hw.userEmail).get();
-        if (!snap.empty) {
-            const d = snap.docs[0];
-            userDocData = d.data();
-            submissionData = (userDocData.homeworkSubmissions || []).find(s => s.id === hwId);
-        }
-    }
+    currentGradingHw = { id: s.hwId, submissionId: submissionId, ...hw, _submission: s };
 
     const tasks = hw.tasks || [];
-    const taskResults = submissionData?.taskResults || [];
-    const userName = userDocData?.name || hw.userName || hw.userEmail || 'Неизвестно';
-    const userEmail = userDocData?.email || hw.userEmail || '—';
+    const taskResults = s.taskResults || [];
+    const userName = s.userName || s.userEmail || 'Ученик';
+    const userEmail = s.userEmail || '—';
 
     let html = `
         <div style="margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--line);">
@@ -2349,7 +2334,7 @@ async function openGradeModal(hwId) {
             <div style="font-size:0.78rem;color:var(--text3);margin-top:0.3rem;">
                 Курс: ${escapeHtml(hw.courseId)} · Задач: ${tasks.length}
             </div>
-            ${submissionData?.submittedAt ? `<div style="font-size:0.78rem;color:var(--text3);">Сдано: ${new Date(submissionData.submittedAt).toLocaleString()}</div>` : ''}
+            ${s.submittedAt ? `<div style="font-size:0.78rem;color:var(--text3);">Сдано: ${new Date(s.submittedAt).toLocaleString()}</div>` : ''}
         </div>
     `;
 
@@ -2370,7 +2355,7 @@ async function openGradeModal(hwId) {
                 </div>
                 <div style="background:var(--bg);padding:0.7rem;border-radius:8px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
                     <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Условие</div>
-                    <div style="line-height:1.7;">${task.condition || 'Нет условия'}</div>
+                    <div style="line-height:1.7;white-space:pre-wrap;">${task.condition || 'Нет условия'}</div>
                     ${task.files && task.files.length > 0 ? `
                         <div class="files-list">
                             ${task.files.map(f => `
@@ -2399,7 +2384,7 @@ async function openGradeModal(hwId) {
                 ${task.solution ? `
                     <div style="background:var(--gold3);padding:0.7rem;border-radius:8px;border-left:3px solid var(--gold);">
                         <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Эталонное решение</div>
-                        <div style="line-height:1.7;">${task.solution}</div>
+                        <div style="line-height:1.7;white-space:pre-wrap;">${task.solution}</div>
                     </div>
                 ` : ''}
                 ${isSecondPartTask ? `
@@ -2479,9 +2464,13 @@ function renderGradeTaskFilePreview(taskIndex) {
 function removeGradeTaskFile(taskIndex, idx) {
     if (gradeTaskFiles[taskIndex]) { gradeTaskFiles[taskIndex].splice(idx, 1); renderGradeTaskFilePreview(taskIndex); }
 }
+
+// FIX: submitGrade теперь пишет в submissions/{uid}_{hwId}
 async function submitGrade(action) {
     if (!currentGradingHw) return;
     const hw = currentGradingHw;
+    const submission = hw._submission;
+    const submissionId = hw.submissionId;
     const tasks = hw.tasks || [];
 
     let taskGrades = [], allGradeFiles = [], totalScore = 0, maxTotalScore = 0;
@@ -2504,42 +2493,24 @@ async function submitGrade(action) {
         maxTotalScore += maxScore;
     }
 
-    let overallFeedback = '';
     const fb = taskGrades.filter(t => t.feedback).map(t => `Задача ${t.taskIndex + 1}: ${t.feedback}`);
-    if (fb.length) overallFeedback = fb.join('; ');
+    const overallFeedback = fb.join('; ');
 
     try {
-        const updateData = { status: action, gradedAt: firebase.firestore.FieldValue.serverTimestamp() };
-        if (action === 'graded') {
-            updateData.grade = totalScore;
-            updateData.userScore = totalScore;
-            updateData.maxScore = maxTotalScore;
-            updateData.taskGrades = taskGrades;
-            updateData.feedback = overallFeedback;
-            updateData.gradeFiles = allGradeFiles;
-        } else {
-            updateData.feedback = overallFeedback || 'Верните на доработку';
-            updateData.gradeFiles = allGradeFiles;
-        }
-        await db.collection("homeworks").doc(hw.id).update(updateData);
+        const updateData = {
+            graded: action === 'graded',
+            gradedAt: new Date().toISOString(),
+            grade: totalScore,
+            userScore: totalScore,
+            maxScore: maxTotalScore,
+            taskGrades: taskGrades,
+            feedback: overallFeedback,
+            gradedByAdmin: true,
+            gradeFiles: allGradeFiles
+        };
 
-        if (hw.userEmail && hw.userEmail !== 'all') {
-            const snap = await db.collection("users").where("email", "==", hw.userEmail).get();
-            if (!snap.empty) {
-                const userDoc = snap.docs[0];
-                const ud = userDoc.data();
-                const submissions = ud.homeworkSubmissions || [];
-                const idx = submissions.findIndex(s => s.id === hw.id);
-                if (idx !== -1) {
-                    submissions[idx].graded = action === 'graded';
-                    submissions[idx].grade = totalScore || 0;
-                    submissions[idx].userScore = totalScore || 0;
-                    submissions[idx].taskGrades = taskGrades;
-                    submissions[idx].feedback = overallFeedback;
-                    await db.collection("users").doc(userDoc.id).update({ homeworkSubmissions: submissions });
-                }
-            }
-        }
+        await db.collection("submissions").doc(submissionId).set(updateData, { merge: true });
+
         showToast(action === 'graded' ? 'Задание проверено!' : 'Возвращено на доработку', "success");
         closeGradeModal();
         loadAllHomework();
@@ -2567,7 +2538,6 @@ async function openEditHomeworkModal(hwId) {
             <select id="editHwSubject" onchange="updateEditHwCourses()">
                 <option value="math" ${hw.subject === 'math' ? 'selected' : ''}>Математика</option>
                 <option value="physics" ${hw.subject === 'physics' ? 'selected' : ''}>Физика</option>
-                <option value="languages" ${hw.subject === 'languages' ? 'selected' : ''}>Языки</option>
             </select>
         </div>
         <div class="form-group"><label>Курс</label><select id="editHwCourse"></select></div>
@@ -2605,12 +2575,10 @@ async function openEditHomeworkModal(hwId) {
     updateEditHwCourses();
     document.getElementById("editHwCourse").value = hw.courseId || '';
 
-    // Рендерим существующие задачи
     (hw.tasks || []).forEach(task => {
         const id = editTaskCounter++;
         editTaskMeta[id] = { isSecondPart: !!task.isSecondPart };
-        const isSecond = !!task.isSecondPart;
-        renderEditTaskBlock(id, isSecond, task);
+        renderEditTaskBlock(id, !!task.isSecondPart, task);
     });
     renumberEditTasks();
 }
@@ -2729,7 +2697,6 @@ function toggleEditTaskType(id) {
     const maxScore = document.getElementById('edit_tmaxscore_' + id)?.value || '10';
     const existingFilesHtml = document.getElementById('edit_taskExistingFiles_' + id)?.innerHTML || '';
     const taskFilesArr = editTaskFiles[id] ? editTaskFiles[id].slice() : [];
-    const removedSet = editTaskRemovedExistingFiles[id] ? new Set(editTaskRemovedExistingFiles[id]) : new Set();
 
     const nextEl = editor.nextSibling;
     editor.remove();
@@ -2752,7 +2719,6 @@ function toggleEditTaskType(id) {
         editTaskFiles[id] = taskFilesArr;
         renderEditTaskFilePreview(id);
     }
-    if (removedSet.size > 0) editTaskRemovedExistingFiles[id] = removedSet;
 
     renumberEditTasks();
 }
@@ -2913,20 +2879,20 @@ async function openHwDetailModal(hwId, userId) {
         const userDoc = await db.collection("users").doc(userId).get();
         if (!userDoc.exists) { showToast("Ученик не найден", "error"); return; }
         const user = userDoc.data();
-        const submission = (user.homeworkSubmissions || []).find(s => s.id === hwId);
-        if (!submission) { showToast("Ученик не сдавал это ДЗ", "error"); return; }
+
+        // FIX: читаем сабмишен из submissions
+        const subDoc = await db.collection("submissions").doc(userId + '_' + hwId).get();
+        if (!subDoc.exists) { showToast("Ученик не сдавал это ДЗ", "error"); return; }
+        const submission = subDoc.data();
 
         const tasks = hw.tasks || [];
         const results = submission.taskResults || [];
-        const status = hw.status || 'submitted';
-        const statusMap = { pending: 'Ожидает', submitted: 'Сдано', graded: 'Проверено', returned: 'Возвращено' };
 
         document.getElementById("hwDetailTitle").textContent = hw.title || 'Домашнее задание';
 
         let html = `
             <div class="hw-review-summary">
                 <div class="stat"><span>Ученик:</span><span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span></div>
-                <div class="stat"><span>Статус:</span><span style="font-weight:600;">${statusMap[status] || status}</span></div>
                 <div class="stat"><span>Задач:</span><span style="font-weight:600;">${tasks.length}</span></div>
                 ${submission.feedback ? `<div class="stat"><span>Комментарий:</span><span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(submission.feedback)}</span></div>` : ''}
             </div>
@@ -2964,7 +2930,6 @@ async function openHwDetailModal(hwId, userId) {
                             <div><span class="label">Ответ:</span> <span class="user-answer ${isCorrect ? 'correct' : 'wrong'}">${escapeHtml(userAnswer) || '—'}</span></div>
                             ${!isCorrect ? `<div><span class="label">Правильный:</span> <span style="font-weight:600;color:var(--green);">${escapeHtml(task.correctAnswer || '—')}</span></div>` : ''}
                         </div>
-                        ${task.solution ? `<div class="task-solution"><strong>Решение:</strong><br>${task.solution}</div>` : ''}
                     </div>
                 `;
             }
@@ -2981,6 +2946,7 @@ async function openHwDetailModal(hwId, userId) {
 function closeHwDetailModal() { document.getElementById("hwDetailModal").classList.remove("active"); }
 
 /* ============ АНАЛИТИКА ============ */
+// FIX: loadAnalytics читает сабмишены из submissions
 async function loadAnalytics() {
     const container = document.getElementById('analyticsContainer');
     if (!container) return;
@@ -2996,9 +2962,18 @@ async function loadAnalytics() {
         hwSnap.forEach(doc => { hwMap[doc.id] = doc.data(); });
         analyticsHwCache = hwMap;
 
+        // Загружаем ВСЕ сабмишены одним запросом
+        const subsSnap = await db.collection("submissions").get();
+        const allSubsByUser = {};
+        subsSnap.forEach(doc => {
+            const s = doc.data();
+            if (!s.userId) return;
+            if (!allSubsByUser[s.userId]) allSubsByUser[s.userId] = [];
+            allSubsByUser[s.userId].push({ id: s.hwId, ...s });
+        });
+
         let filteredUsers = users;
         if (isPhysicsAdmin()) filteredUsers = users.filter(u => (u.enrolledCourses || []).includes('physics'));
-        else if (isLanguagesAdmin()) filteredUsers = users.filter(u => (u.enrolledCourses || []).some(c => ['english','german','french'].includes(c)));
 
         const studentsData = [];
         let totalFirstPartHomework = 0, totalSecondPartHomework = 0;
@@ -3008,7 +2983,7 @@ async function loadAnalytics() {
         const allHomeworkStats = {};
 
         for (const user of filteredUsers) {
-            const rawSubmissions = user.homeworkSubmissions || [];
+            const rawSubmissions = allSubsByUser[user.id] || [];
             const validSubmissions = rawSubmissions.filter(sub => hwMap[sub.id]);
 
             let userFirstCorrect = 0, userFirstTotal = 0;
@@ -3018,7 +2993,6 @@ async function loadAnalytics() {
             for (const sub of validSubmissions) {
                 const hwData = hwMap[sub.id];
                 const tasks = hwData?.tasks || [];
-                // Определяем первую и вторую часть по задачам
                 const firstTasks = tasks.filter(t => !t.isSecondPart).length;
                 const secondTasks = tasks.filter(t => t.isSecondPart).length;
                 totalSubmissions++;
@@ -3026,7 +3000,6 @@ async function loadAnalytics() {
                 const subMax = (sub.taskResults || [])
                     .filter(t => t.isSecondPart)
                     .reduce((a, t) => a + (t.maxScore || 0), 0);
-
                 const subScore = (sub.taskResults || [])
                     .filter(t => t.isSecondPart)
                     .reduce((a, t) => a + (t.userScore || 0), 0);
@@ -3090,10 +3063,7 @@ async function loadAnalytics() {
                 email: user.email || '',
                 grade: user.grade || '',
                 hwCount: validSubmissions.length,
-                avgFirst, avgSecond, combined,
-                firstCorrect: userFirstCorrect, firstTotal: userFirstTotal,
-                secondScore: userSecondScore, secondMax: userSecondMax,
-                firstHwCount: userFirstHwCount, secondHwCount: userSecondHwCount
+                avgFirst, avgSecond, combined
             });
         }
 
@@ -3347,6 +3317,7 @@ function sortAnalyticsTable(field, keepDir) {
     renderAnalyticsTable();
 }
 
+// FIX: openStudentAnalyticsModal читает submissions по userId
 async function openStudentAnalyticsModal(userId) {
     const doc = await db.collection("users").doc(userId).get();
     if (!doc.exists) return;
@@ -3363,7 +3334,9 @@ async function openStudentAnalyticsModal(userId) {
         analyticsHwCache = hwMap;
     }
 
-    const rawSubmissions = user.homeworkSubmissions || [];
+    const subsSnap = await db.collection("submissions").where("userId", "==", userId).get();
+    const rawSubmissions = [];
+    subsSnap.forEach(d => rawSubmissions.push({ id: d.data().hwId, ...d.data() }));
     const submissions = rawSubmissions.filter(sub => hwMap[sub.id]);
 
     const hwDetails = [];
@@ -3376,10 +3349,9 @@ async function openStudentAnalyticsModal(userId) {
         const tasks = hwData?.tasks || [];
         const firstTasks = tasks.filter(t => !t.isSecondPart).length;
         const secondTasks = tasks.filter(t => t.isSecondPart).length;
-        const status = hwData?.status || 'submitted';
+
         const firstCorrect = sub.correctCount || 0;
         const firstTotal = sub.total || firstTasks;
-
         const subMax = (sub.taskResults || []).filter(t => t.isSecondPart).reduce((a, t) => a + (t.maxScore || 0), 0);
         const subScore = (sub.taskResults || []).filter(t => t.isSecondPart).reduce((a, t) => a + (t.userScore || 0), 0);
 
@@ -3403,7 +3375,7 @@ async function openStudentAnalyticsModal(userId) {
             title: hwData?.title || sub.title || 'Без названия',
             firstCorrect, firstTotal, firstTasks,
             subScore, subMax, secondTasks,
-            percent, status,
+            percent,
             submittedAt: sub.submittedAt || null
         });
     }
@@ -3417,7 +3389,6 @@ async function openStudentAnalyticsModal(userId) {
     const avgFirst = totalFirstTasks > 0 ? Math.round(totalFirstCorrect / totalFirstTasks * 100) : null;
     const avgSecond = totalSecondMax > 0 ? Math.round(totalSecondScore / totalSecondMax * 100) : null;
     const totalHw = hwDetails.length;
-    const statusMap = { graded: 'Проверено', submitted: 'Сдано', pending: 'Ожидает', returned: 'Возвращено' };
 
     let html = `
         <div class="stats-grid">
@@ -3439,10 +3410,7 @@ async function openStudentAnalyticsModal(userId) {
                         <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:var(--bg2);border-radius:8px;border-left:3px solid ${color};cursor:pointer;" onclick="openHwDetailModal('${hw.id}', '${userId}')">
                             <div style="flex:1;min-width:0;">
                                 <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)}</div>
-                                <div style="font-size:0.72rem;color:var(--text3);">
-                                    <span style="color:${hw.status === 'graded' ? 'var(--green)' : 'var(--gold)'}">${statusMap[hw.status] || hw.status}</span>
-                                    ${display.length > 0 ? ' · ' + display.join(' · ') : ''}
-                                </div>
+                                <div style="font-size:0.72rem;color:var(--text3);">${display.join(' · ')}</div>
                             </div>
                             <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
                         </div>
@@ -3480,7 +3448,6 @@ async function openTaskAnalyticsModal(hwId) {
 
     let html = `
         <div class="hw-review-summary">
-            <div class="stat"><span>Тип:</span><span style="font-weight:600;">${hwData.hasSecond && hwData.hasFirst ? 'Смешанное' : hwData.hasSecond ? 'Вторая часть' : 'Первая часть'}</span></div>
             <div class="stat"><span>Сдало учеников:</span><span style="font-weight:600;">${hwData.students.length}</span></div>
             ${hwData.hasFirst ? `<div class="stat"><span>1 часть:</span><span style="font-weight:600;">${totalCorrect}/${totalTasks} (${overallFirstPercent}%)</span></div>` : ''}
             ${hwData.hasSecond ? `<div class="stat"><span>2 часть:</span><span style="font-weight:600;">${totalUserScore}/${totalMaxScore} (${overallSecondPercent}%)</span></div>` : ''}
@@ -3559,16 +3526,6 @@ function initAdminPanel() {
             if (el) {
                 el.value = val;
                 Array.from(el.options).forEach(opt => { if (opt.value && opt.value !== 'physics') opt.style.display = 'none'; });
-            }
-        });
-        updateLessonCourses(); updateCourses(); updateScheduleCourses();
-    }
-    if (isLanguagesAdmin()) {
-        [["lessonSubject","languages"],["hwSubject","languages"],["scheduleSubject","languages"]].forEach(([id, val]) => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.value = val;
-                Array.from(el.options).forEach(opt => { if (opt.value && opt.value !== 'languages') opt.style.display = 'none'; });
             }
         });
         updateLessonCourses(); updateCourses(); updateScheduleCourses();
