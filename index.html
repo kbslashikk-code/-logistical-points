@@ -209,11 +209,19 @@
             cursor: pointer; font-family: var(--f);
         }
 
-        .task-block { margin-bottom: 1.3rem; }
+        /* ===== FIX: блок задачи не обрезает содержимое ===== */
+        .task-block {
+            margin-bottom: 1.3rem;
+            overflow: visible;
+        }
 
         .task-content {
             background: var(--card2); border-radius: 18px; padding: 1.5rem;
             border: 2px solid var(--line); transition: border-color 0.3s, background 0.3s;
+            /* FIX: гарантируем, что блок не обрезает контент */
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
         }
         .task-content.submitted { opacity: 0.95; }
         .task-content.second-part {
@@ -236,6 +244,8 @@
             color: var(--text2); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: var(--f);
         }
         .bookmark-btn.active { border-color: var(--gold); color: var(--gold); background: var(--gold3); }
+
+        /* ===== FIX: условие сохраняет переносы строк и адаптируется под текст ===== */
         .task-condition {
             font-weight: 600;
             font-size: 1.05rem;
@@ -245,6 +255,25 @@
             background: var(--bg);
             border-radius: 12px;
             border-left: 4px solid var(--gold);
+            white-space: pre-wrap;      /* сохраняем \n и пробелы */
+            word-break: break-word;     /* длинные слова не рвут layout */
+            overflow-wrap: anywhere;
+            min-height: 0;
+            max-height: none;
+            height: auto;
+            overflow: visible;
+        }
+        /* FIX: картинки и MathJax внутри условия не должны ломать layout */
+        .task-condition img,
+        .task-condition svg,
+        .task-condition mjx-container {
+            max-width: 100%;
+            height: auto;
+        }
+        /* FIX: вложенные блоки от parseImagesInText тоже переносятся корректно */
+        .task-condition > div {
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .task-condition .math { font-size: 1.1rem; }
 
@@ -275,11 +304,14 @@
             border-left: 4px solid var(--gold);
         }
 
+        /* ===== FIX: решение тоже сохраняет переносы ===== */
         .task-solution {
             margin-top: 0.8rem; padding: 1.1rem 1.2rem;
             background: var(--bg); border-radius: 12px;
             font-size: 0.95rem; color: var(--text2);
             border-left: 4px solid var(--gold); line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .task-solution .math { font-size: 1rem; }
 
@@ -1160,7 +1192,6 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// ========== ИКОНКИ ==========
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
     folder: '<path d="M4 6.5a1.5 1.5 0 0 1 1.5-1.5H10l2 2.2h6.5A1.5 1.5 0 0 1 20 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/>',
@@ -1280,7 +1311,6 @@ const DEMO_QUIZ = {
     ]
 };
 
-// ========== VK OAuth ==========
 const VK_CLIENT_ID = "54768486";
 const VK_AUTH_ENDPOINT = "https://us-central1-logistical-points.cloudfunctions.net/vkAuth";
 
@@ -1318,12 +1348,19 @@ function showToast(msg, type) {
     setTimeout(() => toast.remove(), 4000);
 }
 
+// ===== FIX: сохраняем переводы строк, превращая их в <br>. =====
+// Работает и для чистого текста, и для смешанного с HTML — превью в
+// textarea из админки теперь корректно отображается.
 function parseImagesInText(text) {
     if (!text) return '';
+
+    // Сначала — заменяем \n на <br>, чтобы переносы гарантированно сохранились.
+    let processed = String(text).replace(/\n/g, '<br>');
+
     var imgRegex = /\[img:([^:]+):([^:]*):([^\]]*)\]/g;
-    var result = text;
+    var result = processed;
     var match;
-    while ((match = imgRegex.exec(text)) !== null) {
+    while ((match = imgRegex.exec(processed)) !== null) {
         var fullMatch = match[0];
         var url = match[1].trim();
         var width = match[2].trim() || '80%';
@@ -1485,11 +1522,6 @@ async function handleVkLogin() {
     window.location.href = authUrl;
 }
 
-// FIX 2: гарантируем создание документа users/{uid} сразу после VK-входа,
-// чтобы даже при первом входе Firestore-документ существовал с полным набором полей.
-// Иначе onAuthStateChanged создаёт userData "в памяти", но у VK-пользователя
-// email может быть пустым, и проверка `!currentUser.email` в других местах
-// ошибочно решает, что авторизация не прошла.
 async function ensureUserDoc(user, extraFields) {
     const ref = db.collection("users").doc(user.uid);
     const doc = await ref.get();
@@ -1512,7 +1544,6 @@ async function ensureUserDoc(user, extraFields) {
         await ref.set(base);
         return base;
     }
-    // Гарантируем, что все поля-массивы/объекты есть, даже если документ старый.
     const data = doc.data();
     let changed = false;
     if (!Array.isArray(data.enrolledCourses)) { data.enrolledCourses = []; changed = true; }
@@ -1557,7 +1588,6 @@ async function handleVkCallback() {
         const data = await resp.json();
         if (!resp.ok || !data.firebaseToken) { console.error("VK auth error:", data); showToast(data.error || "Не удалось войти через VK", "error"); return; }
         await auth.signInWithCustomToken(data.firebaseToken);
-        // FIX 2: сразу создаём/нормализуем документ users/{uid}
         const u = auth.currentUser;
         if (u) {
             try {
@@ -2150,10 +2180,6 @@ function getSubmissionForHw(hwId) {
     return found ? normalizeSubmission(found) : null;
 }
 
-// FIX 2: устойчивый фильтр доступности ДЗ. Учитываем:
-//   - общие ДЗ (userEmail === "all" или отсутствует);
-//   - ДЗ, адресованные текущему uid (на будущее, если появится targetUid);
-//   - ДЗ, адресованные email текущего пользователя (если он есть).
 function isHomeworkAvailableForCurrentUser(hw) {
     if (!currentUser) return false;
     const em = hw.userEmail;
@@ -2163,8 +2189,6 @@ function isHomeworkAvailableForCurrentUser(hw) {
     return false;
 }
 
-// FIX 2: больше НЕ проверяем currentUser.email — только uid.
-// Для VK-пользователей email может быть пустым — это нормально.
 async function renderHomeworkTabContent(courseId, forceRefresh) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
@@ -2216,7 +2240,6 @@ function formatRuDate(value) {
             return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
         }
     }
-    // Firestore Timestamp
     if (value && typeof value.toDate === "function") {
         const d = value.toDate();
         const months = ["янв","фев","мар","апр","май","июн","июл","авг","сен","окт","ноя","дек"];
@@ -2563,8 +2586,6 @@ async function submitHomework() {
 
         const hasSecondPart = tasks.some(t => t.isSecondPart);
 
-        // FIX 2: пишем и uid, и userEmail (если он есть). Так фильтр по
-        // isHomeworkAvailableForCurrentUser всегда найдёт сабмишен.
         const submissionData = {
             id: currentSolveHwId,
             title: currentSolveHwData.title,
@@ -2959,19 +2980,15 @@ function init() {
     auth.onAuthStateChanged(async (user) => {
         try {
             if (user) {
-                // FIX 2: для custom token (VK) НЕ проверяем emailVerified.
-                // Проверяем только для провайдера password.
                 const isPasswordProvider = user.providerData.some(p => p.providerId === "password");
                 if (isPasswordProvider && !user.emailVerified) {
                     showToast("Подтвердите email!", "error");
                     await auth.signOut();
                     return;
                 }
-                // FIX 2: единая точка создания/нормализации документа users/{uid}
                 const data = await ensureUserDoc(user);
                 userData = data;
                 currentUser = user;
-                // Проверим, что у userData есть все нужные поля — если нет, добавим
                 if (!userData.enrolledCourses) userData.enrolledCourses = [];
                 if (!userData.courseEnabled) userData.courseEnabled = {};
                 if (!userData.homeworkSubmissions) userData.homeworkSubmissions = [];
