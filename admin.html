@@ -208,7 +208,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 }
 .item-card:hover { border-color: var(--gold); }
 .item-card .item-title { font-weight: 700; margin-bottom: 0.3rem; font-size: 1rem; }
-.item-card .item-meta { font-size: 0.78rem; color: var(--text3); margin-bottom: 0.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.item-card .item-meta { font-size: 0.78rem; color: var(--text3); margin-bottom: 0.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
 .item-card .item-meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
 
 .tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
@@ -444,13 +444,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 .task-detail { padding: 0.9rem 1.1rem; margin-bottom: 0.6rem; border-radius: 10px; border-left: 4px solid var(--line); background: var(--bg2); transition: all 0.3s; }
 .task-detail.correct { border-left-color: var(--green); background: var(--green2); }
 .task-detail.wrong { border-left-color: var(--red); background: var(--red2); }
-.task-detail .task-condition { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; }
+.task-detail .task-condition { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; white-space: pre-wrap; }
 .task-detail .task-answers { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; }
 .task-detail .task-answers .label { color: var(--text3); }
 .task-detail .task-answers .user-answer { font-weight: 700; }
 .task-detail .task-answers .user-answer.wrong { color: var(--red); }
 .task-detail .task-answers .user-answer.correct { color: var(--green); }
-.task-detail .task-solution { margin-top: 0.5rem; padding: 0.6rem 0.8rem; background: var(--bg); border-radius: 8px; font-size: 0.85rem; border-left: 3px solid var(--gold); }
+.task-detail .task-solution { margin-top: 0.5rem; padding: 0.6rem 0.8rem; background: var(--bg); border-radius: 8px; font-size: 0.85rem; border-left: 3px solid var(--gold); white-space: pre-wrap; }
 
 .empty-state {
     padding: 2rem; text-align: center; color: var(--text3);
@@ -719,7 +719,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 
             <div id="homeworkTab" class="tab-content">
                 <div class="card">
-                    <div class="card-header"><h3>Домашние задания на проверку</h3></div>
+                    <div class="card-header">
+                        <h3>Домашние задания</h3>
+                        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                            <button class="btn bg bsm" id="hwFilterPendingBtn" onclick="setHwFilter('pending')">На проверке</button>
+                            <button class="btn secondary bsm" id="hwFilterGradedBtn" onclick="setHwFilter('graded')">Проверенные</button>
+                        </div>
+                    </div>
                     <div id="pendingHomeworkList"></div>
                 </div>
             </div>
@@ -1039,6 +1045,9 @@ let currentFolderId = null;
 let currentQuizId = null;
 let quizQuestionCounter = 0;
 
+// Фильтр для вкладки "ДЗ на проверку": 'pending' | 'graded'
+let hwFilter = 'pending';
+
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[m]);
@@ -1209,7 +1218,6 @@ async function loadDashboard() {
             if (courses.includes('physics')) physicsEnrollments++;
         });
 
-        // FIX: считаем "на проверке" из коллекции submissions
         const subsSnap = await db.collection("submissions").get();
         let pending = 0, physicsPending = 0;
         const pendingArr = [];
@@ -1291,7 +1299,6 @@ async function loadStudents() {
             return;
         }
 
-        // Посчитаем кол-во сдач из submissions
         const subsSnap = await db.collection("submissions").get();
         const subsCount = {};
         subsSnap.forEach(doc => {
@@ -2200,8 +2207,18 @@ async function createHomework() {
     }
 }
 
-/* ============ ДЗ НА ПРОВЕРКУ ============ */
-// FIX: loadAllHomework теперь читает submissions, а не homeworks.status
+/* ============ ДЗ: ФИЛЬТР И СПИСОК ============ */
+function setHwFilter(filter) {
+    hwFilter = filter;
+    const pendingBtn = document.getElementById('hwFilterPendingBtn');
+    const gradedBtn = document.getElementById('hwFilterGradedBtn');
+    if (pendingBtn && gradedBtn) {
+        pendingBtn.className = filter === 'pending' ? 'btn bg bsm' : 'btn secondary bsm';
+        gradedBtn.className = filter === 'graded' ? 'btn bg bsm' : 'btn secondary bsm';
+    }
+    loadAllHomework();
+}
+
 async function loadAllHomework() {
     try {
         const subsSnap = await db.collection("submissions").get();
@@ -2209,26 +2226,45 @@ async function loadAllHomework() {
         const hwMap = {};
         hwSnap.forEach(d => { hwMap[d.id] = d.data(); });
 
-        const pending = [];
+        const list = [];
         subsSnap.forEach(doc => {
             const s = doc.data();
             const hw = hwMap[s.hwId];
             if (!hw) return;
             const secondTasks = (hw.tasks || []).filter(t => t.isSecondPart);
             if (secondTasks.length === 0) return;
-            if (s.graded === true) return;
             if (isPhysicsAdmin() && hw.subject !== 'physics') return;
-            pending.push({ submissionId: doc.id, ...s, _hw: hw });
+
+            const isGraded = s.graded === true;
+            if (hwFilter === 'pending' && isGraded) return;
+            if (hwFilter === 'graded' && !isGraded) return;
+
+            list.push({ submissionId: doc.id, ...s, _hw: hw });
+        });
+
+        list.sort((a, b) => {
+            const da = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+            const db_ = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+            return db_ - da;
         });
 
         const container = document.getElementById("pendingHomeworkList");
-        if (pending.length === 0) {
-            container.innerHTML = '<div class="empty-state">Нет ДЗ на проверке</div>';
+        if (list.length === 0) {
+            container.innerHTML = hwFilter === 'pending'
+                ? '<div class="empty-state">Нет ДЗ на проверке</div>'
+                : '<div class="empty-state">Нет проверенных ДЗ</div>';
             return;
         }
-        container.innerHTML = pending.map(s => {
+
+        container.innerHTML = list.map(s => {
             const secondCount = (s._hw.tasks || []).filter(t => t.isSecondPart).length;
             const firstCount = (s._hw.tasks || []).length - secondCount;
+            const isGraded = s.graded === true;
+
+            const gradeInfo = isGraded
+                ? `<span class="tag green">Оценка: ${s.userScore || 0}/${s.maxScore || 0}</span>`
+                : `<span class="tag gold">На проверке</span>`;
+
             return `
                 <div class="item-card">
                     <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center;">
@@ -2239,11 +2275,14 @@ async function loadAllHomework() {
                                 <span>Курс: ${escapeHtml(s._hw.courseId)}</span>
                                 ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
                                 ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
+                                ${gradeInfo}
                             </div>
                         </div>
                         <div class="actions-row">
-                            <button class="btn bg bsm" onclick="openGradeModal('${s.submissionId}')">Проверить</button>
-                            <button class="btn secondary bsm" onclick="openEditHomeworkModal('${s.hwId}')">Ред.</button>
+                            <button class="btn bg bsm" onclick="openGradeModal('${s.submissionId}')">
+                                ${isGraded ? 'Изменить оценку' : 'Проверить'}
+                            </button>
+                            <button class="btn secondary bsm" onclick="openEditHomeworkModal('${s.hwId}')">Ред. ДЗ</button>
                         </div>
                     </div>
                 </div>
@@ -2270,8 +2309,6 @@ async function loadAllHomeworkHistory() {
             return;
         }
         container.innerHTML = homeworks.map(hw => {
-            const tagClass = hw.status === 'graded' ? 'green' : hw.status === 'submitted' ? 'gold' : 'blue';
-            const statusMap = { pending: 'Ожидает', submitted: 'Сдано', graded: 'Проверено', returned: 'Возвращено' };
             const secondCount = (hw.tasks || []).filter(t => t.isSecondPart).length;
             const firstCount = (hw.tasks || []).length - secondCount;
             return `
@@ -2308,7 +2345,6 @@ async function deleteHomework(id) {
 }
 
 /* ============ МОДАЛКА ПРОВЕРКИ ДЗ ============ */
-// FIX: openGradeModal теперь принимает submissionId и читает из submissions
 async function openGradeModal(submissionId) {
     const subDoc = await db.collection("submissions").doc(submissionId).get();
     if (!subDoc.exists) { showToast("Сабмишен не найден", "error"); return; }
@@ -2318,6 +2354,9 @@ async function openGradeModal(submissionId) {
     const hw = hwDoc.data();
 
     currentGradingHw = { id: s.hwId, submissionId: submissionId, ...hw, _submission: s };
+
+    // FIX: если сабмишен уже проверялся, показываем прошлые оценки и фидбек
+    const previousGrades = s.taskGrades || [];
 
     const tasks = hw.tasks || [];
     const taskResults = s.taskResults || [];
@@ -2345,7 +2384,11 @@ async function openGradeModal(submissionId) {
         const userAnswer = result ? result.userAnswer : '—';
         const userFiles = result ? (result.files || []) : [];
         const isCorrect = result ? result.isCorrect : false;
-        const userScore = result ? (result.userScore || 0) : 0;
+
+        // FIX: подтягиваем сохранённую оценку и комментарий (если уже проверяли)
+        const savedGrade = previousGrades.find(g => g.taskIndex === i);
+        const userScore = savedGrade ? (savedGrade.score || 0) : (result ? (result.userScore || 0) : 0);
+        const savedFeedback = savedGrade ? (savedGrade.feedback || '') : '';
 
         html += `
             <div style="background:var(--card2);border-radius:14px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
@@ -2399,7 +2442,7 @@ async function openGradeModal(submissionId) {
                             </div>
                             <div style="flex:2;min-width:180px;">
                                 <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Комментарий</div>
-                                <input type="text" id="feedback_task_${i}" placeholder="Комментарий к задаче..." style="width:100%;margin-top:0.2rem;">
+                                <input type="text" id="feedback_task_${i}" value="${escapeHtml(savedFeedback)}" placeholder="Комментарий к задаче..." style="width:100%;margin-top:0.2rem;">
                             </div>
                             <div style="flex:1;min-width:140px;">
                                 <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Правки</div>
@@ -2465,11 +2508,9 @@ function removeGradeTaskFile(taskIndex, idx) {
     if (gradeTaskFiles[taskIndex]) { gradeTaskFiles[taskIndex].splice(idx, 1); renderGradeTaskFilePreview(taskIndex); }
 }
 
-// FIX: submitGrade теперь пишет в submissions/{uid}_{hwId}
 async function submitGrade(action) {
     if (!currentGradingHw) return;
     const hw = currentGradingHw;
-    const submission = hw._submission;
     const submissionId = hw.submissionId;
     const tasks = hw.tasks || [];
 
@@ -2880,7 +2921,6 @@ async function openHwDetailModal(hwId, userId) {
         if (!userDoc.exists) { showToast("Ученик не найден", "error"); return; }
         const user = userDoc.data();
 
-        // FIX: читаем сабмишен из submissions
         const subDoc = await db.collection("submissions").doc(userId + '_' + hwId).get();
         if (!subDoc.exists) { showToast("Ученик не сдавал это ДЗ", "error"); return; }
         const submission = subDoc.data();
@@ -2935,6 +2975,14 @@ async function openHwDetailModal(hwId, userId) {
             }
         });
 
+        // FIX: кнопка "Изменить оценку" из аналитики
+        html += `
+            <div style="display:flex;gap:0.4rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;">
+                <button class="btn bg bsm" onclick="closeHwDetailModal(); openGradeModal('${userId}_${hwId}')">Изменить оценку</button>
+                <button class="btn secondary bsm" onclick="closeHwDetailModal()">Закрыть</button>
+            </div>
+        `;
+
         document.getElementById("hwDetailContent").innerHTML = html;
         document.getElementById("hwDetailModal").classList.add("active");
         setTimeout(() => renderMath(), 250);
@@ -2946,7 +2994,6 @@ async function openHwDetailModal(hwId, userId) {
 function closeHwDetailModal() { document.getElementById("hwDetailModal").classList.remove("active"); }
 
 /* ============ АНАЛИТИКА ============ */
-// FIX: loadAnalytics читает сабмишены из submissions
 async function loadAnalytics() {
     const container = document.getElementById('analyticsContainer');
     if (!container) return;
@@ -2962,7 +3009,6 @@ async function loadAnalytics() {
         hwSnap.forEach(doc => { hwMap[doc.id] = doc.data(); });
         analyticsHwCache = hwMap;
 
-        // Загружаем ВСЕ сабмишены одним запросом
         const subsSnap = await db.collection("submissions").get();
         const allSubsByUser = {};
         subsSnap.forEach(doc => {
@@ -3317,7 +3363,6 @@ function sortAnalyticsTable(field, keepDir) {
     renderAnalyticsTable();
 }
 
-// FIX: openStudentAnalyticsModal читает submissions по userId
 async function openStudentAnalyticsModal(userId) {
     const doc = await db.collection("users").doc(userId).get();
     if (!doc.exists) return;
