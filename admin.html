@@ -786,7 +786,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                     <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all — для всех, или email@example.com"></div>
                     <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
 
-                    <!-- FIX: переключатель "Пробник ЕГЭ" -->
                     <div class="hw-type-toggle" style="align-items:center;">
                         <div>
                             <div class="toggle-label">Пробник ЕГЭ (профиль, математика)</div>
@@ -1985,7 +1984,6 @@ function updateCourses() {
     if (available.length === 0) sel.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
-// FIX: автозаполнение формы при включении "Пробник ЕГЭ"
 function onMockExamToggle() {
     const checkbox = document.getElementById('hwIsMockExam');
     if (!checkbox || !checkbox.checked) return;
@@ -1993,16 +1991,13 @@ function onMockExamToggle() {
         checkbox.checked = false;
         return;
     }
-    // Очищаем форму
     document.getElementById('tasksContainer').innerHTML = '';
     for (const k in taskMeta) delete taskMeta[k];
     for (const k in taskFiles) delete taskFiles[k];
     taskCounter = 0;
 
-    // 13 задач 1 части
     for (let i = 0; i < 13; i++) addTask('first');
 
-    // 7 задач 2 части — №14–20 с типичными баллами
     const secondPartMaxScores = [2, 2, 2, 2, 2, 3, 3];
     for (let i = 0; i < 7; i++) {
         addTask('second');
@@ -2011,7 +2006,6 @@ function onMockExamToggle() {
         if (input) input.value = secondPartMaxScores[i];
     }
 
-    // Подставляем название, предмет и курс
     const titleEl = document.getElementById('hwTitle');
     if (titleEl && !titleEl.value.trim()) {
         titleEl.value = 'Пробник ЕГЭ (профиль, математика)';
@@ -2275,7 +2269,8 @@ async function createHomework() {
             hasMixedParts,
             isInteractive: true,
             isMockExam: isMockExam,
-            maxScore: hasSecondPart ? globalMaxScore : undefined,
+            // FIX: не пишем undefined — Firestore его не принимает
+            maxScore: hasSecondPart ? globalMaxScore : 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -2480,7 +2475,6 @@ async function openGradeModal(submissionId) {
         </div>
     `;
 
-    // FIX: для пробника — сводка первичного и тестового балла (динамически обновляем)
     if (hw.isMockExam) {
         const primaryPart1 = s.correctCount || 0;
         let primaryPart2 = 0;
@@ -2609,7 +2603,6 @@ async function openGradeModal(submissionId) {
     setTimeout(() => renderMath(), 250);
 }
 
-// FIX: пересчёт сводки пробника при изменении баллов
 function recalcMockSummary() {
     if (!currentGradingHw || !currentGradingHw.isMockExam) return;
     const hw = currentGradingHw;
@@ -2695,8 +2688,6 @@ async function submitGrade(action) {
     const overallFeedback = fb.join('; ');
 
     try {
-        // FIX: подтягиваем текущий сабмишен и обновляем userScore внутри taskResults —
-        // именно оттуда ученик читает балл за каждую задачу.
         const currentSubDoc = await db.collection("submissions").doc(submissionId).get();
         const currentSub = currentSubDoc.exists ? currentSubDoc.data() : {};
         const currentResults = currentSub.taskResults || [];
@@ -2724,7 +2715,6 @@ async function submitGrade(action) {
             gradeFiles: allGradeFiles
         };
 
-        // FIX: для пробника — первичный и тестовый балл
         if (hw.isMockExam && action === 'graded') {
             const primaryPart1 = currentSub.correctCount || 0;
             let primaryPart2 = 0;
@@ -3087,7 +3077,8 @@ async function saveEditedHomework() {
             isSecondPart: hasSecondPart,
             hasMixedParts,
             isInteractive: true,
-            maxScore: hasSecondPart ? globalMaxScore : undefined,
+            // FIX: не пишем undefined — Firestore его не принимает
+            maxScore: hasSecondPart ? globalMaxScore : 0,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
