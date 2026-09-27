@@ -254,6 +254,19 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 .hw-type-toggle .toggle-label { font-weight: 700; font-size: 0.92rem; }
 .hw-type-toggle .toggle-desc { font-size: 0.75rem; color: var(--text3); margin-top: 0.2rem; }
 
+/* switch for mock exam */
+.ccc-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+.ccc-switch input { opacity: 0; width: 0; height: 0; }
+.ccc-switch-track {
+    position: absolute; inset: 0; background: var(--line2); border-radius: 20px; cursor: pointer; transition: background 0.2s ease;
+}
+.ccc-switch-track::before {
+    content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff;
+    border-radius: 50%; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.ccc-switch input:checked + .ccc-switch-track { background: var(--gold); }
+.ccc-switch input:checked + .ccc-switch-track::before { transform: translateX(20px); }
+
 .modal {
     display: none; position: fixed; inset: 0;
     background: rgba(11,14,28,0.55); backdrop-filter: blur(8px);
@@ -456,6 +469,33 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
     padding: 2rem; text-align: center; color: var(--text3);
     background: var(--card2); border-radius: 14px;
     border: 1px dashed var(--line2); font-size: 0.9rem;
+}
+
+/* FIX: блок с баллами пробника */
+.mock-summary-box {
+    background: linear-gradient(135deg, var(--gold3), var(--purple2));
+    border-radius: 14px; padding: 1.2rem 1.4rem; margin-top: 1rem;
+    border: 1px solid var(--gold);
+}
+.mock-summary-box .mock-title {
+    font-family: var(--fs); font-weight: 700; font-size: 0.95rem;
+    color: var(--gold); margin-bottom: 0.6rem;
+}
+.mock-summary-box .mock-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8rem;
+}
+.mock-summary-box .mock-stat {
+    text-align: center; padding: 0.7rem;
+    background: var(--card); border-radius: 10px;
+}
+.mock-summary-box .mock-stat .val {
+    font-family: var(--fs); font-size: 1.5rem; font-weight: 800; color: var(--text);
+    line-height: 1;
+}
+.mock-summary-box .mock-stat .lbl {
+    font-size: 0.7rem; color: var(--text3); margin-top: 0.3rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
 }
 
 @media (max-width: 900px) {
@@ -746,6 +786,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                     <div class="form-group"><label>Кому (email ученика или 'all')</label><input type="text" id="hwTarget" placeholder="all — для всех, или email@example.com"></div>
                     <div class="form-group"><label>Срок сдачи</label><input type="date" id="hwDueDate"></div>
 
+                    <!-- FIX: переключатель "Пробник ЕГЭ" -->
+                    <div class="hw-type-toggle" style="align-items:center;">
+                        <div>
+                            <div class="toggle-label">Пробник ЕГЭ (профиль, математика)</div>
+                            <div class="toggle-desc">Создаёт автоматически 13 задач 1 части + 7 задач 2 части (№14–20). После проверки ученик видит тестовый балл по шкале.</div>
+                        </div>
+                        <label class="ccc-switch" style="flex-shrink:0;">
+                            <input type="checkbox" id="hwIsMockExam" onchange="onMockExamToggle()">
+                            <span class="ccc-switch-track"></span>
+                        </label>
+                    </div>
+
                     <div class="hw-type-toggle" style="flex-direction:column;align-items:stretch;gap:0.8rem;">
                         <div>
                             <div class="toggle-label">Быстрое создание задач</div>
@@ -797,21 +849,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
     <div class="modal-content">
         <div class="modal-header"><h3>Проверка домашнего задания</h3><button class="modal-close" onclick="closeGradeModal()">&times;</button></div>
         <div id="gradeModalContent"></div>
-        <div class="form-group" id="gradeMaxScoreGroup">
-            <label>Максимальный балл за задание</label>
-            <input type="number" id="gradeMaxScore" min="1" value="10" readonly style="background:var(--bg);color:var(--text2);">
-        </div>
-        <div class="form-group">
-            <label>Оценка ученика</label>
-            <input type="number" id="gradeValue" min="0" placeholder="Введите балл">
-        </div>
-        <div class="form-group"><label>Комментарий ученику</label><textarea id="gradeFeedback" rows="3" placeholder="Отличная работа! Но обрати внимание на..."></textarea></div>
-        <div class="form-group">
-            <label>Прикрепить файлы с правками (до 10)</label>
-            <div class="multi-file-zone" onclick="document.getElementById('gradeFileInput').click()">Нажмите для выбора файлов</div>
-            <input type="file" id="gradeFileInput" accept="image/*,application/pdf" multiple style="display:none">
-            <div id="gradeFilePreview" class="files-list"></div>
-        </div>
         <div class="actions-row" style="justify-content: flex-end; margin-top: 1rem;">
             <button class="btn green" onclick="submitGrade('graded')">Принять</button>
             <button class="btn brs" onclick="submitGrade('returned')">Вернуть на доработку</button>
@@ -1011,6 +1048,25 @@ const DEFAULT_FOLDERS = [
     { id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", subject: "math",    courseId: "math",    legacyCourseIds: ["algebra","geometry","math"] },
     { id: "physics-ege-2027", name: "Физика. ЕГЭ 2027",  subject: "physics", courseId: "physics", legacyCourseIds: ["physics"] }
 ];
+
+// FIX: шкала перевода первичных баллов ЕГЭ (профильная математика) в тестовые.
+// Источник — прогноз Рособрнадзора на 2027.
+const PROFILE_MATH_SCALE = {
+    1: 6, 2: 11, 3: 17, 4: 22,
+    5: 27, 6: 34, 7: 40, 8: 46,
+    9: 52, 10: 58, 11: 64, 12: 70,
+    13: 72, 14: 74, 15: 76, 16: 78,
+    17: 80, 18: 82, 19: 84, 20: 86,
+    21: 88, 22: 90, 23: 92, 24: 93,
+    25: 94, 26: 95, 27: 96, 28: 97,
+    29: 98, 30: 99, 31: 100, 32: 100, 33: 100
+};
+
+function primaryToTestScore(primary) {
+    if (!primary || primary <= 0) return 0;
+    if (primary >= 33) return 100;
+    return PROFILE_MATH_SCALE[primary] || 0;
+}
 
 let currentUser = null;
 let currentAdminEmail = null;
@@ -1929,6 +1985,44 @@ function updateCourses() {
     if (available.length === 0) sel.innerHTML = '<option value="">Сначала выберите предмет</option>';
 }
 
+// FIX: автозаполнение формы при включении "Пробник ЕГЭ"
+function onMockExamToggle() {
+    const checkbox = document.getElementById('hwIsMockExam');
+    if (!checkbox || !checkbox.checked) return;
+    if (!confirm('Создать структуру пробника? Текущие задачи в форме будут очищены и заменены на 13 задач 1 части и 7 задач 2 части.')) {
+        checkbox.checked = false;
+        return;
+    }
+    // Очищаем форму
+    document.getElementById('tasksContainer').innerHTML = '';
+    for (const k in taskMeta) delete taskMeta[k];
+    for (const k in taskFiles) delete taskFiles[k];
+    taskCounter = 0;
+
+    // 13 задач 1 части
+    for (let i = 0; i < 13; i++) addTask('first');
+
+    // 7 задач 2 части — №14–20 с типичными баллами
+    const secondPartMaxScores = [2, 2, 2, 2, 2, 3, 3];
+    for (let i = 0; i < 7; i++) {
+        addTask('second');
+        const lastId = taskCounter - 1;
+        const input = document.getElementById('tmaxscore_' + lastId);
+        if (input) input.value = secondPartMaxScores[i];
+    }
+
+    // Подставляем название, предмет и курс
+    const titleEl = document.getElementById('hwTitle');
+    if (titleEl && !titleEl.value.trim()) {
+        titleEl.value = 'Пробник ЕГЭ (профиль, математика)';
+    }
+    const subjEl = document.getElementById('hwSubject');
+    if (subjEl) { subjEl.value = 'math'; updateCourses(); }
+
+    renumberTasks();
+    setTimeout(() => renderMath(), 250);
+}
+
 function addTask(type) {
     const container = document.getElementById("tasksContainer");
     const id = taskCounter++;
@@ -2167,6 +2261,8 @@ async function createHomework() {
         }
 
         const hasMixedParts = hasSecondPart && tasks.some(t => !t.isSecondPart);
+        const mockCheckbox = document.getElementById('hwIsMockExam');
+        const isMockExam = !!(mockCheckbox && mockCheckbox.checked);
 
         await db.collection("homeworks").add({
             title, subject, courseId,
@@ -2178,11 +2274,12 @@ async function createHomework() {
             isSecondPart: hasSecondPart,
             hasMixedParts,
             isInteractive: true,
+            isMockExam: isMockExam,
             maxScore: hasSecondPart ? globalMaxScore : undefined,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        showToast("Задание создано!", "success");
+        showToast(isMockExam ? "Пробник создан!" : "Задание создано!", "success");
 
         document.getElementById("hwTitle").value = "";
         document.getElementById("hwSubject").value = "";
@@ -2191,6 +2288,8 @@ async function createHomework() {
         document.getElementById("hwDueDate").value = "";
         document.getElementById("tasksContainer").innerHTML = "";
         document.getElementById("bulkTaskCount").value = "1";
+        const mockCb = document.getElementById('hwIsMockExam');
+        if (mockCb) mockCb.checked = false;
         for (const k in taskMeta) delete taskMeta[k];
         for (const k in taskFiles) delete taskFiles[k];
         taskCounter = 0;
@@ -2264,6 +2363,7 @@ async function loadAllHomework() {
             const gradeInfo = isGraded
                 ? `<span class="tag green">Оценка: ${s.userScore || 0}/${s.maxScore || 0}</span>`
                 : `<span class="tag gold">На проверке</span>`;
+            const mockTag = s._hw.isMockExam ? '<span class="tag purple">Пробник ЕГЭ</span>' : '';
 
             return `
                 <div class="item-card">
@@ -2273,6 +2373,7 @@ async function loadAllHomework() {
                             <div class="item-meta">
                                 <span>${escapeHtml(s.userName || s.userEmail || 'Ученик')}</span>
                                 <span>Курс: ${escapeHtml(s._hw.courseId)}</span>
+                                ${mockTag}
                                 ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
                                 ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
                                 ${gradeInfo}
@@ -2311,6 +2412,7 @@ async function loadAllHomeworkHistory() {
         container.innerHTML = homeworks.map(hw => {
             const secondCount = (hw.tasks || []).filter(t => t.isSecondPart).length;
             const firstCount = (hw.tasks || []).length - secondCount;
+            const mockTag = hw.isMockExam ? '<span class="tag purple">Пробник ЕГЭ</span>' : '';
             return `
                 <div class="item-card">
                     <div style="display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:center;">
@@ -2319,6 +2421,7 @@ async function loadAllHomeworkHistory() {
                             <div class="item-meta">
                                 <span>${hw.userEmail === "all" ? "Все ученики" : escapeHtml(hw.userEmail || '')}</span>
                                 <span>Курс: ${escapeHtml(hw.courseId)}</span>
+                                ${mockTag}
                                 ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
                                 ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
                             </div>
@@ -2355,7 +2458,6 @@ async function openGradeModal(submissionId) {
 
     currentGradingHw = { id: s.hwId, submissionId: submissionId, ...hw, _submission: s };
 
-    // FIX: если сабмишен уже проверялся, показываем прошлые оценки и фидбек
     const previousGrades = s.taskGrades || [];
 
     const tasks = hw.tasks || [];
@@ -2372,10 +2474,51 @@ async function openGradeModal(submissionId) {
             </div>
             <div style="font-size:0.78rem;color:var(--text3);margin-top:0.3rem;">
                 Курс: ${escapeHtml(hw.courseId)} · Задач: ${tasks.length}
+                ${hw.isMockExam ? ' · <span class="tag purple">Пробник ЕГЭ</span>' : ''}
             </div>
             ${s.submittedAt ? `<div style="font-size:0.78rem;color:var(--text3);">Сдано: ${new Date(s.submittedAt).toLocaleString()}</div>` : ''}
         </div>
     `;
+
+    // FIX: для пробника — сводка первичного и тестового балла (динамически обновляем)
+    if (hw.isMockExam) {
+        const primaryPart1 = s.correctCount || 0;
+        let primaryPart2 = 0;
+        for (let i = 0; i < tasks.length; i++) {
+            const task = tasks[i];
+            if (!task.isSecondPart) continue;
+            const saved = previousGrades.find(g => g.taskIndex === i);
+            if (saved) primaryPart2 += (saved.score || 0);
+        }
+        const totalPrimary = primaryPart1 + primaryPart2;
+        const testScore = primaryToTestScore(totalPrimary);
+        html += `
+            <div class="mock-summary-box" id="mockSummaryBox">
+                <div class="mock-title">Пробник ЕГЭ — сводка баллов</div>
+                <div class="mock-grid">
+                    <div class="mock-stat">
+                        <div class="val" id="mockPrimaryVal">${totalPrimary}</div>
+                        <div class="lbl">Первичный балл</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="val" id="mockTestVal">${testScore}</div>
+                        <div class="lbl">Тестовый балл</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="val" id="mockPart1Val">${primaryPart1}</div>
+                        <div class="lbl">1 часть</div>
+                    </div>
+                    <div class="mock-stat">
+                        <div class="val" id="mockPart2Val">${primaryPart2}</div>
+                        <div class="lbl">2 часть</div>
+                    </div>
+                </div>
+                <div style="font-size:0.72rem;color:var(--text3);margin-top:0.6rem;">
+                    Сводка обновляется автоматически при изменении баллов за 2 часть.
+                </div>
+            </div>
+        `;
+    }
 
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
@@ -2385,7 +2528,6 @@ async function openGradeModal(submissionId) {
         const userFiles = result ? (result.files || []) : [];
         const isCorrect = result ? result.isCorrect : false;
 
-        // FIX: подтягиваем сохранённую оценку и комментарий (если уже проверяли)
         const savedGrade = previousGrades.find(g => g.taskIndex === i);
         const userScore = savedGrade ? (savedGrade.score || 0) : (result ? (result.userScore || 0) : 0);
         const savedFeedback = savedGrade ? (savedGrade.feedback || '') : '';
@@ -2436,7 +2578,7 @@ async function openGradeModal(submissionId) {
                             <div style="flex:1;min-width:120px;">
                                 <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Балл</div>
                                 <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;">
-                                    <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" style="width:80px;">
+                                    <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" style="width:80px;" oninput="recalcMockSummary()">
                                     <span style="font-size:0.78rem;color:var(--text3);">/ ${task.maxScore || 10}</span>
                                 </div>
                             </div>
@@ -2462,18 +2604,33 @@ async function openGradeModal(submissionId) {
         `;
     }
 
-    html += `
-        <div class="actions-row" style="justify-content:flex-end;margin-top:1rem;border-top:1px solid var(--line);padding-top:1rem;">
-            <button class="btn green" onclick="submitGrade('graded')">Принять</button>
-            <button class="btn brs" onclick="submitGrade('returned')">Вернуть на доработку</button>
-            <button class="btn secondary" onclick="closeGradeModal()">Отмена</button>
-        </div>
-    `;
-
     document.getElementById("gradeModalContent").innerHTML = html;
     document.getElementById("gradeModal").classList.add("active");
     setTimeout(() => renderMath(), 250);
 }
+
+// FIX: пересчёт сводки пробника при изменении баллов
+function recalcMockSummary() {
+    if (!currentGradingHw || !currentGradingHw.isMockExam) return;
+    const hw = currentGradingHw;
+    const s = hw._submission || {};
+    const tasks = hw.tasks || [];
+    const primaryPart1 = s.correctCount || 0;
+    let primaryPart2 = 0;
+    for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        if (!task.isSecondPart) continue;
+        const g = document.getElementById('grade_task_' + i);
+        primaryPart2 += g ? (parseFloat(g.value) || 0) : 0;
+    }
+    const totalPrimary = primaryPart1 + primaryPart2;
+    const testScore = primaryToTestScore(totalPrimary);
+    const pEl = document.getElementById('mockPrimaryVal'); if (pEl) pEl.textContent = totalPrimary;
+    const tEl = document.getElementById('mockTestVal'); if (tEl) tEl.textContent = testScore;
+    const p1El = document.getElementById('mockPart1Val'); if (p1El) p1El.textContent = primaryPart1;
+    const p2El = document.getElementById('mockPart2Val'); if (p2El) p2El.textContent = primaryPart2;
+}
+
 function closeGradeModal() {
     document.getElementById("gradeModal").classList.remove("active");
     currentGradingHw = null;
@@ -2538,6 +2695,22 @@ async function submitGrade(action) {
     const overallFeedback = fb.join('; ');
 
     try {
+        // FIX: подтягиваем текущий сабмишен и обновляем userScore внутри taskResults —
+        // именно оттуда ученик читает балл за каждую задачу.
+        const currentSubDoc = await db.collection("submissions").doc(submissionId).get();
+        const currentSub = currentSubDoc.exists ? currentSubDoc.data() : {};
+        const currentResults = currentSub.taskResults || [];
+
+        const updatedResults = currentResults.map((tr, i) => {
+            const task = tasks[i];
+            if (!task || !task.isSecondPart) return tr;
+            const saved = taskGrades.find(g => g.taskIndex === i);
+            return Object.assign({}, tr, {
+                userScore: saved ? saved.score : (tr.userScore || 0),
+                maxScore: task.maxScore || tr.maxScore || 10
+            });
+        });
+
         const updateData = {
             graded: action === 'graded',
             gradedAt: new Date().toISOString(),
@@ -2545,10 +2718,26 @@ async function submitGrade(action) {
             userScore: totalScore,
             maxScore: maxTotalScore,
             taskGrades: taskGrades,
+            taskResults: updatedResults,
             feedback: overallFeedback,
             gradedByAdmin: true,
             gradeFiles: allGradeFiles
         };
+
+        // FIX: для пробника — первичный и тестовый балл
+        if (hw.isMockExam && action === 'graded') {
+            const primaryPart1 = currentSub.correctCount || 0;
+            let primaryPart2 = 0;
+            for (let i = 0; i < tasks.length; i++) {
+                const task = tasks[i];
+                if (!task.isSecondPart) continue;
+                const saved = taskGrades.find(g => g.taskIndex === i);
+                if (saved) primaryPart2 += saved.score;
+            }
+            const totalPrimary = primaryPart1 + primaryPart2;
+            updateData.mockPrimaryScore = totalPrimary;
+            updateData.mockTestScore = primaryToTestScore(totalPrimary);
+        }
 
         await db.collection("submissions").doc(submissionId).set(updateData, { merge: true });
 
@@ -2935,6 +3124,7 @@ async function openHwDetailModal(hwId, userId) {
                 <div class="stat"><span>Ученик:</span><span style="font-weight:600;">${escapeHtml(user.name || user.email || 'Без имени')}</span></div>
                 <div class="stat"><span>Задач:</span><span style="font-weight:600;">${tasks.length}</span></div>
                 ${submission.feedback ? `<div class="stat"><span>Комментарий:</span><span style="font-size:0.85rem;color:var(--text2);">${escapeHtml(submission.feedback)}</span></div>` : ''}
+                ${hw.isMockExam && submission.mockTestScore !== undefined ? `<div class="stat"><span>Тестовый балл:</span><span style="font-weight:700;color:var(--gold);">${submission.mockTestScore}</span></div>` : ''}
             </div>
         `;
 
@@ -2975,7 +3165,6 @@ async function openHwDetailModal(hwId, userId) {
             }
         });
 
-        // FIX: кнопка "Изменить оценку" из аналитики
         html += `
             <div style="display:flex;gap:0.4rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap;">
                 <button class="btn bg bsm" onclick="closeHwDetailModal(); openGradeModal('${userId}_${hwId}')">Изменить оценку</button>
@@ -3078,6 +3267,7 @@ async function loadAnalytics() {
                         hasFirst: firstTasks > 0,
                         subject: hwData?.subject || 'unknown',
                         courseId: hwData?.courseId || '',
+                        isMockExam: !!hwData?.isMockExam,
                         totalStudents: 0, totalCorrect: 0, totalTasks: 0,
                         totalMaxScore: 0, totalUserScore: 0, students: []
                     };
@@ -3421,6 +3611,9 @@ async function openStudentAnalyticsModal(userId) {
             firstCorrect, firstTotal, firstTasks,
             subScore, subMax, secondTasks,
             percent,
+            isMockExam: !!hwData?.isMockExam,
+            mockTestScore: sub.mockTestScore,
+            mockPrimaryScore: sub.mockPrimaryScore,
             submittedAt: sub.submittedAt || null
         });
     }
@@ -3449,12 +3642,18 @@ async function openStudentAnalyticsModal(userId) {
                     const percent = hw.percent;
                     const color = percent === null ? 'var(--text3)' : percent >= 80 ? 'var(--green)' : percent >= 50 ? 'var(--gold)' : 'var(--red)';
                     let display = [];
-                    if (hw.secondTasks > 0 && hw.subMax > 0) display.push('2ч: ' + hw.subScore + '/' + hw.subMax);
-                    if (hw.firstTasks > 0) display.push('1ч: ' + hw.firstCorrect + '/' + hw.firstTotal);
+                    if (hw.isMockExam && hw.mockTestScore !== undefined) {
+                        display.push('Тестовый: ' + hw.mockTestScore);
+                        display.push('Первичный: ' + (hw.mockPrimaryScore || 0));
+                    } else {
+                        if (hw.secondTasks > 0 && hw.subMax > 0) display.push('2ч: ' + hw.subScore + '/' + hw.subMax);
+                        if (hw.firstTasks > 0) display.push('1ч: ' + hw.firstCorrect + '/' + hw.firstTotal);
+                    }
+                    const mockTag = hw.isMockExam ? '<span class="tag purple" style="font-size:0.6rem;">Пробник ЕГЭ</span>' : '';
                     return `
                         <div style="display:flex;align-items:center;gap:0.8rem;padding:0.6rem;background:var(--bg2);border-radius:8px;border-left:3px solid ${color};cursor:pointer;" onclick="openHwDetailModal('${hw.id}', '${userId}')">
                             <div style="flex:1;min-width:0;">
-                                <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)}</div>
+                                <div style="font-size:0.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(hw.title)} ${mockTag}</div>
                                 <div style="font-size:0.72rem;color:var(--text3);">${display.join(' · ')}</div>
                             </div>
                             <div style="font-weight:700;color:${color};min-width:48px;text-align:right;">${percent === null ? '—' : percent + '%'}</div>
@@ -3494,6 +3693,7 @@ async function openTaskAnalyticsModal(hwId) {
     let html = `
         <div class="hw-review-summary">
             <div class="stat"><span>Сдало учеников:</span><span style="font-weight:600;">${hwData.students.length}</span></div>
+            ${hwData.isMockExam ? '<div class="stat"><span class="tag purple">Пробник ЕГЭ</span></div>' : ''}
             ${hwData.hasFirst ? `<div class="stat"><span>1 часть:</span><span style="font-weight:600;">${totalCorrect}/${totalTasks} (${overallFirstPercent}%)</span></div>` : ''}
             ${hwData.hasSecond ? `<div class="stat"><span>2 часть:</span><span style="font-weight:600;">${totalUserScore}/${totalMaxScore} (${overallSecondPercent}%)</span></div>` : ''}
         </div>
