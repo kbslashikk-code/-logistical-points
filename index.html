@@ -639,6 +639,93 @@
         .progress-score-card .score-num { font-family: var(--fs); font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
         .progress-score-card .score-label { font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; }
 
+        /* === Карточка пробника (особая стилистика) === */
+        .mock-exam-card {
+            position: relative;
+            background: linear-gradient(135deg, var(--gold3), var(--blue3));
+            border: 2px solid var(--gold);
+            border-radius: 22px;
+            padding: 2rem 1.8rem;
+            overflow: hidden;
+            text-align: center;
+        }
+        .mock-exam-card::before {
+            content: "";
+            position: absolute;
+            top: -40%; right: -15%;
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, var(--gold3), transparent 70%);
+            pointer-events: none;
+        }
+        .mock-exam-card .me-label {
+            font-family: var(--fs);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+        }
+        .mock-exam-card .me-score {
+            font-family: var(--fs);
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1;
+            position: relative;
+        }
+        .mock-exam-card .me-score small {
+            font-size: 1.6rem;
+            color: var(--text3);
+            font-weight: 700;
+        }
+        .mock-exam-card .me-subtitle {
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-top: 0.6rem;
+        }
+        .mock-exam-card .me-status {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        .mock-exam-card .me-status.pending {
+            background: var(--blue3);
+            color: var(--blue2);
+        }
+        .mock-exam-card .me-status.graded {
+            background: var(--green2);
+            color: var(--green);
+        }
+        .mock-exam-card .me-details {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--line);
+        }
+        .mock-exam-card .me-detail {
+            text-align: center;
+        }
+        .mock-exam-card .me-detail .val {
+            font-family: var(--fs);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        .mock-exam-card .me-detail .lbl {
+            font-size: 0.65rem;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.2rem;
+        }
+
         .hw-list { display: flex; flex-direction: column; gap: 1rem; }
         .hw-list-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }
         .hw-list-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
@@ -1143,8 +1230,8 @@
             </div>
 
             <div class="section-block" id="progressSection">
-                <h3 class="block-title">Прогресс</h3>
-                <div class="progress-score-card" id="progressScoreCard"></div>
+                <h3 class="block-title">Пробник</h3>
+                <div id="progressScoreCard"></div>
             </div>
         </div>
     </div>
@@ -1185,6 +1272,16 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
+
+// ====== Шкала баллов ЕГЭ (профильная математика) ======
+// Первая часть: 12 заданий по 1 баллу = 12
+// Вторая часть: 20 баллов (2+2+2+3+3+4+4)
+// Итого: 32 первичных балла
+const SCORE_SCALE = {
+    firstPartMax: 12,
+    secondPartMax: 20,
+    totalMax: 32
+};
 
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
@@ -1943,16 +2040,56 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
+// ============ КАРТОЧКА ПРОБНИКА (обновлённая) ============
 function renderProgressScore() {
     const container = document.getElementById("progressScoreCard");
     if (!container || !userData) return;
     const scores = userData.mockExamScores || [];
     if (scores.length === 0) {
-        container.innerHTML = '<div class="score-num">—</div><div class="score-label">Пробников пока не было — балл появится после первого пробного экзамена.</div>';
+        container.className = "mock-exam-card";
+        container.innerHTML = `
+            <div class="me-label">Пробный экзамен</div>
+            <div class="me-score">—</div>
+            <div class="me-subtitle">Пробников пока не было.<br>Балл появится после первого пробного экзамена.</div>
+        `;
         return;
     }
-    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    container.innerHTML = '<div class="score-num">' + avg + '</div><div class="score-label">Средний балл по пробникам (' + scores.length + ')</div>';
+
+    // Берём последний пробник — по нему показываем результат.
+    const last = scores[scores.length - 1];
+
+    const firstPartScore = last.firstPartScore != null ? last.firstPartScore : 0;
+    const secondPartScore = last.secondPartScore != null ? last.secondPartScore : 0;
+    const totalScore = firstPartScore + secondPartScore;
+    const isGraded = !!last.graded;
+    const maxScore = last.maxScore || SCORE_SCALE.totalMax;
+
+    // Средний балл по всем пробникам (по сумме первой и второй части).
+    const avg = Math.round(scores.reduce((a, b) => a + (b.firstPartScore || 0) + (b.secondPartScore || 0), 0) / scores.length);
+
+    container.className = "mock-exam-card";
+    container.innerHTML = `
+        <div class="me-label">Пробный экзамен</div>
+        <div class="me-score">${totalScore}<small> / ${maxScore}</small></div>
+        <div class="me-subtitle">${isGraded ? "Проверено преподавателем" : "Ожидает проверки второй части"}</div>
+        <div class="me-status ${isGraded ? 'graded' : 'pending'}">
+            ${isGraded ? 'Проверено' : 'На проверке'}
+        </div>
+        <div class="me-details">
+            <div class="me-detail">
+                <div class="val">${firstPartScore}</div>
+                <div class="lbl">1 часть</div>
+            </div>
+            <div class="me-detail">
+                <div class="val">${secondPartScore}</div>
+                <div class="lbl">2 часть</div>
+            </div>
+            <div class="me-detail">
+                <div class="val">${avg}</div>
+                <div class="lbl">средний</div>
+            </div>
+        </div>
+    `;
 }
 
 function computeRecommendations() {
@@ -2140,8 +2277,6 @@ function normalizeSubmission(s) {
     return Object.assign({}, s, { courseId: resolveCourseId(s.courseId) });
 }
 
-// ===== FIX: сабмишены теперь в коллекции submissions =====
-// id документа: {uid}_{hwId} — одна запись на ученика по одному ДЗ.
 async function getSubmissionForHw(hwId) {
     if (!currentUser) return null;
     const submissionId = currentUser.uid + '_' + hwId;
@@ -2228,7 +2363,6 @@ async function renderHwListCards(courseId, homeworks) {
     if (!list) return;
     if (homeworks.length === 0) { list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>'; return; }
 
-    // Сначала подтянем все сабмишены пользователя по этому списку ДЗ
     const submissionsMap = {};
     for (const hw of homeworks) {
         submissionsMap[hw.id] = await getSubmissionForHw(hw.id);
@@ -2260,6 +2394,19 @@ async function renderHwListCards(courseId, homeworks) {
             extraBtn = '<button class="hw-list-btn" style="margin-top:0.6rem" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
         }
 
+        // Показываем балл прямо в карточке списка.
+        let scoreLine = "";
+        if (submission) {
+            const firstPartScore = submission.firstPartScore != null ? submission.firstPartScore : (submission.correctCount || 0);
+            const secondPartScore = submission.secondPartScore != null ? submission.secondPartScore : 0;
+            const totalScore = firstPartScore + secondPartScore;
+            if (hasSecondPart && !isGraded) {
+                scoreLine = `<div class="hw-list-meta" style="color:var(--gold);font-weight:700"><span>Балл (1 часть):</span> <strong>${firstPartScore}</strong></div>`;
+            } else {
+                scoreLine = `<div class="hw-list-meta" style="color:var(--green);font-weight:700"><span>Ваш балл:</span> <strong>${totalScore} / ${SCORE_SCALE.totalMax}</strong></div>`;
+            }
+        }
+
         const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
         const deadlineText = hw.deadlineText || formatRuDate(hw.dueDate) || "не указан";
 
@@ -2272,6 +2419,7 @@ async function renderHwListCards(courseId, homeworks) {
                 <div class="hw-list-title">${escapeHtml(hw.title)}</div>
                 <div class="hw-list-meta"><span>Выдано:</span> <strong>${escapeHtml(String(issuedDate || "не указано"))}</strong></div>
                 <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(String(deadlineText))}</strong></div>
+                ${scoreLine}
                 <button class="hw-list-btn" onclick="${btnOnclick}">${btnLabel}</button>
                 ${extraBtn}
             </div>
@@ -2299,6 +2447,7 @@ async function startHomework(hwId) {
     let html = `
         <div style="margin-bottom:1rem;color:var(--text2);">
             <p>Задач: ${totalTasks}</p>
+            <p style="font-size:0.8rem;color:var(--text3);margin-top:0.3rem;">Можно отправлять даже с пропущенными задачами — они не будут засчитаны, но остальные отправятся.</p>
         </div>
 
         <div class="quick-jump-bar" id="hwProgressBar">
@@ -2346,14 +2495,14 @@ async function startHomework(hwId) {
                             <input type="file" id="taskFileInput_${index}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleTaskSolveFilesSelect(this, ${index})">
                             <button class="file-upload-btn" onclick="document.getElementById('taskFileInput_${index}').click()">${iconSvg('paperclip', 18)} Прикрепить решение</button>
                             <div id="taskFilePreview_${index}" class="files-list"></div>
-                            <div class="file-upload-empty-hint" id="taskFileEmptyHint_${index}">Файлы отсутствуют</div>
+                            <div class="file-upload-empty-hint" id="taskFileEmptyHint_${index}">Можно пропустить эту задачу</div>
                         </div>
                     `;
                 } else {
                     answerHtml = `
                         <div style="margin-top:0.8rem;">
                             <input type="text" class="task-answer-input" id="answer_${index}"
-                                   placeholder="Введите ваш ответ..."
+                                   placeholder="Введите ваш ответ (или оставьте пустым, чтобы пропустить)..."
                                    oninput="saveAnswer(${index}, this.value)">
                         </div>
                     `;
@@ -2368,7 +2517,7 @@ async function startHomework(hwId) {
                             <div class="task-number">Задача ${index + 1} <span class="task-id-tag">#${taskCode}</span></div>
                             <div class="task-badges">
                                 ${isSecondPart ? '<span class="badge-expert">Экспертная проверка</span>' : ''}
-                                <span class="badge-required">Обязательное</span>
+                                <span class="badge-required">Можно пропустить</span>
                             </div>
                             <div class="task-bookmark-row">
                                 <button class="bookmark-btn" id="bookmarkKnow_${index}" onclick="setTaskBookmark(${index}, 'know')">Умею решать</button>
@@ -2462,19 +2611,24 @@ async function submitHomework() {
     if (!currentUser || !currentUser.uid) { showToast("Ошибка авторизации", "error"); return; }
     const tasks = currentSolveHwData.tasks || [];
 
+    // Проверяем, есть ли хотя бы один ответ (или файл) вообще.
+    // Отдельные задачи можно пропускать.
+    let hasAnyAnswer = false;
     for (let i = 0; i < tasks.length; i++) {
         const task = tasks[i];
         const isSecondPart = task.isSecondPart || false;
         if (isSecondPart) {
             const files = taskSolveFiles[i] || [];
-            if (files.length === 0) { showToast('Прикрепите файл с решением для задачи ' + (i + 1), "error"); goToTask(i); return; }
-            userAnswers[i] = { text: "", files: files };
+            if (files.length > 0) { hasAnyAnswer = true; }
         } else {
             const answerInput = document.getElementById('answer_' + i);
             const answer = answerInput ? answerInput.value.trim() : '';
-            if (answer === '') { showToast('Ответьте на задачу ' + (i + 1), "error"); goToTask(i); return; }
-            userAnswers[i] = answer;
+            if (answer !== '') { hasAnyAnswer = true; }
         }
+    }
+    if (!hasAnyAnswer) {
+        showToast('Заполните хотя бы одну задачу', "error");
+        return;
     }
 
     const btn = document.getElementById('submitBtn');
@@ -2494,17 +2648,18 @@ async function submitHomework() {
             let uploadedFiles = [];
 
             if (isSecondPart) {
-                const answerData = userAnswers[i] || { text: '', files: [] };
+                const answerData = userAnswers[i] || { text: '', files: taskSolveFiles[i] || [] };
                 userAnswer = answerData.text || '';
-                if (answerData.files && answerData.files.length > 0) {
-                    uploadedFiles = await uploadStudentFiles(answerData.files, currentSolveHwId + '_task_' + i);
+                if (taskSolveFiles[i] && taskSolveFiles[i].length > 0) {
+                    uploadedFiles = await uploadStudentFiles(taskSolveFiles[i], currentSolveHwId + '_task_' + i);
                 }
                 taskResults.push({
                     taskIndex: i,
                     userAnswer: userAnswer,
                     files: uploadedFiles,
-                    isCorrect: true,
+                    isCorrect: null,
                     isSecondPart: true,
+                    skipped: uploadedFiles.length === 0 && !userAnswer,
                     userScore: 0,
                     maxScore: task.maxScore || 0
                 });
@@ -2516,18 +2671,20 @@ async function submitHomework() {
             } else {
                 const correctAnswer = (task.correctAnswer || '').toString();
                 const userAnswerText = (userAnswers[i] || '').toString();
-                const isCorrect = userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+                const skipped = userAnswerText.trim() === '';
+                const isCorrect = !skipped && userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
                 if (isCorrect) correctCount++;
                 taskResults.push({
                     taskIndex: i,
                     userAnswer: userAnswerText,
                     isCorrect: isCorrect,
+                    skipped: skipped,
                     isSecondPart: false
                 });
                 const dot = document.getElementById('hwdot_' + i);
                 if (dot) {
                     dot.classList.remove('active', 'has-answer');
-                    dot.classList.add(isCorrect ? 'correct' : 'wrong');
+                    if (!skipped) dot.classList.add(isCorrect ? 'correct' : 'wrong');
                     dot.classList.add('submitted');
                 }
                 const resultDiv = document.getElementById('result_' + i);
@@ -2536,7 +2693,7 @@ async function submitHomework() {
                 if (resultDiv) {
                     resultDiv.style.display = 'block';
                     resultDiv.className = 'task-result';
-                    resultDiv.textContent = isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer;
+                    resultDiv.textContent = skipped ? 'Пропущено' : (isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + correctAnswer);
                 }
                 if (input) { input.className = 'task-answer-input' + (isCorrect ? '' : ' wrong'); input.disabled = true; }
                 if (content) content.classList.add('submitted');
@@ -2567,8 +2724,6 @@ async function submitHomework() {
 
         const hasSecondPart = tasks.some(t => t.isSecondPart);
 
-        // FIX: сохраняем сабмишен в отдельную коллекцию submissions.
-        // id документа: {uid}_{hwId} — одна запись на ученика по одному ДЗ.
         const submissionData = {
             userId: currentUser.uid,
             hwId: currentSolveHwId,
@@ -2582,31 +2737,71 @@ async function submitHomework() {
             userName: userData.name || "Ученик",
             userEmail: currentUser.email || "",
             submittedAt: new Date().toISOString(),
-            graded: !hasSecondPart
+            graded: !hasSecondPart,
+            firstPartScore: correctCount,
+            secondPartScore: 0,
+            maxScore: currentSolveHwData.maxScore || SCORE_SCALE.totalMax
         };
 
         const submissionId = currentUser.uid + '_' + currentSolveHwId;
         await db.collection("submissions").doc(submissionId).set(submissionData, { merge: true });
+
+        // Если ДЗ без второй части — сразу добавляем в mockExamScores
+        if (!hasSecondPart) {
+            await updateMockExamScore(currentSolveHwId, correctCount, 0, SCORE_SCALE.totalMax, true);
+        } else {
+            await updateMockExamScore(currentSolveHwId, correctCount, 0, SCORE_SCALE.totalMax, false);
+        }
 
         isSubmitted = true;
         btn.textContent = "Отправлено";
         btn.disabled = true;
         btn.className = "btn bg";
 
-        showToast('Задание отправлено на проверку!', "success");
+        showToast('Задание отправлено! Балл за 1 часть: ' + correctCount, "success");
 
         const cid = resolveCourseId(currentSolveHwData.courseId);
         delete hwCache[cid];
         await renderHomeworkTabContent(cid, true);
+        await refreshUserData();
+        renderProgressScore();
         updateAllRecommendations();
 
-        setTimeout(() => { closeHwSolvePage(); }, 700);
+        setTimeout(() => { closeHwSolvePage(); }, 900);
 
     } catch (error) {
         console.error(error);
         showToast("Ошибка: " + error.message, "error");
         btn.textContent = "Отправить на проверку";
         btn.disabled = false;
+    }
+}
+
+// Обновляет карточку пробника в userData.
+async function updateMockExamScore(hwId, firstPartScore, secondPartScore, maxScore, graded) {
+    if (!currentUser) return;
+    try {
+        const ref = db.collection("users").doc(currentUser.uid);
+        const doc = await ref.get();
+        const data = doc.data() || {};
+        let scores = Array.isArray(data.mockExamScores) ? data.mockExamScores.slice() : [];
+
+        // Ищем запись по hwId, если есть — обновляем, если нет — добавляем.
+        const idx = scores.findIndex(s => s.hwId === hwId);
+        const entry = {
+            hwId: hwId,
+            firstPartScore: firstPartScore,
+            secondPartScore: secondPartScore,
+            maxScore: maxScore,
+            graded: graded,
+            date: new Date().toISOString()
+        };
+        if (idx >= 0) scores[idx] = entry; else scores.push(entry);
+
+        await ref.update({ mockExamScores: scores });
+        if (userData) userData.mockExamScores = scores;
+    } catch (e) {
+        console.warn("Не удалось обновить mockExamScores:", e);
     }
 }
 
@@ -2658,6 +2853,12 @@ function openHwReviewPage(hwId, hw, submission) {
     const correctCount = submission ? (submission.correctCount || 0) : 0;
     const percent = submission ? (submission.percent || 0) : 0;
 
+    // Баллы
+    const firstPartScore = submission && submission.firstPartScore != null ? submission.firstPartScore : correctCount;
+    const secondPartScore = submission && submission.secondPartScore != null ? submission.secondPartScore : 0;
+    const totalScore = firstPartScore + secondPartScore;
+    const isFullyGraded = !!(submission && submission.graded);
+
     document.getElementById("hwSolveTitle").textContent = hw.title + " — Результаты";
 
     const dotsHtml = Array.from({ length: totalTasks }, (_, i) => {
@@ -2668,18 +2869,31 @@ function openHwReviewPage(hwId, hw, submission) {
         if (i === 0) cls += ' active';
         if (isSecondPart) {
             cls += ' second-part';
-            if (result) cls += ' has-answer';
+            if (result && !result.skipped) cls += ' has-answer';
         } else if (result) {
-            cls += result.isCorrect ? ' correct' : ' wrong';
+            if (result.skipped) { /* нейтрально */ }
+            else cls += result.isCorrect ? ' correct' : ' wrong';
         }
         return `<div class="${cls}" id="hwdot_${i}" onclick="goToTask(${i})" title="Задача ${i + 1}">${i + 1}</div>`;
     }).join('');
+
+    const scoreBanner = `
+        <div style="background:linear-gradient(135deg, var(--gold3), var(--blue3));border:2px solid var(--gold);border-radius:18px;padding:1.2rem;text-align:center;margin-bottom:1.2rem;">
+            <div style="font-size:0.75rem;color:var(--gold);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">Ваш балл</div>
+            <div style="font-family:var(--fs);font-size:2.6rem;font-weight:800;color:var(--gold);line-height:1.1;">${totalScore}</div>
+            <div style="font-size:0.85rem;color:var(--text2);">
+                1 часть: ${firstPartScore} · 2 часть: ${secondPartScore}
+                ${isFullyGraded ? ' · Проверено' : ' · На проверке'}
+            </div>
+        </div>
+    `;
 
     const tasksHtml = tasks.length > 0 ? tasks.map((task, index) => {
         const isSecondPart = task.isSecondPart || false;
         const result = submission?.taskResults?.[index];
         const userAnswer = result ? result.userAnswer : '';
         const isCorrect = result ? result.isCorrect : false;
+        const isSkipped = result ? result.skipped : false;
 
         let taskFilesHtml = '';
         if (task.files && task.files.length > 0) {
@@ -2707,33 +2921,32 @@ function openHwReviewPage(hwId, hw, submission) {
                 `;
             }
             const maxScore = task.maxScore || 0;
-            const userScore = result ? (result.userScore || 0) : 0;
-            const isGraded = !!(submission && submission.graded);
+            // Ищем балл: сначала в taskResults[index].userScore, потом в submission.reviewScores[index]
+            let userScore = 0;
+            if (result && result.userScore != null && result.userScore > 0) userScore = result.userScore;
+            else if (submission && submission.reviewScores && submission.reviewScores[index] != null) userScore = submission.reviewScores[index];
 
             answerHtml = `
                 <div style="margin-top:0.8rem;">
-                    ${userAnswer ? `
-                        <div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer)}</div>
-                    ` : ''}
+                    ${userAnswer ? `<div style="background:var(--bg);padding:0.8rem;border-radius:8px;margin-top:0.3rem;white-space:pre-wrap;">${escapeHtml(userAnswer)}</div>` : ''}
                     ${userFilesHtml}
-                    ${isGraded ? `
+                    ${isSkipped ? '<div style="margin-top:0.5rem;font-size:0.85rem;color:var(--text3);">Задача пропущена</div>' : ''}
+                    ${isFullyGraded ? `
                         <div class="task-result second-part-result" style="margin-top:0.8rem;">
                             Баллы: <strong>${userScore}</strong> / ${maxScore}
                         </div>
                     ` : `
-                        <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text3);">
-                            На проверке
-                        </div>
+                        <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text3);">На проверке. После проверки здесь появятся баллы.</div>
                     `}
                 </div>
             `;
         } else {
             answerHtml = `
                 <div style="margin-top:0.8rem;">
-                    <input type="text" class="task-answer-input${isCorrect ? '' : ' wrong'}" value="${escapeHtml(userAnswer) || '—'}" disabled>
+                    <input type="text" class="task-answer-input${!isSkipped && !isCorrect ? ' wrong' : ''}" value="${escapeHtml(userAnswer) || '—'}" disabled>
                 </div>
                 <div class="task-result">
-                    ${isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—')}
+                    ${isSkipped ? 'Пропущено' : (isCorrect ? 'Правильно' : 'Неправильно. Правильный ответ: ' + escapeHtml(task.correctAnswer || '—'))}
                 </div>
             `;
         }
@@ -2757,6 +2970,8 @@ function openHwReviewPage(hwId, hw, submission) {
         <div style="margin-bottom:1rem;color:var(--text2);">
             <p>Задач: ${totalTasks}</p>
         </div>
+
+        ${scoreBanner}
 
         <div class="quick-jump-bar" id="hwProgressBar">
             <div class="quick-jump-label">Быстрый переход к задаче</div>
