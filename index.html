@@ -1283,6 +1283,50 @@ const SCORE_SCALE = {
     totalMax: 32
 };
 
+// ====== Таблица перевода первичных баллов в тестовые ======
+// Для профильной математики (соответствует демо-версиям последних лет)
+const PRIMARY_TO_SECONDARY_TABLE = {
+    0: 0,
+    1: 6,
+    2: 11,
+    3: 17,
+    4: 22,
+    5: 27,
+    6: 34,
+    7: 40,
+    8: 46,
+    9: 52,
+    10: 58,
+    11: 64,
+    12: 70,
+    13: 72,
+    14: 74,
+    15: 76,
+    16: 78,
+    17: 80,
+    18: 82,
+    19: 84,
+    20: 86,
+    21: 88,
+    22: 90,
+    23: 92,
+    24: 93,
+    25: 94,
+    26: 95,
+    27: 96,
+    28: 97,
+    29: 98,
+    30: 99,
+    31: 100,
+    32: 100,
+    33: 100
+};
+
+function convertPrimaryToSecondary(primaryScore) {
+    if (primaryScore >= 33) return 100;
+    return PRIMARY_TO_SECONDARY_TABLE[primaryScore] || 0;
+}
+
 const ICON_PATHS = {
     home: '<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/>',
     folder: '<path d="M4 6.5a1.5 1.5 0 0 1 1.5-1.5H10l2 2.2h6.5A1.5 1.5 0 0 1 20 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"/>',
@@ -2040,7 +2084,7 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
-// ============ КАРТОЧКА ПРОБНИКА (обновлённая) ============
+// ============ КАРТОЧКА ПРОБНИКА (с переводом в тестовые баллы) ============
 function renderProgressScore() {
     const container = document.getElementById("progressScoreCard");
     if (!container || !userData) return;
@@ -2060,17 +2104,23 @@ function renderProgressScore() {
 
     const firstPartScore = last.firstPartScore != null ? last.firstPartScore : 0;
     const secondPartScore = last.secondPartScore != null ? last.secondPartScore : 0;
-    const totalScore = firstPartScore + secondPartScore;
-    const isGraded = !!last.graded;
-    const maxScore = last.maxScore || SCORE_SCALE.totalMax;
 
-    // Средний балл по всем пробникам (по сумме первой и второй части).
-    const avg = Math.round(scores.reduce((a, b) => a + (b.firstPartScore || 0) + (b.secondPartScore || 0), 0) / scores.length);
+    // Считаем ПЕРВИЧНЫЙ балл (сумма баллов за все задания)
+    const primaryScore = firstPartScore + secondPartScore;
+
+    // Переводим в ТЕСТОВЫЙ (вторичный) балл
+    const secondaryScore = convertPrimaryToSecondary(primaryScore);
+
+    const isGraded = !!last.graded;
+    const maxPrimaryScore = last.maxScore || SCORE_SCALE.totalMax;
+
+    // Средний первичный балл по всем пробникам
+    const avgPrimary = Math.round(scores.reduce((a, b) => a + (b.firstPartScore || 0) + (b.secondPartScore || 0), 0) / scores.length);
 
     container.className = "mock-exam-card";
     container.innerHTML = `
         <div class="me-label">Пробный экзамен</div>
-        <div class="me-score">${totalScore}<small> / ${maxScore}</small></div>
+        <div class="me-score">${secondaryScore}<small> / 100</small></div>
         <div class="me-subtitle">${isGraded ? "Проверено преподавателем" : "Ожидает проверки второй части"}</div>
         <div class="me-status ${isGraded ? 'graded' : 'pending'}">
             ${isGraded ? 'Проверено' : 'На проверке'}
@@ -2085,8 +2135,8 @@ function renderProgressScore() {
                 <div class="lbl">2 часть</div>
             </div>
             <div class="me-detail">
-                <div class="val">${avg}</div>
-                <div class="lbl">средний</div>
+                <div class="val">${avgPrimary}</div>
+                <div class="lbl">средний (перв.)</div>
             </div>
         </div>
     `;
