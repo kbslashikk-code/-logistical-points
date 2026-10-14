@@ -494,7 +494,7 @@
         }
         .dashboard.active { display: block; }
         .dashboard-layout { display: flex; min-height: calc(100vh - 66px); }
-        .main-content { flex: 1; padding: 2rem; max-width: 820px; margin: 0 auto; width: 100%; }
+        .main-content { flex: 1; padding: 2rem; max-width: 1180px; margin: 0 auto; width: 100%; }
 
         .user-avatar {
             width: 44px; height: 44px; background: var(--gold); border-radius: 13px;
@@ -526,67 +526,132 @@
         .hamburger-divider { height: 1px; background: var(--line); margin: 0.4rem 0.2rem; }
 
         .course-cabinet-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
-        .course-cabinet-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+        .course-cabinet-card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
+        .course-cabinet-card.expanded { background: var(--bg2); }
         .course-cabinet-card.minimized .course-cabinet-header { padding: 0.6rem 1.3rem; }
         .course-cabinet-card.minimized .ccc-icon,
         .course-cabinet-card.minimized .ccc-level,
         .course-cabinet-card.minimized .ccc-controls { display: none; }
         .course-cabinet-header {
             display: flex; align-items: center; gap: 0.9rem; padding: 1.1rem 1.3rem;
-            transition: padding 0.15s ease;
         }
+        .course-cabinet-header.ch-open { flex-wrap: wrap; padding: 1.2rem 1.5rem 1rem; gap: 0.7rem 1rem; }
         .ccc-icon {
             width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
             background: var(--gold3); color: var(--gold); flex-shrink: 0; cursor: pointer;
         }
         .ccc-name-wrap { flex: 1; cursor: pointer; }
         .ccc-tag {
-            display: inline-block; background: var(--gold3); color: var(--gold); font-size: 0.68rem; font-weight: 700;
-            padding: 0.2rem 0.6rem; border-radius: 20px; margin-bottom: 0.3rem;
+            display: inline-block; background: var(--gold); color: #fff; font-size: 0.7rem; font-weight: 700;
+            padding: 0.28rem 0.7rem; border-radius: 7px; margin-bottom: 0.3rem; white-space: nowrap;
         }
+        .ch-open .ccc-tag, .cs-card .ccc-tag { margin-bottom: 0; }
         .ccc-name { font-weight: 700; font-size: 1.02rem; }
+        .ccc-name.big { font-family: var(--fs); font-size: 1.25rem; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; }
         .ccc-level { font-size: 0.75rem; color: var(--text3); margin-top: 0.15rem; }
-        .ccc-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
+        .ccc-meta { font-size: 0.8rem; font-weight: 600; color: var(--text3); }
+        .ccc-meta.grow { flex: 1; }
+        .ccc-controls { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; margin-left: auto; }
+        .ch-open .ccc-controls { margin-left: 0; }
         .ccc-ctrl-btn {
-            width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--card2);
+            width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--card);
             color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: all 0.15s ease;
         }
-        .ccc-ctrl-btn:hover { border-color: var(--gold); color: var(--gold); }
-        .ccc-ctrl-btn.active-state { background: var(--gold); border-color: var(--gold); color: #fff; }
-        .course-cabinet-body { display: none; border-top: 1px solid var(--line); padding: 1.2rem 1.3rem 1.4rem; }
-        .course-cabinet-card.expanded .course-cabinet-body { display: block; }
+        .ccc-ctrl-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+        .ccc-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
 
-        .ccc-toggle-row {
-            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-            padding: 0.7rem 0.9rem; background: var(--card2); border-radius: 12px; margin-bottom: 1.2rem;
+        .ccc-toggle-inline { display: flex; align-items: center; gap: 0.6rem; }
+        .ccc-toggle-label { font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .ccc-info {
+            width: 24px; height: 24px; border-radius: 50%; border: none; background: var(--card); color: var(--text2);
+            font-weight: 800; font-size: 0.75rem; cursor: pointer; font-family: var(--f); box-shadow: 0 0 0 1px var(--line);
         }
-        .ccc-toggle-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-        .ccc-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
-        .ccc-switch input { opacity: 0; width: 0; height: 0; }
+        .ccc-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; display: inline-block; }
+        .ccc-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
         .ccc-switch-track {
             position: absolute; inset: 0; background: var(--line2); border-radius: 20px; cursor: pointer; transition: background 0.2s ease;
         }
         .ccc-switch-track::before {
-            content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff;
+            content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff;
             border-radius: 50%; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
         }
-        .ccc-switch input:checked + .ccc-switch-track { background: var(--gold); }
-        .ccc-switch input:checked + .ccc-switch-track::before { transform: translateX(18px); }
+        .ccc-switch input:checked + .ccc-switch-track { background: var(--text); }
+        .ccc-switch input:checked + .ccc-switch-track::before { transform: translateX(20px); }
 
-        .course-tabs-inner { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.2rem; }
-        .ctab {
-            display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 0.85rem; border-radius: 12px;
-            border: 1.5px solid var(--line); background: var(--card2);
-            color: var(--text2); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease;
-            font-family: var(--f); text-align: left;
+        /* Раскрытый курс: две панели */
+        .ccb-grid { display: grid; grid-template-columns: 300px 1fr; gap: 1rem; padding: 0.4rem 1.1rem 1.1rem; }
+        .ccb-panel {
+            background: var(--card); border-radius: 24px; padding: 1.5rem 1.6rem;
+            display: flex; flex-direction: column; min-width: 0;
         }
-        .ctab .ctab-icon { color: var(--text3); flex-shrink: 0; display: flex; transition: color 0.15s ease; }
-        .ctab:hover { border-color: var(--gold); color: var(--text); }
-        .ctab:hover .ctab-icon { color: var(--gold); }
-        .ctab.active { background: var(--gold3); border-color: var(--gold); color: var(--gold); }
-        .ctab.active .ctab-icon { color: var(--gold); }
+        .ccb-title { font-family: var(--fs); font-size: 1.05rem; font-weight: 700; margin-bottom: 1rem; }
+        .ccb-link {
+            align-self: center; margin-top: 1.1rem; background: none; border: none; cursor: pointer;
+            font-family: var(--f); font-weight: 700; font-size: 0.95rem; color: var(--gold2);
+        }
+        .ccb-link:hover { text-decoration: underline; }
+        .ev-list { flex: 1; display: flex; flex-direction: column; gap: 0.6rem; min-height: 180px; }
+        .ev-item { display: flex; gap: 0.8rem; align-items: flex-start; padding: 0.7rem 0.8rem; background: var(--card2); border-radius: 14px; }
+        .ev-date { font-weight: 800; font-size: 0.8rem; color: var(--gold2); background: var(--gold3); border-radius: 8px; padding: 0.3rem 0.5rem; white-space: nowrap; }
+        .ev-name { font-weight: 600; font-size: 0.88rem; line-height: 1.3; }
+        .ev-time { font-size: 0.76rem; color: var(--text3); margin-top: 0.15rem; }
+        .ev-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; color: var(--text3); font-size: 0.9rem; text-align: center; padding: 1rem; }
+        .ev-empty-logo { width: 96px; color: var(--line2); stroke-width: 1; }
+
+        .ttabs { display: flex; gap: 1.8rem; flex-wrap: wrap; margin-bottom: 1.3rem; border-bottom: 1px solid var(--line); }
+        .ttab {
+            background: none; border: none; border-bottom: 2.5px solid transparent; margin-bottom: -1px; padding: 0.3rem 0 0.7rem;
+            font-family: var(--f); font-weight: 700; font-size: 0.98rem; color: var(--gold2); cursor: pointer;
+        }
+        .ttab.active { color: var(--text); border-bottom-color: var(--text); }
         .course-tab-content { min-height: 80px; }
+        .course-tab-content.clip {
+            max-height: 540px; overflow: hidden;
+            -webkit-mask-image: linear-gradient(#000 82%, transparent); mask-image: linear-gradient(#000 82%, transparent);
+        }
+
+        /* Курс на всю страницу */
+        .cabinet-full .pane-header, .cabinet-full #availableCoursesBlock, .cabinet-full .section-block { display: none; }
+        .cabinet-full .course-cabinet-list { margin-top: 0; }
+        .course-cabinet-list .course-cabinet-card.expanded.full { background: var(--card); }
+        .cabinet-full .course-cabinet-card:not(.full) { display: none; }
+        .course-cabinet-card.full { border-radius: 22px; }
+        .course-cabinet-card.full .course-cabinet-header { background: var(--bg2); padding: 1.2rem 1.6rem 0.4rem; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+        .ch-full-title { display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; }
+        .ch-full-right { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .switch-course-btn {
+            display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1rem; border-radius: 10px;
+            border: 1.5px solid var(--line2); background: var(--card); color: var(--text); font-family: var(--f);
+            font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease;
+        }
+        .switch-course-btn svg { color: var(--gold); }
+        .switch-course-btn:hover { border-color: var(--gold); }
+        .ftabs { display: flex; gap: 0.2rem 1.6rem; flex-wrap: wrap; padding: 0.7rem 1.6rem 0; background: var(--bg2); }
+        .ftab {
+            display: flex; align-items: center; gap: 0.6rem; background: none; border: none; border-bottom: 3px solid transparent;
+            padding: 0.7rem 0.1rem 0.85rem; font-family: var(--f); font-weight: 700; font-size: 0.95rem; color: var(--gold2); cursor: pointer;
+        }
+        .ftab .ctab-icon { display: flex; color: var(--gold); }
+        .ftab.active { color: var(--text); border-bottom-color: var(--text); }
+        .ftab.active .ctab-icon { color: var(--text); }
+        .course-full-body { padding: 1.4rem 1.6rem 1.8rem; background: var(--card); }
+
+        .hw-full-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.2rem; }
+        .hw-full-head h3 { font-family: var(--fs); font-size: 1.35rem; font-weight: 700; }
+        .hw-filter-btn { display: inline-flex; align-items: center; gap: 0.6rem; background: none; border: none; cursor: pointer; color: var(--text); font-family: var(--f); font-size: 1rem; }
+        .hw-filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .hw-filter-chip { padding: 0.45rem 0.9rem; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); color: var(--text2); font-family: var(--f); font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+        .hw-filter-chip.active { background: var(--gold3); border-color: var(--gold); color: var(--gold2); }
+        .hw-group { background: var(--bg2); border-radius: 18px; padding: 1.4rem 1.6rem; margin-bottom: 0.9rem; }
+        .hw-group-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
+        .hw-group-title { font-family: var(--fs); font-weight: 700; font-size: 1.1rem; }
+        .hw-group-btn { border: none; background: var(--card3); color: var(--text); font-family: var(--f); font-weight: 700; font-size: 0.88rem; padding: 0.55rem 1.2rem; border-radius: 8px; cursor: pointer; }
+        .hw-group-counts { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1rem; }
+        .hw-group-counts .cnt { display: inline-flex; align-items: center; gap: 0.6rem; color: var(--text3); font-size: 0.98rem; }
+        .hw-group-counts .cnt b { display: inline-flex; min-width: 30px; height: 30px; align-items: center; justify-content: center; padding: 0 0.4rem; background: var(--card); color: var(--text); border-radius: 7px; font-size: 0.9rem; }
+        .hw-group-counts .cnt b.red { background: var(--red); color: #fff; }
+        .hw-group .hw-grid { margin-top: 1.2rem; }
 
         .available-courses-block {
             margin-top: 1.5rem;
@@ -639,134 +704,104 @@
         .progress-score-card .score-num { font-family: var(--fs); font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
         .progress-score-card .score-label { font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; }
 
-        /* === Карточка пробника (особая стилистика) === */
-        .mock-exam-card {
-            position: relative;
-            background: linear-gradient(135deg, var(--gold3), var(--blue3));
-            border: 2px solid var(--gold);
-            border-radius: 22px;
-            padding: 2rem 1.8rem;
-            overflow: hidden;
-            text-align: center;
-        }
-        .mock-exam-card::before {
-            content: "";
-            position: absolute;
-            top: -40%; right: -15%;
-            width: 260px; height: 260px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 40%, var(--gold3), transparent 70%);
-            pointer-events: none;
-        }
-        .mock-exam-card .me-label {
-            font-family: var(--fs);
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 0.8rem;
-        }
-        .mock-exam-card .me-score {
-            font-family: var(--fs);
-            font-size: 4rem;
-            font-weight: 800;
-            color: var(--gold);
-            line-height: 1;
-            position: relative;
-        }
-        .mock-exam-card .me-score small {
-            font-size: 1.6rem;
-            color: var(--text3);
-            font-weight: 700;
-        }
-        .mock-exam-card .me-subtitle {
-            font-size: 0.85rem;
-            color: var(--text2);
-            margin-top: 0.6rem;
-        }
-        .mock-exam-card .me-status {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.35rem 0.9rem;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 700;
-        }
-        .mock-exam-card .me-status.pending {
-            background: var(--blue3);
-            color: var(--blue2);
-        }
-        .mock-exam-card .me-status.graded {
-            background: var(--green2);
-            color: var(--green);
-        }
-        .mock-exam-card .me-details {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1.2rem;
-            padding-top: 1.2rem;
-            border-top: 1px solid var(--line);
-        }
-        .mock-exam-card .me-detail {
-            text-align: center;
-        }
-        .mock-exam-card .me-detail .val {
-            font-family: var(--fs);
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--text);
-        }
-        .mock-exam-card .me-detail .lbl {
-            font-size: 0.65rem;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-top: 0.2rem;
-        }
+        .hw-list { display: flex; flex-direction: column; gap: 0.8rem; }
+        .hw-subtabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .hw-subtab { padding: 0.45rem 0.9rem; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); color: var(--text2); font-family: var(--f); font-weight: 600; font-size: 0.82rem; cursor: pointer; }
+        .hw-subtab.active { background: var(--gold3); border-color: var(--gold); color: var(--gold2); }
+        .hw-chip { align-self: flex-start; background: var(--card3); color: var(--text); font-weight: 800; font-size: 1.05rem; padding: 0.55rem 1.1rem; border-radius: 22px; margin-top: 0.3rem; }
+        .hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
 
-        .hw-list { display: flex; flex-direction: column; gap: 1rem; }
-        .hw-list-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.3rem; }
-        .hw-list-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
-        .hw-badge { background: var(--card3); color: var(--text2); font-size: 0.8rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 9px; }
-        .hw-type-tag { font-weight: 800; font-size: 0.85rem; color: var(--text); }
-        .hw-list-title { font-weight: 700; font-size: 1.08rem; line-height: 1.4; margin-bottom: 1.1rem; }
-        .hw-list-meta { display: flex; justify-content: space-between; font-size: 0.92rem; margin-bottom: 0.35rem; color: var(--text2); }
-        .hw-list-meta strong { color: var(--text); font-weight: 700; }
-        .hw-list-btn {
-            width: 100%; margin-top: 1rem; padding: 0.9rem; border-radius: 12px; border: 1.5px solid var(--line);
-            background: var(--card2); color: var(--text); font-weight: 700; font-size: 0.95rem; cursor: pointer;
-            font-family: var(--f);
+        .hw-card {
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 1.3rem 1.3rem 1.2rem;
         }
-        .hw-list-btn:disabled { cursor: default; color: var(--text3); }
+        .hw-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; position: relative; }
+        .hw-st { background: #6f6f76; color: #fff; font-size: 0.78rem; font-weight: 600; padding: 0.2rem 0.55rem; border-radius: 3px; }
+        .hw-card.st-overdue .hw-st { background: var(--red); }
+        .hw-card.st-review .hw-st { background: var(--gold2); }
+        .hw-card.st-checked .hw-st { background: #4b4b52; }
+        .hw-kind { font-weight: 800; font-size: 0.92rem; color: var(--text); }
+        .hw-card-title { font-weight: 700; font-size: 1.02rem; line-height: 1.4; margin-bottom: 1.3rem; min-height: 4.2em; position: relative; }
+        .hw-card-meta { display: flex; justify-content: space-between; gap: 0.8rem; font-size: 0.9rem; margin-bottom: 0.35rem; color: var(--text3); position: relative; }
+        .hw-card-meta strong { color: var(--text2); font-weight: 600; text-align: right; }
+        .hw-result {
+            position: relative; margin-top: 0.7rem; padding: 0.5rem 0.75rem; border-radius: 10px;
+            background: rgba(128,128,140,0.12); color: var(--text3); font-size: 0.88rem; font-weight: 500;
+        }
+        .hw-result strong { font-weight: 700; margin-left: 0.15rem; }
+        .hw-result-fix { position: relative; margin-top: 0.4rem; font-size: 0.8rem; color: var(--text3); }
+        .hw-card-btn {
+            position: relative; width: 100%; margin-top: auto; padding: 0.85rem; border-radius: 10px; border: 1.5px solid var(--line);
+            background: var(--card3); color: var(--text); font-weight: 700; font-size: 0.92rem; cursor: pointer; font-family: var(--f);
+        }
+        .hw-result + .hw-card-btn, .hw-result-fix + .hw-card-btn { margin-top: 1rem; }
+        .hw-card-meta + .hw-card-btn { margin-top: 1.1rem; }
+        .hw-card-btn.ghost { margin-top: 0.5rem; background: transparent; }
+        .hw-card.st-overdue { background: var(--card2); }
 
-        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.4rem; }
+        /* Пробник — цвет сакуры */
+        .hw-card.mock { background: linear-gradient(150deg, #e57996, #c9506f); border-color: transparent; color: #fff; }
+        .hw-card.mock .hw-st { background: rgba(0,0,0,0.26); }
+        .hw-card.mock .hw-kind, .hw-card.mock .hw-card-title { color: #fff; }
+        .hw-card.mock .hw-card-meta { color: rgba(255,255,255,0.78); }
+        .hw-card.mock .hw-card-meta strong { color: #fff; }
+        .hw-card.mock .hw-result { background: rgba(255,255,255,0.88); color: #8b8790; }
+        .hw-card.mock .hw-result-fix { color: rgba(255,255,255,0.9); }
+        .hw-card.mock .hw-card-btn { background: rgba(0,0,0,0.24); border-color: transparent; color: #fff; }
+        .hw-card.mock .hw-card-btn.ghost { background: transparent; border-color: rgba(255,255,255,0.5); }
+        .hw-mock-wm { position: absolute; right: -28px; bottom: -22px; width: 180px; color: #fff; opacity: 0.13; pointer-events: none; stroke-width: 6; }
+
+        /* Папка материалов */
+        .folder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1.6rem 1.4rem; }
         .folder-card {
-            cursor: pointer; border-radius: 16px; overflow: hidden; background: var(--card);
-            border: 1px solid var(--line); transition: transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: pointer; background: none; border: none; padding: 0.4rem; text-align: center; font-family: var(--f); color: var(--text);
+            transition: transform 0.18s ease; border-radius: 18px;
         }
-        .folder-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-        .folder-banner {
-            position: relative; aspect-ratio: 16 / 11; overflow: hidden;
-            background: var(--folder-back);
-        }
-        .folder-wave {
-            position: absolute; inset: 0; opacity: 0.6;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23000000' stroke-opacity='0.06' stroke-width='2'%3E%3Cpath d='M-10 20 Q 30 0 70 20 T 150 20'/%3E%3Cpath d='M-10 55 Q 30 35 70 55 T 150 55'/%3E%3Cpath d='M-10 90 Q 30 70 70 90 T 150 90'/%3E%3Cpath d='M-10 125 Q 30 105 70 125 T 150 125'/%3E%3C/g%3E%3C/svg%3E");
-            background-size: 160px 160px;
-        }
-        .folder-corner {
-            position: absolute; top: 0; right: 0; width: 42px; height: 42px;
-            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.09) 50%);
-        }
-        .folder-brain-logo {
-            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-            width: 42%; color: var(--text); opacity: 0.82;
-        }
-        .folder-info { padding: 1rem 1.15rem 1.2rem; }
-        .folder-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.3rem; line-height: 1.3; }
+        .folder-card:hover { transform: translateY(-4px); }
+        .folder3d { width: 100%; height: auto; display: block; filter: drop-shadow(0 12px 14px rgba(20,12,16,0.22)); }
+        [data-theme="dark"] .folder3d { filter: drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 10px 16px rgba(0,0,0,0.5)); }
+        .folder-info { padding: 0.8rem 0.3rem 0.2rem; }
+        .folder-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; line-height: 1.3; }
         .folder-meta { font-size: 0.78rem; color: var(--text3); }
+
+        @media (max-width: 900px) {
+            .ccb-grid { grid-template-columns: 1fr; }
+            .ev-list { min-height: 0; }
+            .cs-card { flex-basis: 78vw; }
+            .cs-track { padding-inline: calc(50% - 39vw); }
+            .cs-arrow { display: none; }
+        }
+
+        /* Окно «Переключить курс» */
+        .cs-overlay {
+            position: fixed; inset: 0; z-index: 5000; background: rgba(12,9,11,0.72);
+            -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+            display: flex; flex-direction: column; opacity: 0; transition: opacity 0.22s ease;
+        }
+        .cs-overlay.show { opacity: 1; }
+        .cs-head { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.6rem; }
+        .cs-title { font-family: var(--fs); font-weight: 700; font-size: 1.15rem; color: #fff; }
+        .cs-close { width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.14); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cs-stage { flex: 1; display: flex; align-items: center; gap: 0.6rem; min-height: 0; padding: 0 0.8rem 3rem; }
+        .cs-arrow { flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); color: #241a1e; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(0,0,0,0.3); }
+        .cs-track {
+            flex: 1; display: flex; gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; padding: 1.5rem calc(50% - 150px);
+            scrollbar-width: none; -webkit-overflow-scrolling: touch;
+        }
+        .cs-track::-webkit-scrollbar { display: none; }
+        .cs-card {
+            flex: 0 0 300px; scroll-snap-align: center; background: var(--card); color: var(--text); border-radius: 26px; padding: 1.8rem 1.6rem;
+            display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; cursor: pointer;
+            border: 2px solid transparent; transform: scale(0.95); transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 24px 50px -16px rgba(0,0,0,0.6);
+        }
+        .cs-card:hover { transform: scale(1); }
+        .cs-card.current { border-color: var(--gold); }
+        .cs-card-icon { width: 54px; height: 54px; border-radius: 16px; background: var(--gold3); color: var(--gold); display: flex; align-items: center; justify-content: center; }
+        .cs-card-name { font-family: var(--fs); font-weight: 700; font-size: 1.15rem; line-height: 1.3; }
+        .cs-card-level { color: var(--text3); font-size: 0.85rem; }
+        .cs-card-state { margin-top: auto; width: 100%; text-align: center; padding: 0.75rem; border-radius: 12px; background: var(--card3); font-weight: 700; font-size: 0.9rem; }
+        .cs-card.current .cs-card-state { background: var(--gold); color: #fff; }
 
         .calendar-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; gap: 1rem; flex-wrap: wrap; }
         .calendar-nav-btn {
@@ -1200,10 +1235,6 @@
                         <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg></span>
                         Личный кабинет
                     </div>
-                    <div class="hamburger-item" onclick="closeHamburgerMenu(); scrollToProgress();">
-                        <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M4 19V6"/><path d="m6.5 15 3.5-4 3 3 5-6"/></svg></span>
-                        Прогресс
-                    </div>
                     <div class="hamburger-divider"></div>
                     <div class="hamburger-item" onclick="handleLogout()">
                         <span class="icon-tile"><svg class="lp-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8"/><path d="M10 12h10"/><path d="m17 8 4 4-4 4"/></svg></span>
@@ -1228,11 +1259,7 @@
                 <h3 class="block-title">Рекомендации <span class="block-title-hint">на основе вашего прогресса</span></h3>
                 <div class="rec-list" id="overviewRecs"><div class="rec-empty">Собираем данные о вашем прогрессе...</div></div>
             </div>
-
-            <div class="section-block" id="progressSection">
-                <h3 class="block-title">Пробник</h3>
-                <div id="progressScoreCard"></div>
-            </div>
+        </div>
         </div>
     </div>
 </div>
@@ -1739,7 +1766,6 @@ function updateUIAfterLogin() {
     renderCoursesGrid();
     renderCourseCabinet();
     renderAvailableCoursesBlock();
-    renderProgressScore();
     loadHomeworkCourses();
     updateAllRecommendations();
     setTimeout(() => renderMath(), 500);
@@ -1816,11 +1842,32 @@ function renderAvailableCoursesBlock() {
     `;
 }
 
+// ============ КАБИНЕТ: карточки курсов ============
+// Состояния карточки курса: свёрнута / свёрнута до названия / раскрыта (превью) / раскрыта полностью.
+let courseViewMode = {};      // courseId -> 'preview' | 'full'
+let minimizedCourses = {};    // courseId -> true
+const eventsCache = {};       // courseId -> элементы расписания
+
+const SVG_UP = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>';
+const SVG_DOWN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+const SVG_MINUS = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>';
+const SVG_SWITCH = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="9" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.6"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.6"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.6"/></svg>';
+const SVG_FILTER = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 3v5"/><path d="M6 13v8"/><path d="M12 3v10"/><path d="M12 18v3"/><path d="M18 3v2"/><path d="M18 10v11"/><circle cx="6" cy="10.5" r="2.2"/><circle cx="12" cy="15.5" r="2.2"/><circle cx="18" cy="7.5" r="2.2"/></svg>';
+
+function localDateStr(d) {
+    d = d || new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+
+function getEnrolledCourses() {
+    return ((userData && userData.enrolledCourses) || []).map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+}
+
 function renderCourseCabinet() {
     const list = document.getElementById("courseCabinetList");
     const countEl = document.getElementById("cabinetCourseCount");
     if (!list) return;
-    const enrolled = (userData.enrolledCourses || []).map(cid => COURSES.find(c => c.id === cid)).filter(c => c);
+    const enrolled = getEnrolledCourses();
     if (countEl) {
         const n = enrolled.length;
         const word = n === 1 ? "курс" : (n >= 2 && n <= 4 ? "курса" : "курсов");
@@ -1831,47 +1878,152 @@ function renderCourseCabinet() {
         return;
     }
     if (!userData.courseEnabled) userData.courseEnabled = {};
+    if (expandedCourseId && !enrolled.find(c => c.id === expandedCourseId)) expandedCourseId = null;
 
-    list.innerHTML = enrolled.map((course) => {
-        const isEnabled = userData.courseEnabled[course.id] !== false;
+    const isFull = !!expandedCourseId && courseViewMode[expandedCourseId] === "full";
+    const main = document.getElementById("cabinetMain");
+    if (main) main.classList.toggle("cabinet-full", isFull);
+
+    list.innerHTML = enrolled.map(buildCourseCard).join("");
+
+    if (expandedCourseId) {
+        const mode = courseViewMode[expandedCourseId] || "preview";
+        let tab = activeCourseTab[expandedCourseId] || "homework";
+        if (mode === "preview" && tab === "schedule") tab = "homework";
+        activeCourseTab[expandedCourseId] = tab;
+        renderCourseTabButtons(expandedCourseId, tab);
+        renderCourseTabContent(expandedCourseId, tab);
+        if (mode === "preview") loadUpcomingEvents(expandedCourseId);
+    }
+}
+
+function cccSwitchHtml(course, isEnabled) {
+    return `
+        <div class="ccc-toggle-inline">
+            <label class="ccc-switch">
+                <input type="checkbox" ${isEnabled ? "checked" : ""} onchange="toggleCourseEnabled('${course.id}', this.checked)">
+                <span class="ccc-switch-track"></span>
+            </label>
+            <span class="ccc-toggle-label">Курс включён</span>
+            <button class="ccc-info" type="button" title="Отметка о том, что вы сейчас занимаетесь по этому курсу" onclick="showToast('Переключатель показывает, что вы сейчас занимаетесь по этому курсу.', 'success')">i</button>
+        </div>`;
+}
+
+function cccControlsHtml(course, isOpen, mode) {
+    const id = course.id;
+    const upTitle = isOpen ? (mode === "full" ? "Вернуть обычный вид" : "Свернуть") : "Свернуть";
+    const downDisabled = isOpen && mode === "full";
+    const upDisabled = !isOpen;
+    return `
+        <div class="ccc-controls">
+            <button class="ccc-ctrl-btn" title="${upTitle}" ${upDisabled ? "disabled" : ""} onclick="collapseCourseCard('${id}')">${SVG_UP}</button>
+            <button class="ccc-ctrl-btn" title="${isOpen ? 'Открыть полностью' : 'Развернуть'}" ${downDisabled ? "disabled" : ""} onclick="expandCourseCard('${id}')">${SVG_DOWN}</button>
+            <button class="ccc-ctrl-btn" title="Свернуть до названия" onclick="minimizeCourseCard('${id}')">${SVG_MINUS}</button>
+        </div>`;
+}
+
+function buildCourseCard(course) {
+    const id = course.id;
+    const isEnabled = userData.courseEnabled[id] !== false;
+    const isOpen = id === expandedCourseId;
+    const mode = courseViewMode[id] || "preview";
+    const minimized = !isOpen && !!minimizedCourses[id];
+    const cls = isOpen ? (mode === "full" ? "expanded full" : "expanded") : (minimized ? "minimized" : "");
+
+    if (!isOpen) {
         return `
-        <div class="course-cabinet-card ${course.id === expandedCourseId ? 'expanded' : ''}" id="cabCard_${course.id}">
+        <div class="course-cabinet-card ${cls}" id="cabCard_${id}">
             <div class="course-cabinet-header">
-                <div class="ccc-icon" onclick="toggleCourseCard('${course.id}')">${course.icon}</div>
-                <div class="ccc-name-wrap" onclick="toggleCourseCard('${course.id}')">
+                <div class="ccc-icon" onclick="toggleCourseCard('${id}')">${course.icon}</div>
+                <div class="ccc-name-wrap" onclick="toggleCourseCard('${id}')">
                     <span class="ccc-tag">${escapeHtml(course.tag || course.name)}</span>
                     <div class="ccc-name">${escapeHtml(course.name)}</div>
                     <div class="ccc-level">${escapeHtml(course.level)}</div>
                 </div>
-                <div class="ccc-controls">
-                    <button class="ccc-ctrl-btn" title="Развернуть" onclick="expandCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
-                    <button class="ccc-ctrl-btn" title="Свернуть" onclick="collapseCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
-                    <button class="ccc-ctrl-btn" title="Свернуть до названия" onclick="minimizeCourseCard('${course.id}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>
+                ${cccControlsHtml(course, false, mode)}
+            </div>
+        </div>`;
+    }
+
+    if (mode === "full") {
+        return `
+        <div class="course-cabinet-card ${cls}" id="cabCard_${id}">
+            <div class="course-cabinet-header ch-full">
+                <div class="ch-full-title">
+                    <div class="ccc-name big">${escapeHtml(course.name)}</div>
+                    <button class="switch-course-btn" type="button" onclick="openCourseSwitcher()">${SVG_SWITCH}<span>Переключить курс</span></button>
+                </div>
+                <div class="ch-full-right">
+                    ${cccSwitchHtml(course, isEnabled)}
+                    <span class="ccc-meta">${escapeHtml(course.level)}</span>
+                    ${cccControlsHtml(course, true, mode)}
                 </div>
             </div>
-            <div class="course-cabinet-body">
-                <div class="ccc-toggle-row">
-                    <span class="ccc-toggle-label">Курс включён</span>
-                    <label class="ccc-switch">
-                        <input type="checkbox" ${isEnabled ? "checked" : ""} onchange="toggleCourseEnabled('${course.id}', this.checked)">
-                        <span class="ccc-switch-track"></span>
-                    </label>
-                </div>
-                <div class="course-tabs-inner">
-                    <button class="ctab" data-tab="schedule" onclick="switchCourseTab('${course.id}','schedule', this)"><span class="ctab-icon">${iconSvg('calendar', 18)}</span>Расписание</button>
-                    <button class="ctab" data-tab="homework" onclick="switchCourseTab('${course.id}','homework', this)"><span class="ctab-icon">${iconSvg('notebook', 18)}</span>Домашние задания</button>
-                    <button class="ctab" data-tab="quizzes" onclick="switchCourseTab('${course.id}','quizzes', this)"><span class="ctab-icon">${iconSvg('brain', 18)}</span>Квизы</button>
-                    <button class="ctab" data-tab="materials" onclick="switchCourseTab('${course.id}','materials', this)"><span class="ctab-icon">${iconSvg('folder', 18)}</span>Материалы</button>
-                </div>
-                <div class="course-tab-content" id="courseContent_${course.id}"></div>
+            <div class="ftabs">
+                <button class="ftab" data-tab="schedule" onclick="switchCourseTab('${id}','schedule', this)"><span class="ctab-icon">${iconSvg('calendar', 20)}</span>Расписание</button>
+                <button class="ftab" data-tab="materials" onclick="switchCourseTab('${id}','materials', this)"><span class="ctab-icon">${iconSvg('folder', 20)}</span>Материалы</button>
+                <button class="ftab" data-tab="homework" onclick="switchCourseTab('${id}','homework', this)"><span class="ctab-icon">${iconSvg('notebook', 20)}</span>Домашние задания</button>
+                <button class="ftab" data-tab="quizzes" onclick="switchCourseTab('${id}','quizzes', this)"><span class="ctab-icon">${iconSvg('brain', 20)}</span>Квизы</button>
             </div>
-        </div>
-    `;
-    }).join("");
-    if (expandedCourseId && enrolled.find(c => c.id === expandedCourseId)) {
-        const tab = activeCourseTab[expandedCourseId] || "homework";
-        renderCourseTabButtons(expandedCourseId, tab);
-        renderCourseTabContent(expandedCourseId, tab);
+            <div class="course-full-body">
+                <div class="course-tab-content" id="courseContent_${id}"></div>
+            </div>
+        </div>`;
+    }
+
+    return `
+        <div class="course-cabinet-card ${cls}" id="cabCard_${id}">
+            <div class="course-cabinet-header ch-open">
+                <span class="ccc-tag">${escapeHtml(course.tag || course.name)}</span>
+                <div class="ccc-name big">${escapeHtml(course.name)}</div>
+                <span class="ccc-meta grow">${escapeHtml(course.level)}</span>
+                ${cccSwitchHtml(course, isEnabled)}
+                ${cccControlsHtml(course, true, mode)}
+            </div>
+            <div class="ccb-grid">
+                <div class="ccb-panel ccb-events">
+                    <div class="ccb-title">Ближайшие события</div>
+                    <div class="ev-list" id="cabEvents_${id}"><div class="ev-empty">Загрузка...</div></div>
+                    <button class="ccb-link" type="button" onclick="openCalendarPage('${id}')">Полное расписание</button>
+                </div>
+                <div class="ccb-panel ccb-main">
+                    <div class="ttabs">
+                        <button class="ttab" data-tab="materials" onclick="switchCourseTab('${id}','materials', this)">Материалы курса</button>
+                        <button class="ttab" data-tab="homework" onclick="switchCourseTab('${id}','homework', this)">Домашние задания</button>
+                        <button class="ttab" data-tab="quizzes" onclick="switchCourseTab('${id}','quizzes', this)">Квизы</button>
+                    </div>
+                    <div class="course-tab-content clip" id="courseContent_${id}"></div>
+                    <button class="ccb-link" type="button" onclick="openCourseFull('${id}')">Открыть полностью</button>
+                </div>
+            </div>
+        </div>`;
+}
+
+async function loadUpcomingEvents(courseId) {
+    const el = () => document.getElementById("cabEvents_" + courseId);
+    if (!el()) return;
+    try {
+        if (!eventsCache[courseId]) eventsCache[courseId] = await queryByCourseIds("schedule", courseId);
+        const today = localDateStr();
+        const items = (eventsCache[courseId] || [])
+            .filter(i => i.date && i.date >= today)
+            .sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")))
+            .slice(0, 5);
+        const box = el();
+        if (!box) return;
+        if (items.length === 0) {
+            box.innerHTML = '<div class="ev-empty"><svg class="ev-empty-logo" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg><span>Ближайших событий нет</span></div>';
+            return;
+        }
+        const months = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+        box.innerHTML = items.map(i => {
+            const p = i.date.split("-");
+            const label = parseInt(p[2], 10) + " " + months[parseInt(p[1], 10) - 1];
+            return `<div class="ev-item"><div class="ev-date">${label}</div><div class="ev-body"><div class="ev-name">${escapeHtml(i.name || "")}</div><div class="ev-time">${escapeHtml(i.time || "")}</div></div></div>`;
+        }).join("");
+    } catch (e) {
+        const box = el();
+        if (box) box.innerHTML = '<div class="ev-empty"><span>Не удалось загрузить расписание</span></div>';
     }
 }
 
@@ -1881,57 +2033,61 @@ function toggleCourseEnabled(courseId, checked) {
     if (currentUser) db.collection("users").doc(currentUser.uid).update({ courseEnabled: userData.courseEnabled }).catch(() => {});
 }
 
-function expandCourseCard(courseId) {
-    if (expandedCourseId && expandedCourseId !== courseId) {
-        const prevCard = document.getElementById("cabCard_" + expandedCourseId);
-        if (prevCard) prevCard.classList.remove("expanded");
-    }
-    expandedCourseId = courseId;
-    const card = document.getElementById("cabCard_" + courseId);
-    if (!card) return;
-    card.classList.remove("minimized");
-    card.classList.add("expanded");
-    const tab = activeCourseTab[courseId] || "homework";
-    renderCourseTabButtons(courseId, tab);
-    renderCourseTabContent(courseId, tab);
-    setTimeout(() => card.scrollIntoView({ behavior: "smooth", block: "nearest" }), 150);
+function scrollCourseIntoView(courseId) {
+    setTimeout(() => {
+        const card = document.getElementById("cabCard_" + courseId);
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
 }
 
+function openCourseCard(courseId, mode) {
+    expandedCourseId = courseId;
+    courseViewMode[courseId] = mode || "preview";
+    delete minimizedCourses[courseId];
+    renderCourseCabinet();
+    scrollCourseIntoView(courseId);
+}
+
+function expandCourseCard(courseId) {
+    if (expandedCourseId === courseId) {
+        if ((courseViewMode[courseId] || "preview") === "preview") openCourseCard(courseId, "full");
+        return;
+    }
+    openCourseCard(courseId, "preview");
+}
+
+function openCourseFull(courseId) { openCourseCard(courseId, "full"); }
+
 function collapseCourseCard(courseId) {
-    const card = document.getElementById("cabCard_" + courseId);
-    if (!card) return;
-    card.classList.remove("expanded");
-    card.classList.remove("minimized");
-    if (expandedCourseId === courseId) expandedCourseId = null;
+    if (expandedCourseId !== courseId) return;
+    if (courseViewMode[courseId] === "full") { openCourseCard(courseId, "preview"); return; }
+    expandedCourseId = null;
+    renderCourseCabinet();
 }
 
 function minimizeCourseCard(courseId) {
-    const card = document.getElementById("cabCard_" + courseId);
-    if (!card) return;
-    card.classList.remove("expanded");
-    card.classList.add("minimized");
     if (expandedCourseId === courseId) expandedCourseId = null;
+    minimizedCourses[courseId] = true;
+    renderCourseCabinet();
 }
 
 function toggleCourseCard(courseId) {
-    const card = document.getElementById("cabCard_" + courseId);
-    if (!card) return;
-    if (card.classList.contains("expanded")) collapseCourseCard(courseId);
-    else expandCourseCard(courseId);
+    if (expandedCourseId === courseId) { expandedCourseId = null; renderCourseCabinet(); }
+    else openCourseCard(courseId, "preview");
 }
 
 function renderCourseTabButtons(courseId, activeTab) {
     const card = document.getElementById("cabCard_" + courseId);
     if (!card) return;
-    card.querySelectorAll(".ctab").forEach(btn => {
+    card.querySelectorAll(".ttab, .ftab").forEach(btn => {
         btn.classList.toggle("active", btn.getAttribute("data-tab") === activeTab);
     });
 }
 
 function switchCourseTab(courseId, tab, el) {
+    if (tab === "schedule") { openCalendarPage(courseId); return; }
     activeCourseTab[courseId] = tab;
     renderCourseTabButtons(courseId, tab);
-    if (tab === "schedule") { openCalendarPage(courseId); return; }
     renderCourseTabContent(courseId, tab);
 }
 
@@ -1944,43 +2100,67 @@ function renderCourseTabContent(courseId, tab) {
     else container.innerHTML = '<div class="schedule-empty">Нажмите «Расписание», чтобы открыть календарь занятий.</div>';
 }
 
-async function renderMaterialsTabContent(courseId) {
-    const container = document.getElementById("courseContent_" + courseId);
-    if (!container) return;
-    const folders = MATERIAL_FOLDERS[courseId] || [];
-    if (folders.length === 0) { container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>'; return; }
-    container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
-        <div class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
-            <div class="folder-banner">
-                <div class="folder-wave"></div>
-                <div class="folder-corner"></div>
-                <svg class="folder-brain-logo" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>
+// ============ ОКНО «ПЕРЕКЛЮЧИТЬ КУРС» ============
+function openCourseSwitcher() {
+    const enrolled = getEnrolledCourses();
+    if (enrolled.length === 0) return;
+    closeCourseSwitcher(true);
+    const cards = enrolled.map(c => `
+        <div class="cs-card ${c.id === expandedCourseId ? 'current' : ''}" data-course="${c.id}" onclick="selectCourseFromSwitcher('${c.id}')">
+            <div class="cs-card-icon">${c.icon}</div>
+            <span class="ccc-tag">${escapeHtml(c.tag || c.name)}</span>
+            <div class="cs-card-name">${escapeHtml(c.name)}</div>
+            <div class="cs-card-level">${escapeHtml(c.level || "")}</div>
+            <div class="cs-card-state">${c.id === expandedCourseId ? "Текущий курс" : "Выбрать"}</div>
+        </div>`).join("");
+    const html = `
+        <div class="cs-overlay" id="courseSwitcher" onclick="if(event.target===this) closeCourseSwitcher()">
+            <div class="cs-head">
+                <div class="cs-title">Выберите курс</div>
+                <button class="cs-close" type="button" aria-label="Закрыть" onclick="closeCourseSwitcher()">${iconSvg('close', 22)}</button>
             </div>
-            <div class="folder-info">
-                <div class="folder-name">${escapeHtml(folder.name)}</div>
-                <div class="folder-meta" id="folderMeta_${folder.id}">Загрузка...</div>
+            <div class="cs-stage" onclick="if(event.target===this) closeCourseSwitcher()">
+                <button class="cs-arrow" type="button" aria-label="Влево" onclick="scrollCourseSwitcher(-1)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+                <div class="cs-track" id="csTrack">${cards}</div>
+                <button class="cs-arrow" type="button" aria-label="Вправо" onclick="scrollCourseSwitcher(1)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
             </div>
-        </div>
-    `).join("") + '</div>';
-
-    for (const folder of folders) {
-        try {
-            const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
-            let lessonsCount = 0, hwCount = 0;
-            for (const cid of legacyIds) {
-                const lessonsSnap = await db.collection("lessons").where("courseId", "==", cid).get();
-                lessonsCount += lessonsSnap.size;
-                const hwSnap = await db.collection("homeworks").where("courseId", "==", cid).get();
-                hwCount += hwSnap.size;
-            }
-            const metaEl = document.getElementById("folderMeta_" + folder.id);
-            if (metaEl) metaEl.textContent = lessonsCount + " " + pluralizeRu(lessonsCount, "урок", "урока", "уроков") + " / " + hwCount + " ДЗ";
-        } catch (e) {
-            const metaEl = document.getElementById("folderMeta_" + folder.id);
-            if (metaEl) metaEl.textContent = "";
-        }
-    }
+        </div>`;
+    document.body.insertAdjacentHTML("beforeend", html);
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => {
+        const ov = document.getElementById("courseSwitcher");
+        if (ov) ov.classList.add("show");
+        const cur = document.querySelector("#csTrack .cs-card.current");
+        if (cur) cur.scrollIntoView({ inline: "center", block: "nearest" });
+    });
 }
+
+function scrollCourseSwitcher(dir) {
+    const track = document.getElementById("csTrack");
+    if (!track) return;
+    const card = track.querySelector(".cs-card");
+    const step = card ? card.getBoundingClientRect().width + 20 : 300;
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+}
+
+function closeCourseSwitcher(silent) {
+    const ov = document.getElementById("courseSwitcher");
+    if (ov) ov.remove();
+    if (!silent) document.body.style.overflow = "auto";
+}
+
+function selectCourseFromSwitcher(courseId) {
+    closeCourseSwitcher();
+    const mode = courseViewMode[expandedCourseId] || "full";
+    openCourseCard(courseId, mode);
+}
+
+document.addEventListener("keydown", (e) => {
+    if (!document.getElementById("courseSwitcher")) return;
+    if (e.key === "Escape") closeCourseSwitcher();
+    else if (e.key === "ArrowLeft") scrollCourseSwitcher(-1);
+    else if (e.key === "ArrowRight") scrollCourseSwitcher(1);
+});
 
 function pluralizeRu(n, one, few, many) {
     const mod10 = n % 10, mod100 = n % 100;
@@ -2084,64 +2264,6 @@ async function markLessonCompleted(lessonId, courseId) {
     }
 }
 
-// ============ КАРТОЧКА ПРОБНИКА (с переводом в тестовые баллы) ============
-function renderProgressScore() {
-    const container = document.getElementById("progressScoreCard");
-    if (!container || !userData) return;
-    const scores = userData.mockExamScores || [];
-    if (scores.length === 0) {
-        container.className = "mock-exam-card";
-        container.innerHTML = `
-            <div class="me-label">Пробный экзамен</div>
-            <div class="me-score">—</div>
-            <div class="me-subtitle">Пробников пока не было.<br>Балл появится после первого пробного экзамена.</div>
-        `;
-        return;
-    }
-
-    // Берём последний пробник — по нему показываем результат.
-    const last = scores[scores.length - 1];
-
-    const firstPartScore = last.firstPartScore != null ? last.firstPartScore : 0;
-    const secondPartScore = last.secondPartScore != null ? last.secondPartScore : 0;
-
-    // Считаем ПЕРВИЧНЫЙ балл (сумма баллов за все задания)
-    const primaryScore = firstPartScore + secondPartScore;
-
-    // Переводим в ТЕСТОВЫЙ (вторичный) балл
-    const secondaryScore = convertPrimaryToSecondary(primaryScore);
-
-    const isGraded = !!last.graded;
-    const maxPrimaryScore = last.maxScore || SCORE_SCALE.totalMax;
-
-    // Средний первичный балл по всем пробникам
-    const avgPrimary = Math.round(scores.reduce((a, b) => a + (b.firstPartScore || 0) + (b.secondPartScore || 0), 0) / scores.length);
-
-    container.className = "mock-exam-card";
-    container.innerHTML = `
-        <div class="me-label">Пробный экзамен</div>
-        <div class="me-score">${secondaryScore}<small> / 100</small></div>
-        <div class="me-subtitle">${isGraded ? "Проверено преподавателем" : "Ожидает проверки второй части"}</div>
-        <div class="me-status ${isGraded ? 'graded' : 'pending'}">
-            ${isGraded ? 'Проверено' : 'На проверке'}
-        </div>
-        <div class="me-details">
-            <div class="me-detail">
-                <div class="val">${firstPartScore}</div>
-                <div class="lbl">1 часть</div>
-            </div>
-            <div class="me-detail">
-                <div class="val">${secondPartScore}</div>
-                <div class="lbl">2 часть</div>
-            </div>
-            <div class="me-detail">
-                <div class="val">${avgPrimary}</div>
-                <div class="lbl">средний (перв.)</div>
-            </div>
-        </div>
-    `;
-}
-
 function computeRecommendations() {
     const recs = [];
     const ts = (userData && userData.topicStats) || {};
@@ -2181,7 +2303,6 @@ document.addEventListener("click", function (e) {
     if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) menu.classList.remove("open");
 });
 function scrollToCabinetTop() { const el = document.getElementById("cabinetTop"); if (el) el.scrollIntoView({ behavior: "smooth" }); }
-function scrollToProgress() { const el = document.getElementById("progressSection"); if (el) el.scrollIntoView({ behavior: "smooth" }); }
 
 function showHome() {
     if (currentUser) {
@@ -2308,6 +2429,15 @@ function renderCalendarMonth() {
 const HOMEWORK_TABS = { default: [{ id: "all", name: "Все задания" }] };
 let activeHwTabByCourse = {};
 
+let lastHwRefresh = 0;
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible" || !currentUser || !expandedCourseId) return;
+    if (activeCourseTab[expandedCourseId] !== "homework") return;
+    if (Date.now() - lastHwRefresh < 15000) return;
+    lastHwRefresh = Date.now();
+    renderHomeworkTabContent(expandedCourseId, true);
+});
+
 async function loadHomeworkCourses() {
     if (expandedCourseId && activeCourseTab[expandedCourseId] === "homework") {
         renderHomeworkTabContent(expandedCourseId, true);
@@ -2372,25 +2502,6 @@ async function renderHomeworkTabContent(courseId, forceRefresh) {
     }
 }
 
-async function renderHwTabsAndList(courseId, homeworks) {
-    const container = document.getElementById("courseContent_" + courseId);
-    if (!container) return;
-    const tabs = HOMEWORK_TABS[courseId] || HOMEWORK_TABS.default;
-    if (!activeHwTabByCourse[courseId]) activeHwTabByCourse[courseId] = tabs[0].id;
-    const activeTab = activeHwTabByCourse[courseId];
-    const filtered = homeworks.filter(hw => !hw.hwTabId || hw.hwTabId === activeTab);
-    const tabsHtml = tabs.length > 1 ? '<div class="course-tabs-inner" style="margin-bottom:1rem;">' + tabs.map(t => `
-        <button class="ctab ${t.id === activeTab ? 'active' : ''}" onclick="selectHwTab('${courseId}','${t.id}')">${escapeHtml(t.name)}</button>
-    `).join("") + '</div>' : '';
-    container.innerHTML = tabsHtml + '<div class="hw-list" id="hwList_' + courseId + '"></div>';
-    await renderHwListCards(courseId, filtered);
-}
-
-function selectHwTab(courseId, tabId) {
-    activeHwTabByCourse[courseId] = tabId;
-    renderHwTabsAndList(courseId, hwCache[courseId] || []);
-}
-
 function formatRuDate(value) {
     if (!value) return "";
     if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
@@ -2408,73 +2519,286 @@ function formatRuDate(value) {
     return value;
 }
 
+// ============ ДОМАШНИЕ ЗАДАНИЯ: карточки, группы, баллы ============
+// Что показывать на карточке пробника: true — тестовый балл (0–100) числом, без «/ 100»;
+// false — первичный балл (сумма за задания).
+const MOCK_SHOW_TEST_SCORE = true;
+
+let hwSubCache = {};        // courseId -> { hwId: submission|null }
+let hwFilterByCourse = {};  // courseId -> all | todo | overdue | review | checked
+let hwFilterOpen = {};
+let hwGroupOpen = {};       // courseId_group -> true
+
+function isMockHomework(hw) {
+    if (!hw) return false;
+    if (hw.isMock === true || hw.isMockExam === true || hw.mock === true || hw.isProbnik === true || hw.probnik === true) return true;
+    const t = String(hw.type || hw.kind || hw.category || hw.hwType || hw.hwTabId || "").toLowerCase();
+    if (/mock|probn|trial|пробн/.test(t)) return true;
+    return /пробн/i.test(String(hw.title || ""));
+}
+
+function getHwDueDate(hw) {
+    const v = hw.dueDate || hw.deadline;
+    if (!v) return null;
+    if (typeof v.toDate === "function") return v.toDate();
+    const d = new Date(v);
+    return isNaN(d) ? null : d;
+}
+
+// Баллы берём из актуального submission (то, что видит и правит преподаватель).
+function getSubmissionScores(hw, s) {
+    const tasks = (hw && hw.tasks) || [];
+    const first = s && s.firstPartScore != null ? s.firstPartScore : ((s && s.correctCount) || 0);
+    let second = 0;
+    if (s && s.secondPartScore != null) second = s.secondPartScore;
+    else if (s && s.reviewScores) {
+        tasks.forEach((t, i) => { if (t.isSecondPart) second += Number(s.reviewScores[i]) || 0; });
+    }
+    return { first: first, second: second, total: first + second };
+}
+
+function readSeenScore(hwId) {
+    try {
+        const raw = localStorage.getItem("lp_seen_" + (currentUser ? currentUser.uid : "") + "_" + hwId);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+}
+function writeSeenScore(hwId, total) {
+    try { localStorage.setItem("lp_seen_" + (currentUser ? currentUser.uid : "") + "_" + hwId, JSON.stringify({ total: total })); } catch (e) {}
+}
+
+// Работа ждёт проверки, только если ученик сдал решение 2 части и преподаватель ещё не проверил.
+function submissionNeedsReview(hw, sub) {
+    if (!sub || sub.graded) return false;
+    return (sub.taskResults || []).some(r => r && r.isSecondPart && ((r.files && r.files.length > 0) || r.userAnswer));
+}
+
+function hwStatusOf(hw, sub) {
+    const hasSecond = (hw.tasks || []).some(t => t.isSecondPart);
+    if (!sub) {
+        const due = getHwDueDate(hw);
+        return due && due.getTime() < Date.now() ? "overdue" : "issued";
+    }
+    if (submissionNeedsReview(hw, sub)) return "review";
+    return "checked";
+}
+
+const HW_STATUS_LABEL = { overdue: "Просрочено", issued: "Выдано", review: "На проверке", checked: "Проверено" };
+const HW_FILTERS = [
+    { id: "all", name: "Все" },
+    { id: "todo", name: "К выполнению" },
+    { id: "overdue", name: "Просрочено" },
+    { id: "review", name: "На проверке" },
+    { id: "checked", name: "Проверено" }
+];
+
+function hwMatchesFilter(status, filter) {
+    if (!filter || filter === "all") return true;
+    if (filter === "todo") return status === "issued" || status === "overdue";
+    return status === filter;
+}
+
+function buildHwCard(hw, sub) {
+    const tasks = hw.tasks || [];
+    const hasSecond = tasks.some(t => t.isSecondPart);
+    const mock = isMockHomework(hw);
+    const status = hwStatusOf(hw, sub);
+
+    let btnLabel, btnOnclick, extraBtn = "";
+    if (status === "issued" || status === "overdue") {
+        btnLabel = mock ? "Решать пробник" : "Приступить к выполнению";
+        btnOnclick = "startHomework('" + hw.id + "')";
+    } else if (status === "review") {
+        btnLabel = "На проверке";
+        btnOnclick = "viewHomeworkResult('" + hw.id + "')";
+    } else {
+        btnLabel = "Посмотреть результат";
+        btnOnclick = "viewHomeworkResult('" + hw.id + "')";
+        if (hasSecond) extraBtn = '<button class="hw-card-btn ghost" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
+    }
+
+    // Результат — бледно-серым прямо на карточке, без «/ 100».
+    let resultHtml = "";
+    if (sub) {
+        const sc = getSubmissionScores(hw, sub);
+        if (status === "review" && mock) {
+            // Пробник на проверке: сразу показываем тестовый балл за уже известные баллы;
+            // когда преподаватель добавит баллы 2 части, число пересчитается.
+            const shownNow = MOCK_SHOW_TEST_SCORE ? convertPrimaryToSecondary(sc.total) : sc.total;
+            resultHtml = '<div class="hw-result">Результат: <strong>' + shownNow + '</strong></div>';
+        } else if (status === "review") {
+            resultHtml = '<div class="hw-result">Баллы: <strong>' + sc.total + '</strong></div>';
+        } else {
+            const shown = mock && MOCK_SHOW_TEST_SCORE ? convertPrimaryToSecondary(sc.total) : sc.total;
+            let fix = "";
+            const seen = readSeenScore(hw.id);
+            if (seen && seen.total != null && seen.total !== sc.total) {
+                fix = '<div class="hw-result-fix">Балл изменён преподавателем: ' + seen.total + ' → ' + sc.total + '</div>';
+            } else if (!seen) {
+                writeSeenScore(hw.id, sc.total);
+            }
+            resultHtml = '<div class="hw-result">' + (mock ? "Результат: " : "Баллы: ") + '<strong>' + shown + '</strong></div>' + fix;
+        }
+    }
+
+    const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
+    const deadlineText = hw.deadlineText || formatRuDate(hw.dueDate) || "не указан";
+    const watermark = mock ? '<svg class="hw-mock-wm" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>' : "";
+
+    return `
+        <div class="hw-card ${mock ? 'mock' : ''} st-${status}">
+            ${watermark}
+            <div class="hw-card-top">
+                <span class="hw-st">${HW_STATUS_LABEL[status]}</span>
+                <span class="hw-kind">${mock ? "Пробник" : "ДЗ"}</span>
+            </div>
+            <div class="hw-card-title">${escapeHtml(hw.title || "")}</div>
+            <div class="hw-card-meta"><span>Выдано:</span><strong>${escapeHtml(String(issuedDate || "не указано"))}</strong></div>
+            <div class="hw-card-meta"><span>Дедлайн:</span><strong>${escapeHtml(String(deadlineText))}</strong></div>
+            ${resultHtml}
+            <button class="hw-card-btn" onclick="${btnOnclick}">${btnLabel}</button>
+            ${extraBtn}
+        </div>`;
+}
+
+async function renderHwTabsAndList(courseId, homeworks) {
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
+    const tabs = HOMEWORK_TABS[courseId] || HOMEWORK_TABS.default;
+    if (!activeHwTabByCourse[courseId]) activeHwTabByCourse[courseId] = tabs[0].id;
+    const activeTab = activeHwTabByCourse[courseId];
+    const filtered = homeworks.filter(hw => !hw.hwTabId || hw.hwTabId === activeTab || hw.hwTabId === "mock" || isMockHomework(hw));
+    const tabsHtml = tabs.length > 1 ? '<div class="hw-subtabs">' + tabs.map(t => `
+        <button class="hw-subtab ${t.id === activeTab ? 'active' : ''}" onclick="selectHwTab('${courseId}','${t.id}')">${escapeHtml(t.name)}</button>
+    `).join("") + '</div>' : '';
+    container.innerHTML = tabsHtml + '<div class="hw-list" id="hwList_' + courseId + '"></div>';
+    await renderHwListCards(courseId, filtered);
+}
+
+function selectHwTab(courseId, tabId) {
+    activeHwTabByCourse[courseId] = tabId;
+    renderHwTabsAndList(courseId, hwCache[courseId] || []);
+}
+
+function setHwFilter(courseId, f) { hwFilterByCourse[courseId] = f; renderHwView(courseId); }
+function toggleHwFilterMenu(courseId) { hwFilterOpen[courseId] = !hwFilterOpen[courseId]; renderHwView(courseId); }
+function toggleHwGroup(courseId, g) { const k = courseId + "_" + g; hwGroupOpen[k] = !hwGroupOpen[k]; renderHwView(courseId); }
+
 async function renderHwListCards(courseId, homeworks) {
     const list = document.getElementById("hwList_" + courseId);
     if (!list) return;
+    list._hws = homeworks;
     if (homeworks.length === 0) { list.innerHTML = '<div class="schedule-empty">Заданий пока нет</div>'; return; }
+    // Всегда читаем свежие данные: так ученик видит исправления баллов, сделанные преподавателем.
+    const subs = await Promise.all(homeworks.map(hw => getSubmissionForHw(hw.id)));
+    const map = {};
+    homeworks.forEach((hw, i) => { map[hw.id] = subs[i]; });
+    hwSubCache[courseId] = map;
+    renderHwView(courseId);
+}
 
-    const submissionsMap = {};
-    for (const hw of homeworks) {
-        submissionsMap[hw.id] = await getSubmissionForHw(hw.id);
+function renderHwView(courseId) {
+    const list = document.getElementById("hwList_" + courseId);
+    if (!list || !list._hws) return;
+    const homeworks = list._hws;
+    const subs = hwSubCache[courseId] || {};
+    const full = courseViewMode[courseId] === "full";
+    const filter = hwFilterByCourse[courseId] || "all";
+    const rank = { overdue: 0, issued: 0, review: 1, checked: 2 };
+
+    const items = homeworks.map(hw => ({ hw: hw, sub: subs[hw.id] || null, status: hwStatusOf(hw, subs[hw.id] || null), mock: isMockHomework(hw) }));
+    items.sort((a, b) => rank[a.status] - rank[b.status]);
+    const groups = [
+        { id: "mock", title: "Пробники", items: items.filter(i => i.mock) },
+        { id: "hw", title: "Домашние задания", items: items.filter(i => !i.mock) }
+    ].filter(g => g.items.length > 0);
+
+    if (!full) {
+        list.innerHTML = groups.map(g => `
+            <div class="hw-chip">${g.title}</div>
+            <div class="hw-grid">${g.items.map(i => buildHwCard(i.hw, i.sub)).join("")}</div>
+        `).join("");
+        return;
     }
 
-    list.innerHTML = homeworks.map(hw => {
-        const tasks = hw.tasks || [];
-        const hasSecondPart = tasks.some(t => t.isSecondPart);
-        const submission = submissionsMap[hw.id];
-        const isGraded = !!(submission && submission.graded);
+    const filterChips = hwFilterOpen[courseId] ? '<div class="hw-filter-chips">' + HW_FILTERS.map(f =>
+        `<button class="hw-filter-chip ${f.id === filter ? 'active' : ''}" onclick="setHwFilter('${courseId}','${f.id}')">${f.name}</button>`).join("") + '</div>' : "";
 
-        let badgeText, btnLabel, btnOnclick, extraBtn = "";
-        if (!submission) {
-            badgeText = "Выдано";
-            btnLabel = "Приступить к выполнению";
-            btnOnclick = "startHomework('" + hw.id + "')";
-        } else if (hasSecondPart && !isGraded) {
-            badgeText = "На проверке";
-            btnLabel = "На проверке";
-            btnOnclick = "viewHomeworkResult('" + hw.id + "')";
-        } else if (!hasSecondPart) {
-            badgeText = "Проверено";
-            btnLabel = "Посмотреть результат";
-            btnOnclick = "viewHomeworkResult('" + hw.id + "')";
-        } else {
-            badgeText = "Проверено";
-            btnLabel = "Посмотреть результат";
-            btnOnclick = "viewHomeworkResult('" + hw.id + "')";
-            extraBtn = '<button class="hw-list-btn" style="margin-top:0.6rem" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
-        }
-
-        // Показываем балл прямо в карточке списка.
-        let scoreLine = "";
-        if (submission) {
-            const firstPartScore = submission.firstPartScore != null ? submission.firstPartScore : (submission.correctCount || 0);
-            const secondPartScore = submission.secondPartScore != null ? submission.secondPartScore : 0;
-            const totalScore = firstPartScore + secondPartScore;
-            if (hasSecondPart && !isGraded) {
-                scoreLine = `<div class="hw-list-meta" style="color:var(--gold);font-weight:700"><span>Балл (1 часть):</span> <strong>${firstPartScore}</strong></div>`;
-            } else {
-                scoreLine = `<div class="hw-list-meta" style="color:var(--green);font-weight:700"><span>Ваш балл:</span> <strong>${totalScore} / ${SCORE_SCALE.totalMax}</strong></div>`;
-            }
-        }
-
-        const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
-        const deadlineText = hw.deadlineText || formatRuDate(hw.dueDate) || "не указан";
-
+    const groupsHtml = groups.map(g => {
+        const todo = g.items.filter(i => i.status === "issued" || i.status === "overdue").length;
+        const overdue = g.items.filter(i => i.status === "overdue").length;
+        const review = g.items.filter(i => i.status === "review").length;
+        const open = filter !== "all" || !!hwGroupOpen[courseId + "_" + g.id];
+        const shown = g.items.filter(i => hwMatchesFilter(i.status, filter));
         return `
-            <div class="hw-list-card">
-                <div class="hw-list-top">
-                    <span class="hw-badge">${badgeText}</span>
-                    <span class="hw-type-tag">ДЗ</span>
+            <div class="hw-group ${open ? 'open' : ''}">
+                <div class="hw-group-head" onclick="toggleHwGroup('${courseId}','${g.id}')">
+                    <div class="hw-group-title">${g.title}</div>
+                    <button class="hw-group-btn" type="button">${open ? "Скрыть" : "Открыть"}</button>
                 </div>
-                <div class="hw-list-title">${escapeHtml(hw.title)}</div>
-                <div class="hw-list-meta"><span>Выдано:</span> <strong>${escapeHtml(String(issuedDate || "не указано"))}</strong></div>
-                <div class="hw-list-meta"><span>Дедлайн:</span> <strong>${escapeHtml(String(deadlineText))}</strong></div>
-                ${scoreLine}
-                <button class="hw-list-btn" onclick="${btnOnclick}">${btnLabel}</button>
-                ${extraBtn}
-            </div>
-        `;
+                <div class="hw-group-counts">
+                    <span class="cnt"><b>${todo}</b> Выполнить</span>
+                    ${overdue ? `<span class="cnt"><b class="red">${overdue}</b> Просрочено</span>` : ""}
+                    ${review ? `<span class="cnt"><b>${review}</b> На проверке</span>` : ""}
+                </div>
+                ${open ? (shown.length ? '<div class="hw-grid">' + shown.map(i => buildHwCard(i.hw, i.sub)).join("") + '</div>' : '<div class="schedule-empty">Нет заданий с таким статусом</div>') : ""}
+            </div>`;
     }).join("");
+
+    list.innerHTML = `
+        <div class="hw-full-head">
+            <h3>Домашние задания</h3>
+            <button class="hw-filter-btn" type="button" onclick="toggleHwFilterMenu('${courseId}')">${SVG_FILTER}<span>Фильтр</span></button>
+        </div>
+        ${filterChips}
+        ${groupsHtml}`;
+}
+
+// ============ МАТЕРИАЛЫ: чёрная папка ============
+function folderSvg() {
+    return `<svg class="folder3d" viewBox="0 0 200 172" aria-hidden="true">
+        <path d="M8 38 Q8 30 16 30 L126 30 Q134 30 136 24 Q138 16 148 16 L182 16 Q192 16 192 26 L192 156 Q192 164 184 164 L16 164 Q8 164 8 156 Z" fill="#101011"/>
+        <rect x="13" y="35" width="174" height="46" rx="2" fill="#ffffff"/>
+        <rect x="13" y="35" width="174" height="3" rx="1.5" fill="#e4e4e6"/>
+        <rect x="11" y="39" width="3" height="30" fill="#d9d9dc"/>
+        <rect x="186" y="39" width="3" height="30" fill="#d9d9dc"/>
+        <path d="M11 68 Q11 64 15 64 L185 64 Q189 64 189 68 L189 158 Q189 162 185 162 L15 162 Q11 162 11 158 Z" fill="#171719"/>
+        <svg x="52" y="72" width="92" height="90" viewBox="-16 -15 645 653" style="color:#c7a0a6"><use href="#brainIconSymbol" stroke-width="16"></use></svg>
+    </svg>`;
+}
+
+async function renderMaterialsTabContent(courseId) {
+    const container = document.getElementById("courseContent_" + courseId);
+    if (!container) return;
+    const folders = MATERIAL_FOLDERS[courseId] || [];
+    if (folders.length === 0) { container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>'; return; }
+    container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
+        <button type="button" class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
+            ${folderSvg()}
+            <div class="folder-info">
+                <div class="folder-name">${escapeHtml(folder.name)}</div>
+                <div class="folder-meta" id="folderMeta_${folder.id}">Загрузка...</div>
+            </div>
+        </button>
+    `).join("") + '</div>';
+
+    for (const folder of folders) {
+        try {
+            const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
+            let lessonsCount = 0, hwCount = 0;
+            for (const cid of legacyIds) {
+                const lessonsSnap = await db.collection("lessons").where("courseId", "==", cid).get();
+                lessonsCount += lessonsSnap.size;
+                const hwSnap = await db.collection("homeworks").where("courseId", "==", cid).get();
+                hwCount += hwSnap.size;
+            }
+            const metaEl = document.getElementById("folderMeta_" + folder.id);
+            if (metaEl) metaEl.textContent = lessonsCount + " " + pluralizeRu(lessonsCount, "урок", "урока", "уроков") + " / " + hwCount + " ДЗ";
+        } catch (e) {
+            const metaEl = document.getElementById("folderMeta_" + folder.id);
+            if (metaEl) metaEl.textContent = "";
+        }
+    }
 }
 
 let taskBookmarks = {};
@@ -2772,7 +3096,9 @@ async function submitHomework() {
         }
         await renderMathInElement(document.getElementById('hwTasksContainer'));
 
-        const hasSecondPart = tasks.some(t => t.isSecondPart);
+        // На проверку идёт только работа, где ученик приложил решение 2 части.
+        // Если 2 часть не сдавалась — работа сразу «Проверено».
+        const hasSecondPart = taskResults.some(r => r.isSecondPart && ((r.files && r.files.length > 0) || r.userAnswer));
 
         const submissionData = {
             userId: currentUser.uid,
@@ -2814,8 +3140,7 @@ async function submitHomework() {
         delete hwCache[cid];
         await renderHomeworkTabContent(cid, true);
         await refreshUserData();
-        renderProgressScore();
-        updateAllRecommendations();
+            updateAllRecommendations();
 
         setTimeout(() => { closeHwSolvePage(); }, 900);
 
@@ -2904,10 +3229,23 @@ function openHwReviewPage(hwId, hw, submission) {
     const percent = submission ? (submission.percent || 0) : 0;
 
     // Баллы
-    const firstPartScore = submission && submission.firstPartScore != null ? submission.firstPartScore : correctCount;
-    const secondPartScore = submission && submission.secondPartScore != null ? submission.secondPartScore : 0;
-    const totalScore = firstPartScore + secondPartScore;
-    const isFullyGraded = !!(submission && submission.graded);
+    const sc = getSubmissionScores(hw, submission || {});
+    const firstPartScore = sc.first;
+    const secondPartScore = sc.second;
+    const totalScore = sc.total;
+    const isFullyGraded = !!submission && !submissionNeedsReview(hw, submission);
+    const hasSecondInHw = tasks.some(t => t.isSecondPart);
+    // Исправления преподавателя: сравниваем с баллом, который ученик видел в прошлый раз.
+    let scoreFixNote = "";
+    if (submission && (isFullyGraded || !hasSecondInHw)) {
+        const seen = readSeenScore(hwId);
+        if (seen && seen.total != null && seen.total !== totalScore) {
+            scoreFixNote = '<div style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2);">Балл изменён преподавателем: было ' + seen.total + ', стало ' + totalScore + '</div>';
+        }
+        writeSeenScore(hwId, totalScore);
+        const cidSeen = resolveCourseId(hw.courseId);
+        if (hwSubCache[cidSeen] && document.getElementById("hwList_" + cidSeen)) setTimeout(() => renderHwView(cidSeen), 0);
+    }
 
     document.getElementById("hwSolveTitle").textContent = hw.title + " — Результаты";
 
@@ -2935,6 +3273,7 @@ function openHwReviewPage(hwId, hw, submission) {
                 1 часть: ${firstPartScore} · 2 часть: ${secondPartScore}
                 ${isFullyGraded ? ' · Проверено' : ' · На проверке'}
             </div>
+            ${scoreFixNote}
         </div>
     `;
 
@@ -2972,9 +3311,10 @@ function openHwReviewPage(hwId, hw, submission) {
             }
             const maxScore = task.maxScore || 0;
             // Ищем балл: сначала в taskResults[index].userScore, потом в submission.reviewScores[index]
+            // Приоритет у актуальной оценки преподавателя (reviewScores), чтобы видеть его исправления.
             let userScore = 0;
-            if (result && result.userScore != null && result.userScore > 0) userScore = result.userScore;
-            else if (submission && submission.reviewScores && submission.reviewScores[index] != null) userScore = submission.reviewScores[index];
+            if (submission && submission.reviewScores && submission.reviewScores[index] != null) userScore = submission.reviewScores[index];
+            else if (result && result.userScore != null) userScore = result.userScore;
 
             answerHtml = `
                 <div style="margin-top:0.8rem;">
