@@ -749,6 +749,14 @@
         .hw-card.mock .hw-result-fix { color: rgba(255,255,255,0.9); }
         .hw-card.mock .hw-card-btn { background: rgba(0,0,0,0.24); border-color: transparent; color: #fff; }
         .hw-card.mock .hw-card-btn.ghost { background: transparent; border-color: rgba(255,255,255,0.5); }
+        .hw-stamp {
+            position: relative; align-self: center; margin: 1rem 0 1.4rem; padding: 0.2rem 1rem;
+            display: flex; flex-direction: column; align-items: center; transform: rotate(-4deg);
+            color: var(--text3); opacity: 0.8;
+        }
+        .hw-card.mock .hw-stamp { color: rgba(48,26,36,0.36); opacity: 1; }
+        .hw-stamp-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.9; }
+        .hw-stamp-num { font-family: var(--fs); font-weight: 800; font-size: 3.4rem; line-height: 1.05; letter-spacing: -0.02em; }
         .hw-mock-wm { position: absolute; right: -28px; bottom: -22px; width: 180px; color: #fff; opacity: 0.13; pointer-events: none; stroke-width: 6; }
 
         /* Папка материалов */
@@ -2614,7 +2622,6 @@ function buildHwCard(hw, sub) {
     } else {
         btnLabel = "Посмотреть результат";
         btnOnclick = "viewHomeworkResult('" + hw.id + "')";
-        if (hasSecond) extraBtn = '<button class="hw-card-btn ghost" onclick="viewHomeworkSolutions(\'' + hw.id + '\')">Решения</button>';
     }
 
     // Результат — бледно-серым прямо на карточке, без «/ 100».
@@ -2625,9 +2632,9 @@ function buildHwCard(hw, sub) {
             // Пробник на проверке: сразу показываем тестовый балл за уже известные баллы;
             // когда преподаватель добавит баллы 2 части, число пересчитается.
             const shownNow = MOCK_SHOW_TEST_SCORE ? convertPrimaryToSecondary(sc.total) : sc.total;
-            resultHtml = '<div class="hw-result">Результат: <strong>' + shownNow + '</strong></div>';
+            resultHtml = '<div class="hw-stamp"><span class="hw-stamp-label">Результат</span><span class="hw-stamp-num">' + shownNow + '</span></div>';
         } else if (status === "review") {
-            resultHtml = '<div class="hw-result">Баллы: <strong>' + sc.total + '</strong></div>';
+            resultHtml = '<div class="hw-stamp"><span class="hw-stamp-label">Баллы</span><span class="hw-stamp-num">' + sc.total + '</span></div>';
         } else {
             const shown = mock && MOCK_SHOW_TEST_SCORE ? convertPrimaryToSecondary(sc.total) : sc.total;
             let fix = "";
@@ -2637,9 +2644,12 @@ function buildHwCard(hw, sub) {
             } else if (!seen) {
                 writeSeenScore(hw.id, sc.total);
             }
-            resultHtml = '<div class="hw-result">' + (mock ? "Результат: " : "Баллы: ") + '<strong>' + shown + '</strong></div>' + fix;
+            resultHtml = '<div class="hw-stamp"><span class="hw-stamp-label">' + (mock ? "Результат" : "Баллы") + '</span><span class="hw-stamp-num">' + shown + '</span></div>' + fix;
         }
     }
+
+    // У обычных ДЗ баллы на карточке не показываем — только у пробников.
+    if (!mock) resultHtml = "";
 
     const issuedDate = formatRuDate(hw.issuedDate || hw.createdAt);
     const deadlineText = hw.deadlineText || formatRuDate(hw.dueDate) || "не указан";
