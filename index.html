@@ -2554,7 +2554,10 @@ function getSubmissionScores(hw, s) {
     const tasks = (hw && hw.tasks) || [];
     const first = s && s.firstPartScore != null ? s.firstPartScore : ((s && s.correctCount) || 0);
     let second = 0;
-    if (s && s.secondPartScore != null) second = s.secondPartScore;
+    if (s && Array.isArray(s.taskGrades) && s.taskGrades.length > 0) {
+        // Оценки, выставленные преподавателем в админ-панели, — самый актуальный источник.
+        s.taskGrades.forEach(g => { second += Number(g.score) || 0; });
+    } else if (s && s.secondPartScore != null && (s.secondPartScore > 0 || !s.reviewScores)) second = s.secondPartScore;
     else if (s && s.reviewScores) {
         tasks.forEach((t, i) => { if (t.isSecondPart) second += Number(s.reviewScores[i]) || 0; });
     }
@@ -3317,10 +3320,14 @@ function openHwReviewPage(hwId, hw, submission) {
             }
             const maxScore = task.maxScore || 0;
             // Ищем балл: сначала в taskResults[index].userScore, потом в submission.reviewScores[index]
-            // Приоритет у актуальной оценки преподавателя (reviewScores), чтобы видеть его исправления.
+            // Приоритет у актуальной оценки преподавателя (taskGrades / reviewScores), чтобы видеть его исправления.
+            const tGrade = submission && Array.isArray(submission.taskGrades) ? submission.taskGrades.find(g => g.taskIndex === index) : null;
             let userScore = 0;
-            if (submission && submission.reviewScores && submission.reviewScores[index] != null) userScore = submission.reviewScores[index];
+            if (tGrade && tGrade.score != null) userScore = tGrade.score;
+            else if (submission && submission.reviewScores && submission.reviewScores[index] != null) userScore = submission.reviewScores[index];
             else if (result && result.userScore != null) userScore = result.userScore;
+            const teacherFeedback = tGrade && tGrade.feedback ? tGrade.feedback : '';
+            const teacherFiles = tGrade && tGrade.files ? tGrade.files : [];
 
             answerHtml = `
                 <div style="margin-top:0.8rem;">
@@ -3331,6 +3338,8 @@ function openHwReviewPage(hwId, hw, submission) {
                         <div class="task-result second-part-result" style="margin-top:0.8rem;">
                             Баллы: <strong>${userScore}</strong> / ${maxScore}
                         </div>
+                        ${teacherFeedback ? `<div style="margin-top:0.8rem;background:var(--card2);border-radius:12px;padding:0.8rem 1rem;"><div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:0.3rem;">Комментарий преподавателя</div><div style="white-space:pre-wrap;line-height:1.6;">${escapeHtml(teacherFeedback)}</div></div>` : ''}
+                        ${teacherFiles.length > 0 ? `<div class="task-files"><div class="task-files-label">Правки преподавателя:</div><div class="files-list">${teacherFiles.map(f => '<div class="file-item" onclick="window.open(\'' + f.url + '\')">' + (f.type && f.type.startsWith('image') ? '<img src="' + f.url + '">' : '') + ' ' + escapeHtml(f.name || 'Файл') + '</div>').join('')}</div></div>` : ''}
                     ` : `
                         <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--text3);">На проверке. После проверки здесь появятся баллы.</div>
                     `}
