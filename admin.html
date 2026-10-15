@@ -280,6 +280,48 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
     animation: modalIn 0.25s ease;
 }
 @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* ===== Проверка работ: новый макет ===== */
+#gradeModal .modal-content { max-width: 1000px; }
+.gr-head { margin-bottom: 1.2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.gr-title { font-size: 1.25rem; font-weight: 700; color: var(--gold); }
+.gr-sub { font-size: 0.85rem; color: var(--text2); margin-top: 0.3rem; }
+.gr-muted { color: var(--text3); }
+.gr-task { border: 1px solid var(--line); border-radius: 20px; padding: 1.4rem; margin-bottom: 1.4rem; background: var(--card); }
+.gr-task-head { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.gr-task-head h4 { font-size: 1.25rem; font-weight: 800; }
+.gr-block { margin-bottom: 1.2rem; }
+.gr-lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.5rem; }
+.gr-cond { line-height: 1.75; font-size: 1.02rem; white-space: pre-wrap; }
+.gr-photo-wrap { display: block; margin-bottom: 0.8rem; border-radius: 14px; overflow: hidden; background: var(--bg2); }
+.gr-photo { display: block; width: 100%; height: auto; }
+.gr-pdf { width: 100%; height: 720px; border: 1px solid var(--line); border-radius: 14px; }
+.gr-file-link { display: inline-block; margin: 0.4rem 0.8rem 0.4rem 0; color: var(--gold2); font-weight: 600; font-size: 0.9rem; }
+.gr-answer-text { background: var(--bg2); border-radius: 10px; padding: 0.7rem 0.9rem; white-space: pre-wrap; }
+.gr-expl { margin-bottom: 1.2rem; border-radius: 14px; background: var(--bg2); }
+.gr-expl summary { list-style: none; cursor: pointer; padding: 0.95rem 1.2rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+.gr-expl summary::-webkit-details-marker { display: none; }
+.gr-expl summary::after { content: ""; width: 9px; height: 9px; border-right: 2px solid var(--gold2); border-bottom: 2px solid var(--gold2); transform: rotate(45deg); transition: transform 0.2s ease; margin-right: 0.3rem; }
+.gr-expl[open] summary::after { transform: rotate(-135deg); }
+.gr-expl-body { padding: 0 1.2rem 1.1rem; line-height: 1.75; white-space: pre-wrap; }
+.gr-opts { display: flex; flex-direction: column; gap: 0.5rem; }
+.gr-opt { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem 1.1rem; border-radius: 14px; border: 1.5px solid var(--line); cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; }
+.gr-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.gr-radio { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line2); margin-top: 0.1rem; position: relative; }
+.gr-opt-text { display: flex; flex-direction: column; gap: 0.15rem; }
+.gr-opt-text b { font-size: 1rem; }
+.gr-opt-text span { font-size: 0.88rem; color: var(--text2); }
+.gr-opt:hover { border-color: var(--line2); }
+.gr-opt.selected.max { background: var(--green2); border-color: var(--green); }
+.gr-opt.selected.max .gr-radio { border-color: var(--green); }
+.gr-opt.selected.max .gr-radio::after { background: var(--green); }
+.gr-opt.selected.mid { background: var(--orange2); border-color: var(--orange); }
+.gr-opt.selected.mid .gr-radio { border-color: var(--orange); }
+.gr-opt.selected.mid .gr-radio::after { background: var(--orange); }
+.gr-opt.selected.zero { background: var(--red2); border-color: var(--red); }
+.gr-opt.selected.zero .gr-radio { border-color: var(--red); }
+.gr-opt.selected.zero .gr-radio::after { background: var(--red); }
+.gr-opt.selected .gr-radio::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; }
+.gr-feedback { width: 100%; padding: 0.8rem 1rem; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg2); color: var(--text); font-family: var(--f); font-size: 0.95rem; resize: vertical; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.3rem; padding-bottom: 0.8rem; border-bottom: 2px solid var(--gold); }
 .modal-header h3 { font-family: var(--fs); font-weight: 700; font-size: 1.1rem; }
 .modal-close { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text2); line-height: 1; }
@@ -1284,8 +1326,7 @@ async function loadDashboard() {
             const s = doc.data();
             const hw = hwMap[s.hwId];
             if (!hw) return;
-            const hasSecond = (hw.tasks || []).some(t => t.isSecondPart);
-            if (!hasSecond) return;
+            if (getReviewIndexes(hw, s).length === 0) return;
             if (s.graded === true) return;
             if (isPhysicsAdmin() && hw.subject !== 'physics') return;
             pending++;
@@ -2325,8 +2366,7 @@ async function loadAllHomework() {
             const s = doc.data();
             const hw = hwMap[s.hwId];
             if (!hw) return;
-            const secondTasks = (hw.tasks || []).filter(t => t.isSecondPart);
-            if (secondTasks.length === 0) return;
+            if (getReviewIndexes(hw, s).length === 0) return;
             if (isPhysicsAdmin() && hw.subject !== 'physics') return;
 
             const isGraded = s.graded === true;
@@ -2351,8 +2391,8 @@ async function loadAllHomework() {
         }
 
         container.innerHTML = list.map(s => {
-            const secondCount = (s._hw.tasks || []).filter(t => t.isSecondPart).length;
-            const firstCount = (s._hw.tasks || []).length - secondCount;
+            const secondCount = getReviewIndexes(s._hw, s).length;
+            const firstCount = 0;
             const isGraded = s.graded === true;
 
             const gradeInfo = isGraded
@@ -2369,8 +2409,7 @@ async function loadAllHomework() {
                                 <span>${escapeHtml(s.userName || s.userEmail || 'Ученик')}</span>
                                 <span>Курс: ${escapeHtml(s._hw.courseId)}</span>
                                 ${mockTag}
-                                ${secondCount > 0 ? `<span class="tag gold">2 часть: ${secondCount}</span>` : ''}
-                                ${firstCount > 0 ? `<span class="tag blue">1 часть: ${firstCount}</span>` : ''}
+                                ${secondCount > 0 ? `<span class="tag gold">Решений на проверку: ${secondCount}</span>` : ''}
                                 ${gradeInfo}
                             </div>
                         </div>
@@ -2443,6 +2482,51 @@ async function deleteHomework(id) {
 }
 
 /* ============ МОДАЛКА ПРОВЕРКИ ДЗ ============ */
+// На проверку попадают только задачи 2 части, где ученик приложил решение (файл).
+function getReviewIndexes(hw, s) {
+    const tasks = (hw && hw.tasks) || [];
+    const res = (s && s.taskResults) || [];
+    const out = [];
+    tasks.forEach((t, i) => {
+        if (!t.isSecondPart) return;
+        const r = res[i];
+        if (r && ((r.files && r.files.length > 0) || (r.userAnswer && String(r.userAnswer).trim() && r.userAnswer !== '—'))) out.push(i);
+    });
+    return out;
+}
+
+function pluralBall(n) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return 'балл';
+    if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return 'балла';
+    return 'баллов';
+}
+
+function gradeOptClass(score, max) {
+    if (score === 0) return 'zero';
+    if (score === max) return 'max';
+    return 'mid';
+}
+
+function renderStudentSolutionFiles(files, answerText) {
+    let h = '';
+    (files || []).forEach(f => {
+        const isImg = f.type && f.type.startsWith('image');
+        const isPdf = (f.type && f.type.indexOf('pdf') !== -1) || /\.pdf(\?|$)/i.test(f.url || '');
+        if (isImg) {
+            h += `<a href="${f.url}" target="_blank" rel="noopener" class="gr-photo-wrap"><img class="gr-photo" src="${f.url}" alt="${escapeHtml(f.name || 'Решение')}"></a>`;
+        } else if (isPdf) {
+            h += `<iframe class="gr-pdf" src="${f.url}"></iframe><a class="gr-file-link" href="${f.url}" target="_blank" rel="noopener">${escapeHtml(f.name || 'PDF')} (открыть в новой вкладке)</a>`;
+        } else {
+            h += `<a class="gr-file-link" href="${f.url}" target="_blank" rel="noopener">${escapeHtml(f.name || 'Файл')}</a>`;
+        }
+    });
+    if (answerText && String(answerText).trim() && answerText !== '—') {
+        h += `<div class="gr-answer-text">${escapeHtml(answerText)}</div>`;
+    }
+    return h || '<div class="gr-muted">Файлов нет</div>';
+}
+
 async function openGradeModal(submissionId) {
     const subDoc = await db.collection("submissions").doc(submissionId).get();
     if (!subDoc.exists) { showToast("Сабмишен не найден", "error"); return; }
@@ -2454,153 +2538,137 @@ async function openGradeModal(submissionId) {
     currentGradingHw = { id: s.hwId, submissionId: submissionId, ...hw, _submission: s };
 
     const previousGrades = s.taskGrades || [];
-
     const tasks = hw.tasks || [];
     const taskResults = s.taskResults || [];
+    const reviewIdx = getReviewIndexes(hw, s);
     const userName = s.userName || s.userEmail || 'Ученик';
     const userEmail = s.userEmail || '—';
 
     let html = `
-        <div style="margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--line);">
-            <div style="font-size:1.2rem;font-weight:700;color:var(--gold);">${escapeHtml(hw.title)}</div>
-            <div style="font-size:0.85rem;color:var(--text2);margin-top:0.3rem;">
+        <div class="gr-head">
+            <div class="gr-title">${escapeHtml(hw.title)}</div>
+            <div class="gr-sub">
                 Ученик: <strong>${escapeHtml(userName)}</strong>
-                <span style="color:var(--text3);">(${escapeHtml(userEmail)})</span>
+                <span class="gr-muted">(${escapeHtml(userEmail)})</span>
             </div>
-            <div style="font-size:0.78rem;color:var(--text3);margin-top:0.3rem;">
-                Курс: ${escapeHtml(hw.courseId)} · Задач: ${tasks.length}
+            <div class="gr-sub gr-muted">
+                Курс: ${escapeHtml(hw.courseId)} · На проверке задач: ${reviewIdx.length}
                 ${hw.isMockExam ? ' · <span class="tag purple">Пробник ЕГЭ</span>' : ''}
+                ${s.submittedAt ? ' · Отправлено: ' + new Date(s.submittedAt).toLocaleString() : ''}
             </div>
-            ${s.submittedAt ? `<div style="font-size:0.78rem;color:var(--text3);">Сдано: ${new Date(s.submittedAt).toLocaleString()}</div>` : ''}
         </div>
     `;
 
     if (hw.isMockExam) {
         const primaryPart1 = s.correctCount || 0;
         let primaryPart2 = 0;
-        for (let i = 0; i < tasks.length; i++) {
-            const task = tasks[i];
-            if (!task.isSecondPart) continue;
+        reviewIdx.forEach(i => {
             const saved = previousGrades.find(g => g.taskIndex === i);
             if (saved) primaryPart2 += (saved.score || 0);
-        }
+        });
         const totalPrimary = primaryPart1 + primaryPart2;
-        const testScore = primaryToTestScore(totalPrimary);
         html += `
             <div class="mock-summary-box" id="mockSummaryBox">
                 <div class="mock-title">Пробник ЕГЭ — сводка баллов</div>
                 <div class="mock-grid">
-                    <div class="mock-stat">
-                        <div class="val" id="mockPrimaryVal">${totalPrimary}</div>
-                        <div class="lbl">Первичный балл</div>
-                    </div>
-                    <div class="mock-stat">
-                        <div class="val" id="mockTestVal">${testScore}</div>
-                        <div class="lbl">Тестовый балл</div>
-                    </div>
-                    <div class="mock-stat">
-                        <div class="val" id="mockPart1Val">${primaryPart1}</div>
-                        <div class="lbl">1 часть</div>
-                    </div>
-                    <div class="mock-stat">
-                        <div class="val" id="mockPart2Val">${primaryPart2}</div>
-                        <div class="lbl">2 часть</div>
-                    </div>
+                    <div class="mock-stat"><div class="val" id="mockPrimaryVal">${totalPrimary}</div><div class="lbl">Первичный балл</div></div>
+                    <div class="mock-stat"><div class="val" id="mockTestVal">${primaryToTestScore(totalPrimary)}</div><div class="lbl">Тестовый балл</div></div>
+                    <div class="mock-stat"><div class="val" id="mockPart1Val">${primaryPart1}</div><div class="lbl">1 часть</div></div>
+                    <div class="mock-stat"><div class="val" id="mockPart2Val">${primaryPart2}</div><div class="lbl">2 часть</div></div>
                 </div>
                 <div style="font-size:0.72rem;color:var(--text3);margin-top:0.6rem;">
-                    Сводка обновляется автоматически при изменении баллов за 2 часть.
+                    Сводка обновляется автоматически при выставлении баллов за 2 часть.
                 </div>
             </div>
         `;
     }
 
-    for (let i = 0; i < tasks.length; i++) {
-        const task = tasks[i];
-        const isSecondPartTask = task.isSecondPart || false;
-        const result = taskResults[i] || null;
-        const userAnswer = result ? result.userAnswer : '—';
-        const userFiles = result ? (result.files || []) : [];
-        const isCorrect = result ? result.isCorrect : false;
+    if (reviewIdx.length === 0) {
+        html += '<div class="empty-state">В этой работе нет решений 2 части с прикреплёнными файлами.</div>';
+    }
 
+    reviewIdx.forEach(i => {
+        const task = tasks[i];
+        const result = taskResults[i] || {};
+        const maxScore = parseInt(task.maxScore, 10) || 10;
         const savedGrade = previousGrades.find(g => g.taskIndex === i);
-        const userScore = savedGrade ? (savedGrade.score || 0) : (result ? (result.userScore || 0) : 0);
+        const hasSaved = !!savedGrade || (result.userScore != null && s.graded === true);
+        const current = savedGrade ? (savedGrade.score || 0) : (s.graded === true && result.userScore != null ? result.userScore : null);
         const savedFeedback = savedGrade ? (savedGrade.feedback || '') : '';
 
+        let opts = '';
+        for (let sc = maxScore; sc >= 0; sc--) {
+            const cls = gradeOptClass(sc, maxScore);
+            const desc = sc === maxScore ? 'Полное верное решение'
+                : (sc === 0 ? 'Решение не соответствует критериям или отсутствует' : 'Решение выполнено частично');
+            opts += `
+                <label class="gr-opt ${cls} ${current === sc ? 'selected' : ''}" id="gropt_${i}_${sc}">
+                    <input type="radio" name="gr_${i}" value="${sc}" ${current === sc ? 'checked' : ''} onchange="pickGrade(${i}, ${sc}, ${maxScore})">
+                    <span class="gr-radio"></span>
+                    <span class="gr-opt-text"><b>${sc} ${pluralBall(sc)}</b><span>${desc}</span></span>
+                </label>`;
+        }
+
         html += `
-            <div style="background:var(--card2);border-radius:14px;padding:1rem;margin-bottom:1rem;border:1px solid var(--line);">
-                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
-                    <span style="font-weight:700;">Задача ${i + 1}</span>
-                    ${isSecondPartTask ? '<span class="tag gold">Вторая часть</span>' : '<span class="tag blue">Первая часть</span>'}
+            <section class="gr-task" id="grtask_${i}">
+                <div class="gr-task-head">
+                    <h4>Задача ${i + 1}</h4>
+                    <span class="tag gold">Максимальный балл: ${maxScore}</span>
                 </div>
-                <div style="background:var(--bg);padding:0.7rem;border-radius:8px;margin-bottom:0.5rem;border-left:3px solid var(--gold);">
-                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Условие</div>
-                    <div style="line-height:1.7;white-space:pre-wrap;">${task.condition || 'Нет условия'}</div>
+
+                <div class="gr-block">
+                    <div class="gr-lbl">Условие задачи</div>
+                    <div class="gr-cond">${task.condition || 'Нет условия'}</div>
                     ${task.files && task.files.length > 0 ? `
                         <div class="files-list">
                             ${task.files.map(f => `
                                 <div class="file-item" onclick="window.open('${f.url}')">
                                     ${f.type && f.type.startsWith('image') ? `<img src="${f.url}">` : ''}
                                     ${escapeHtml(f.name)}
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                                </div>`).join('')}
+                        </div>` : ''}
                 </div>
-                <div style="margin-bottom:0.5rem;">
-                    <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Ответ ученика</div>
-                    <div style="background:var(--bg);padding:0.6rem;border-radius:8px;border:1px solid var(--line);white-space:pre-wrap;min-height:36px;">${escapeHtml(userAnswer) || '—'}</div>
-                    ${userFiles.length > 0 ? `
-                        <div class="files-list">
-                            ${userFiles.map(f => `
-                                <div class="file-item" onclick="window.open('${f.url}')">
-                                    ${f.type && f.type.startsWith('image') ? `<img src="${f.url}">` : ''}
-                                    ${escapeHtml(f.name)}
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+
+                <div class="gr-block">
+                    <div class="gr-lbl">Решение ученика</div>
+                    ${renderStudentSolutionFiles(result.files, result.userAnswer)}
                 </div>
-                ${task.solution ? `
-                    <div style="background:var(--gold3);padding:0.7rem;border-radius:8px;border-left:3px solid var(--gold);">
-                        <div style="font-size:0.65rem;color:var(--text3);margin-bottom:0.2rem;">Эталонное решение</div>
-                        <div style="line-height:1.7;white-space:pre-wrap;">${task.solution}</div>
-                    </div>
-                ` : ''}
-                ${isSecondPartTask ? `
-                    <div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--line);">
-                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-                            <div style="flex:1;min-width:120px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Балл</div>
-                                <div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;">
-                                    <input type="number" id="grade_task_${i}" value="${userScore}" min="0" max="${task.maxScore || 10}" style="width:80px;" oninput="recalcMockSummary()">
-                                    <span style="font-size:0.78rem;color:var(--text3);">/ ${task.maxScore || 10}</span>
-                                </div>
-                            </div>
-                            <div style="flex:2;min-width:180px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Комментарий</div>
-                                <input type="text" id="feedback_task_${i}" value="${escapeHtml(savedFeedback)}" placeholder="Комментарий к задаче..." style="width:100%;margin-top:0.2rem;">
-                            </div>
-                            <div style="flex:1;min-width:140px;">
-                                <div style="font-size:0.65rem;color:var(--text3);text-transform:uppercase;">Правки</div>
-                                <div class="multi-file-zone" onclick="document.getElementById('gradeTaskFileInput_${i}').click()" style="padding:0.4rem;margin-top:0.2rem;font-size:0.75rem;">Выбрать файлы</div>
-                                <input type="file" id="gradeTaskFileInput_${i}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleGradeTaskFilesSelect(this, ${i})">
-                                <div id="gradeTaskFilePreview_${i}" class="files-list"></div>
-                            </div>
-                        </div>
-                    </div>
-                ` : `
-                    <div style="font-size:0.8rem;color:var(--text3);padding-top:0.5rem;border-top:1px solid var(--line);">
-                        ${isCorrect ? '<span style="color:var(--green);font-weight:700;">Правильно</span>' : '<span style="color:var(--red);font-weight:700;">Неправильно</span>'}
-                        ${task.correctAnswer ? ' · Правильный ответ: <strong style="color:var(--green);">' + escapeHtml(task.correctAnswer) + '</strong>' : ''}
-                    </div>
-                `}
-            </div>
+
+                <details class="gr-expl">
+                    <summary>Пояснение к задаче</summary>
+                    <div class="gr-expl-body">${task.solution || 'Решение не добавлено'}</div>
+                </details>
+
+                <div class="gr-block">
+                    <div class="gr-lbl">Оценка</div>
+                    <div class="gr-opts">${opts}</div>
+                    <input type="hidden" id="grade_task_${i}" value="${current === null ? '' : current}">
+                </div>
+
+                <div class="gr-block">
+                    <div class="gr-lbl">Обратная связь (увидит ученик)</div>
+                    <textarea id="feedback_task_${i}" class="gr-feedback" rows="4" placeholder="Комментарий к решению...">${escapeHtml(savedFeedback)}</textarea>
+                    <div class="multi-file-zone" onclick="document.getElementById('gradeTaskFileInput_${i}').click()" style="padding:0.5rem;margin-top:0.5rem;font-size:0.8rem;">Прикрепить правки (фото / PDF)</div>
+                    <input type="file" id="gradeTaskFileInput_${i}" accept="image/*,application/pdf" multiple style="display:none" onchange="handleGradeTaskFilesSelect(this, ${i})">
+                    <div id="gradeTaskFilePreview_${i}" class="files-list"></div>
+                </div>
+            </section>
         `;
-    }
+    });
 
     document.getElementById("gradeModalContent").innerHTML = html;
     document.getElementById("gradeModal").classList.add("active");
     setTimeout(() => renderMath(), 250);
+}
+
+function pickGrade(i, score, maxScore) {
+    const input = document.getElementById('grade_task_' + i);
+    if (input) input.value = score;
+    for (let sc = 0; sc <= maxScore; sc++) {
+        const el = document.getElementById('gropt_' + i + '_' + sc);
+        if (el) el.classList.toggle('selected', sc === score);
+    }
+    recalcMockSummary();
 }
 
 function recalcMockSummary() {
@@ -2663,11 +2731,19 @@ async function submitGrade(action) {
     const hw = currentGradingHw;
     const submissionId = hw.submissionId;
     const tasks = hw.tasks || [];
+    const reviewIdx = getReviewIndexes(hw, hw._submission || {});
+
+    // Для приёма работы балл должен быть выставлен за каждую присланную задачу.
+    if (action === 'graded') {
+        for (const i of reviewIdx) {
+            const gi = document.getElementById('grade_task_' + i);
+            if (!gi || gi.value === '') { showToast('Выставьте балл за задачу ' + (i + 1), "error"); return; }
+        }
+    }
 
     let taskGrades = [], allGradeFiles = [], totalScore = 0, maxTotalScore = 0;
-    for (let i = 0; i < tasks.length; i++) {
+    for (const i of reviewIdx) {
         const task = tasks[i];
-        if (!task.isSecondPart) continue;
         const gradeInput = document.getElementById('grade_task_' + i);
         const feedbackInput = document.getElementById('feedback_task_' + i);
         const files = gradeTaskFiles[i] || [];
@@ -2676,10 +2752,13 @@ async function submitGrade(action) {
             uploadedFiles = await uploadMultipleFiles(files, 'grades');
             allGradeFiles = allGradeFiles.concat(uploadedFiles);
         }
-        const score = gradeInput ? (parseFloat(gradeInput.value) || 0) : 0;
-        const maxScore = task.maxScore || 10;
+        const score = gradeInput && gradeInput.value !== '' ? (parseFloat(gradeInput.value) || 0) : 0;
+        const maxScore = parseInt(task.maxScore, 10) || 10;
         const feedback = feedbackInput ? feedbackInput.value.trim() : '';
-        taskGrades.push({ taskIndex: i, score, maxScore, feedback, files: uploadedFiles });
+        // Файлы правок, загруженные раньше, не теряем.
+        const prev = ((hw._submission && hw._submission.taskGrades) || []).find(g => g.taskIndex === i);
+        const keptFiles = prev && prev.files ? prev.files : [];
+        taskGrades.push({ taskIndex: i, score, maxScore, feedback, files: keptFiles.concat(uploadedFiles) });
         totalScore += score;
         maxTotalScore += maxScore;
     }
@@ -2702,11 +2781,19 @@ async function submitGrade(action) {
             });
         });
 
+        // Те же баллы пишем в поля, которые читает кабинет ученика (secondPartScore / reviewScores),
+        // чтобы балл на карточке и в задачах менялся сразу после правки.
+        const reviewScores = {};
+        taskGrades.forEach(g => { reviewScores[g.taskIndex] = g.score; });
+
         const updateData = {
             graded: action === 'graded',
             gradedAt: new Date().toISOString(),
             grade: totalScore,
             userScore: totalScore,
+            secondPartScore: totalScore,
+            firstPartScore: currentSub.firstPartScore != null ? currentSub.firstPartScore : (currentSub.correctCount || 0),
+            reviewScores: reviewScores,
             maxScore: maxTotalScore,
             taskGrades: taskGrades,
             taskResults: updatedResults,
@@ -2715,16 +2802,9 @@ async function submitGrade(action) {
             gradeFiles: allGradeFiles
         };
 
-        if (hw.isMockExam && action === 'graded') {
+        if (hw.isMockExam) {
             const primaryPart1 = currentSub.correctCount || 0;
-            let primaryPart2 = 0;
-            for (let i = 0; i < tasks.length; i++) {
-                const task = tasks[i];
-                if (!task.isSecondPart) continue;
-                const saved = taskGrades.find(g => g.taskIndex === i);
-                if (saved) primaryPart2 += saved.score;
-            }
-            const totalPrimary = primaryPart1 + primaryPart2;
+            const totalPrimary = primaryPart1 + totalScore;
             updateData.mockPrimaryScore = totalPrimary;
             updateData.mockTestScore = primaryToTestScore(totalPrimary);
         }
