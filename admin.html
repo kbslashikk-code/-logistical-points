@@ -609,8 +609,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
         <svg class="login-brain" viewBox="-16 -15 645 653"><use href="#brainIconSymbol"></use></svg>
         <h2>Logistical <em>Points</em></h2>
         <div class="login-subtitle">Вход в панель администратора</div>
-        <input type="email" id="adminEmail" placeholder="Email" value="kb.slash@mail.ru">
-        <input type="password" id="adminPassword" placeholder="Пароль">
+        <input type="email" id="adminEmail" placeholder="Email" autocomplete="username">
+        <input type="password" id="adminPassword" placeholder="Пароль" autocomplete="current-password">
         <button class="btn bg" onclick="adminLogin()">Войти</button>
     </div>
 </div>
@@ -852,6 +852,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                             <button class="btn secondary bsm" onclick="bulkAddTasks('mixed')">+ Смешанные</button>
                             <button class="btn brs bsm" onclick="clearAllTasks()">Очистить</button>
                         </div>
+                    </div>
+
+                    <!-- ===== НОВОЕ: импорт задач из JSON ===== -->
+                    <div class="hw-type-toggle" style="flex-direction:column;align-items:stretch;gap:0.8rem;">
+                        <div>
+                            <div class="toggle-label">Импорт задач из файла</div>
+                            <div class="toggle-desc">Загрузите JSON-файл или вставьте текст: в форму добавится сразу набор задач с ответами и решениями. Проверьте их и нажмите «Создать задание».</div>
+                        </div>
+                        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+                            <button class="btn secondary bsm" onclick="document.getElementById('importTasksFile').click()">Выбрать файл (.json)</button>
+                            <input type="file" id="importTasksFile" accept=".json,.txt,application/json" style="display:none" onchange="importTasksFromFile(this)">
+                            <button class="btn secondary bsm" onclick="importTasksFromPaste()">Импорт из текста ниже</button>
+                        </div>
+                        <textarea id="importTasksText" rows="3" placeholder="Или вставьте сюда JSON..." style="width:100%;padding:0.7rem 1rem;background:var(--bg2);border:1.5px solid var(--line);border-radius:11px;color:var(--text);font-family:var(--f);"></textarea>
                     </div>
 
                     <div style="display:flex;justify-content:space-between;align-items:center;margin:1.2rem 0 0.8rem;">
@@ -2081,8 +2095,8 @@ function addTask(type) {
         </div>
     ` : `
         <div class="form-group">
-            <label>Правильный ответ</label>
-            <input type="text" id="tcorrect_${id}" placeholder="2, -2">
+            <label>Правильный ответ (несколько ответов — через «;»)</label>
+            <input type="text" id="tcorrect_${id}" placeholder="2; -2">
         </div>
         <div class="form-group">
             <label>Файлы к задаче (необязательно)</label>
@@ -2159,8 +2173,12 @@ function toggleTaskType(id) {
     const nextSibling = editor.nextSibling;
     editor.remove();
 
+    // FIX: раньше счётчик сбрасывался в id, и новая задача могла получить уже занятый id.
+    const savedCounter = taskCounter;
     taskCounter = id;
     addTask(isSecond ? 'second' : 'first');
+    taskCounter = Math.max(savedCounter, id + 1);
+
     const newEditor = document.getElementById('teditor_' + id);
     if (nextSibling) newEditor.parentNode.insertBefore(newEditor, nextSibling);
 
@@ -2340,6 +2358,95 @@ async function createHomework() {
         btn.textContent = originalText;
         btn.disabled = false;
     }
+}
+
+/* ============ ИМПОРТ ЗАДАЧ ИЗ JSON ============ */
+function stripCodeFences(t) {
+    return String(t || '').replace(/^\uFEFF/, '').trim()
+        .replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+}
+function sanitizeSvg(svg) {
+    return String(svg || '')
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/\s*\n\s*/g, ' ')
+        .trim();
+}
+async function importTasksFromFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    try { importTasksFromText(await file.text()); }
+    catch (e) { showToast('Не удалось прочитать файл: ' + e.message, 'error'); }
+    input.value = '';
+}
+function importTasksFromPaste() {
+    const ta = document.getElementById('importTasksText');
+    if (!ta || !ta.value.trim()) { showToast('Вставьте JSON в поле', 'error'); return; }
+    if (importTasksFromText(ta.value)) ta.value = '';
+}
+function importTasksFromText(text) {
+    let data;
+    try { data = JSON.parse(stripCodeFences(text)); }
+    catch (e) { showToast('Ошибка JSON: ' + e.message, 'error'); return false; }
+
+    const list = Array.isArray(data) ? data : (data.tasks || []);
+    if (!list.length) { showToast('В файле нет задач', 'error'); return false; }
+
+    // Необязательные поля самого ДЗ: { "title", "subject", "courseId", "dueDate", "tasks": [...] }
+    if (!Array.isArray(data)) {
+        const titleEl = document.getElementById('hwTitle');
+        if (data.title && titleEl && !titleEl.value.trim()) titleEl.value = data.title;
+        if (data.subject && !isPhysicsAdmin()) {
+            document.getElementById('hwSubject').value = data.subject;
+            updateCourses();
+            if (data.courseId) document.getElementById('hwCourse').value = data.courseId;
+        }
+        if (data.dueDate) document.getElementById('hwDueDate').value = data.dueDate;
+    }
+
+    // Убираем пустые блоки (например, стартовый)
+    document.querySelectorAll('#tasksContainer .task-editor').forEach(ed => {
+        const id = parseInt(ed.id.replace('teditor_', ''), 10);
+        const c = document.getElementById('tcondition_' + id);
+        if (c && !c.value.trim()) removeTask(id);
+    });
+
+    // Защита от повторных id
+    let maxId = -1;
+    document.querySelectorAll('#tasksContainer .task-editor').forEach(ed => {
+        maxId = Math.max(maxId, parseInt(ed.id.replace('teditor_', ''), 10));
+    });
+    taskCounter = Math.max(taskCounter, maxId + 1);
+
+    let added = 0;
+    list.forEach(t => {
+        const cond = String(t.condition || '').trim();
+        if (!cond) return;
+        const isSecond = t.type === 'second' || t.isSecondPart === true;
+        addTask(isSecond ? 'second' : 'first');
+        const id = taskCounter - 1;
+
+        let fullCond = cond;
+        const svg = sanitizeSvg(t.image || t.svg);
+        if (svg) fullCond += '\n\n<div style="text-align:center;margin:0.5rem 0;">' + svg + '</div>';
+
+        document.getElementById('tcondition_' + id).value = fullCond;
+        document.getElementById('tsolution_' + id).value = String(t.solution || '').trim();
+        if (isSecond) {
+            const ms = document.getElementById('tmaxscore_' + id);
+            if (ms) ms.value = parseInt(t.maxScore, 10) || 2;
+        } else {
+            const cr = document.getElementById('tcorrect_' + id);
+            if (cr) cr.value = String(t.correctAnswer || '').trim();
+        }
+        added++;
+    });
+
+    renumberTasks();
+    setTimeout(() => renderMath(), 250);
+    showToast('Импортировано задач: ' + added + '. Проверьте и нажмите «Создать задание»', 'success');
+    return added > 0;
 }
 
 /* ============ ДЗ: ФИЛЬТР И СПИСОК ============ */
@@ -2897,7 +3004,7 @@ function renderEditTaskBlock(id, isSecond, task) {
         </div>
     ` : `
         <div class="form-group">
-            <label>Правильный ответ</label>
+            <label>Правильный ответ (несколько ответов — через «;»)</label>
             <input type="text" id="edit_tcorrect_${id}" value="${escapeHtml(task.correctAnswer || '')}">
         </div>
     `;
@@ -3003,8 +3110,10 @@ function toggleEditTaskType(id) {
     delete editTaskFiles[id];
     delete editTaskRemovedExistingFiles[id];
 
-    editTaskCounter = id;
+    // FIX: не сбрасываем счётчик назад, иначе новые задачи получат занятые id.
     renderEditTaskBlock(id, isSecond, {});
+    editTaskCounter = Math.max(editTaskCounter, id + 1);
+
     const newEditor = document.getElementById('edit_teditor_' + id);
     if (nextEl) newEditor.parentNode.insertBefore(newEditor, nextEl);
 
