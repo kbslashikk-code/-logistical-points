@@ -2989,6 +2989,13 @@ function saveAnswer(index, value) {
     else if (dot) dot.classList.remove('has-answer');
 }
 
+// Нормализация ответа: регистр, пробелы, запятая/точка в десятичных, длинный минус, пробелы вокруг ";"
+function normAnswer(v) {
+    return String(v == null ? '' : v).trim().toLowerCase()
+        .replace(/\s+/g, '')
+        .replace(/(\d),(\d)/g, '$1.$2')
+        .replace(/[\u2212\u2013\u2014]/g, '-');
+}
 async function submitHomework() {
     if (isSubmitted) return;
     if (!currentUser || !currentUser.uid) { showToast("Ошибка авторизации", "error"); return; }
@@ -3055,7 +3062,7 @@ async function submitHomework() {
                 const correctAnswer = (task.correctAnswer || '').toString();
                 const userAnswerText = (userAnswers[i] || '').toString();
                 const skipped = userAnswerText.trim() === '';
-                const isCorrect = !skipped && userAnswerText.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
+                const isCorrect = !skipped && normAnswer(userAnswerText) === normAnswer(correctAnswer);
                 if (isCorrect) correctCount++;
                 taskResults.push({
                     taskIndex: i,
