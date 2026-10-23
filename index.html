@@ -2996,6 +2996,30 @@ function normAnswer(v) {
         .replace(/(\d),(\d)/g, '$1.$2')
         .replace(/[\u2212\u2013\u2014]/g, '-');
 }
+// Сравнение ответов: порядок чисел не важен, пробелы/запятые/«;» как разделители,
+// десятичная запятая = точка, 2.0 = 2, знаки °, «x=» игнорируются.
+function answerTokens(v, multi) {
+    let s = String(v == null ? '' : v).trim().toLowerCase()
+        .replace(/[\u2212\u2013\u2014]/g, '-')
+        .replace(/[°º]|\\circ|градус\w*/g, '')
+        .replace(/(^|[\s;,])[a-zа-яα-ω]\w{0,2}\s*=\s*/g, '$1');
+    if (multi) {
+        s = s.replace(/\s+/g, ' ');
+    } else {
+        s = s.replace(/(\d),(\d)/g, '$1.$2');
+    }
+    const parts = (multi ? s.split(/[;,\s]+/) : s.split(/[;\s]+/)).filter(Boolean);
+    return parts.map(t => /^[+-]?\d+(\.\d+)?$/.test(t) ? String(parseFloat(t)) : t).sort();
+}
+function isAnswerCorrect(user, correct) {
+    // правильный ответ: «67, 113, 113» — несколько чисел; «1,5» — одно десятичное
+    const cNorm = String(correct == null ? '' : correct).trim().replace(/(\d),(\d)/g, '$1.$2');
+    const ct = answerTokens(cNorm, true);
+    const multi = ct.length > 1;
+    const ut = answerTokens(user, multi);
+    if (!ct.length || ct.length !== ut.length) return false;
+    return ct.every((t, i) => t === ut[i]);
+}
 async function submitHomework() {
     if (isSubmitted) return;
     if (!currentUser || !currentUser.uid) { showToast("Ошибка авторизации", "error"); return; }
@@ -3062,7 +3086,7 @@ async function submitHomework() {
                 const correctAnswer = (task.correctAnswer || '').toString();
                 const userAnswerText = (userAnswers[i] || '').toString();
                 const skipped = userAnswerText.trim() === '';
-                const isCorrect = !skipped && normAnswer(userAnswerText) === normAnswer(correctAnswer);
+                const isCorrect = !skipped && isAnswerCorrect(userAnswerText, correctAnswer);
                 if (isCorrect) correctCount++;
                 taskResults.push({
                     taskIndex: i,
