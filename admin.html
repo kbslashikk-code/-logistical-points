@@ -2381,6 +2381,10 @@ async function importTasksFromFile(input) {
     if (!jsonFile) { showToast('Выберите .json вместе с картинками', 'error'); input.value = ''; return; }
     try {
         let text = await jsonFile.text();
+        if (!imgFiles.length && /src=\\?"images\//.test(text)) {
+            showToast('В JSON есть картинки, но вы выбрали только файл .json. Выберите JSON и все картинки вместе (Ctrl+A в папке images).', 'error');
+            input.value = ''; return;
+        }
         // Картинки: загружаем в Storage и подставляем ссылки вместо images/NAME.png
         if (imgFiles.length) {
             const urls = {};
