@@ -861,8 +861,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                             <div class="toggle-desc">Загрузите JSON-файл или вставьте текст: в форму добавится сразу набор задач с ответами и решениями. Проверьте их и нажмите «Создать задание».</div>
                         </div>
                         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
-                            <button class="btn secondary bsm" onclick="document.getElementById('importTasksFile').click()">Выбрать файл (.json)</button>
-                            <input type="file" id="importTasksFile" accept=".json,.txt,application/json" style="display:none" onchange="importTasksFromFile(this)">
+                            <button class="btn secondary bsm" onclick="document.getElementById('importTasksFile').click()">Выбрать файл (.json) + картинки (.png)</button>
+                            <input type="file" id="importTasksFile" multiple accept=".json,.txt,application/json,image/png,image/jpeg" style="display:none" onchange="importTasksFromFile(this)">
                             <button class="btn secondary bsm" onclick="importTasksFromPaste()">Импорт из текста ниже</button>
                         </div>
                         <textarea id="importTasksText" rows="3" placeholder="Или вставьте сюда JSON..." style="width:100%;padding:0.7rem 1rem;background:var(--bg2);border:1.5px solid var(--line);border-radius:11px;color:var(--text);font-family:var(--f);"></textarea>
@@ -2374,10 +2374,41 @@ function sanitizeSvg(svg) {
         .trim();
 }
 async function importTasksFromFile(input) {
-    const file = input.files && input.files[0];
-    if (!file) return;
-    try { importTasksFromText(await file.text()); }
-    catch (e) { showToast('Не удалось прочитать файл: ' + e.message, 'error'); }
+    const files = [...(input.files || [])];
+    if (!files.length) return;
+    const jsonFile = files.find(f => /\.(json|txt)$/i.test(f.name));
+    const imgFiles = files.filter(f => f.type && f.type.startsWith('image/'));
+    if (!jsonFile) { showToast('Выберите .json вместе с картинками', 'error'); input.value = ''; return; }
+    try {
+        let text = await jsonFile.text();
+        // Картинки: загружаем в Storage и подставляем ссылки вместо images/NAME.png
+        if (imgFiles.length) {
+            const urls = {};
+            let i = 0;
+            for (const f of imgFiles) {
+                i++;
+                showToast('Загрузка картинок: ' + i + ' из ' + imgFiles.length, 'info');
+                const up = await uploadFileToStorage(f, 'images');
+                urls[f.name] = up.url;
+            }
+            const data = JSON.parse(stripCodeFences(text));
+            const missing = [];
+            const fix = html => String(html || '').replace(/src="images\/([^"]+)"/g, (m, name) => {
+                if (!urls[name]) { missing.push(name); return m; }
+                return 'src="' + urls[name] + '"';
+            });
+            const list = Array.isArray(data) ? data : (data.tasks || []);
+            list.forEach(t => { t.condition = fix(t.condition); t.solution = fix(t.solution); });
+            if (missing.length) {
+                showToast('Нет картинок: ' + [...new Set(missing)].join(', '), 'error');
+                input.value = '';
+                return;
+            }
+            text = JSON.stringify(data);
+        }
+        importTasksFromText(text);
+    }
+    catch (e) { showToast('Не удалось импортировать: ' + e.message, 'error'); }
     input.value = '';
 }
 function importTasksFromPaste() {
