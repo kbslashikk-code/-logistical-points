@@ -765,6 +765,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
                             Создать папку
                         </button>
+                        <button class="btn secondary bsm" onclick="applyAllPdfNames()" title="Задать всем загруженным PDF название конспекта">Обновить названия PDF</button>
                     </div>
                     <p style="color: var(--text2); font-size: 0.88rem; margin-bottom: 0.8rem;">
                         Папки группируют конспекты по курсу. Ученик видит их в разделе «Материалы».
@@ -938,7 +939,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                 <option value="physics">Физика</option>
             </select>
         </div>
-        <div class="form-group"><label>Курс</label><select id="editLessonCourse"></select></div>
+        <div class="form-group"><label>Курс</label><select id="editLessonCourse" onchange="updateEditLessonFolders()"></select></div>
+        <div class="form-group"><label>Папка материалов</label><select id="editLessonFolder"><option value="">Без папки</option></select></div>
         <div class="form-group"><label>Содержание</label><textarea id="editLessonContent" rows="6"></textarea></div>
         <div class="form-group"><label>Файл (изображение/PDF)</label><input type="file" id="editLessonFile" accept="image/*,application/pdf"></div>
         <div id="editLessonFilePreview" style="margin-top: 0.5rem; display: none;">
@@ -964,7 +966,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
                 <option value="physics">Физика</option>
             </select>
         </div>
-        <div class="form-group"><label>Курс</label><select id="lessonCourse"></select></div>
+        <div class="form-group"><label>Курс</label><select id="lessonCourse" onchange="updateLessonFolders()"></select></div>
         <div class="form-group"><label>Папка материалов</label><select id="lessonFolder"><option value="">Без папки</option></select></div>
         <div class="form-group"><label>Содержание конспекта</label>
             <div style="display:flex;gap:0.4rem;margin-bottom:0.4rem;flex-wrap:wrap;">
@@ -1091,6 +1093,7 @@ const storage = firebase.storage();
 const COURSES = [
     { id: "math",    name: "Математика",             subject: "math"    },
     { id: "physics", name: "Физика",                 subject: "physics" },
+    { id: "improve", name: "Повышение успеваемости", subject: "math"    },
     { id: "olymp",   name: "Олимпиадная математика", subject: "math"    }
 ];
 
@@ -1200,17 +1203,37 @@ function toggleTheme() {
 }
 function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
 
-async function uploadFileToStorage(file, folder) {
+// Content-Disposition, чтобы PDF открывался/скачивался под названием из админки
+function pdfDisposition(title) {
+    const clean = String(title || 'Конспект').replace(/[\\/:*?"<>|\r\n]+/g, ' ').trim() || 'Конспект';
+    return "inline; filename=\"konspekt.pdf\"; filename*=UTF-8''" + encodeURIComponent(clean + '.pdf');
+}
+function isPdfFile(f) {
+    return (f.type === 'application/pdf') || /\.pdf$/i.test(f.name || '');
+}
+async function renameLessonFiles(files, title) {
+    let n = 0;
+    for (const f of (files || [])) {
+        if (!f || !f.url || !isPdfFile(f)) continue;
+        n++;
+        try {
+            await storage.refFromURL(f.url).updateMetadata({ contentType: 'application/pdf', contentDisposition: pdfDisposition(files.filter(isPdfFile).length > 1 ? title + ' (' + n + ')' : title) });
+        } catch (e) { console.warn('rename failed', e); }
+    }
+}
+async function uploadFileToStorage(file, folder, displayTitle) {
     const fileName = Date.now() + '_' + file.name;
     const ref = storage.ref(folder + '/admin/' + fileName);
-    const snap = await ref.put(file);
+    const meta = { contentType: file.type || undefined };
+    if (displayTitle && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) meta.contentDisposition = pdfDisposition(displayTitle);
+    const snap = await ref.put(file, meta);
     const url = await snap.ref.getDownloadURL();
     return { name: file.name, url: url, type: file.type };
 }
-async function uploadMultipleFiles(files, folder) {
+async function uploadMultipleFiles(files, folder, displayTitle) {
     const results = [];
     for (const f of files) {
-        try { results.push(await uploadFileToStorage(f.file, folder)); }
+        try { results.push(await uploadFileToStorage(f.file, folder, displayTitle)); }
         catch (e) { showToast('Ошибка загрузки: ' + f.file.name, "error"); }
     }
     return results;
@@ -1479,21 +1502,31 @@ async function loadLessons() {
     } catch (err) { console.error(err); showToast("Ошибка загрузки конспектов", "error"); }
 }
 
+let lessonFoldersCache = [];
+async function fetchAllFolders() {
+    const snap = await db.collection("materials").get();
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    DEFAULT_FOLDERS.forEach(f => { if (!list.find(x => x.id === f.id)) list.push({ ...f, _source: "default" }); });
+    return list;
+}
+function folderMatchesCourse(f, courseId) {
+    if (!courseId) return true;
+    if (f.courseId === courseId) return true;
+    return !!(f.legacyCourseIds && f.legacyCourseIds.includes(courseId) && f.courseId === courseId);
+}
+function updateLessonFolders(selected) {
+    const sel = document.getElementById("lessonFolder");
+    if (!sel) return;
+    const prev = selected !== undefined ? selected : sel.value;
+    const courseId = document.getElementById("lessonCourse").value;
+    sel.innerHTML = '<option value="">Без папки</option>' + lessonFoldersCache
+        .filter(f => folderMatchesCourse(f, courseId))
+        .map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('');
+    if (prev && Array.from(sel.options).some(o => o.value === prev)) sel.value = prev;
+}
 function openAddLessonModal() {
-    db.collection("materials").get().then(snap => {
-        const sel = document.getElementById("lessonFolder");
-        if (!sel) return;
-        sel.innerHTML = '<option value="">Без папки</option>';
-        snap.forEach(d => {
-            const f = d.data();
-            sel.innerHTML += `<option value="${d.id}">${escapeHtml(f.name)}</option>`;
-        });
-        DEFAULT_FOLDERS.forEach(f => {
-            if (!snap.docs.find(d => d.id === f.id)) {
-                sel.innerHTML += `<option value="${f.id}">${escapeHtml(f.name)} (из кода)</option>`;
-            }
-        });
-    }).catch(() => {});
+    fetchAllFolders().then(list => { lessonFoldersCache = list; updateLessonFolders(); }).catch(() => {});
     document.getElementById("addLessonModal").classList.add("active");
 }
 function closeAddLessonModal() {
@@ -1510,6 +1543,7 @@ function updateLessonCourses() {
     const available = COURSES.filter(c => c.subject === subject);
     sel.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
     if (available.length === 0) sel.innerHTML = '<option value="">Сначала выберите предмет</option>';
+    updateLessonFolders();
 }
 async function createLesson() {
     const title = document.getElementById("lessonTitle").value.trim();
@@ -1525,7 +1559,10 @@ async function createLesson() {
     showToast("Создание конспекта...", "info");
     try {
         let uploadedFiles = [];
-        if (currentLessonFiles.length > 0) uploadedFiles = await uploadMultipleFiles(currentLessonFiles, "lessons");
+        if (currentLessonFiles.length > 0) {
+            uploadedFiles = await uploadMultipleFiles(currentLessonFiles, "lessons", title);
+            await renameLessonFiles(uploadedFiles, title);
+        }
         await db.collection("lessons").add({
             title, description, subject, courseId, content,
             folderId: folderId || null,
@@ -1569,6 +1606,8 @@ async function editLesson(id) {
     document.getElementById("editLessonSubject").value = lesson.subject || 'math';
     updateEditLessonCourses();
     document.getElementById("editLessonCourse").value = lesson.courseId || '';
+    try { lessonFoldersCache = await fetchAllFolders(); } catch (e) {}
+    updateEditLessonFolders(lesson.folderId || '');
     document.getElementById("editLessonContent").value = lesson.content || '';
     document.getElementById("editLessonFile").value = "";
     const previewDiv = document.getElementById("editLessonFilePreview");
@@ -1583,11 +1622,22 @@ function closeEditLessonModal() {
     document.getElementById("editLessonModal").classList.remove("active");
     currentEditLessonId = null;
 }
+function updateEditLessonFolders(selected) {
+    const sel = document.getElementById("editLessonFolder");
+    if (!sel) return;
+    const prev = selected !== undefined ? selected : sel.value;
+    const courseId = document.getElementById("editLessonCourse").value;
+    sel.innerHTML = '<option value="">Без папки</option>' + lessonFoldersCache
+        .filter(f => folderMatchesCourse(f, courseId) || f.id === prev)
+        .map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join('');
+    if (prev) sel.value = prev;
+}
 function updateEditLessonCourses() {
     const subject = document.getElementById("editLessonSubject").value;
     const sel = document.getElementById("editLessonCourse");
     const available = COURSES.filter(c => c.subject === subject);
     sel.innerHTML = available.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    updateEditLessonFolders();
 }
 async function saveEditedLesson() {
     const title = document.getElementById("editLessonTitle").value.trim();
@@ -1597,17 +1647,19 @@ async function saveEditedLesson() {
     const content = document.getElementById("editLessonContent").value;
     const file = document.getElementById("editLessonFile").files[0];
     if (!title || !courseId) { showToast("Заполните название и курс", "error"); return; }
-    let fileData = null, fileType = null;
-    if (file) {
-        await new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = e => { fileData = e.target.result; fileType = file.type; resolve(); };
-            reader.readAsDataURL(file);
-        });
-    }
-    const updateData = { title, description, subject, courseId, content, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-    if (fileData) { updateData.fileData = fileData; updateData.fileType = fileType; }
-    await db.collection("lessons").doc(currentEditLessonId).update(updateData);
+    const folderId = document.getElementById("editLessonFolder").value;
+    const updateData = { title, description, subject, courseId, content, folderId: folderId || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    try {
+        const curDoc = await db.collection("lessons").doc(currentEditLessonId).get();
+        let files = (curDoc.data() && curDoc.data().files) || [];
+        if (file) {
+            const up = await uploadMultipleFiles([{ file, type: file.type }], "lessons", title);
+            if (up.length) files = up;
+        }
+        await renameLessonFiles(files, title);
+        updateData.files = files;
+        await db.collection("lessons").doc(currentEditLessonId).update(updateData);
+    } catch (err) { console.error(err); showToast("Ошибка: " + err.message, "error"); return; }
     showToast("Конспект обновлён", "success");
     closeEditLessonModal();
     loadLessons();
@@ -1636,19 +1688,16 @@ async function loadMaterialFolders() {
             if (!existingIds.has(f.id)) dynamicFolders.push({ ...f, _source: "default" });
         });
 
+        const allLessonsSnap = await db.collection("lessons").get();
+        const allLessons = [];
+        allLessonsSnap.forEach(doc => allLessons.push(doc.data()));
         for (const f of dynamicFolders) {
-            try {
-                const courseIds = f.legacyCourseIds && f.legacyCourseIds.length ? f.legacyCourseIds : [f.courseId];
-                let lessonsCount = 0;
-                for (const cid of courseIds) {
-                    const lessonsSnap = await db.collection("lessons").where("courseId", "==", cid).get();
-                    lessonsSnap.forEach(doc => {
-                        const l = doc.data();
-                        if (!l.folderId || l.folderId === f.id || f._source === "default") lessonsCount++;
-                    });
-                }
-                f._lessonsCount = lessonsCount;
-            } catch (e) { f._lessonsCount = 0; }
+            const def = DEFAULT_FOLDERS.find(d => d.id === f.id);
+            const legacy = def ? def.legacyCourseIds : [];
+            f._lessonsCount = allLessons.filter(l =>
+                l.folderId === f.id ||
+                (def && !l.folderId && legacy.includes(l.courseId))
+            ).length;
         }
 
         const container = document.getElementById("foldersContainer");
@@ -1673,7 +1722,7 @@ async function loadMaterialFolders() {
                 <div class="folder-meta">
                     Курс: ${escapeHtml(f.courseId || '—')} ·
                     ${f._lessonsCount || 0} ${pluralizeRu(f._lessonsCount || 0, 'конспект','конспекта','конспектов')}
-                    ${f._source === "default" ? ' · <span class="tag gold">из кода</span>' : ''}
+                    
                 </div>
             </div>
         `).join('') + '</div>';
@@ -1755,6 +1804,18 @@ async function deleteFolder(id) {
     await db.collection("materials").doc(id).delete();
     showToast("Папка удалена", "success");
     loadMaterialFolders();
+}
+async function applyAllPdfNames() {
+    if (!confirm("Задать всем загруженным PDF названия конспектов?")) return;
+    showToast("Обновляю названия PDF...", "info");
+    const snap = await db.collection("lessons").get();
+    let n = 0;
+    for (const d of snap.docs) {
+        const l = d.data();
+        if (isPhysicsAdmin() && l.subject !== 'physics') continue;
+        if ((l.files || []).some(isPdfFile)) { await renameLessonFiles(l.files, l.title); n++; }
+    }
+    showToast("Готово: обновлено конспектов — " + n, "success");
 }
 async function openFolderContents(folderId, folderName) {
     const snap = await db.collection("lessons").where("folderId", "==", folderId).get();
