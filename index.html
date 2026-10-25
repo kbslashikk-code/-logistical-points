@@ -1005,7 +1005,22 @@
             .teachers-grid { grid-template-columns: 1fr; }
             .quiz-question-card { padding: 1.1rem; }
         }
-    </style>
+    
+/* ===== Конспекты внутри папки ===== */
+.note-list { display:flex; flex-direction:column; gap:.35rem; }
+.note-row { display:flex; align-items:center; gap:.9rem; padding:.7rem .4rem; border-bottom:1px solid var(--line); }
+.note-ico { display:inline-flex; color:#101011; flex:none; transition:transform .25s cubic-bezier(.3,1.4,.5,1); text-decoration:none; }
+[data-theme="dark"] .note-ico { color:#d9d9dc; }
+.note-ico-svg .nf-paper { transform-box:fill-box; transition:transform .25s ease; }
+.note-ico-svg .nf-front { transform-box:fill-box; transform-origin:50% 100%; transition:transform .25s ease; }
+.note-row:hover .note-ico { transform:translateY(-2px) rotate(-4deg); }
+.note-row:hover .nf-paper { transform:translateY(-3px); }
+.note-row:hover .nf-front { transform:skewX(-6deg) scaleY(.94); }
+.note-link { flex:1; font-weight:600; font-size:1.05rem; color:var(--text); text-decoration:none; background-image:linear-gradient(var(--gold),var(--gold)); background-size:0 2px; background-repeat:no-repeat; background-position:0 100%; transition:background-size .25s, color .2s; padding-bottom:2px; width:fit-content; flex:0 1 auto; margin-right:auto; }
+.note-link:hover { color:var(--gold2); background-size:100% 2px; }
+.note-status { font-size:.72rem; color:var(--gold); white-space:nowrap; }
+.note-row.read .note-status { color:var(--green); }
+</style>
 </head>
 <body>
 
@@ -1396,6 +1411,7 @@ function tileIcon(name, size) {
 const COURSES = [
     { id: "math", name: "Математика", tag: "ЕГЭ / ОГЭ · Математика", icon: iconSvg("sigma", 26), level: "5-11 класс", desc: "Алгебра и геометрия: уравнения, неравенства, прогрессии, многочлены, планиметрия и стереометрия.", topics: ["Уравнения", "Неравенства", "Прогрессии", "Треугольники", "Окружности", "Стереометрия"], subject: "math", legacyIds: ["algebra", "geometry"] },
     { id: "physics", name: "Физика", tag: "ЕГЭ / ОГЭ · Физика", icon: iconSvg("atom", 26), level: "7-11 класс", desc: "Полный курс физики: механика, термодинамика, электричество, оптика, квантовая физика.", topics: ["Механика", "Термодинамика", "Электричество", "Оптика", "Квантовая физика"], subject: "physics", legacyIds: [] },
+    { id: "improve", name: "Повышение успеваемости", tag: "Математика · Успеваемость", icon: iconSvg("chartLine", 26), level: "5-11 класс", desc: "Подтянуть школьную математику: закрыть пробелы, разобрать темы и уверенно писать контрольные.", topics: ["Школьная программа", "Разбор пробелов", "Контрольные", "Практика"], subject: "math", legacyIds: [] },
     { id: "olymp", name: "Олимпиадная математика", tag: "Олимпиады · Математика", icon: iconSvg("trophy", 26), level: "8-11 класс", desc: "Подготовка к ВсОШ, Перельману, Эйлеру.", topics: ["Теория чисел", "Комбинаторика", "Неравенства", "Геометрия"], subject: "math", legacyIds: [] }
 ];
 
@@ -1439,7 +1455,8 @@ async function queryByCourseIds(collectionName, courseId, extraWhere) {
 const MATERIAL_FOLDERS = {
     math: [{ id: "algebra-ege-2027", name: "Алгебра. ЕГЭ 2027", courseIds: ["algebra", "geometry", "math"] }],
     physics: [{ id: "physics-ege-2027", name: "Физика. ЕГЭ 2027", courseIds: ["physics"] }],
-    olymp: []
+    olymp: [],
+    improve: []
 };
 
 let expandedCourseId = null;
@@ -1662,7 +1679,7 @@ function handleRegister() {
     }).catch(error => showToast(error.message, "error"));
 }
 
-function handleLogout() { auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
+function handleLogout() { clearSessionStart(); auth.signOut().then(() => { currentUser = null; userData = null; location.reload(); }); }
 
 async function handleVkLogin() {
     if (!VK_CLIENT_ID) { showToast("Вход через VK ещё не настроен: нужен VK_CLIENT_ID", "info"); return; }
@@ -2173,44 +2190,112 @@ function pluralizeRu(n, one, few, many) {
     return many;
 }
 
-async function openMaterialFolder(folderId, courseId) {
-    const folders = MATERIAL_FOLDERS[courseId] || [];
-    const folder = folders.find(f => f.id === folderId);
-    if (!folder) return;
-    const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
-    const lessons = [];
+async function getCourseFolders(courseId) {
+    const folders = [];
+    const seen = new Set();
     try {
-        for (const cid of legacyIds) {
-            const snap = await db.collection("lessons").where("courseId", "==", cid).get();
-            snap.forEach(doc => lessons.push({ id: doc.id, folderCourseId: cid, ...doc.data() }));
+        for (const cid of getCourseQueryIds(courseId)) {
+            const snap = await db.collection("materials").where("courseId", "==", cid).get();
+            snap.forEach(d => {
+                if (seen.has(d.id)) return;
+                seen.add(d.id);
+                const data = d.data();
+                const def = (MATERIAL_FOLDERS[courseId] || []).find(x => x.id === d.id);
+                folders.push({ id: d.id, name: data.name || "Папка", legacy: def ? def.courseIds : null, createdAt: data.createdAt && data.createdAt.seconds ? data.createdAt.seconds : 0, isDefault: !!def });
+            });
         }
     } catch (e) { console.error(e); }
+    (MATERIAL_FOLDERS[courseId] || []).forEach(d => {
+        if (!seen.has(d.id)) folders.push({ id: d.id, name: d.name, legacy: d.courseIds, createdAt: 0, isDefault: true });
+    });
+    folders.sort((x, y) => (y.isDefault - x.isDefault) || (x.createdAt - y.createdAt));
+    return folders;
+}
+
+async function getFolderLessons(folder, courseId) {
+    const map = new Map();
+    try {
+        const snap = await db.collection("lessons").where("folderId", "==", folder.id).get();
+        snap.forEach(doc => map.set(doc.id, { id: doc.id, ...doc.data() }));
+        // старые конспекты без папки показываем только в «исторической» папке курса
+        if (folder.legacy) {
+            for (const cid of folder.legacy) {
+                const s2 = await db.collection("lessons").where("courseId", "==", cid).get();
+                s2.forEach(doc => { const l = doc.data(); if (!l.folderId && !map.has(doc.id)) map.set(doc.id, { id: doc.id, ...l }); });
+            }
+        }
+    } catch (e) { console.error(e); }
+    const list = Array.from(map.values());
+    list.forEach(l => { l.folderCourseId = l.courseId || courseId; });
+    list.sort((x, y) => ((x.createdAt && x.createdAt.seconds) || 0) - ((y.createdAt && y.createdAt.seconds) || 0));
+    return list;
+}
+
+function noteFolderIcon() {
+    return `<svg class="note-ico-svg" width="30" height="26" viewBox="0 0 30 26" aria-hidden="true">
+        <path class="nf-back" d="M2 5.5Q2 3 4.5 3H11l2.5 2.5H25.5Q28 5.5 28 8V21Q28 23.5 25.5 23.5H4.5Q2 23.5 2 21Z" fill="currentColor"/>
+        <rect class="nf-paper" x="6" y="7" width="18" height="10" rx="1.5" fill="#fff"/>
+        <path class="nf-front" d="M2 11Q2 9.5 4 9.5H26Q28 9.5 28 11V21Q28 23.5 25.5 23.5H4.5Q2 23.5 2 21Z" fill="currentColor" opacity=".78"/>
+    </svg>`;
+}
+
+function lessonFileUrl(lesson) {
+    const files = lesson.files || [];
+    const pdf = files.find(f => f && f.url && ((f.type || "") === "application/pdf" || /\.pdf($|\?)/i.test(f.name || "")));
+    return (pdf || files.find(f => f && f.url) || {}).url || "";
+}
+
+function openNoteLink(lessonId, courseId) {
+    markLessonSilently(lessonId, courseId);
+}
+
+async function markLessonSilently(lessonId, courseId) {
+    const key = courseId + '_' + lessonId;
+    if (!userData.completedLessons) userData.completedLessons = [];
+    if (userData.completedLessons.includes(key)) return;
+    userData.completedLessons.push(key);
+    try { await db.collection("users").doc(currentUser.uid).update({ completedLessons: userData.completedLessons }); } catch (e) {}
+    const row = document.querySelector('[data-note="' + lessonId + '"]');
+    if (row) {
+        row.classList.add("read");
+        const st = row.querySelector(".note-status");
+        if (st) st.textContent = "Прочитано";
+    }
+}
+
+async function openMaterialFolder(folderId, courseId) {
+    const folders = await getCourseFolders(courseId);
+    const folder = folders.find(f => f.id === folderId);
+    if (!folder) return;
+    const lessons = await getFolderLessons(folder, courseId);
+    const rows = lessons.map(lesson => {
+        const isCompleted = (userData.completedLessons || []).includes(lesson.folderCourseId + '_' + lesson.id);
+        const url = lessonFileUrl(lesson);
+        const title = escapeHtml(lesson.title);
+        const status = '<span class="note-status">' + (isCompleted ? 'Прочитано' : 'Не прочитано') + '</span>';
+        if (url) {
+            return `<div class="note-row${isCompleted ? ' read' : ''}" data-note="${lesson.id}">
+                <a class="note-ico" href="${escapeHtml(url)}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true" onclick="openNoteLink('${lesson.id}','${lesson.folderCourseId}')">${noteFolderIcon()}</a>
+                <a class="note-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" onclick="openNoteLink('${lesson.id}','${lesson.folderCourseId}')">${title}</a>
+                ${status}
+            </div>`;
+        }
+        return `<div class="note-row${isCompleted ? ' read' : ''}" data-note="${lesson.id}">
+            <a class="note-ico" href="#" tabindex="-1" aria-hidden="true" onclick="event.preventDefault();viewLesson('${lesson.id}','${lesson.folderCourseId}',${escapeHtml(JSON.stringify(lesson.title || ''))})">${noteFolderIcon()}</a>
+            <a class="note-link" href="#" onclick="event.preventDefault();viewLesson('${lesson.id}','${lesson.folderCourseId}',${escapeHtml(JSON.stringify(lesson.title || ''))})">${title}</a>
+            ${status}
+        </div>`;
+    }).join('');
     const modalHtml = `
         <div id="lessonsModal" class="modal-overlay active" style="display:flex;z-index:3000;background:var(--bg);">
             <div style="width:100%;height:100%;overflow-y:auto;padding:2rem;">
                 <div style="max-width:800px;margin:0 auto;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--gold);">
                         <h2 style="font-family:var(--fs);font-size:1.6rem;">${escapeHtml(folder.name)} (${lessons.length})</h2>
                         <button class="modal-close" onclick="document.getElementById('lessonsModal').remove()" style="font-size:2rem;background:none;border:none;cursor:pointer;color:var(--text2);">&times;</button>
                     </div>
-                    <div>
-                        ${lessons.length === 0 ? '<div style="padding:3rem;text-align:center;font-size:1.2rem;color:var(--text3);">В этой папке пока пусто.</div>' :
-                            lessons.map(lesson => {
-                                const isCompleted = (userData.completedLessons || []).includes(lesson.folderCourseId + '_' + lesson.id);
-                                return `
-                                    <div style="background:var(--card2);border-radius:16px;padding:1rem 1.5rem;margin-bottom:1rem;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;cursor:pointer;" onclick="viewLesson('${lesson.id}','${lesson.folderCourseId}','${escapeHtml(lesson.title)}')">
-                                        <div style="flex:1;">
-                                            <div style="display:flex;align-items:center;gap:0.8rem;">
-                                                <div style="width:12px;height:12px;border-radius:50%;background:${isCompleted ? 'var(--green)' : 'var(--gold)'};"></div>
-                                                <div style="font-weight:700;font-size:1.1rem;">${escapeHtml(lesson.title)}</div>
-                                            </div>
-                                            <div style="font-size:0.8rem;color:var(--text2);margin-top:0.3rem;margin-left:1.8rem;">${escapeHtml(lesson.description || "Нет описания")}</div>
-                                        </div>
-                                        <div>${!isCompleted ? '<span style="font-size:0.7rem;color:var(--gold);">Не прочитано</span>' : '<span style="font-size:0.7rem;color:var(--green);">Прочитано</span>'}</div>
-                                    </div>
-                                `;
-                            }).join('')
-                        }
+                    <div class="note-list">
+                        ${lessons.length === 0 ? '<div style="padding:3rem;text-align:center;font-size:1.2rem;color:var(--text3);">В этой папке пока пусто.</div>' : rows}
                     </div>
                 </div>
             </div>
@@ -2779,7 +2864,8 @@ function folderSvg() {
 async function renderMaterialsTabContent(courseId) {
     const container = document.getElementById("courseContent_" + courseId);
     if (!container) return;
-    const folders = MATERIAL_FOLDERS[courseId] || [];
+    container.innerHTML = '<div class="schedule-empty">Загрузка...</div>';
+    const folders = await getCourseFolders(courseId);
     if (folders.length === 0) { container.innerHTML = '<div class="schedule-empty">Папки с материалами по этому курсу пока не созданы.</div>'; return; }
     container.innerHTML = '<div class="folder-grid">' + folders.map(folder => `
         <button type="button" class="folder-card" onclick='openMaterialFolder(${JSON.stringify(folder.id)}, ${JSON.stringify(courseId)})'>
@@ -2792,21 +2878,11 @@ async function renderMaterialsTabContent(courseId) {
     `).join("") + '</div>';
 
     for (const folder of folders) {
+        const metaEl = document.getElementById("folderMeta_" + folder.id);
         try {
-            const legacyIds = folder.courseIds && folder.courseIds.length ? folder.courseIds : [courseId];
-            let lessonsCount = 0, hwCount = 0;
-            for (const cid of legacyIds) {
-                const lessonsSnap = await db.collection("lessons").where("courseId", "==", cid).get();
-                lessonsCount += lessonsSnap.size;
-                const hwSnap = await db.collection("homeworks").where("courseId", "==", cid).get();
-                hwCount += hwSnap.size;
-            }
-            const metaEl = document.getElementById("folderMeta_" + folder.id);
-            if (metaEl) metaEl.textContent = lessonsCount + " " + pluralizeRu(lessonsCount, "урок", "урока", "уроков") + " / " + hwCount + " ДЗ";
-        } catch (e) {
-            const metaEl = document.getElementById("folderMeta_" + folder.id);
-            if (metaEl) metaEl.textContent = "";
-        }
+            const list = await getFolderLessons(folder, courseId);
+            if (metaEl) metaEl.textContent = list.length + " " + pluralizeRu(list.length, "конспект", "конспекта", "конспектов");
+        } catch (e) { if (metaEl) metaEl.textContent = ""; }
     }
 }
 
@@ -3592,14 +3668,34 @@ async function saveQuizResult() {
     if (cid) { delete quizListCache[cid]; renderQuizCards(cid); }
 }
 
+// ====== Сессия: ученик остаётся в аккаунте SESSION_DAYS дней, потом нужен повторный вход ======
+const SESSION_DAYS = 30;
+function checkSessionExpired() {
+    try {
+        const raw = localStorage.getItem("lp_session_start");
+        const now = Date.now();
+        if (!raw) { localStorage.setItem("lp_session_start", String(now)); return false; }
+        return now - parseInt(raw, 10) > SESSION_DAYS * 24 * 60 * 60 * 1000;
+    } catch (e) { return false; }
+}
+function clearSessionStart() { try { localStorage.removeItem("lp_session_start"); } catch (e) {} }
+
 function init() {
     const savedTheme = localStorage.getItem("lp_theme");
     if (savedTheme === "dark") { document.documentElement.setAttribute("data-theme", "dark"); document.getElementById("themeBtn").innerHTML = iconSvg("sun", 19); }
     renderCoursesGrid();
     showLoader();
     handleVkCallback();
+    // Явно сохраняем вход в браузере (переживает закрытие вкладки и перезапуск).
+    try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {}); } catch (e) {}
     auth.onAuthStateChanged(async (user) => {
         try {
+            if (user && checkSessionExpired()) {
+                clearSessionStart();
+                await auth.signOut();
+                showToast("Сессия истекла. Войдите в аккаунт снова.", "info");
+                return;
+            }
             if (user) {
                 const isPasswordProvider = user.providerData.some(p => p.providerId === "password");
                 if (isPasswordProvider && !user.emailVerified) {
@@ -3619,6 +3715,7 @@ function init() {
                 normalizeEnrolledCourses();
                 updateUIAfterLogin();
             } else {
+                clearSessionStart();
                 currentUser = null; userData = null;
                 document.getElementById("homePage").style.display = "block";
                 document.getElementById("dashboard").classList.remove("active");
