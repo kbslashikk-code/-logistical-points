@@ -2,6 +2,37 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<script>
+/* LP-STARTUP-GUARD: never leave a blank screen; show the real error instead */
+(function(){
+  var shown=false, booted=false;
+  function banner(msg, soft){
+    if(shown) return; shown=true;
+    try{
+      var l=document.getElementById('loaderScreen'); if(l){ l.style.display='none'; }
+      var d=document.createElement('div'); d.id='lpFatal'; if(soft){ d.setAttribute('data-soft','1'); }
+      d.setAttribute('style','position:fixed;left:12px;right:12px;top:12px;z-index:2147483647;background:#fff;color:#1a1510;border:2px solid #b81a1a;border-radius:12px;padding:14px 16px;font:14px/1.45 -apple-system,Segoe UI,Arial,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.3)');
+      var t=document.createElement('div'); t.innerHTML='<b style="color:#b81a1a">Не удалось запустить страницу</b>';
+      var m=document.createElement('div'); m.style.margin='6px 0 0'; m.textContent=msg;
+      var b=document.createElement('button'); b.textContent='Обновить'; b.setAttribute('style','margin-top:10px;padding:9px 16px;border:0;border-radius:8px;background:#8a6200;color:#fff;font-weight:700;font-size:14px'); b.onclick=function(){ location.reload(); };
+      d.appendChild(t); d.appendChild(m); d.appendChild(b);
+      (document.body||document.documentElement).appendChild(d);
+    }catch(e){}
+  }
+  window.__lpFatal=banner;
+  window.__lpBoot=function(){ booted=true; var d=document.getElementById('lpFatal'); if(d && d.getAttribute('data-soft')){ d.parentNode.removeChild(d); shown=false; } };
+  window.addEventListener('error',function(e){
+    if(e.target && e.target!==window) return;
+    if(booted) return;
+    var f=(e.filename||'').split('/').pop();
+    banner('Ошибка скрипта: '+(e.message||'?')+(e.lineno?' ('+(f||'inline')+':'+e.lineno+')':''));
+  },true);
+  setTimeout(function(){
+    if(!booted) banner('Сервер не отвечает или не загрузились библиотеки. Проверьте интернет и обновите страницу.', true);
+  }, 12000);
+})();
+</script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Админ панель — Logistical Points</title>
 <script>
@@ -1077,6 +1108,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--f); transit
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<!-- LP-FIREBASE-FALLBACK: if gstatic is blocked, try other CDNs (sync, in order) -->
+<script>if(!(window.firebase&&firebase.initializeApp&&firebase.auth&&firebase.firestore)){document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.js"><\/script><script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-auth-compat.js"><\/script><script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.js"><\/script><script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-storage-compat.js"><\/script>');}</script>
+<script>if(!(window.firebase&&firebase.initializeApp&&firebase.auth&&firebase.firestore)){document.write('<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"><\/script><script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-auth-compat.js"><\/script><script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-firestore-compat.js"><\/script><script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-storage-compat.js"><\/script>');}</script>
+<script>if(!(window.firebase&&firebase.initializeApp&&firebase.auth&&firebase.firestore)&&window.__lpFatal){window.__lpFatal('\u041d\u0435 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u043b\u0438\u0441\u044c \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u043a\u0438 Firebase (\u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u043a\u0430 \u0441\u0435\u0442\u0438, VPN \u0438\u043b\u0438 \u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u0449\u0438\u043a \u0440\u0435\u043a\u043b\u0430\u043c\u044b). \u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442 \u0438 \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u0435 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0443.');}</script>
+
 
 <script>
 const firebaseConfig = {
@@ -1300,16 +1336,12 @@ async function adminLogin() {
         showAdminPanel();
     } catch (error) {
         if (error.code === 'auth/user-not-found') {
-            showToast("Создание администратора...", "info");
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-                currentAdminEmail = email;
-                currentAdminRole = ADMINS[email].role;
-                showToast("Администратор создан!", "success");
-                showAdminPanel();
-            } catch (e2) { showToast("Ошибка: " + e2.message, "error"); }
-        } else if (error.code === 'auth/wrong-password') {
-            showToast("Неверный пароль", "error");
+            // SECURITY: admin accounts are never auto-created from the browser.
+            // Anyone who knows an admin email (it is visible in this file) could register it first.
+            // Create admin users manually in Firebase Console -> Authentication -> Users.
+            showToast("Аккаунт администратора не найден. Создайте его в Firebase Console → Authentication.", "error");
+        } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
+            showToast("Неверный email или пароль", "error");
         } else {
             showToast("Ошибка: " + error.message, "error");
         }
@@ -4074,6 +4106,7 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById("adminPanel").style.display = "none";
     }
 });
+if (window.__lpBoot) window.__lpBoot();
 </script>
 </body>
 </html>
